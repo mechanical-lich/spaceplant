@@ -133,7 +133,8 @@ func (level *Level) Polish() {
 					}
 				case Type_MaintenanceTunnelFLoor:
 					tile.TileIndex = level.Theme.MaintenanceTunnelFloor[utility.GetRandom(0, len(level.Theme.MaintenanceTunnelFloor))]
-
+				case Type_Stairs:
+					tile.TileIndex = level.Theme.Stairs[utility.GetRandom(0, len(level.Theme.Stairs))]
 				case Type_Open:
 					tile.TileIndex = level.Theme.Open[utility.GetRandom(0, len(level.Theme.Open))]
 				case Type_Door:

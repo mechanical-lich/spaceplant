@@ -68,20 +68,25 @@ func GenerateStation(l *level.Level, width, height int) {
 
 	dX := eX
 	dY := eY
+	sX := eX
+	sY := eY
 	if wide {
 		//eWidth = width - tWidth - 1
 		eY = y - tHeight/4
 		eWidth = utility.GetRandom(width/8, width/4)
 		dY -= tHeight / 2
+		sX -= tWidth
 	} else {
 		//eHeight = height - tHeight - 1
 		eX = x - tWidth/4
 		eHeight = utility.GetRandom(height/8, height/4)
 		dX -= tWidth / 2
+		sY -= tHeight
 	}
 
 	CarveRoom(l, eX, eY, eWidth, eHeight, level.Type_Wall, level.Type_Floor, true, true)
 	l.SetTileType(dX, dY, level.Type_Door)
+	l.SetTileType(sX, sY, level.Type_Stairs)
 
 	//
 	// End cap room 2
@@ -129,8 +134,75 @@ func GenerateStation(l *level.Level, width, height int) {
 		CarveRoom(l, x, y, tWidth, tHeight, level.Type_Wall, level.Type_Floor, true, false)
 	}
 
+	//Bud rooms
+	BudRooms(l, width, height, 50)
+
+	// Polish so we can pathfind
+	l.Polish()
+
+	//
+	// Maintenance Tunnels
+	//
+	CarveMaintenanceTunnels(l, width, height, 10)
+
+	l.Polish()
+}
+
+func CarveMaintenanceTunnels(l *level.Level, width, height, numTunnels int) {
+	for i := 0; i < numTunnels; i++ {
+		//fmt.Println("Generating tunnel ", i+1, " out of ", numTunnels)
+		done := false
+		tries := 0
+		for tries < 99999 && !done {
+			tries++
+			tX1 := utility.GetRandom(0, width)
+			tY1 := utility.GetRandom(0, height)
+
+			if l.GetTileType(tX1, tY1) == level.Type_Wall {
+				if !l.TileNeighbors(tX1, tY1, level.Type_Open) || !l.TileNeighbors(tX1, tY1, level.Type_Floor) {
+					continue
+				}
+			} else {
+				continue
+			}
+
+			tX2 := utility.GetRandom(0, width)
+			tY2 := utility.GetRandom(0, height)
+
+			if tX2 == tX1 && tY2 == tY1 {
+				continue
+			}
+
+			if l.GetTileType(tX2, tY2) == level.Type_Wall {
+				if !l.TileNeighbors(tX2, tY2, level.Type_Open) || !l.TileNeighbors(tX2, tY2, level.Type_Floor) {
+					continue
+				}
+			} else {
+				continue
+			}
+			l.GetTileAt(tX1, tY1).Solid = false
+			l.GetTileAt(tX2, tY2).Solid = false
+			steps, distance, success := astar.Path(l.GetTileAt(tX1, tY1), l.GetTileAt(tX2, tY2))
+
+			if !success || distance > 10 || distance < 2 {
+				continue
+			}
+
+			for step := range steps {
+				t := steps[step].(*level.Tile)
+				l.SetTileType(t.X, t.Y, level.Type_MaintenanceTunnelFLoor)
+			}
+
+			l.SetTileType(tX1, tY1, level.Type_MaintenanceTunnelDoor)
+			l.SetTileType(tX2, tY2, level.Type_MaintenanceTunnelDoor)
+			done = true
+		}
+	}
+}
+
+func BudRooms(l *level.Level, width, height, numRooms int) {
 	// Bud rooms
-	numRooms := 50
+	//numRooms := 50
 	for i := 0; i < numRooms; i++ {
 		//fmt.Println("Generating room ", i+1, " out of ", numRooms)
 		done := false
@@ -199,66 +271,6 @@ func GenerateStation(l *level.Level, width, height int) {
 
 		}
 	}
-
-	// Polish so we can pathfind
-	l.Polish()
-
-	//
-	// Maintenance Tunnels
-	//
-	numTunnels := 10
-	for i := 0; i < numTunnels; i++ {
-		//fmt.Println("Generating tunnel ", i+1, " out of ", numTunnels)
-		done := false
-		tries := 0
-		for tries < 99999 && !done {
-			tries++
-			tX1 := utility.GetRandom(0, width)
-			tY1 := utility.GetRandom(0, height)
-
-			if l.GetTileType(tX1, tY1) == level.Type_Wall {
-				if !l.TileNeighbors(tX1, tY1, level.Type_Open) || !l.TileNeighbors(tX1, tY1, level.Type_Floor) {
-					continue
-				}
-			} else {
-				continue
-			}
-
-			tX2 := utility.GetRandom(0, width)
-			tY2 := utility.GetRandom(0, height)
-
-			if tX2 == tX1 && tY2 == tY1 {
-				continue
-			}
-
-			if l.GetTileType(tX2, tY2) == level.Type_Wall {
-				if !l.TileNeighbors(tX2, tY2, level.Type_Open) || !l.TileNeighbors(tX2, tY2, level.Type_Floor) {
-					continue
-				}
-			} else {
-				continue
-			}
-			l.GetTileAt(tX1, tY1).Solid = false
-			l.GetTileAt(tX2, tY2).Solid = false
-			steps, distance, success := astar.Path(l.GetTileAt(tX1, tY1), l.GetTileAt(tX2, tY2))
-
-			if !success || distance > 10 || distance < 2 {
-				continue
-			}
-
-			for step := range steps {
-				t := steps[step].(*level.Tile)
-				l.SetTileType(t.X, t.Y, level.Type_MaintenanceTunnelFLoor)
-			}
-
-			l.SetTileType(tX1, tY1, level.Type_MaintenanceTunnelDoor)
-			l.SetTileType(tX2, tY2, level.Type_MaintenanceTunnelDoor)
-			done = true
-		}
-	}
-
-	l.Polish()
-
 }
 
 func RoomIntersects(l *level.Level, x, y, width, height int) bool {

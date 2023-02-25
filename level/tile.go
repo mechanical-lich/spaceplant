@@ -14,6 +14,7 @@ const (
 	Type_Wall
 	Type_Floor
 	Type_Door
+	Type_Stairs
 	Type_MaintenanceTunnelWall
 	Type_MaintenanceTunnelFLoor
 	Type_MaintenanceTunnelDoor
