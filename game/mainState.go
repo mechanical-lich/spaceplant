@@ -37,7 +37,7 @@ func NewMainState() (*MainState, error) {
 
 	// m.level.SetTileType(5, 11, level.Type_Door)
 	// m.level.SetTileType(11, 3, level.Type_MaintenanceTunnelDoor)
-	generation.GenerateStation(m.level, 50, 50)
+	generation.GenerateStation(m.level, 100, 100)
 	m.level.Polish()
 
 	// Setup Systems
@@ -54,19 +54,19 @@ func NewMainState() (*MainState, error) {
 
 	// Create player
 	// TODO - This shouldn't be permenant
-	m.Player, err = factory.Create("player", 25, 25)
+	m.Player, err = factory.Create("player", 50, 50)
 	if err != nil {
 		return nil, err
 	}
 
 	m.level.AddEntity(m.Player)
 
-	// e, err := factory.Create("creeper", 6, 6)
-	// if err != nil {
-	// 	return nil, err
-	// }
+	e, err := factory.Create("creeper", 48, 50)
+	if err != nil {
+		return nil, err
+	}
 
-	// m.level.AddEntity(e)
+	m.level.AddEntity(e)
 
 	// e, err = factory.Create("crewmember", 7, 8)
 	// if err != nil {
@@ -111,7 +111,7 @@ func (s *MainState) Update() {
 
 func (s *MainState) Draw(screen *ebiten.Image) {
 	//s.DrawLevel(screen, s.CameraX, s.CameraY, 10, 10, false, true)
-	levelImage := s.level.Render(s.CameraX, s.CameraY, config.ScreenWidth/config.SpriteWidth, config.ScreenHeight/config.SpriteHeight, false, true, true)
+	levelImage := s.level.Render(s.CameraX, s.CameraY, config.ScreenWidth/config.SpriteWidth, config.ScreenHeight/config.SpriteHeight, false, true, false)
 	op := &ebiten.DrawImageOptions{}
 	//op.GeoM.Scale(1.5, 1.5)
 	screen.DrawImage(levelImage, op)

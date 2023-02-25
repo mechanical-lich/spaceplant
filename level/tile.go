@@ -27,7 +27,7 @@ type Tile struct {
 	Elevation int
 	TileIndex int // Some tile types of multiple variants for rendering
 	Entities  []*entity.Entity
-	Used      bool
+	NoBudding bool
 }
 
 func (t *Tile) PathNeighbors() []astar.Pather {

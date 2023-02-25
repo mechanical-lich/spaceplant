@@ -1,8 +1,6 @@
 package generation
 
 import (
-	"fmt"
-
 	"github.com/beefsack/go-astar"
 	"github.com/mechanical-lich/spaceplant/level"
 	"github.com/mechanical-lich/spaceplant/utility"
@@ -12,20 +10,21 @@ type Room struct {
 	X, Y, Width, Height int
 }
 
-func CarveRoom(m *level.Level, x, y, width, height int, wallType, floorType level.TileType, noOverwrite bool) {
+func CarveRoom(m *level.Level, x, y, width, height int, wallType, floorType level.TileType, noOverwrite bool, noBudding bool) {
 	if x+width > m.Width || y+height > m.Height {
 		return
 	}
 
 	for i := 0; i < width; i++ {
 		for j := 0; j < height; j++ {
-			if noOverwrite {
-				tile := m.GetTileAt(x+i, y+j)
-				if tile != nil {
+			tile := m.GetTileAt(x+i, y+j)
+			if tile != nil {
+				if noOverwrite {
 					if tile.Type != level.Type_Open && tile.Type != level.Type_Floor {
 						continue
 					}
 				}
+				tile.NoBudding = noBudding
 			}
 
 			if i == 0 || i == width-1 || j == 0 || j == height-1 {
@@ -57,7 +56,7 @@ func GenerateStation(l *level.Level, width, height int) {
 
 	x -= tWidth / 2
 	y -= tHeight / 2
-	CarveRoom(l, x, y, tWidth, tHeight, level.Type_Wall, level.Type_Floor, false)
+	CarveRoom(l, x, y, tWidth, tHeight, level.Type_Wall, level.Type_Floor, false, false)
 
 	//
 	// End cap room 1
@@ -81,7 +80,7 @@ func GenerateStation(l *level.Level, width, height int) {
 		dX -= tWidth / 2
 	}
 
-	CarveRoom(l, eX, eY, eWidth, eHeight, level.Type_Wall, level.Type_Floor, false)
+	CarveRoom(l, eX, eY, eWidth, eHeight, level.Type_Wall, level.Type_Floor, true, true)
 	l.SetTileType(dX, dY, level.Type_Door)
 
 	//
@@ -108,12 +107,32 @@ func GenerateStation(l *level.Level, width, height int) {
 		eY -= eHeight
 	}
 
-	CarveRoom(l, eX, eY, eWidth, eHeight, level.Type_Wall, level.Type_Floor, true)
+	CarveRoom(l, eX, eY, eWidth, eHeight, level.Type_Wall, level.Type_Floor, true, true)
 	l.SetTileType(dX, dY, level.Type_Door)
 
-	numRooms := 30
+	// Optional second hallway
+	if utility.GetRandom(0, 10) > 8 {
+		x = width / 2
+		y = height / 2
+		tWidth = utility.GetRandom(5, 10)
+		tHeight = utility.GetRandom(5, 10)
+		// Makes a +
+		if !wide {
+			tWidth = utility.GetRandom(width/2, width-width/4)
+		} else {
+			tHeight = utility.GetRandom(height/2, height-height/4)
+		}
+
+		x -= tWidth / 2
+		y -= tHeight / 2
+		CarveRoom(l, x+1, y+1, tWidth-2, tHeight-2, level.Type_Floor, level.Type_Floor, false, false) // Erase center of hallway
+		CarveRoom(l, x, y, tWidth, tHeight, level.Type_Wall, level.Type_Floor, true, false)
+	}
+
+	// Bud rooms
+	numRooms := 50
 	for i := 0; i < numRooms; i++ {
-		fmt.Println("Generating room ", i+1, " out of ", numRooms)
+		//fmt.Println("Generating room ", i+1, " out of ", numRooms)
 		done := false
 		tries := 0
 		for tries < 99999 && !done {
@@ -126,14 +145,16 @@ func GenerateStation(l *level.Level, width, height int) {
 
 			if rX > 0 && rX < l.Width && rY > 0 && rY < l.Height {
 				t := l.GetTileAt(rX, rY)
-
+				if t.NoBudding {
+					continue
+				}
 				if t.Type == level.Type_Wall {
 					//find out which direction to build the roomWidth
 					//Up
 					if l.GetTileType(rX, rY-2) == level.Type_Open {
 						if l.GetTileType(rX+1, rY) == level.Type_Wall && l.GetTileType(rX-1, rY) == level.Type_Wall {
 							if !RoomIntersects(l, rX-rWidth/2, rY-rHeight-1, rWidth, rHeight) {
-								CarveRoom(l, rX-rWidth/2, rY-rHeight+1, rWidth, rHeight, level.Type_Wall, level.Type_Floor, true)
+								CarveRoom(l, rX-rWidth/2, rY-rHeight+1, rWidth, rHeight, level.Type_Wall, level.Type_Floor, true, false)
 								l.SetTileType(rX, rY, level.Type_Door)
 								done = true
 							}
@@ -144,7 +165,7 @@ func GenerateStation(l *level.Level, width, height int) {
 					if l.GetTileType(rX, rY+2) == level.Type_Open {
 						if l.GetTileType(rX+1, rY) == level.Type_Wall && l.GetTileType(rX-1, rY) == level.Type_Wall {
 							if !RoomIntersects(l, rX-rWidth/2, rY+1, rWidth, rHeight) {
-								CarveRoom(l, rX-rWidth/2, rY, rWidth, rHeight, level.Type_Wall, level.Type_Floor, true)
+								CarveRoom(l, rX-rWidth/2, rY, rWidth, rHeight, level.Type_Wall, level.Type_Floor, true, false)
 								l.SetTileType(rX, rY, level.Type_Door)
 								done = true
 							}
@@ -155,7 +176,7 @@ func GenerateStation(l *level.Level, width, height int) {
 					if l.GetTileType(rX-2, rY) == level.Type_Open {
 						if l.GetTileType(rX, rY+1) == level.Type_Wall && l.GetTileType(rX, rY-1) == level.Type_Wall {
 							if !RoomIntersects(l, rX-rWidth, rY-rHeight/2, rWidth, rHeight) {
-								CarveRoom(l, rX-rWidth+1, rY-rHeight/2, rWidth, rHeight, level.Type_Wall, level.Type_Floor, true)
+								CarveRoom(l, rX-rWidth+1, rY-rHeight/2, rWidth, rHeight, level.Type_Wall, level.Type_Floor, true, false)
 								l.SetTileType(rX, rY, level.Type_Door)
 								done = true
 							}
@@ -166,7 +187,7 @@ func GenerateStation(l *level.Level, width, height int) {
 					if l.GetTileType(rX+2, rY) == level.Type_Open {
 						if l.GetTileType(rX, rY+1) == level.Type_Wall && l.GetTileType(rX, rY-1) == level.Type_Wall {
 							if !RoomIntersects(l, rX+1, rY-rHeight/2, rWidth, rHeight) {
-								CarveRoom(l, rX, rY-rHeight/2, rWidth, rHeight, level.Type_Wall, level.Type_Floor, true)
+								CarveRoom(l, rX, rY-rHeight/2, rWidth, rHeight, level.Type_Wall, level.Type_Floor, true, false)
 								l.SetTileType(rX, rY, level.Type_Door)
 								done = true
 							}
@@ -185,9 +206,9 @@ func GenerateStation(l *level.Level, width, height int) {
 	//
 	// Maintenance Tunnels
 	//
-	numTunnels := 0
+	numTunnels := 10
 	for i := 0; i < numTunnels; i++ {
-		fmt.Println("Generating tunnel ", i+1, " out of ", numTunnels)
+		//fmt.Println("Generating tunnel ", i+1, " out of ", numTunnels)
 		done := false
 		tries := 0
 		for tries < 99999 && !done {
@@ -196,38 +217,47 @@ func GenerateStation(l *level.Level, width, height int) {
 			tY1 := utility.GetRandom(0, height)
 
 			if l.GetTileType(tX1, tY1) == level.Type_Wall {
-				if !l.TileNeighbors(tX1, tY1, level.Type_Open) {
+				if !l.TileNeighbors(tX1, tY1, level.Type_Open) || !l.TileNeighbors(tX1, tY1, level.Type_Floor) {
 					continue
 				}
+			} else {
+				continue
 			}
 
 			tX2 := utility.GetRandom(0, width)
 			tY2 := utility.GetRandom(0, height)
 
-			if l.GetTileType(tX2, tY2) == level.Type_Wall {
-				if !l.TileNeighbors(tX2, tY2, level.Type_Open) {
-					continue
-				}
+			if tX2 == tX1 && tY2 == tY1 {
+				continue
 			}
 
+			if l.GetTileType(tX2, tY2) == level.Type_Wall {
+				if !l.TileNeighbors(tX2, tY2, level.Type_Open) || !l.TileNeighbors(tX2, tY2, level.Type_Floor) {
+					continue
+				}
+			} else {
+				continue
+			}
+			l.GetTileAt(tX1, tY1).Solid = false
+			l.GetTileAt(tX2, tY2).Solid = false
 			steps, distance, success := astar.Path(l.GetTileAt(tX1, tY1), l.GetTileAt(tX2, tY2))
 
-			if !success || distance > 15 {
+			if !success || distance > 10 || distance < 2 {
 				continue
+			}
+
+			for step := range steps {
+				t := steps[step].(*level.Tile)
+				l.SetTileType(t.X, t.Y, level.Type_MaintenanceTunnelFLoor)
 			}
 
 			l.SetTileType(tX1, tY1, level.Type_MaintenanceTunnelDoor)
 			l.SetTileType(tX2, tY2, level.Type_MaintenanceTunnelDoor)
-
-			for s := range steps {
-				t := steps[s].(*level.Tile)
-				l.SetTileType(t.X, t.Y, level.Type_MaintenanceTunnelFLoor)
-			}
 			done = true
 		}
 	}
 
-	//l.Polish()
+	l.Polish()
 
 }
 

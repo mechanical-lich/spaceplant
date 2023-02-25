@@ -66,7 +66,6 @@ func (level *Level) SetTileType(x int, y int, t TileType) error {
 		return errors.New("invalid tile")
 	}
 
-	tile.Used = true
 	tile.Type = t
 
 	return nil
@@ -88,6 +87,19 @@ func (level *Level) TileNeighbors(x, y int, nType TileType) bool {
 }
 
 func (level *Level) Polish() {
+	// Build tunnel walls
+	for x := 0; x < level.Width; x++ {
+		for y := 0; y < level.Height; y++ {
+			tile := level.GetTileAt(x, y)
+			if tile != nil {
+				if tile.Type == Type_Open {
+					if level.TileNeighbors(x, y, Type_MaintenanceTunnelFLoor) {
+						level.SetTileType(x, y, Type_MaintenanceTunnelWall)
+					}
+				}
+			}
+		}
+	}
 
 	for x := 0; x < level.Width; x++ {
 		for y := 0; y < level.Height; y++ {
@@ -287,6 +299,12 @@ func (level *Level) Render(aX int, aY int, width int, height int, blind bool, ce
 				if tile.Type == Type_Open {
 					backgroundColor = level.Theme.OpenBackgroundColor
 					forgroundColor = level.Theme.OpenForgroundColor
+				}
+
+				// TODO Gross
+				if tile.Type == Type_MaintenanceTunnelDoor || tile.Type == Type_MaintenanceTunnelWall || tile.Type == Type_MaintenanceTunnelFLoor {
+					backgroundColor = level.Theme.SecondaryBackgroundColor
+					forgroundColor = level.Theme.SecondaryForgroundColor
 				}
 			} else {
 				backgroundColor = level.Theme.OpenBackgroundColor
