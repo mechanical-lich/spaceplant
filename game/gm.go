@@ -1,8 +1,6 @@
 package game
 
 import (
-	"fmt"
-	"log"
 	"math/rand"
 
 	"github.com/mechanical-lich/spaceplant/factory"
@@ -18,7 +16,6 @@ var hostiles = []string{"creeper", "viner", "scythe", "scrambler"}
 var rareHostiles = []string{"abomination", "spitter"}
 var crew = []string{"crewmember", "officer"}
 
-// GameMaster The Game master manages what's going on in the game world and balances the difficulty.
 type GameMaster struct {
 	level *level.Level
 }
@@ -27,7 +24,7 @@ type GameMaster struct {
 func (gm *GameMaster) Init(l *level.Level) {
 	gm.level = l
 
-	log.Println("Placing Crew")
+	//log.Println("Placing Crew")
 	//Random food
 	for i := 0; i < crewInitial; i++ {
 		x := rand.Intn(gm.level.Width)
@@ -46,14 +43,14 @@ func (gm *GameMaster) Init(l *level.Level) {
 		if tries > 10 {
 			continue
 		}
-		blueprint := crew[getRandom(0, len(crew))]
+		blueprint := crew[utility.GetRandom(0, len(crew))]
 		entity, err := factory.Create(blueprint, x, y)
 		if err == nil {
 			gm.level.AddEntity(entity)
 		}
 	}
 
-	log.Println("Placing hostiles")
+	//log.Println("Placing hostiles")
 	//Random hostiles
 	for i := 0; i < hostileInitial; i++ {
 		x := rand.Intn(gm.level.Width)
@@ -72,10 +69,10 @@ func (gm *GameMaster) Init(l *level.Level) {
 		if tries > 10 {
 			continue
 		}
-		blueprint := hostiles[getRandom(0, len(hostiles))]
-		if getRandom(0, 100) == 0 {
-			log.Println("Spawn a rare hostile enemy!")
-			blueprint = rareHostiles[getRandom(0, len(rareHostiles))]
+		blueprint := hostiles[utility.GetRandom(0, len(hostiles))]
+		if utility.GetRandom(0, 100) == 0 {
+			//log.Println("Spawn a rare hostile enemy!")
+			blueprint = rareHostiles[utility.GetRandom(0, len(rareHostiles))]
 		}
 		food, err := factory.Create(blueprint, x, y)
 		if err == nil {
@@ -99,7 +96,6 @@ func (gm *GameMaster) Update(pX, pY int) {
 
 		// Handle hostile count
 		if hostileCount < hostileMax {
-			fmt.Println(hostileCount)
 			x := rand.Intn(gm.level.Width)
 			y := rand.Intn(gm.level.Height)
 			tile := gm.level.GetTileAt(x, y)
@@ -118,26 +114,19 @@ func (gm *GameMaster) Update(pX, pY int) {
 				}
 			}
 
-			blueprint := hostiles[getRandom(0, len(hostiles))]
+			blueprint := hostiles[utility.GetRandom(0, len(hostiles))]
 
-			if getRandom(0, 500) == 0 {
-				log.Println("Spawned a rare hostile enemy")
-				blueprint = rareHostiles[getRandom(0, len(rareHostiles))]
+			if utility.GetRandom(0, 20) == 0 {
+				//log.Println("Spawned a rare hostile enemy")
+				blueprint = rareHostiles[utility.GetRandom(0, len(rareHostiles))]
 			}
 			e, err := factory.Create(blueprint, x, y)
 			if err == nil {
-				log.Println("Spawning hostile", x, y, pY, pY)
+				//log.Println("Spawning hostile", x, y, pY, pY)
 
 				gm.level.AddEntity(e)
 			}
 		}
 	}
 
-}
-
-func getRandom(low int, high int) int {
-	if low == high {
-		return low
-	}
-	return (rand.Intn((high - low))) + low
 }

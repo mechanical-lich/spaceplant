@@ -120,7 +120,7 @@ func (s AISystem) Update(levelInterface interface{}, entity *entity.Entity) erro
 					entityHit := level.GetSolidEntityAt(pc.GetX()+deltaX, pc.GetY()+deltaY)
 					if entityHit != nil && entityHit != entity {
 						if entityHit != entity {
-							hit(entity, entityHit)
+							hit(level, entity, entityHit)
 							eat(entity, entityHit)
 						}
 					}
@@ -140,7 +140,7 @@ func (s AISystem) Update(levelInterface interface{}, entity *entity.Entity) erro
 						aic.Attacked = false
 					} else {
 						// Hit the attacker back.
-						hit(entity, entityHit)
+						hit(level, entity, entityHit)
 					}
 
 					// Point where you attack

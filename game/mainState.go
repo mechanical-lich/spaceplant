@@ -1,8 +1,13 @@
 package game
 
 import (
+	"image/color"
+
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/inpututil"
+	"github.com/hajimehoshi/ebiten/v2/text"
+	text_ext "github.com/mechanical-lich/game-engine/text"
+
 	"github.com/mechanical-lich/game-engine/entity"
 	"github.com/mechanical-lich/game-engine/system"
 
@@ -133,4 +138,18 @@ func (s *MainState) Draw(screen *ebiten.Image) {
 	op := &ebiten.DrawImageOptions{}
 	//op.GeoM.Scale(1.5, 1.5)
 	screen.DrawImage(levelImage, op)
+
+}
+
+func (s *MainState) DrawPlayerMessages(screen *ebiten.Image) {
+	// Player messages
+	if s.Player != nil {
+		playerC := s.Player.GetComponent("PlayerComponent").(*components.PlayerComponent)
+		x := 0
+		y := 0
+		for _, v := range playerC.MessageLog {
+			text.Draw(screen, v, text_ext.MplusNormalFont, x, y, color.RGBA{255, 0, 0, 255})
+			y += 24
+		}
+	}
 }

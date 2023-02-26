@@ -6,8 +6,28 @@ import (
 	"github.com/mechanical-lich/spaceplant/level"
 )
 
-func hit(entity *entity.Entity, entityHit *entity.Entity) {
+func hit(l *level.Level, entity *entity.Entity, entityHit *entity.Entity) {
 	if entityHit != entity {
+		//Faction check
+		if entityHit.HasComponent("DescriptionComponent") && entity.HasComponent("DescriptionComponent") {
+			hitDc := entityHit.GetComponent("DescriptionComponent").(*components.DescriptionComponent)
+			dc := entity.GetComponent("DescriptionComponent").(*components.DescriptionComponent)
+
+			hitPc := entityHit.GetComponent("PositionComponent").(*components.PositionComponent)
+			pc := entity.GetComponent("PositionComponent").(*components.PositionComponent)
+
+			oldX := pc.GetX()
+			oldY := pc.GetY()
+			if dc.Faction != "none" && dc.Faction != "" {
+				//Swap position
+				if dc.Faction == hitDc.Faction {
+					l.PlaceEntity(hitPc.GetX(), hitPc.GetY(), entity)
+					l.PlaceEntity(oldX, oldY, entityHit)
+					return
+				}
+			}
+		}
+
 		//Attack it
 		if entityHit.HasComponent("HealthComponent") {
 			damage := 1

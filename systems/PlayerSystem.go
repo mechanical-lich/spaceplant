@@ -54,7 +54,7 @@ func (s *PlayerSystem) Update(levelInterface interface{}, entity *entity.Entity)
 				entityHit := level.GetSolidEntityAt(pc.GetX()+deltaX, pc.GetY()+deltaY)
 				if entityHit != nil && entityHit != entity {
 					if entityHit != entity {
-						hit(entity, entityHit)
+						hit(level, entity, entityHit)
 						//eat(entity, entityHit)
 					}
 				}

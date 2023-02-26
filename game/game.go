@@ -4,6 +4,7 @@ import (
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/mechanical-lich/game-engine/resource"
 	"github.com/mechanical-lich/game-engine/state"
+	"github.com/mechanical-lich/game-engine/text"
 	"github.com/mechanical-lich/spaceplant/config"
 )
 
@@ -16,6 +17,7 @@ func NewGame(title string) (*Game, error) {
 	game := &Game{title: title}
 	ebiten.SetWindowSize(config.ScreenWidth, config.ScreenHeight)
 	ebiten.SetWindowTitle(title)
+	text.LoadDefaultFonts()
 
 	err := LoadAssets()
 	if err != nil {
