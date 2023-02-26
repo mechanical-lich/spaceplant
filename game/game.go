@@ -53,12 +53,12 @@ func (g *Game) Layout(outsideWidth, outsideHeight int) (int, int) {
 }
 
 func LoadAssets() error {
-	err := resource.LoadImageAsTexture("map", "assets/map.png")
+	err := resource.LoadImageAsTexture("map", "assets/map32x48.png")
 	if err != nil {
 		return err
 	}
 
-	err = resource.LoadImageAsTexture("entities", "assets/entities.png")
+	err = resource.LoadImageAsTexture("entities", "assets/entities 32x48.png")
 	if err != nil {
 		return err
 	}

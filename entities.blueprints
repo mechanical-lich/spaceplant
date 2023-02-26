@@ -1,5 +1,6 @@
 player
 PlayerComponent:
+DescriptionComponent:Player,crew
 HealthComponent:10
 AppearanceComponent:0,0,255,255,255
 SolidComponent:
@@ -7,18 +8,62 @@ FoodComponent:3
 InitiativeComponent:1,1
 
 creeper
-DescriptionComponent:Creeper
-AppearanceComponent:48,0,0,255,0
+DescriptionComponent:Creeper,plantz
+AppearanceComponent:96,0,0,255,0
 HealthComponent:10
 DamageComponent:2
 SolidComponent:
-FoodComponent:3
+HostileAIComponent:10
+InitiativeComponent:2,1
+
+abomination
+DescriptionComponent:Abomination,plantz
+AppearanceComponent:128,0,0,255,0
+HealthComponent:10
+DamageComponent:2
+SolidComponent:
+HostileAIComponent:10
+InitiativeComponent:2,1
+
+viner
+DescriptionComponent:Viner,plantz
+AppearanceComponent:160,0,0,255,0
+HealthComponent:10
+DamageComponent:2
+SolidComponent:
+HostileAIComponent:10
+InitiativeComponent:2,1
+
+scythe
+DescriptionComponent:Scythe,plantz
+AppearanceComponent:192,0,0,255,0
+HealthComponent:10
+DamageComponent:2
+SolidComponent:
+HostileAIComponent:10
+InitiativeComponent:2,1
+
+scrambler
+DescriptionComponent:Scramber,plantz
+AppearanceComponent:224,0,0,255,0
+HealthComponent:10
+DamageComponent:2
+SolidComponent:
+HostileAIComponent:10
+InitiativeComponent:2,1
+
+spitter
+DescriptionComponent:Spitter,plantz
+AppearanceComponent:256,0,0,255,0
+HealthComponent:10
+DamageComponent:2
+SolidComponent:
 HostileAIComponent:10
 InitiativeComponent:2,1
 
 crewmember
-DescriptionComponent:Crew member
-AppearanceComponent:32,0,200,200,125
+DescriptionComponent:Crew member,crew
+AppearanceComponent:64,0,200,200,125
 HealthComponent:10
 DamageComponent:2
 SolidComponent:
@@ -28,8 +73,8 @@ DefensiveAIComponent:
 InitiativeComponent:3,1
 
 officer
-DescriptionComponent: Officer
-AppearanceComponent:16,0,200,200,125
+DescriptionComponent: Officer,crew
+AppearanceComponent:32,0,200,200,125
 HealthComponent:10
 DamageComponent:2
 SolidComponent:

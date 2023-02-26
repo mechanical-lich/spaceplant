@@ -11,6 +11,6 @@ const (
 	TileHeight = 48
 
 	// Sprite size on the sprite sheet
-	SpriteWidth  = 16
-	SpriteHeight = 24
+	SpriteWidth  = 32
+	SpriteHeight = 48
 )

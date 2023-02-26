@@ -1,6 +1,7 @@
 package level
 
 import (
+	"image/color"
 	"math"
 
 	"github.com/beefsack/go-astar"
@@ -21,14 +22,17 @@ const (
 )
 
 type Tile struct {
-	X, Y      int
-	level     *Level
-	Type      TileType
-	Solid     bool
-	Elevation int
-	TileIndex int // Some tile types of multiple variants for rendering
-	Entities  []*entity.Entity
-	NoBudding bool
+	X, Y            int
+	level           *Level
+	Type            TileType
+	Solid           bool
+	Elevation       int
+	TileIndex       int // Some tile types of multiple variants for rendering
+	Entities        []*entity.Entity
+	NoBudding       bool
+	ForgroundColor  color.Color
+	BackgroundColor color.Color
+	Seen            bool
 }
 
 func (t *Tile) PathNeighbors() []astar.Pather {

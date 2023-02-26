@@ -73,13 +73,13 @@ func GenerateStation(l *level.Level, width, height int) {
 	if wide {
 		//eWidth = width - tWidth - 1
 		eY = y - tHeight/4
-		eWidth = utility.GetRandom(width/8, width/4)
+		eWidth = utility.GetRandom(5, 10)
 		dY -= tHeight / 2
 		sX -= tWidth
 	} else {
 		//eHeight = height - tHeight - 1
 		eX = x - tWidth/4
-		eHeight = utility.GetRandom(height/8, height/4)
+		eHeight = utility.GetRandom(5, 10)
 		dX -= tWidth / 2
 		sY -= tHeight
 	}
@@ -116,22 +116,24 @@ func GenerateStation(l *level.Level, width, height int) {
 	l.SetTileType(dX, dY, level.Type_Door)
 
 	// Optional second hallway
-	if utility.GetRandom(0, 10) > 8 {
-		x = width / 2
-		y = height / 2
-		tWidth = utility.GetRandom(5, 10)
-		tHeight = utility.GetRandom(5, 10)
+	if utility.GetRandom(0, 10) > 5 {
+		x2 := width / 2
+		y2 := height / 2
+		tWidth2 := utility.GetRandom(5, 10)
+		tHeight2 := utility.GetRandom(5, 10)
 		// Makes a +
 		if !wide {
-			tWidth = utility.GetRandom(width/2, width-width/4)
+			tWidth2 = utility.GetRandom(width/2, width-width/4)
 		} else {
-			tHeight = utility.GetRandom(height/2, height-height/4)
+			tHeight2 = utility.GetRandom(height/2, height-height/4)
 		}
 
-		x -= tWidth / 2
-		y -= tHeight / 2
-		CarveRoom(l, x+1, y+1, tWidth-2, tHeight-2, level.Type_Floor, level.Type_Floor, false, false) // Erase center of hallway
-		CarveRoom(l, x, y, tWidth, tHeight, level.Type_Wall, level.Type_Floor, true, false)
+		x2 -= tWidth2 / 2
+		y2 -= tHeight2 / 2
+		CarveRoom(l, x2, y2, tWidth2, tHeight2, level.Type_Wall, level.Type_Floor, true, false)
+		CarveRoom(l, x+1, y+1, tWidth-2, tHeight-2, level.Type_Floor, level.Type_Floor, false, false)     // Erase center of hallway
+		CarveRoom(l, x2+1, y2+1, tWidth2-2, tHeight2-2, level.Type_Floor, level.Type_Floor, false, false) // Erase center of hallway
+
 	}
 
 	//Bud rooms

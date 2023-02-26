@@ -29,7 +29,7 @@ func NewLevel(width int, height int, theme Theme) (level *Level) {
 	for x := 0; x < width; x++ {
 		col := []Tile{}
 		for y := 0; y < height; y++ {
-			col = append(col, Tile{Type: Type_Open, TileIndex: theme.Open[0], X: x, Y: y, level: level})
+			col = append(col, Tile{Type: Type_Open, TileIndex: theme.Open[0], X: x, Y: y, level: level, ForgroundColor: color.White, BackgroundColor: color.Black})
 		}
 		data[x] = append(data[x], col...)
 	}
@@ -114,37 +114,50 @@ func (level *Level) Polish() {
 					tile.Solid = true
 					belowTile := level.GetTileAt(x, y+1)
 					if belowTile != nil {
-						if belowTile.Type == Type_Wall {
+						if belowTile.Type == Type_Wall || belowTile.Type == Type_Door || belowTile.Type == Type_MaintenanceTunnelDoor {
 							tile.TileIndex = level.Theme.WallTop[utility.GetRandom(0, len(level.Theme.WallTop))]
 						}
 					}
-
+					tile.ForgroundColor = level.Theme.ForgroundColor
+					tile.BackgroundColor = level.Theme.BackgroundColor
 				case Type_Floor:
 					tile.TileIndex = level.Theme.Floor[utility.GetRandom(0, len(level.Theme.Floor))]
-
+					tile.ForgroundColor = level.Theme.ForgroundColor
+					tile.BackgroundColor = level.Theme.BackgroundColor
 				case Type_MaintenanceTunnelWall:
 					tile.TileIndex = level.Theme.MaintenanceTunnelWall[utility.GetRandom(0, len(level.Theme.MaintenanceTunnelWall))]
 					tile.Solid = true
 					belowTile := level.GetTileAt(x, y+1)
 					if belowTile != nil {
-						if belowTile.Type == Type_MaintenanceTunnelWall {
+						if belowTile.Type == Type_MaintenanceTunnelWall || belowTile.Type == Type_MaintenanceTunnelDoor || belowTile.Type == Type_Door {
 							tile.TileIndex = level.Theme.MaintenanceTunnelTop[utility.GetRandom(0, len(level.Theme.MaintenanceTunnelTop))]
 						}
 					}
+					tile.ForgroundColor = level.Theme.SecondaryForgroundColor
+					tile.BackgroundColor = level.Theme.SecondaryBackgroundColor
 				case Type_MaintenanceTunnelFLoor:
 					tile.TileIndex = level.Theme.MaintenanceTunnelFloor[utility.GetRandom(0, len(level.Theme.MaintenanceTunnelFloor))]
+					tile.ForgroundColor = level.Theme.SecondaryForgroundColor
+					tile.BackgroundColor = level.Theme.SecondaryBackgroundColor
 				case Type_Stairs:
 					tile.TileIndex = level.Theme.Stairs[utility.GetRandom(0, len(level.Theme.Stairs))]
+					tile.ForgroundColor = level.Theme.SecondaryForgroundColor
+					tile.BackgroundColor = level.Theme.SecondaryBackgroundColor
 				case Type_Open:
 					tile.TileIndex = level.Theme.Open[utility.GetRandom(0, len(level.Theme.Open))]
+					tile.ForgroundColor = level.Theme.OpenForgroundColor
+					tile.BackgroundColor = level.Theme.OpenBackgroundColor
 				case Type_Door:
 					tile.TileIndex = level.Theme.Door[utility.GetRandom(0, len(level.Theme.Door))]
 					//tile.Solid = true
+					tile.ForgroundColor = level.Theme.SecondaryForgroundColor
+					tile.BackgroundColor = level.Theme.SecondaryBackgroundColor
 
 				case Type_MaintenanceTunnelDoor:
 					tile.TileIndex = level.Theme.MaintenanceTunnelDoor[utility.GetRandom(0, len(level.Theme.MaintenanceTunnelDoor))]
 					//tile.Solid = true
-
+					tile.ForgroundColor = level.Theme.SecondaryForgroundColor
+					tile.BackgroundColor = level.Theme.SecondaryBackgroundColor
 				}
 
 			}
@@ -253,7 +266,7 @@ func (level *Level) AddEntity(entity *entity.Entity) {
 	}
 }
 
-func (level *Level) Render(aX int, aY int, width int, height int, blind bool, centered bool, useLos bool) *ebiten.Image {
+func (level *Level) Render(aX int, aY int, width int, height int, blind bool, centered bool, useLos bool, useFog bool) *ebiten.Image {
 	output := ebiten.NewImage(width*config.SpriteWidth, height*config.SpriteHeight)
 	left := aX - width/2
 	right := aX + width/2
@@ -284,7 +297,7 @@ func (level *Level) Render(aX int, aY int, width int, height int, blind bool, ce
 			tX := float64(screenX * config.SpriteWidth)
 			tY := float64(screenY * config.SpriteHeight)
 
-			// Figure out colors
+			// // Figure out colors
 			backgroundColor := level.Theme.BackgroundColor
 			forgroundColor := level.Theme.ForgroundColor
 
@@ -295,24 +308,11 @@ func (level *Level) Render(aX int, aY int, width int, height int, blind bool, ce
 				if useLos {
 					seen = los(aX, aY, tile.X, tile.Y, level)
 				}
-
-				// Default tile
-				if tile.Type == Type_Open {
-					backgroundColor = level.Theme.OpenBackgroundColor
-					forgroundColor = level.Theme.OpenForgroundColor
-				}
-
-				// TODO Gross
-				if tile.Type == Type_MaintenanceTunnelDoor || tile.Type == Type_MaintenanceTunnelWall || tile.Type == Type_MaintenanceTunnelFLoor {
-					backgroundColor = level.Theme.SecondaryBackgroundColor
-					forgroundColor = level.Theme.SecondaryForgroundColor
-				}
-			} else {
-				backgroundColor = level.Theme.OpenBackgroundColor
-				forgroundColor = level.Theme.OpenForgroundColor
+				forgroundColor = tile.ForgroundColor
+				backgroundColor = tile.BackgroundColor
 			}
 
-			//Draw background square
+			////Draw background square
 			ebitenutil.DrawRect(output, tX, tY, config.SpriteWidth, config.SpriteHeight, backgroundColor)
 
 			// Draw forground
@@ -323,22 +323,38 @@ func (level *Level) Render(aX int, aY int, width int, height int, blind bool, ce
 			op.ColorM.ScaleWithColor(forgroundColor)
 
 			// Default Tile
-			if tile == nil {
-				sX := level.Theme.Open[0] * config.SpriteWidth
+			if tile != nil {
+				// Real tile
+				sX := tile.TileIndex * config.SpriteWidth
 				output.DrawImage(resource.Textures["map"].SubImage(image.Rect(sX, 0, sX+config.SpriteWidth, config.SpriteHeight)).(*ebiten.Image), op)
-			} else {
 
-				if seen || tile.Type == Type_Open {
-					// Real tile
-					sX := tile.TileIndex * config.SpriteWidth
-					output.DrawImage(resource.Textures["map"].SubImage(image.Rect(sX, 0, sX+config.SpriteWidth, config.SpriteHeight)).(*ebiten.Image), op)
+				if !seen {
+					if tile.Seen {
+						ebitenutil.DrawRect(output, tX, tY, config.SpriteWidth, config.SpriteHeight, color.RGBA{0, 0, 0, 150})
+					} else {
+						ebitenutil.DrawRect(output, tX, tY, config.SpriteWidth, config.SpriteHeight, level.Theme.OpenBackgroundColor)
+					}
+
+				} else {
+					tile.Seen = true
+
+					//Draw entity on tile.  We do this here to prevent yet another loop. ;)
+					entity := level.GetEntityAt(x, y)
+					if entity != nil && seen {
+						level.DrawEntity(output, entity, tX, tY)
+					}
+					// Draw fog
+					if useFog {
+						dist := utility.Distance(aX, aY, tile.X, tile.Y)
+						dist = 255 * dist / 20
+						if dist > 255 {
+							dist = 255
+						}
+						fogColor := color.RGBA{0, 0, 0, uint8(dist)}
+
+						ebitenutil.DrawRect(output, tX, tY, config.SpriteWidth, config.SpriteHeight, fogColor)
+					}
 				}
-			}
-
-			//Draw entity on tile.  We do this here to prevent yet another loop. ;)
-			entity := level.GetEntityAt(x, y)
-			if entity != nil && seen {
-				level.DrawEntity(output, entity, tX, tY)
 			}
 
 			screenY++
@@ -354,11 +370,11 @@ func (level *Level) DrawEntity(screen *ebiten.Image, entity *entity.Entity, x fl
 	if entity != nil {
 		if entity.HasComponent("AppearanceComponent") {
 			ac := entity.GetComponent("AppearanceComponent").(*components.AppearanceComponent)
-			dir := 0
-			if entity.HasComponent("DirectionComponent") {
-				dc := entity.GetComponent("DirectionComponent").(*components.DirectionComponent)
-				dir = dc.Direction
-			}
+			// dir := 0
+			// if entity.HasComponent("DirectionComponent") {
+			// 	dc := entity.GetComponent("DirectionComponent").(*components.DirectionComponent)
+			// 	dir = dc.Direction
+			// }
 
 			op := &ebiten.DrawImageOptions{}
 
@@ -371,9 +387,9 @@ func (level *Level) DrawEntity(screen *ebiten.Image, entity *entity.Entity, x fl
 			//Position
 			op.GeoM.Translate(x, y)
 			//Color
-			op.ColorM.ScaleWithColor(color.RGBA{ac.R, ac.G, ac.B, 255})
+			//op.ColorM.ScaleWithColor(color.RGBA{ac.R, ac.G, ac.B, 255})
 			// TODO - I don't like this.  The appearance component should specify the resource.
-			screen.DrawImage(resource.Textures["entities"].SubImage(image.Rect(ac.SpriteX, ac.SpriteY, ac.SpriteX+config.SpriteWidth+dir*config.SpriteWidth, ac.SpriteY+config.SpriteHeight)).(*ebiten.Image), op)
+			screen.DrawImage(resource.Textures["entities"].SubImage(image.Rect(ac.SpriteX, ac.SpriteY, ac.SpriteX+config.SpriteWidth, ac.SpriteY+config.SpriteHeight)).(*ebiten.Image), op)
 
 			//Draw FX
 			if entity.HasComponent("AttackComponent") {
@@ -400,8 +416,8 @@ func los(pX int, pY int, tX int, tY int, level *Level) bool {
 	absDeltaX := math.Abs(float64(deltaX))
 	absDeltaY := math.Abs(float64(deltaY))
 
-	signX := Sgn(deltaX)
-	signY := Sgn(deltaY)
+	signX := utility.Sgn(deltaX)
+	signY := utility.Sgn(deltaY)
 
 	if absDeltaX > absDeltaY {
 		t := absDeltaY*2 - absDeltaX
@@ -417,7 +433,7 @@ func los(pX int, pY int, tX int, tY int, level *Level) bool {
 			if tX == pX && tY == pY {
 				return true
 			}
-			if level.IsTileSolid(tX, tY) {
+			if level.IsTileSolid(tX, tY) || level.GetTileType(tX, tY) == Type_Door || level.GetTileType(tX, tY) == Type_MaintenanceTunnelDoor {
 				break
 			}
 		}
@@ -437,46 +453,11 @@ func los(pX int, pY int, tX int, tY int, level *Level) bool {
 			return true
 		}
 
-		if level.IsTileSolid(tX, tY) {
+		if level.IsTileSolid(tX, tY) || level.GetTileType(tX, tY) == Type_Door || level.GetTileType(tX, tY) == Type_MaintenanceTunnelDoor {
 			break
 		}
 	}
 
 	return false
 
-}
-
-func distance(x1 int, y1 int, x2 int, y2 int) int {
-	var dy int
-	if y1 > y2 {
-		dy = y1 - y2
-	} else {
-		dy = (y2 - y1)
-	}
-
-	var dx int
-	if x1 > x2 {
-		dx = x1 - x2
-	} else {
-		dx = x2 - x1
-	}
-
-	var d int
-	if dy > dx {
-		d = dy + (dx >> 1)
-	} else {
-		d = dx + (dy >> 1)
-	}
-
-	return d
-}
-
-func Sgn(a int) int {
-	switch {
-	case a < 0:
-		return -1
-	case a > 0:
-		return +1
-	}
-	return 0
 }

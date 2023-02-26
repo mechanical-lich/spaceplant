@@ -22,9 +22,12 @@ type MainState struct {
 	CameraX       int
 	CameraY       int
 	keys          []ebiten.Key
+	pressDelay    int
 	systemManager *system.SystemManager
 
 	Player *entity.Entity
+
+	gm GameMaster
 }
 
 func NewMainState() (*MainState, error) {
@@ -45,17 +48,19 @@ func NewMainState() (*MainState, error) {
 		m.levels[i].Polish()
 	}
 
-	// Setup Systems
-	m.systemManager.AddSystem(systems.InitiativeSystem{})
-	m.systemManager.AddSystem(systems.StatusConditionSystem{})
-	m.systemManager.AddSystem(&systems.PlayerSystem{})
-	m.systemManager.AddSystem(&systems.AISystem{})
-
 	// Load Blueprints
 	err := factory.FactoryLoad("entities.blueprints")
 	if err != nil {
 		return nil, err
 	}
+	//TODO feed gm the current level
+	m.gm = GameMaster{}
+	m.gm.Init(m.levels[0])
+	// Setup Systems
+	m.systemManager.AddSystem(systems.InitiativeSystem{})
+	m.systemManager.AddSystem(systems.StatusConditionSystem{})
+	m.systemManager.AddSystem(&systems.PlayerSystem{})
+	m.systemManager.AddSystem(&systems.AISystem{})
 
 	// Create player
 	// TODO - This shouldn't be permenant
@@ -66,12 +71,12 @@ func NewMainState() (*MainState, error) {
 
 	m.levels[m.CurrentLevel].AddEntity(m.Player)
 
-	e, err := factory.Create("creeper", 48, 50)
-	if err != nil {
-		return nil, err
-	}
+	// e, err := factory.Create("viner", 48, 50)
+	// if err != nil {
+	// 	return nil, err
+	// }
 
-	m.levels[m.CurrentLevel].AddEntity(e)
+	// m.levels[m.CurrentLevel].AddEntity(e)
 
 	// e, err = factory.Create("crewmember", 7, 8)
 	// if err != nil {
@@ -93,18 +98,26 @@ func NewMainState() (*MainState, error) {
 func (s *MainState) Update() {
 	if s.Player != nil {
 		playerC := s.Player.GetComponent("PlayerComponent").(*components.PlayerComponent)
+		pc := s.Player.GetComponent("PositionComponent").(*components.PositionComponent)
+
+		// The amount of ticks it takes to push the command again if the key is held down.
+		if s.pressDelay > 0 {
+			s.pressDelay--
+		}
 
 		s.keys = inpututil.AppendPressedKeys([]ebiten.Key{})
 		for _, k := range s.keys {
-			if inpututil.IsKeyJustPressed(k) {
+			if s.pressDelay == 0 {
 				playerC.PushCommand(k.String())
 				for _, entity := range s.levels[s.CurrentLevel].Entities {
 					s.systemManager.UpdateSystemsForEntity(s.levels[s.CurrentLevel], entity)
 				}
+				s.pressDelay = 10
+				s.gm.Update(pc.GetX(), pc.GetY())
+
 			}
 		}
 
-		pc := s.Player.GetComponent("PositionComponent").(*components.PositionComponent)
 		s.CameraX = pc.GetX()
 		s.CameraY = pc.GetY()
 	}
@@ -116,7 +129,7 @@ func (s *MainState) Update() {
 
 func (s *MainState) Draw(screen *ebiten.Image) {
 	//s.DrawLevel(screen, s.CameraX, s.CameraY, 10, 10, false, true)
-	levelImage := s.levels[s.CurrentLevel].Render(s.CameraX, s.CameraY, config.ScreenWidth/config.SpriteWidth, config.ScreenHeight/config.SpriteHeight, false, true, false)
+	levelImage := s.levels[s.CurrentLevel].Render(s.CameraX, s.CameraY, config.ScreenWidth/config.SpriteWidth, config.ScreenHeight/config.SpriteHeight, false, true, true, true)
 	op := &ebiten.DrawImageOptions{}
 	//op.GeoM.Scale(1.5, 1.5)
 	screen.DrawImage(levelImage, op)
