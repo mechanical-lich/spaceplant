@@ -8,7 +8,7 @@ import (
 	"strings"
 
 	"github.com/mechanical-lich/game-engine/ecs"
-	component "github.com/mechanical-lich/spaceplant/components"
+	"github.com/mechanical-lich/spaceplant/component"
 )
 
 var blueprints = make(map[string][]string)

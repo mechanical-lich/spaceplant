@@ -11,7 +11,7 @@ import (
 	"github.com/mechanical-lich/game-engine/ecs"
 
 	"github.com/mechanical-lich/game-engine/resource"
-	"github.com/mechanical-lich/spaceplant/components"
+	"github.com/mechanical-lich/spaceplant/component"
 	"github.com/mechanical-lich/spaceplant/config"
 	"github.com/mechanical-lich/spaceplant/utility"
 )
@@ -171,7 +171,7 @@ func (level *Level) Polish() {
 func (level *Level) PlaceEntity(x int, y int, entity *ecs.Entity) {
 	if x < level.Width && y < level.Height && x >= 0 && y >= 0 {
 		tile := &level.data[x][y]
-		pc := entity.GetComponent("PositionComponent").(*components.PositionComponent)
+		pc := entity.GetComponent("PositionComponent").(*component.PositionComponent)
 		oldTile := &level.data[pc.GetX()][pc.GetY()]
 		for i := 0; i < len(oldTile.Entities); i++ {
 			if oldTile.Entities[i] == entity {
@@ -208,7 +208,7 @@ func (level *Level) GetEntitiesAround(x int, y int, width int, height int) (enti
 					entity := tile.Entities[0]
 
 					if entity.HasComponent("PositionComponent") {
-						pc := entity.GetComponent("PositionComponent").(*components.PositionComponent)
+						pc := entity.GetComponent("PositionComponent").(*component.PositionComponent)
 						if pc.GetX() >= left && pc.GetX() <= right && pc.GetY() >= up && pc.GetY() <= down {
 							entities = append(entities, entity)
 						}
@@ -236,7 +236,7 @@ func (level *Level) GetSolidEntityAt(x int, y int) (entity *ecs.Entity) {
 
 func (level *Level) RemoveEntity(entity *ecs.Entity) {
 	if entity.HasComponent("PositionComponent") {
-		pc := entity.GetComponent("PositionComponent").(*components.PositionComponent)
+		pc := entity.GetComponent("PositionComponent").(*component.PositionComponent)
 		x := pc.GetX()
 		y := pc.GetY()
 
@@ -260,7 +260,7 @@ func (level *Level) RemoveEntity(entity *ecs.Entity) {
 func (level *Level) AddEntity(entity *ecs.Entity) {
 	level.Entities = append(level.Entities, entity)
 	if entity.HasComponent("PositionComponent") {
-		pc := entity.GetComponent("PositionComponent").(*components.PositionComponent)
+		pc := entity.GetComponent("PositionComponent").(*component.PositionComponent)
 		x := pc.GetX()
 		y := pc.GetY()
 		level.PlaceEntity(x, y, entity)
@@ -370,10 +370,10 @@ func (level *Level) DrawEntity(screen *ebiten.Image, entity *ecs.Entity, x float
 	//Draw entity on tile.
 	if entity != nil {
 		if entity.HasComponent("AppearanceComponent") {
-			ac := entity.GetComponent("AppearanceComponent").(*components.AppearanceComponent)
+			ac := entity.GetComponent("AppearanceComponent").(*component.AppearanceComponent)
 			// dir := 0
 			// if entity.HasComponent("DirectionComponent") {
-			// 	dc := entity.GetComponent("DirectionComponent").(*components.DirectionComponent)
+			// 	dc := entity.GetComponent("DirectionComponent").(*component.DirectionComponent)
 			// 	dir = dc.Direction
 			// }
 
@@ -394,7 +394,7 @@ func (level *Level) DrawEntity(screen *ebiten.Image, entity *ecs.Entity, x float
 
 			//Draw FX
 			if entity.HasComponent("AttackComponent") {
-				attackC := entity.GetComponent("AttackComponent").(*components.AttackComponent)
+				attackC := entity.GetComponent("AttackComponent").(*component.AttackComponent)
 				if attackC.Frame == 3 {
 					entity.RemoveComponent("AttackComponent")
 				} else {

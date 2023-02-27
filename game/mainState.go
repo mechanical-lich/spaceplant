@@ -10,12 +10,12 @@ import (
 
 	"github.com/mechanical-lich/game-engine/ecs"
 
-	"github.com/mechanical-lich/spaceplant/components"
+	"github.com/mechanical-lich/spaceplant/component"
 	"github.com/mechanical-lich/spaceplant/config"
 	"github.com/mechanical-lich/spaceplant/factory"
 	"github.com/mechanical-lich/spaceplant/generation"
 	"github.com/mechanical-lich/spaceplant/level"
-	"github.com/mechanical-lich/spaceplant/systems"
+	"github.com/mechanical-lich/spaceplant/system"
 )
 
 const numLevels = 4
@@ -61,10 +61,10 @@ func NewMainState() (*MainState, error) {
 	m.gm = GameMaster{}
 	m.gm.Init(m.levels[0])
 	// Setup Systems
-	m.systemManager.AddSystem(systems.InitiativeSystem{})
-	m.systemManager.AddSystem(systems.StatusConditionSystem{})
-	m.systemManager.AddSystem(&systems.PlayerSystem{})
-	m.systemManager.AddSystem(&systems.AISystem{})
+	m.systemManager.AddSystem(system.InitiativeSystem{})
+	m.systemManager.AddSystem(system.StatusConditionSystem{})
+	m.systemManager.AddSystem(&system.PlayerSystem{})
+	m.systemManager.AddSystem(&system.AISystem{})
 
 	// Create player
 	// TODO - This shouldn't be permenant
@@ -101,8 +101,8 @@ func NewMainState() (*MainState, error) {
 
 func (s *MainState) Update() {
 	if s.Player != nil {
-		playerC := s.Player.GetComponent("PlayerComponent").(*components.PlayerComponent)
-		pc := s.Player.GetComponent("PositionComponent").(*components.PositionComponent)
+		playerC := s.Player.GetComponent("PlayerComponent").(*component.PlayerComponent)
+		pc := s.Player.GetComponent("PositionComponent").(*component.PositionComponent)
 
 		// The amount of ticks it takes to push the command again if the key is held down.
 		if s.pressDelay > 0 {
@@ -126,7 +126,7 @@ func (s *MainState) Update() {
 		s.CameraY = pc.GetY()
 	}
 
-	cS := systems.CleanUpSystem{}
+	cS := system.CleanUpSystem{}
 	cS.Update(s.levels[s.CurrentLevel])
 
 }
@@ -143,7 +143,7 @@ func (s *MainState) Draw(screen *ebiten.Image) {
 func (s *MainState) DrawPlayerMessages(screen *ebiten.Image) {
 	// Player messages
 	if s.Player != nil {
-		playerC := s.Player.GetComponent("PlayerComponent").(*components.PlayerComponent)
+		playerC := s.Player.GetComponent("PlayerComponent").(*component.PlayerComponent)
 		x := 0
 		y := 0
 		for _, v := range playerC.MessageLog {
