@@ -8,8 +8,7 @@ import (
 	"github.com/hajimehoshi/ebiten/v2/text"
 	text_ext "github.com/mechanical-lich/game-engine/text"
 
-	"github.com/mechanical-lich/game-engine/entity"
-	"github.com/mechanical-lich/game-engine/system"
+	"github.com/mechanical-lich/game-engine/ecs"
 
 	"github.com/mechanical-lich/spaceplant/components"
 	"github.com/mechanical-lich/spaceplant/config"
@@ -28,15 +27,15 @@ type MainState struct {
 	CameraY       int
 	keys          []ebiten.Key
 	pressDelay    int
-	systemManager *system.SystemManager
+	systemManager *ecs.SystemManager
 
-	Player *entity.Entity
+	Player *ecs.Entity
 
 	gm GameMaster
 }
 
 func NewMainState() (*MainState, error) {
-	m := MainState{systemManager: &system.SystemManager{}}
+	m := MainState{systemManager: &ecs.SystemManager{}}
 
 	//generation.CarveRoom(m.level, 10, 10, 20, 20, level.Type_Wall, level.Type_Floor, false)
 	//fmt.Println(generation.RoomIntersects(m.level, 10, 6, 5, 5))

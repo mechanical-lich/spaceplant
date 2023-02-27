@@ -4,7 +4,7 @@ import (
 	"math/rand"
 
 	"github.com/beefsack/go-astar"
-	"github.com/mechanical-lich/game-engine/entity"
+	"github.com/mechanical-lich/game-engine/ecs"
 	"github.com/mechanical-lich/spaceplant/components"
 	world "github.com/mechanical-lich/spaceplant/level"
 )
@@ -17,7 +17,7 @@ type AISystem struct {
 }
 
 // PlayerSystem .
-func (s AISystem) Update(levelInterface interface{}, entity *entity.Entity) error {
+func (s AISystem) Update(levelInterface interface{}, entity *ecs.Entity) error {
 	level := levelInterface.(*world.Level)
 	if !entity.HasComponent("DeadComponent") {
 		if entity.HasComponent("MyTurnComponent") {

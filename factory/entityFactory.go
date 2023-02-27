@@ -7,7 +7,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/mechanical-lich/game-engine/entity"
+	"github.com/mechanical-lich/game-engine/ecs"
 	component "github.com/mechanical-lich/spaceplant/components"
 )
 
@@ -44,10 +44,10 @@ func FactoryLoad(filename string) error {
 	return nil
 }
 
-func Create(name string, x int, y int) (*entity.Entity, error) {
+func Create(name string, x int, y int) (*ecs.Entity, error) {
 	blueprint := blueprints[name]
 	if blueprint != nil {
-		entity := entity.Entity{}
+		entity := ecs.Entity{}
 		entity.Blueprint = name
 		pc := &component.PositionComponent{}
 		pc.SetPosition(x, y)

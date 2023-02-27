@@ -275,6 +275,12 @@ func BudRooms(l *level.Level, width, height, numRooms int) {
 	}
 }
 
+// Attempts to bud a room off the line provided.   Returns if successful.
+func BudRoom(l *level.Level, x1, y1, x2, y2, width, height int) bool {
+
+	return true
+}
+
 func RoomIntersects(l *level.Level, x, y, width, height int) bool {
 	if x+width > l.Width || y+height > l.Height {
 		return true

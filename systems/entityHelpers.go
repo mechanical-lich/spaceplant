@@ -1,12 +1,12 @@
 package systems
 
 import (
-	"github.com/mechanical-lich/game-engine/entity"
+	"github.com/mechanical-lich/game-engine/ecs"
 	"github.com/mechanical-lich/spaceplant/components"
 	"github.com/mechanical-lich/spaceplant/level"
 )
 
-func hit(l *level.Level, entity *entity.Entity, entityHit *entity.Entity) {
+func hit(l *level.Level, entity *ecs.Entity, entityHit *ecs.Entity) {
 	if entityHit != entity {
 		//Faction check
 		if entityHit.HasComponent("DescriptionComponent") && entity.HasComponent("DescriptionComponent") {
@@ -67,7 +67,7 @@ func hit(l *level.Level, entity *entity.Entity, entityHit *entity.Entity) {
 }
 
 // Returns true if successfully ate.
-func eat(entity *entity.Entity, entityHit *entity.Entity) bool {
+func eat(entity *ecs.Entity, entityHit *ecs.Entity) bool {
 	if entityHit != entity {
 		if entityHit.HasComponent("FoodComponent") {
 			fc := entityHit.GetComponent("FoodComponent").(*components.FoodComponent)
@@ -78,7 +78,7 @@ func eat(entity *entity.Entity, entityHit *entity.Entity) bool {
 	return false
 }
 
-func face(entity *entity.Entity, deltaX int, deltaY int) {
+func face(entity *ecs.Entity, deltaX int, deltaY int) {
 	dc := entity.GetComponent("DirectionComponent").(*components.DirectionComponent)
 	if deltaY > 0 {
 		dc.Direction = 1
@@ -94,7 +94,7 @@ func face(entity *entity.Entity, deltaX int, deltaY int) {
 	}
 }
 
-func handleDeath(entity *entity.Entity) bool {
+func handleDeath(entity *ecs.Entity) bool {
 	if entity.HasComponent("HealthComponent") {
 		hc := entity.GetComponent("HealthComponent").(*components.HealthComponent)
 		if hc.Health <= 0 {
@@ -107,7 +107,7 @@ func handleDeath(entity *entity.Entity) bool {
 }
 
 // Returns true if a solid entity is in the way.
-func move(entity *entity.Entity, level *level.Level, deltaX int, deltaY int) bool {
+func move(entity *ecs.Entity, level *level.Level, deltaX int, deltaY int) bool {
 	pc := entity.GetComponent("PositionComponent").(*components.PositionComponent)
 	entityHit := level.GetSolidEntityAt(pc.GetX()+deltaX, pc.GetY()+deltaY)
 	if entityHit == nil {

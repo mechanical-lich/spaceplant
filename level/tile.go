@@ -5,7 +5,7 @@ import (
 	"math"
 
 	"github.com/beefsack/go-astar"
-	"github.com/mechanical-lich/game-engine/entity"
+	"github.com/mechanical-lich/game-engine/ecs"
 )
 
 type TileType int
@@ -28,7 +28,7 @@ type Tile struct {
 	Solid           bool
 	Elevation       int
 	TileIndex       int // Some tile types of multiple variants for rendering
-	Entities        []*entity.Entity
+	Entities        []*ecs.Entity
 	NoBudding       bool
 	ForgroundColor  color.Color
 	BackgroundColor color.Color

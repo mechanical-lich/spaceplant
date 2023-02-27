@@ -1,7 +1,7 @@
 package systems
 
 import (
-	"github.com/mechanical-lich/game-engine/entity"
+	"github.com/mechanical-lich/game-engine/ecs"
 	"github.com/mechanical-lich/spaceplant/components"
 	"github.com/mechanical-lich/spaceplant/level"
 )
@@ -10,7 +10,7 @@ type PlayerSystem struct {
 }
 
 // PlayerSystem .
-func (s *PlayerSystem) Update(levelInterface interface{}, entity *entity.Entity) error {
+func (s *PlayerSystem) Update(levelInterface interface{}, entity *ecs.Entity) error {
 	level := levelInterface.(*level.Level)
 
 	if entity.HasComponent("PlayerComponent") {

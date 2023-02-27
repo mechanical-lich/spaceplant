@@ -8,7 +8,8 @@ import (
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
-	"github.com/mechanical-lich/game-engine/entity"
+	"github.com/mechanical-lich/game-engine/ecs"
+
 	"github.com/mechanical-lich/game-engine/resource"
 	"github.com/mechanical-lich/spaceplant/components"
 	"github.com/mechanical-lich/spaceplant/config"
@@ -19,7 +20,7 @@ type Level struct {
 	data          [][]Tile
 	Width, Height int
 	Theme         Theme
-	Entities      []*entity.Entity
+	Entities      []*ecs.Entity
 }
 
 func NewLevel(width int, height int, theme Theme) (level *Level) {
@@ -167,7 +168,7 @@ func (level *Level) Polish() {
 }
 
 // Entity functions
-func (level *Level) PlaceEntity(x int, y int, entity *entity.Entity) {
+func (level *Level) PlaceEntity(x int, y int, entity *ecs.Entity) {
 	if x < level.Width && y < level.Height && x >= 0 && y >= 0 {
 		tile := &level.data[x][y]
 		pc := entity.GetComponent("PositionComponent").(*components.PositionComponent)
@@ -182,7 +183,7 @@ func (level *Level) PlaceEntity(x int, y int, entity *entity.Entity) {
 	}
 }
 
-func (level *Level) GetEntityAt(x int, y int) (entity *entity.Entity) {
+func (level *Level) GetEntityAt(x int, y int) (entity *ecs.Entity) {
 	if x < level.Width && y < level.Height && x >= 0 && y >= 0 {
 		tile := &level.data[x][y]
 		if len(tile.Entities) > 0 {
@@ -193,7 +194,7 @@ func (level *Level) GetEntityAt(x int, y int) (entity *entity.Entity) {
 	entity = nil
 	return
 }
-func (level *Level) GetEntitiesAround(x int, y int, width int, height int) (entities []*entity.Entity) {
+func (level *Level) GetEntitiesAround(x int, y int, width int, height int) (entities []*ecs.Entity) {
 	left := x - width/2
 	right := x + width/2
 	up := y - height/2
@@ -218,7 +219,7 @@ func (level *Level) GetEntitiesAround(x int, y int, width int, height int) (enti
 	}
 	return
 }
-func (level *Level) GetSolidEntityAt(x int, y int) (entity *entity.Entity) {
+func (level *Level) GetSolidEntityAt(x int, y int) (entity *ecs.Entity) {
 	if x < level.Width && y < level.Height && x >= 0 && y >= 0 {
 		tile := &level.data[x][y]
 		if len(tile.Entities) > 0 {
@@ -233,7 +234,7 @@ func (level *Level) GetSolidEntityAt(x int, y int) (entity *entity.Entity) {
 	return
 }
 
-func (level *Level) RemoveEntity(entity *entity.Entity) {
+func (level *Level) RemoveEntity(entity *ecs.Entity) {
 	if entity.HasComponent("PositionComponent") {
 		pc := entity.GetComponent("PositionComponent").(*components.PositionComponent)
 		x := pc.GetX()
@@ -256,7 +257,7 @@ func (level *Level) RemoveEntity(entity *entity.Entity) {
 	}
 }
 
-func (level *Level) AddEntity(entity *entity.Entity) {
+func (level *Level) AddEntity(entity *ecs.Entity) {
 	level.Entities = append(level.Entities, entity)
 	if entity.HasComponent("PositionComponent") {
 		pc := entity.GetComponent("PositionComponent").(*components.PositionComponent)
@@ -365,7 +366,7 @@ func (level *Level) Render(aX int, aY int, width int, height int, blind bool, ce
 	return output
 }
 
-func (level *Level) DrawEntity(screen *ebiten.Image, entity *entity.Entity, x float64, y float64) {
+func (level *Level) DrawEntity(screen *ebiten.Image, entity *ecs.Entity, x float64, y float64) {
 	//Draw entity on tile.
 	if entity != nil {
 		if entity.HasComponent("AppearanceComponent") {

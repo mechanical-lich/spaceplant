@@ -1,7 +1,7 @@
 package systems
 
 import (
-	"github.com/mechanical-lich/game-engine/entity"
+	"github.com/mechanical-lich/game-engine/ecs"
 	"github.com/mechanical-lich/spaceplant/components"
 )
 
@@ -9,7 +9,7 @@ type InitiativeSystem struct {
 }
 
 // InitiativeSystem .
-func (s InitiativeSystem) Update(levelInterface interface{}, entity *entity.Entity) error {
+func (s InitiativeSystem) Update(levelInterface interface{}, entity *ecs.Entity) error {
 	if entity.HasComponent("InitiativeComponent") {
 		ic := entity.GetComponent("InitiativeComponent").(*components.InitiativeComponent)
 		ic.Ticks--
