@@ -48,7 +48,9 @@ func NewMainState() (*MainState, error) {
 
 	for i := 0; i < numLevels; i++ {
 		m.levels = append(m.levels, level.NewLevel(100, 100, level.NewDefaultTheme()))
-		generation.GenerateStation(m.levels[i], 100, 100)
+		//generation.GenerateStation(m.levels[i], 100, 100)
+		//generation.GenerateRoundStation(m.levels[i])
+		generation.GenerateRectangleStation(m.levels[i])
 		m.levels[i].Polish()
 	}
 
@@ -59,7 +61,7 @@ func NewMainState() (*MainState, error) {
 	}
 	//TODO feed gm the current level
 	m.gm = GameMaster{}
-	m.gm.Init(m.levels[0])
+	//m.gm.Init(m.levels[0])
 	// Setup Systems
 	m.systemManager.AddSystem(system.InitiativeSystem{})
 	m.systemManager.AddSystem(system.StatusConditionSystem{})
@@ -68,7 +70,7 @@ func NewMainState() (*MainState, error) {
 
 	// Create player
 	// TODO - This shouldn't be permenant
-	m.Player, err = factory.Create("player", 50, 50)
+	m.Player, err = factory.Create("player", 2, 2)
 	if err != nil {
 		return nil, err
 	}
@@ -116,8 +118,8 @@ func (s *MainState) Update() {
 				for _, entity := range s.levels[s.CurrentLevel].Entities {
 					s.systemManager.UpdateSystemsForEntity(s.levels[s.CurrentLevel], entity)
 				}
-				s.pressDelay = 10
-				s.gm.Update(pc.GetX(), pc.GetY())
+				s.pressDelay = config.PressDelay
+				//s.gm.Update(pc.GetX(), pc.GetY())
 
 			}
 		}
@@ -133,7 +135,7 @@ func (s *MainState) Update() {
 
 func (s *MainState) Draw(screen *ebiten.Image) {
 	//s.DrawLevel(screen, s.CameraX, s.CameraY, 10, 10, false, true)
-	levelImage := s.levels[s.CurrentLevel].Render(s.CameraX, s.CameraY, config.ScreenWidth/config.SpriteWidth, config.ScreenHeight/config.SpriteHeight, false, true, true, true)
+	levelImage := s.levels[s.CurrentLevel].Render(s.CameraX, s.CameraY, config.ScreenWidth/config.SpriteWidth, config.ScreenHeight/config.SpriteHeight, false, true, config.Los, config.Fog)
 	op := &ebiten.DrawImageOptions{}
 	//op.GeoM.Scale(1.5, 1.5)
 	screen.DrawImage(levelImage, op)

@@ -72,6 +72,17 @@ func (level *Level) SetTileType(x int, y int, t TileType) error {
 	return nil
 }
 
+func (level *Level) SetTileNoBudding(x int, y int, noBudding bool) error {
+	tile := level.GetTileAt(x, y)
+	if tile == nil {
+		return errors.New("invalid tile")
+	}
+
+	tile.NoBudding = noBudding
+
+	return nil
+}
+
 func (level *Level) TileNeighbors(x, y int, nType TileType) bool {
 	for _, offset := range [][]int{
 		{-1, 0},
@@ -321,7 +332,9 @@ func (level *Level) Render(aX int, aY int, width int, height int, blind bool, ce
 			op.GeoM.Translate(tX, tY)
 
 			// Set color
-			op.ColorM.ScaleWithColor(forgroundColor)
+			if config.ColorShading {
+				op.ColorM.ScaleWithColor(forgroundColor)
+			}
 
 			// Default Tile
 			if tile != nil {
@@ -388,7 +401,9 @@ func (level *Level) DrawEntity(screen *ebiten.Image, entity *ecs.Entity, x float
 			//Position
 			op.GeoM.Translate(x, y)
 			//Color
-			//op.ColorM.ScaleWithColor(color.RGBA{ac.R, ac.G, ac.B, 255})
+			if config.ColorShading {
+				op.ColorM.ScaleWithColor(color.RGBA{ac.R, ac.G, ac.B, 255})
+			}
 			// TODO - I don't like this.  The appearance component should specify the resource.
 			screen.DrawImage(resource.Textures["entities"].SubImage(image.Rect(ac.SpriteX, ac.SpriteY, ac.SpriteX+config.SpriteWidth, ac.SpriteY+config.SpriteHeight)).(*ebiten.Image), op)
 

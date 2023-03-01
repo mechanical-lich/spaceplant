@@ -1,7 +1,7 @@
 player
 PlayerComponent:
 DescriptionComponent:Player,crew
-HealthComponent:10
+HealthComponent:100
 AppearanceComponent:0,0,255,255,255
 SolidComponent:
 FoodComponent:3

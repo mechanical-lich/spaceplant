@@ -13,4 +13,9 @@ const (
 	// Sprite size on the sprite sheet
 	SpriteWidth  = 32
 	SpriteHeight = 48
+
+	Fog          = false
+	ColorShading = false
+	Los          = false
+	PressDelay   = 5
 )
