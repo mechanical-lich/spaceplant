@@ -88,6 +88,22 @@ func Create(name string, x int, y int) (*ecs.Entity, error) {
 					inv.AddItem(item)
 				}
 				entity.AddComponent(inv)
+			case "LightComponent":
+				radius := 5
+				brightness := 5
+				r := 255
+				g := 0
+				b := 0
+				if len(params) == 5 {
+					radius, _ = strconv.Atoi(params[0])
+					brightness, _ = strconv.Atoi(params[1])
+					r, _ = strconv.Atoi(params[2])
+					g, _ = strconv.Atoi(params[3])
+					b, _ = strconv.Atoi(params[4])
+
+				}
+
+				entity.AddComponent(&component.LightComponent{Brightness: brightness, Radius: radius, R: r, G: g, B: b})
 			case "InteractComponent":
 				interact := &component.InteractComponent{}
 				interact.Message = append(interact.Message, params...)

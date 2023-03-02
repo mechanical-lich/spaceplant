@@ -14,8 +14,8 @@ const (
 	SpriteWidth  = 32
 	SpriteHeight = 48
 
-	Fog          = false
+	Lighting     = true
 	ColorShading = false
-	Los          = false
+	Los          = true
 	PressDelay   = 5
 )

@@ -3,6 +3,7 @@ PlayerComponent:
 DescriptionComponent:Player,crew
 HealthComponent:100
 AppearanceComponent:0,0,255,255,255
+LightComponent:10,155,0,0,125
 SolidComponent:
 FoodComponent:3
 InitiativeComponent:1,1
@@ -71,6 +72,8 @@ FoodComponent:3
 WanderAIComponent:
 DefensiveAIComponent:
 InitiativeComponent:3,1
+LightComponent:5,125,255,255,255
+
 
 officer
 DescriptionComponent: Officer,crew
@@ -82,3 +85,4 @@ FoodComponent:3
 WanderAIComponent:
 DefensiveAIComponent:
 InitiativeComponent:3,1
+LightComponent:5,125,255,255,255

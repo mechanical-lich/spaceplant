@@ -128,9 +128,14 @@ func GenerateRectangleStation(l *level.Level) {
 	//Right
 	CarveMaintenanceTunnel(l, l.Width-roomWidth/2-hallwayWidth/2, l.Height/2, x+r-1, y, level.Type_MaintenanceTunnelFLoor, level.Type_MaintenanceTunnelDoor)
 
+	l.Polish()
 	// Rooms and tunnels
 	BudRooms(l, l.Width, l.Height, 50)
+
+	l.Polish()
 	CarveMaintenanceTunnels(l, l.Width, l.Height, 30)
+
+	l.Polish()
 }
 
 func GenerateStation(l *level.Level, width, height int) {

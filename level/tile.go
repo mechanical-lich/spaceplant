@@ -27,6 +27,7 @@ type Tile struct {
 	Type            TileType
 	Solid           bool
 	Elevation       int
+	Light           int
 	TileIndex       int // Some tile types of multiple variants for rendering
 	Entities        []*ecs.Entity
 	NoBudding       bool

@@ -161,13 +161,13 @@ func (level *Level) Polish() {
 					tile.BackgroundColor = level.Theme.OpenBackgroundColor
 				case Type_Door:
 					tile.TileIndex = level.Theme.Door[utility.GetRandom(0, len(level.Theme.Door))]
-					//tile.Solid = true
+					tile.Solid = false
 					tile.ForgroundColor = level.Theme.SecondaryForgroundColor
 					tile.BackgroundColor = level.Theme.SecondaryBackgroundColor
 
 				case Type_MaintenanceTunnelDoor:
 					tile.TileIndex = level.Theme.MaintenanceTunnelDoor[utility.GetRandom(0, len(level.Theme.MaintenanceTunnelDoor))]
-					//tile.Solid = true
+					tile.Solid = false
 					tile.ForgroundColor = level.Theme.SecondaryForgroundColor
 					tile.BackgroundColor = level.Theme.SecondaryBackgroundColor
 				}
@@ -278,7 +278,7 @@ func (level *Level) AddEntity(entity *ecs.Entity) {
 	}
 }
 
-func (level *Level) Render(aX int, aY int, width int, height int, blind bool, centered bool, useLos bool, useFog bool) *ebiten.Image {
+func (level *Level) Render(aX int, aY int, width int, height int, blind bool, centered bool, useLos bool, useLighting bool) *ebiten.Image {
 	output := ebiten.NewImage(width*config.SpriteWidth, height*config.SpriteHeight)
 	left := aX - width/2
 	right := aX + width/2
@@ -318,7 +318,7 @@ func (level *Level) Render(aX int, aY int, width int, height int, blind bool, ce
 			if tile != nil {
 				// LOS logic
 				if useLos {
-					seen = los(aX, aY, tile.X, tile.Y, level)
+					seen = Los(aX, aY, tile.X, tile.Y, level)
 				}
 				forgroundColor = tile.ForgroundColor
 				backgroundColor = tile.BackgroundColor
@@ -343,11 +343,11 @@ func (level *Level) Render(aX int, aY int, width int, height int, blind bool, ce
 				output.DrawImage(resource.Textures["map"].SubImage(image.Rect(sX, 0, sX+config.SpriteWidth, config.SpriteHeight)).(*ebiten.Image), op)
 
 				if !seen {
-					if tile.Seen {
-						ebitenutil.DrawRect(output, tX, tY, config.SpriteWidth, config.SpriteHeight, color.RGBA{0, 0, 0, 150})
-					} else {
-						ebitenutil.DrawRect(output, tX, tY, config.SpriteWidth, config.SpriteHeight, level.Theme.OpenBackgroundColor)
-					}
+					// if tile.Seen {
+					// 	ebitenutil.DrawRect(output, tX, tY, config.SpriteWidth, config.SpriteHeight, color.RGBA{0, 0, 0, 200})
+					// } else {
+					ebitenutil.DrawRect(output, tX, tY, config.SpriteWidth, config.SpriteHeight, level.Theme.OpenBackgroundColor)
+					//}
 
 				} else {
 					tile.Seen = true
@@ -358,13 +358,14 @@ func (level *Level) Render(aX int, aY int, width int, height int, blind bool, ce
 						level.DrawEntity(output, entity, tX, tY)
 					}
 					// Draw fog
-					if useFog {
-						dist := utility.Distance(aX, aY, tile.X, tile.Y)
-						dist = 255 * dist / 20
-						if dist > 255 {
-							dist = 255
+					if useLighting {
+						//dist := utility.Distance(aX, aY, tile.X, tile.Y)
+						//dist = 255 * dist / 20
+						brightness := 255 - tile.Light
+						if brightness > 255 {
+							brightness = 255
 						}
-						fogColor := color.RGBA{0, 0, 0, uint8(dist)}
+						fogColor := color.RGBA{0, 0, 0, uint8(brightness)}
 
 						ebitenutil.DrawRect(output, tX, tY, config.SpriteWidth, config.SpriteHeight, fogColor)
 					}
@@ -425,7 +426,7 @@ func (level *Level) DrawEntity(screen *ebiten.Image, entity *ecs.Entity, x float
 	}
 }
 
-func los(pX int, pY int, tX int, tY int, level *Level) bool {
+func Los(pX int, pY int, tX int, tY int, level *Level) bool {
 	deltaX := pX - tX
 	deltaY := pY - tY
 
