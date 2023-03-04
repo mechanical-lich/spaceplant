@@ -4,7 +4,6 @@ import (
 	"errors"
 	"image"
 	"image/color"
-	"math"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
@@ -126,8 +125,12 @@ func (level *Level) Polish() {
 					tile.Solid = true
 					belowTile := level.GetTileAt(x, y+1)
 					if belowTile != nil {
-						if belowTile.Type == Type_Wall || belowTile.Type == Type_Door || belowTile.Type == Type_MaintenanceTunnelDoor {
+						if belowTile.Type == Type_Wall || belowTile.Type == Type_Door || belowTile.Type == Type_MaintenanceTunnelDoor || belowTile.Type == Type_MaintenanceTunnelWall {
 							tile.TileIndex = level.Theme.WallTop[utility.GetRandom(0, len(level.Theme.WallTop))]
+						}
+
+						if belowTile.Type == Type_Open {
+							tile.TileIndex = level.Theme.WallOutside[utility.GetRandom(0, len(level.Theme.WallOutside))]
 						}
 					}
 					tile.ForgroundColor = level.Theme.ForgroundColor
@@ -278,7 +281,7 @@ func (level *Level) AddEntity(entity *ecs.Entity) {
 	}
 }
 
-func (level *Level) Render(aX int, aY int, width int, height int, blind bool, centered bool, useLos bool, useLighting bool) *ebiten.Image {
+func (level *Level) Render(aX int, aY int, width int, height int, blind bool, centered bool) *ebiten.Image {
 	output := ebiten.NewImage(width*config.SpriteWidth, height*config.SpriteHeight)
 	left := aX - width/2
 	right := aX + width/2
@@ -306,70 +309,20 @@ func (level *Level) Render(aX int, aY int, width int, height int, blind bool, ce
 			}
 
 			//Draw tile
-			tX := float64(screenX * config.SpriteWidth)
-			tY := float64(screenY * config.SpriteHeight)
-
-			// // Figure out colors
-			backgroundColor := level.Theme.BackgroundColor
-			forgroundColor := level.Theme.ForgroundColor
-
-			seen := true
-
 			if tile != nil {
+				seen := true
 				// LOS logic
-				if useLos {
+				if config.Los {
 					seen = Los(aX, aY, tile.X, tile.Y, level)
 				}
-				forgroundColor = tile.ForgroundColor
-				backgroundColor = tile.BackgroundColor
-			}
 
-			////Draw background square
-			ebitenutil.DrawRect(output, tX, tY, config.SpriteWidth, config.SpriteHeight, backgroundColor)
+				tile.Draw(output, screenX, screenY, seen)
+			} else {
+				// Draw nothingness if out of bound.
+				tX := float64(screenX * config.SpriteWidth)
+				tY := float64(screenY * config.SpriteHeight)
+				ebitenutil.DrawRect(output, tX, tY, config.SpriteWidth, config.SpriteHeight, level.Theme.BackgroundColor)
 
-			// Draw forground
-			op := &ebiten.DrawImageOptions{}
-			op.GeoM.Translate(tX, tY)
-
-			// Set color
-			if config.ColorShading {
-				op.ColorM.ScaleWithColor(forgroundColor)
-			}
-
-			// Default Tile
-			if tile != nil {
-				// Real tile
-				sX := tile.TileIndex * config.SpriteWidth
-				output.DrawImage(resource.Textures["map"].SubImage(image.Rect(sX, 0, sX+config.SpriteWidth, config.SpriteHeight)).(*ebiten.Image), op)
-
-				if !seen {
-					// if tile.Seen {
-					// 	ebitenutil.DrawRect(output, tX, tY, config.SpriteWidth, config.SpriteHeight, color.RGBA{0, 0, 0, 200})
-					// } else {
-					ebitenutil.DrawRect(output, tX, tY, config.SpriteWidth, config.SpriteHeight, level.Theme.OpenBackgroundColor)
-					//}
-
-				} else {
-					tile.Seen = true
-
-					//Draw entity on tile.  We do this here to prevent yet another loop. ;)
-					entity := level.GetEntityAt(x, y)
-					if entity != nil && seen {
-						level.DrawEntity(output, entity, tX, tY)
-					}
-					// Draw fog
-					if useLighting {
-						//dist := utility.Distance(aX, aY, tile.X, tile.Y)
-						//dist = 255 * dist / 20
-						brightness := 255 - tile.Light
-						if brightness > 255 {
-							brightness = 255
-						}
-						fogColor := color.RGBA{0, 0, 0, uint8(brightness)}
-
-						ebitenutil.DrawRect(output, tX, tY, config.SpriteWidth, config.SpriteHeight, fogColor)
-					}
-				}
 			}
 
 			screenY++
@@ -424,57 +377,4 @@ func (level *Level) DrawEntity(screen *ebiten.Image, entity *ecs.Entity, x float
 			}
 		}
 	}
-}
-
-func Los(pX int, pY int, tX int, tY int, level *Level) bool {
-	deltaX := pX - tX
-	deltaY := pY - tY
-
-	absDeltaX := math.Abs(float64(deltaX))
-	absDeltaY := math.Abs(float64(deltaY))
-
-	signX := utility.Sgn(deltaX)
-	signY := utility.Sgn(deltaY)
-
-	if absDeltaX > absDeltaY {
-		t := absDeltaY*2 - absDeltaX
-		for {
-			if t >= 0 {
-				tY += signY
-				t -= absDeltaX * 2
-			}
-
-			tX += signX
-			t += absDeltaY * 2
-
-			if tX == pX && tY == pY {
-				return true
-			}
-			if level.IsTileSolid(tX, tY) || level.GetTileType(tX, tY) == Type_Door || level.GetTileType(tX, tY) == Type_MaintenanceTunnelDoor {
-				break
-			}
-		}
-		return false
-	}
-
-	t := absDeltaX*2 - absDeltaY
-
-	for {
-		if t >= 0 {
-			tX += signX
-			t -= absDeltaY * 2
-		}
-		tY += signY
-		t += absDeltaX * 2
-		if tX == pX && tY == pY {
-			return true
-		}
-
-		if level.IsTileSolid(tX, tY) || level.GetTileType(tX, tY) == Type_Door || level.GetTileType(tX, tY) == Type_MaintenanceTunnelDoor {
-			break
-		}
-	}
-
-	return false
-
 }

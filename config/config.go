@@ -17,5 +17,6 @@ const (
 	Lighting     = true
 	ColorShading = false
 	Los          = true
-	PressDelay   = 5
+	PressDelay   = 10
+	UpdateDelay  = 0
 )

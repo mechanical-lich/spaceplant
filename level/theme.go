@@ -3,8 +3,10 @@ package level
 import "image/color"
 
 type Theme struct {
-	Wall                   []int
-	WallTop                []int
+	Wall        []int
+	WallTop     []int
+	WallOutside []int
+
 	Floor                  []int
 	Door                   []int
 	MaintenanceTunnelFloor []int
@@ -24,8 +26,9 @@ type Theme struct {
 
 func NewDefaultTheme() Theme {
 	return Theme{
-		Wall:                   []int{1, 2, 3, 4, 5, 6, 7, 8, 9},
+		Wall:                   []int{0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4},
 		WallTop:                []int{10},
+		WallOutside:            []int{4},
 		Floor:                  []int{15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 16}, // Crappy weighted randomness
 		Door:                   []int{11, 12},
 		Stairs:                 []int{14},

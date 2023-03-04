@@ -30,9 +30,10 @@ type MainState struct {
 	pressDelay    int
 	systemManager *ecs.SystemManager
 
-	Player *ecs.Entity
-
-	gm GameMaster
+	Player          *ecs.Entity
+	PlayerInputHalt bool
+	gm              GameMaster
+	updateDelay     int
 }
 
 func NewMainState() (*MainState, error) {
@@ -89,7 +90,7 @@ func NewMainState() (*MainState, error) {
 }
 
 func (s *MainState) Update() {
-	if s.Player != nil {
+	if s.Player != nil && s.updateDelay <= 0 {
 		playerC := s.Player.GetComponent("PlayerComponent").(*component.PlayerComponent)
 		pc := s.Player.GetComponent("PositionComponent").(*component.PositionComponent)
 
@@ -98,28 +99,38 @@ func (s *MainState) Update() {
 			s.pressDelay--
 		}
 
-		s.keys = inpututil.AppendPressedKeys([]ebiten.Key{})
-		for _, k := range s.keys {
-			if s.pressDelay == 0 {
-				playerC.PushCommand(k.String())
-				s.UpdateEntities()
-				s.pressDelay = config.PressDelay
-				//s.gm.Update(pc.GetX(), pc.GetY())
+		// Pause the game for the player to take their turn
+		if s.Player.HasComponent("MyTurnComponent") {
+			s.PlayerInputHalt = true
 
+			// Handle input
+			s.keys = inpututil.AppendPressedKeys([]ebiten.Key{})
+			for _, k := range s.keys {
+				if s.pressDelay == 0 {
+					playerC.PushCommand(k.String())
+					s.pressDelay = config.PressDelay
+
+					s.PlayerInputHalt = false
+					//s.gm.Update(pc.GetX(), pc.GetY())
+				}
 			}
 		}
 
+		if !s.PlayerInputHalt {
+			cS := system.CleanUpSystem{}
+			cS.Update(s.levels[s.CurrentLevel])
+			s.UpdateEntities()
+
+		}
 		s.CameraX = pc.GetX()
 		s.CameraY = pc.GetY()
+		s.updateDelay = config.UpdateDelay
 	}
-
-	cS := system.CleanUpSystem{}
-	cS.Update(s.levels[s.CurrentLevel])
-
+	s.updateDelay--
 }
 
 func (s *MainState) Draw(screen *ebiten.Image) {
-	levelImage := s.levels[s.CurrentLevel].Render(s.CameraX, s.CameraY, config.ScreenWidth/config.SpriteWidth, config.ScreenHeight/config.SpriteHeight, false, true, config.Los, config.Lighting)
+	levelImage := s.levels[s.CurrentLevel].Render(s.CameraX, s.CameraY, config.ScreenWidth/config.SpriteWidth, config.ScreenHeight/config.SpriteHeight, false, true)
 	op := &ebiten.DrawImageOptions{}
 	//op.GeoM.Scale(1.5, 1.5)
 	screen.DrawImage(levelImage, op)

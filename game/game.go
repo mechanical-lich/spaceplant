@@ -1,6 +1,8 @@
 package game
 
 import (
+	"fmt"
+
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/mechanical-lich/game-engine/resource"
 	"github.com/mechanical-lich/game-engine/state"
@@ -42,6 +44,7 @@ func (g *Game) Run() error {
 // Main update loop
 func (g *Game) Update() error {
 	g.StateMachine.Update()
+	ebiten.SetWindowTitle(fmt.Sprintf("%s - %d", g.title, int(ebiten.ActualFPS())))
 	return nil
 }
 

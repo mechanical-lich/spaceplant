@@ -3,10 +3,13 @@ PlayerComponent:
 DescriptionComponent:Player,crew
 HealthComponent:100
 AppearanceComponent:0,0,255,255,255
-LightComponent:10,155,0,0,125
+LightComponent:10,10,0,0,125
 SolidComponent:
 FoodComponent:3
-InitiativeComponent:1,1
+InitiativeComponent:10,1
+
+Light
+LightComponent:10,10,0,0,125
 
 creeper
 DescriptionComponent:Creeper,plantz
@@ -15,7 +18,7 @@ HealthComponent:10
 DamageComponent:2
 SolidComponent:
 HostileAIComponent:10
-InitiativeComponent:2,1
+InitiativeComponent:10,1
 
 abomination
 DescriptionComponent:Abomination,plantz
@@ -24,7 +27,7 @@ HealthComponent:10
 DamageComponent:2
 SolidComponent:
 HostileAIComponent:10
-InitiativeComponent:2,1
+InitiativeComponent:10,1
 
 viner
 DescriptionComponent:Viner,plantz
@@ -33,7 +36,7 @@ HealthComponent:10
 DamageComponent:2
 SolidComponent:
 HostileAIComponent:10
-InitiativeComponent:2,1
+InitiativeComponent:10,1
 
 scythe
 DescriptionComponent:Scythe,plantz
@@ -42,7 +45,7 @@ HealthComponent:10
 DamageComponent:2
 SolidComponent:
 HostileAIComponent:10
-InitiativeComponent:2,1
+InitiativeComponent:10,1
 
 scrambler
 DescriptionComponent:Scramber,plantz
@@ -51,7 +54,7 @@ HealthComponent:10
 DamageComponent:2
 SolidComponent:
 HostileAIComponent:10
-InitiativeComponent:2,1
+InitiativeComponent:7,1
 
 spitter
 DescriptionComponent:Spitter,plantz
@@ -60,10 +63,10 @@ HealthComponent:10
 DamageComponent:2
 SolidComponent:
 HostileAIComponent:10
-InitiativeComponent:2,1
+InitiativeComponent:10,1
 
 crewmember
-DescriptionComponent:Crew member,crew
+DescriptionComponent:Crewmen,crew
 AppearanceComponent:64,0,200,200,125
 HealthComponent:10
 DamageComponent:2
@@ -71,12 +74,12 @@ SolidComponent:
 FoodComponent:3
 WanderAIComponent:
 DefensiveAIComponent:
-InitiativeComponent:3,1
-LightComponent:5,125,255,255,255
+InitiativeComponent:10,1
+LightComponent:10,10,0,0,125
 
 
 officer
-DescriptionComponent: Officer,crew
+DescriptionComponent:Officer,crew
 AppearanceComponent:32,0,200,200,125
 HealthComponent:10
 DamageComponent:2
@@ -84,5 +87,5 @@ SolidComponent:
 FoodComponent:3
 WanderAIComponent:
 DefensiveAIComponent:
-InitiativeComponent:3,1
-LightComponent:5,125,255,255,255
+InitiativeComponent:10,1
+LightComponent:10,10,0,0,125

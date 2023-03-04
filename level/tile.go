@@ -1,11 +1,16 @@
 package level
 
 import (
+	"image"
 	"image/color"
 	"math"
 
 	"github.com/beefsack/go-astar"
+	"github.com/hajimehoshi/ebiten/v2"
+	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
 	"github.com/mechanical-lich/game-engine/ecs"
+	"github.com/mechanical-lich/game-engine/resource"
+	"github.com/mechanical-lich/spaceplant/config"
 )
 
 type TileType int
@@ -98,4 +103,57 @@ func (t *Tile) PathEstimatedCost(to astar.Pather) float64 {
 	first := math.Pow(float64(t2.X-t.X), 2)
 	second := math.Pow(float64(t2.Y-t.Y), 2)
 	return first + second
+}
+
+func (t *Tile) Draw(output *ebiten.Image, screenX, screenY int, seen bool) {
+	tX := float64(screenX * config.SpriteWidth)
+	tY := float64(screenY * config.SpriteHeight)
+	forgroundColor := t.ForgroundColor
+	backgroundColor := t.BackgroundColor
+
+	////Draw background square
+	ebitenutil.DrawRect(output, tX, tY, config.SpriteWidth, config.SpriteHeight, backgroundColor)
+
+	// Draw forground
+	op := &ebiten.DrawImageOptions{}
+	op.GeoM.Translate(tX, tY)
+
+	// Set color
+	if config.ColorShading {
+		op.ColorM.ScaleWithColor(forgroundColor)
+	}
+
+	// Real tile
+	sX := t.TileIndex * config.SpriteWidth
+	output.DrawImage(resource.Textures["map"].SubImage(image.Rect(sX, 0, sX+config.SpriteWidth, config.SpriteHeight)).(*ebiten.Image), op)
+
+	if !seen {
+		if t.Seen {
+			ebitenutil.DrawRect(output, tX, tY, config.SpriteWidth, config.SpriteHeight, color.RGBA{0, 0, 0, 220})
+		} else {
+			ebitenutil.DrawRect(output, tX, tY, config.SpriteWidth, config.SpriteHeight, t.level.Theme.OpenBackgroundColor)
+		}
+
+	} else {
+		t.Seen = true
+
+		//Draw entity on tile.  We do this here to prevent yet another loop. ;)
+		entity := t.level.GetEntityAt(t.X, t.Y)
+		if entity != nil && seen {
+			t.level.DrawEntity(output, entity, tX, tY)
+		}
+
+		// Draw fog
+		if config.Lighting {
+			//dist := utility.Distance(aX, aY, tile.X, tile.Y)
+			//brightness := 255 * dist / 20
+			// brightness := 255 - tile.Light
+			// if brightness > 255 {
+			// 	brightness = 255
+			// }
+			fogColor := color.RGBA{0, 0, 0, uint8(t.Light)}
+
+			ebitenutil.DrawRect(output, tX, tY, config.SpriteWidth, config.SpriteHeight, fogColor)
+		}
+	}
 }
