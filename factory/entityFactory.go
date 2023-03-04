@@ -123,9 +123,14 @@ func Create(name string, x int, y int) (*ecs.Entity, error) {
 			case "HealthComponent":
 				amount, _ := strconv.Atoi(params[0])
 				entity.AddComponent(&component.HealthComponent{Health: amount})
-			case "DamageComponent":
-				amount, _ := strconv.Atoi(params[0])
-				entity.AddComponent(&component.DamageComponent{Amount: amount})
+			case "StatsComponent":
+				ac, _ := strconv.Atoi(params[0])
+				str, _ := strconv.Atoi(params[1])
+				dex, _ := strconv.Atoi(params[2])
+				intel, _ := strconv.Atoi(params[3])
+				wis, _ := strconv.Atoi(params[4])
+				d := params[5]
+				entity.AddComponent(&component.StatsComponent{AC: ac, Str: str, Dex: dex, Int: intel, Wis: wis, BasicAttackDice: d})
 			case "PoisonousComponent":
 				amount, _ := strconv.Atoi(params[0])
 				entity.AddComponent(&component.PoisonousComponent{Duration: amount})

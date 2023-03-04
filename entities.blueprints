@@ -7,85 +7,89 @@ LightComponent:10,10,0,0,125
 SolidComponent:
 FoodComponent:3
 InitiativeComponent:10,1
+StatsComponent:10,10,10,10,10,1d4
 
-Light
+
+light
 LightComponent:10,10,0,0,125
+StatsComponent:10,10,10,10,10,1d4
 
 creeper
 DescriptionComponent:Creeper,plantz
 AppearanceComponent:96,0,0,255,0
 HealthComponent:10
-DamageComponent:2
 SolidComponent:
 HostileAIComponent:10
 InitiativeComponent:10,1
+StatsComponent:10,10,10,10,10,1d4
+
 
 abomination
 DescriptionComponent:Abomination,plantz
 AppearanceComponent:128,0,0,255,0
 HealthComponent:10
-DamageComponent:2
 SolidComponent:
 HostileAIComponent:10
 InitiativeComponent:10,1
+StatsComponent:10,10,10,10,10,1d4
+
 
 viner
 DescriptionComponent:Viner,plantz
 AppearanceComponent:160,0,0,255,0
 HealthComponent:10
-DamageComponent:2
 SolidComponent:
 HostileAIComponent:10
 InitiativeComponent:10,1
+StatsComponent:10,10,10,10,10,1d4
 
 scythe
 DescriptionComponent:Scythe,plantz
 AppearanceComponent:192,0,0,255,0
 HealthComponent:10
-DamageComponent:2
 SolidComponent:
 HostileAIComponent:10
 InitiativeComponent:10,1
+StatsComponent:10,10,10,10,10,1d4
 
 scrambler
 DescriptionComponent:Scramber,plantz
 AppearanceComponent:224,0,0,255,0
 HealthComponent:10
-DamageComponent:2
 SolidComponent:
 HostileAIComponent:10
 InitiativeComponent:7,1
+StatsComponent:10,10,10,10,10,1d4
 
 spitter
 DescriptionComponent:Spitter,plantz
 AppearanceComponent:256,0,0,255,0
 HealthComponent:10
-DamageComponent:2
 SolidComponent:
 HostileAIComponent:10
 InitiativeComponent:10,1
+StatsComponent:10,10,10,10,10,1d4
 
 crewmember
 DescriptionComponent:Crewmen,crew
 AppearanceComponent:64,0,200,200,125
 HealthComponent:10
-DamageComponent:2
 SolidComponent:
 FoodComponent:3
 WanderAIComponent:
 DefensiveAIComponent:
 InitiativeComponent:10,1
 LightComponent:10,10,0,0,125
-
+StatsComponent:10,10,10,10,10,1d4
 
 officer
 DescriptionComponent:Officer,crew
 AppearanceComponent:32,0,200,200,125
 HealthComponent:10
-DamageComponent:2
 SolidComponent:
 FoodComponent:3
 WanderAIComponent:
 DefensiveAIComponent:
 InitiativeComponent:10,1
 LightComponent:10,10,0,0,125
+StatsComponent:10,10,10,10,10,1d4

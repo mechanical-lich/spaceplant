@@ -1,8 +1,11 @@
 package system
 
 import (
+	"fmt"
+
 	"github.com/mechanical-lich/game-engine/ecs"
 	"github.com/mechanical-lich/spaceplant/component"
+	"github.com/mechanical-lich/spaceplant/dice"
 	"github.com/mechanical-lich/spaceplant/level"
 )
 
@@ -29,20 +32,52 @@ func hit(l *level.Level, entity *ecs.Entity, entityHit *ecs.Entity) {
 		}
 
 		//Attack it
-		if entityHit.HasComponent("HealthComponent") {
-			damage := 1
-			if entityHit.HasComponent("DamageComponent") {
-				dc := entityHit.GetComponent("DamageComponent").(*component.DamageComponent)
-				damage = dc.Amount
-			}
-			ehc := entityHit.GetComponent("HealthComponent").(*component.HealthComponent)
-			if ehc.Health > 0 {
-				ehc.Health -= damage
+		if entityHit.HasComponent("HealthComponent") && entityHit.HasComponent("StatsComponent") && entity.HasComponent("StatsComponent") {
+			sc := entity.GetComponent("StatsComponent").(*component.StatsComponent)
+			hitSc := entityHit.GetComponent("StatsComponent").(*component.StatsComponent)
+
+			//Roll to hit
+			d := fmt.Sprintf("1d20+%d", getModifier(sc.Dex))
+			roll, err := dice.ParseDiceRequest(d)
+			if err == nil {
+				if roll.Result > hitSc.AC {
+					damage := 0
+					// TODO Figure out weapon dice.
+					d = fmt.Sprintf("%s+%d", sc.BasicAttackDice, getModifier(sc.Str))
+					// fmt.Println(d)
+					roll, err = dice.ParseDiceRequest(d)
+					if err == nil {
+						damage = roll.Result
+					} else {
+						fmt.Println("Error rolling dice: ", d)
+					}
+
+					//Create visual of attack
+					entityHit.AddComponent(&component.AttackComponent{SpriteX: 0, SpriteY: 0})
+
+					// Apply damage
+					ehc := entityHit.GetComponent("HealthComponent").(*component.HealthComponent)
+					if ehc.Health > 0 {
+						ehc.Health -= damage
+						if entityHit.HasComponent("DescriptionComponent") && entity.HasComponent("DescriptionComponent") {
+							hitDc := entityHit.GetComponent("DescriptionComponent").(*component.DescriptionComponent)
+							dc := entity.GetComponent("DescriptionComponent").(*component.DescriptionComponent)
+							fmt.Println(dc.Name+" hit "+hitDc.Name+" for ", damage)
+						}
+					}
+				} else {
+					// Missed
+					if entityHit.HasComponent("DescriptionComponent") && entity.HasComponent("DescriptionComponent") {
+						hitDc := entityHit.GetComponent("DescriptionComponent").(*component.DescriptionComponent)
+						dc := entity.GetComponent("DescriptionComponent").(*component.DescriptionComponent)
+						fmt.Println(dc.Name + " missed " + hitDc.Name)
+					}
+				}
+			} else {
+				fmt.Println("Error rolling dice: ", d)
+
 			}
 		}
-
-		//Create visual of attack
-		entityHit.AddComponent(&component.AttackComponent{SpriteX: 0, SpriteY: 0})
 
 		// Trigger their defenses
 		if entityHit.HasComponent("DefensiveAIComponent") {
@@ -125,4 +160,8 @@ func move(entity *ecs.Entity, level *level.Level, deltaX int, deltaY int) bool {
 	}
 
 	return true
+}
+
+func getModifier(stat int) int {
+	return (stat - 10) / 2
 }
