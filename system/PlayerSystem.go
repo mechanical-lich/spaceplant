@@ -3,7 +3,7 @@ package system
 import (
 	"fmt"
 
-	"github.com/mechanical-lich/game-engine/ecs"
+	"github.com/mechanical-lich/mlge/ecs"
 	"github.com/mechanical-lich/spaceplant/component"
 	"github.com/mechanical-lich/spaceplant/eventsystem"
 	"github.com/mechanical-lich/spaceplant/level"
@@ -13,8 +13,16 @@ import (
 type PlayerSystem struct {
 }
 
+func (s *PlayerSystem) UpdateSystem(data any) error {
+	return nil
+}
+
+func (s *PlayerSystem) Requires() []ecs.ComponentType {
+	return nil
+}
+
 // PlayerSystem .
-func (s *PlayerSystem) Update(levelInterface interface{}, entity *ecs.Entity) error {
+func (s *PlayerSystem) UpdateEntity(levelInterface any, entity *ecs.Entity) error {
 	l := levelInterface.(*level.Level)
 
 	if entity.HasComponent("PlayerComponent") {
@@ -23,8 +31,6 @@ func (s *PlayerSystem) Update(levelInterface interface{}, entity *ecs.Entity) er
 			dc := entity.GetComponent("DirectionComponent").(*component.DirectionComponent)
 			playerComponent := entity.GetComponent("PlayerComponent").(*component.PlayerComponent)
 			command := playerComponent.PopCommand()
-			// pX := pc.GetX()
-			// pY := pc.GetY()
 
 			deltaX := 0
 			deltaY := 0

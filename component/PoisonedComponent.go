@@ -1,11 +1,13 @@
 package component
 
+import "github.com/mechanical-lich/mlge/ecs"
+
 // MyTurnComponent .
 type PoisonedComponent struct {
 	Duration int
 }
 
-func (pc PoisonedComponent) GetType() string {
+func (pc PoisonedComponent) GetType() ecs.ComponentType {
 	return "PoisonedComponent"
 }
 

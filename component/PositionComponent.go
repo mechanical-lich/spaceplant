@@ -1,12 +1,14 @@
 package component
 
+import "github.com/mechanical-lich/mlge/ecs"
+
 // PositionComponent .
 type PositionComponent struct {
 	x, y  int
 	Level int
 }
 
-func (pc PositionComponent) GetType() string {
+func (pc PositionComponent) GetType() ecs.ComponentType {
 	return "PositionComponent"
 }
 

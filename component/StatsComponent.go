@@ -1,5 +1,7 @@
 package component
 
+import "github.com/mechanical-lich/mlge/ecs"
+
 // MyTurnComponent .
 type StatsComponent struct {
 	AC              int
@@ -10,6 +12,6 @@ type StatsComponent struct {
 	BasicAttackDice string
 }
 
-func (pc StatsComponent) GetType() string {
+func (pc StatsComponent) GetType() ecs.ComponentType {
 	return "StatsComponent"
 }

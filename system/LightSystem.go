@@ -3,13 +3,21 @@ package system
 import (
 	"errors"
 
-	"github.com/mechanical-lich/game-engine/ecs"
+	"github.com/mechanical-lich/mlge/ecs"
 	"github.com/mechanical-lich/spaceplant/component"
 	"github.com/mechanical-lich/spaceplant/level"
 	"github.com/mechanical-lich/spaceplant/utility"
 )
 
 type LightSystem struct {
+}
+
+func (s LightSystem) UpdateSystem(data any) error {
+	return nil
+}
+
+func (s LightSystem) Requires() []ecs.ComponentType {
+	return nil
 }
 
 func (s LightSystem) ClearLights(l *level.Level) {
@@ -21,7 +29,7 @@ func (s LightSystem) ClearLights(l *level.Level) {
 }
 
 // LightSystem .
-func (s LightSystem) Update(levelInterface interface{}, entity *ecs.Entity) error {
+func (s LightSystem) UpdateEntity(levelInterface any, entity *ecs.Entity) error {
 	if entity.HasComponent("LightComponent") && entity.HasComponent("PositionComponent") {
 		l, ok := levelInterface.(*level.Level)
 		if !ok {

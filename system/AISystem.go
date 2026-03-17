@@ -4,7 +4,7 @@ import (
 	"math/rand"
 
 	"github.com/beefsack/go-astar"
-	"github.com/mechanical-lich/game-engine/ecs"
+	"github.com/mechanical-lich/mlge/ecs"
 	"github.com/mechanical-lich/spaceplant/component"
 	world "github.com/mechanical-lich/spaceplant/level"
 )
@@ -16,8 +16,16 @@ func getRandom(low int, high int) int {
 type AISystem struct {
 }
 
-// PlayerSystem .
-func (s AISystem) Update(levelInterface interface{}, entity *ecs.Entity) error {
+func (s *AISystem) UpdateSystem(data any) error {
+	return nil
+}
+
+func (s *AISystem) Requires() []ecs.ComponentType {
+	return nil
+}
+
+// AISystem .
+func (s *AISystem) UpdateEntity(levelInterface any, entity *ecs.Entity) error {
 	level := levelInterface.(*world.Level)
 	if !entity.HasComponent("DeadComponent") {
 		if entity.HasComponent("MyTurnComponent") {

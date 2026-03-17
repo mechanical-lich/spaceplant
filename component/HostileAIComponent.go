@@ -1,5 +1,7 @@
 package component
 
+import "github.com/mechanical-lich/mlge/ecs"
+
 // HostileAIComponent .
 type HostileAIComponent struct {
 	SightRange int
@@ -8,6 +10,6 @@ type HostileAIComponent struct {
 	TargetY int
 }
 
-func (pc HostileAIComponent) GetType() string {
+func (pc HostileAIComponent) GetType() ecs.ComponentType {
 	return "HostileAIComponent"
 }

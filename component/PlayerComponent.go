@@ -1,12 +1,14 @@
 package component
 
+import "github.com/mechanical-lich/mlge/ecs"
+
 // PlayerComponent - Handles websocket communications
 type PlayerComponent struct {
 	Commands []string
 }
 
 // GetType get the type
-func (PlayerComponent) GetType() string {
+func (PlayerComponent) GetType() ecs.ComponentType {
 	return "PlayerComponent"
 }
 

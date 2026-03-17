@@ -7,10 +7,9 @@ import (
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
 	"github.com/hajimehoshi/ebiten/v2/inpututil"
-	"github.com/hajimehoshi/ebiten/v2/text"
-	"github.com/mechanical-lich/game-engine/ecs"
-	"github.com/mechanical-lich/game-engine/resource"
-	text_ext "github.com/mechanical-lich/game-engine/text"
+	"github.com/mechanical-lich/mlge/ecs"
+	"github.com/mechanical-lich/mlge/resource"
+	mlge_text "github.com/mechanical-lich/mlge/text"
 	"github.com/mechanical-lich/spaceplant/component"
 	"github.com/mechanical-lich/spaceplant/eventsystem"
 )
@@ -102,9 +101,9 @@ func (view *InventoryView) Draw(screen *ebiten.Image) {
 
 				if v.Within(cX, cY) {
 					ebitenutil.DrawRect(screen, v.X, v.Y, v.Width, v.Height, color.RGBA{0, 50, 50, 200})
-					text.Draw(screen, m, text_ext.MplusSmallFont, int(v.X), int(v.Y+v.Height), color.Black)
+					mlge_text.Draw(screen, m, 16, int(v.X), int(v.Y+v.Height), color.Black)
 				} else {
-					text.Draw(screen, m, text_ext.MplusSmallFont, int(v.X), int(v.Y+v.Height), color.White)
+					mlge_text.Draw(screen, m, 16, int(v.X), int(v.Y+v.Height), color.White)
 				}
 			}
 
@@ -137,7 +136,7 @@ func (view *InventoryView) Draw(screen *ebiten.Image) {
 
 func DrawStat(screen *ebiten.Image, x, y int, stat string, value int) {
 	m := fmt.Sprintf("%s : %d", stat, value)
-	text.Draw(screen, m, text_ext.MplusNormalFont, x, y, color.White)
+	mlge_text.Draw(screen, m, 24, x, y, color.White)
 }
 
 func DrawEquipment(screen *ebiten.Image, x, y int, slot string, item *ecs.Entity) {
@@ -158,7 +157,7 @@ func DrawEquipment(screen *ebiten.Image, x, y int, slot string, item *ecs.Entity
 		}
 
 	}
-	text.Draw(screen, m, text_ext.MplusSmallFont, x, y, color.White)
+	mlge_text.Draw(screen, m, 16, x, y, color.White)
 }
 
 type Button struct {

@@ -1,5 +1,7 @@
 package component
 
+import "github.com/mechanical-lich/mlge/ecs"
+
 // LightComponent .
 type LightComponent struct {
 	Brightness int
@@ -7,6 +9,6 @@ type LightComponent struct {
 	R, G, B    int
 }
 
-func (pc LightComponent) GetType() string {
+func (pc LightComponent) GetType() ecs.ComponentType {
 	return "LightComponent"
 }

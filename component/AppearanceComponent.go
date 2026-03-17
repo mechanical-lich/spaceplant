@@ -1,7 +1,8 @@
 package component
 
 import (
-	"github.com/mechanical-lich/game-engine/config"
+	"github.com/mechanical-lich/mlge/ecs"
+	"github.com/mechanical-lich/spaceplant/config"
 )
 
 // MyTurnComponent .
@@ -14,12 +15,12 @@ type AppearanceComponent struct {
 	R, G, B      uint8
 }
 
-func (pc AppearanceComponent) GetType() string {
+func (pc AppearanceComponent) GetType() ecs.ComponentType {
 	return "AppearanceComponent"
 }
 
 func (pc AppearanceComponent) GetFrameX() int {
-	return pc.SpriteX + (config.TileSizeW * pc.CurrentFrame)
+	return pc.SpriteX + (config.TileWidth * pc.CurrentFrame)
 }
 
 func (pc *AppearanceComponent) Update() {

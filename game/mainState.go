@@ -7,14 +7,13 @@ import (
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
 	"github.com/hajimehoshi/ebiten/v2/inpututil"
-	"github.com/hajimehoshi/ebiten/v2/text"
-	"github.com/mechanical-lich/game-engine/event"
-	"github.com/mechanical-lich/game-engine/resource"
-	"github.com/mechanical-lich/game-engine/state"
-	text_ext "github.com/mechanical-lich/game-engine/text"
-	"github.com/mechanical-lich/game-engine/ui"
+	"github.com/mechanical-lich/mlge/event"
+	"github.com/mechanical-lich/mlge/state"
+	mlge_text "github.com/mechanical-lich/mlge/text"
 
-	"github.com/mechanical-lich/game-engine/ecs"
+	"github.com/mechanical-lich/mlge/ecs"
+	"github.com/mechanical-lich/mlge/resource"
+	"github.com/mechanical-lich/spaceplant/ui"
 
 	"github.com/mechanical-lich/spaceplant/component"
 	"github.com/mechanical-lich/spaceplant/config"
@@ -206,7 +205,7 @@ func (s *MainState) DrawPlayerMessages(screen *ebiten.Image) {
 		x := 0
 		y := 0
 		for _, v := range message.MessageLog {
-			text.Draw(screen, v, text_ext.MplusNormalFont, x, y, color.RGBA{255, 0, 0, 255})
+			mlge_text.Draw(screen, v, 24, x, y, color.RGBA{255, 0, 0, 255})
 			y += 24
 		}
 	}

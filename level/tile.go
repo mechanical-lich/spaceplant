@@ -8,8 +8,8 @@ import (
 	"github.com/beefsack/go-astar"
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
-	"github.com/mechanical-lich/game-engine/ecs"
-	"github.com/mechanical-lich/game-engine/resource"
+	"github.com/mechanical-lich/mlge/ecs"
+	"github.com/mechanical-lich/mlge/resource"
 	"github.com/mechanical-lich/spaceplant/config"
 )
 

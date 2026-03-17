@@ -3,7 +3,7 @@ package system
 import (
 	"fmt"
 
-	"github.com/mechanical-lich/game-engine/ecs"
+	"github.com/mechanical-lich/mlge/ecs"
 	"github.com/mechanical-lich/spaceplant/component"
 	"github.com/mechanical-lich/spaceplant/dice"
 	"github.com/mechanical-lich/spaceplant/level"

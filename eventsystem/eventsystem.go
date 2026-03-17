@@ -1,15 +1,15 @@
 package eventsystem
 
 import (
-	"github.com/mechanical-lich/game-engine/ecs"
-	"github.com/mechanical-lich/game-engine/event"
+	"github.com/mechanical-lich/mlge/ecs"
+	"github.com/mechanical-lich/mlge/event"
 )
 
 var EventManager *event.QueuedEventManager
 
 const (
-	Stairs event.EventType = iota
-	DropItem
+	Stairs   event.EventType = "Stairs"
+	DropItem event.EventType = "DropItem"
 )
 
 func init() {

@@ -17,15 +17,6 @@ func (s CleanUpSystem) Update(level *level.Level) {
 		if entity.HasComponent("DeadComponent") {
 			entity.RemoveComponent("AttackComponent")
 			entity.RemoveComponent("SolidComponent")
-
-			// if entity.HasComponent("FoodComponent") {
-			// 	fc := entity.GetComponent("FoodComponent").(*component.FoodComponent)
-			// 	if fc.Amount <= 0 {
-			// 		level.DeleteEntity(entity)
-			// 	}
-			// } else {
-			// 	level.DeleteEntity(entity)
-			// }
 		}
 
 	}

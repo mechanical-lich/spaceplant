@@ -3,7 +3,7 @@ package component
 import (
 	"fmt"
 
-	"github.com/mechanical-lich/game-engine/ecs"
+	"github.com/mechanical-lich/mlge/ecs"
 	"github.com/mechanical-lich/spaceplant/message"
 )
 
@@ -18,7 +18,7 @@ type InventoryComponent struct {
 	Bag       []*ecs.Entity
 }
 
-func (pc InventoryComponent) GetType() string {
+func (pc InventoryComponent) GetType() ecs.ComponentType {
 	return "InventoryComponent"
 }
 

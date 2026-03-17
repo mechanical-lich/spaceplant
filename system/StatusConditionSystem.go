@@ -1,22 +1,36 @@
 package system
 
 import (
-	"github.com/mechanical-lich/game-engine/ecs"
+	"github.com/mechanical-lich/mlge/ecs"
 )
+
+// DecayingComponent is implemented by status effects that expire over time.
+type DecayingComponent interface {
+	Decay() bool
+	GetType() ecs.ComponentType
+}
 
 type StatusConditionSystem struct {
 }
 
-var statusConditions = []string{"Poisoned", "Alerted"}
+var statusConditions = []ecs.ComponentType{"PoisonedComponent", "AlertedComponent"}
+
+func (s StatusConditionSystem) UpdateSystem(data any) error {
+	return nil
+}
+
+func (s StatusConditionSystem) Requires() []ecs.ComponentType {
+	return nil
+}
 
 // StatusConditionSystem .
-func (s StatusConditionSystem) Update(levelInterface interface{}, entity *ecs.Entity) error {
+func (s StatusConditionSystem) UpdateEntity(levelInterface any, entity *ecs.Entity) error {
 	for _, statusCondition := range statusConditions {
-		if entity.HasComponent(statusCondition + "Component") {
-			pc := entity.GetComponent(statusCondition + "Component").(ecs.DecayingComponent)
+		if entity.HasComponent(statusCondition) {
+			pc := entity.GetComponent(statusCondition).(DecayingComponent)
 
 			if pc.Decay() {
-				entity.RemoveComponent(statusCondition + "Component")
+				entity.RemoveComponent(statusCondition)
 			}
 		}
 	}

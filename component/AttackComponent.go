@@ -1,5 +1,7 @@
 package component
 
+import "github.com/mechanical-lich/mlge/ecs"
+
 // AttackComponent .
 type AttackComponent struct {
 	X       int
@@ -10,6 +12,6 @@ type AttackComponent struct {
 	CleanUp bool
 }
 
-func (pc AttackComponent) GetType() string {
+func (pc AttackComponent) GetType() ecs.ComponentType {
 	return "AttackComponent"
 }
