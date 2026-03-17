@@ -8,6 +8,7 @@ import (
 	"github.com/mechanical-lich/mlge/state"
 	"github.com/mechanical-lich/spaceplant/config"
 	"github.com/mechanical-lich/spaceplant/factory"
+	"github.com/mechanical-lich/spaceplant/world"
 )
 
 type Game struct {
@@ -21,6 +22,11 @@ func NewGame(title string) (*Game, error) {
 	ebiten.SetWindowTitle(title)
 	// Load Blueprints
 	err := factory.FactoryLoad("entities.blueprints")
+	if err != nil {
+		return nil, err
+	}
+
+	err = world.LoadTileDefinitions("data/tile_definitions.json")
 	if err != nil {
 		return nil, err
 	}

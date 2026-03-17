@@ -76,6 +76,7 @@ func (view *InventoryView) Update() {
 						data := eventsystem.DropItemEventData{
 							X:    pc.GetX(),
 							Y:    pc.GetY(),
+							Z:    pc.GetZ(),
 							Item: v,
 						}
 						eventsystem.EventManager.SendEvent(data)

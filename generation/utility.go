@@ -1,12 +1,12 @@
 package generation
 
 import (
-	"github.com/beefsack/go-astar"
-	"github.com/mechanical-lich/spaceplant/level"
+	"github.com/mechanical-lich/mlge/path"
 	"github.com/mechanical-lich/spaceplant/utility"
+	"github.com/mechanical-lich/spaceplant/world"
 )
 
-func GenerateRoundStation(l *level.Level) {
+func GenerateRoundStation(l *world.Level, z int) {
 	// Center point
 	x := l.Width / 2
 	y := l.Height / 2
@@ -18,134 +18,114 @@ func GenerateRoundStation(l *level.Level) {
 	}
 
 	// Carve central room
-	CarveCircle(l, x, y, r, level.Type_Wall, level.Type_Floor, false, true)   // Outer
-	CarveCircle(l, x, y, r/2, level.Type_Wall, level.Type_Floor, false, true) // Inner
+	CarveCircle(l, x, y, z, r, world.TypeWall, world.TypeFloor, false, true)   // Outer
+	CarveCircle(l, x, y, z, r/2, world.TypeWall, world.TypeFloor, false, true) // Inner
 
-	// TODO better this.   If the width or height changes then the doors might be placed wrong
 	// Inner Doors
-	l.SetTileType(x, y+r/2-1, level.Type_Door)
-	l.SetTileType(x, y-r/2+1, level.Type_Door)
-	l.SetTileType(x+r/2-1, y, level.Type_Door)
-	l.SetTileType(x-r/2+1, y, level.Type_Door)
+	l.SetTileTypeAt(x, y+r/2-1, z, world.TypeDoor)
+	l.SetTileTypeAt(x, y-r/2+1, z, world.TypeDoor)
+	l.SetTileTypeAt(x+r/2-1, y, z, world.TypeDoor)
+	l.SetTileTypeAt(x-r/2+1, y, z, world.TypeDoor)
 
 	// Outer Doors
-	l.SetTileType(x, y+r-1, level.Type_Door)
-	l.SetTileType(x, y-r+1, level.Type_Door)
-	l.SetTileType(x+r-1, y, level.Type_Door)
-	l.SetTileType(x-r+1, y, level.Type_Door)
+	l.SetTileTypeAt(x, y+r-1, z, world.TypeDoor)
+	l.SetTileTypeAt(x, y-r+1, z, world.TypeDoor)
+	l.SetTileTypeAt(x+r-1, y, z, world.TypeDoor)
+	l.SetTileTypeAt(x-r+1, y, z, world.TypeDoor)
 
 	// Hallways
-
 	//Right
 	maxHallWidth := l.Width/2 - r
-	hWidth := maxHallWidth //utility.GetRandom(maxHallWidth/2, maxHallWidth)
+	hWidth := maxHallWidth
 	hHeight := utility.GetRandom(5, 10)
-	CarveRoom(l, x+r-1, y-hHeight/2, hWidth, hHeight, level.Type_Wall, level.Type_Floor, true, false)
+	CarveRoom(l, x+r-1, y-hHeight/2, z, hWidth, hHeight, world.TypeWall, world.TypeFloor, true, false)
 
 	//Left
-	hWidth = maxHallWidth //utility.GetRandom(maxHallWidth/2, maxHallWidth)
+	hWidth = maxHallWidth
 	hHeight = utility.GetRandom(5, 10)
-	CarveRoom(l, x-r+2-hWidth, y-hHeight/2, hWidth, hHeight, level.Type_Wall, level.Type_Floor, true, false)
+	CarveRoom(l, x-r+2-hWidth, y-hHeight/2, z, hWidth, hHeight, world.TypeWall, world.TypeFloor, true, false)
 
 	//Up
 	maxHallHeight := l.Height/2 - r
-	hHeight = maxHallHeight //utility.GetRandom(maxHallHeight/2, maxHallHeight)
+	hHeight = maxHallHeight
 	hWidth = utility.GetRandom(5, 10)
-	CarveRoom(l, x-hWidth/2, y-r+2-hHeight, hWidth, hHeight, level.Type_Wall, level.Type_Floor, true, false)
+	CarveRoom(l, x-hWidth/2, y-r+2-hHeight, z, hWidth, hHeight, world.TypeWall, world.TypeFloor, true, false)
 
 	//Down
-	hHeight = maxHallHeight //utility.GetRandom(maxHallHeight/2, maxHallHeight)
+	hHeight = maxHallHeight
 	hWidth = utility.GetRandom(5, 10)
-	CarveRoom(l, x-hWidth/2, y+r-1, hWidth, hHeight, level.Type_Wall, level.Type_Floor, true, false)
+	CarveRoom(l, x-hWidth/2, y+r-1, z, hWidth, hHeight, world.TypeWall, world.TypeFloor, true, false)
 
 	// Rooms and tunnels
-	BudRooms(l, l.Width, l.Height, 100)
-	CarveMaintenanceTunnels(l, l.Width, l.Height, 30)
-
+	BudRooms(l, z, l.Width, l.Height, 100)
+	CarveMaintenanceTunnels(l, z, l.Width, l.Height, 30)
 }
 
-func GenerateRectangleStation(l *level.Level) {
+func GenerateRectangleStation(l *world.Level, z int) {
 	roomWidth := l.Width / 6
 	roomHeight := l.Height / 6
 
 	//Top Left
-	CarveRoom(l, 0, 0, roomWidth, roomHeight, level.Type_Wall, level.Type_Floor, false, true)
+	CarveRoom(l, 0, 0, z, roomWidth, roomHeight, world.TypeWall, world.TypeFloor, false, true)
 
 	//Top Right
-	CarveRoom(l, l.Width-roomWidth, 0, roomWidth, roomHeight, level.Type_Wall, level.Type_Floor, false, true)
+	CarveRoom(l, l.Width-roomWidth, 0, z, roomWidth, roomHeight, world.TypeWall, world.TypeFloor, false, true)
 
 	//Bottom Left
-	CarveRoom(l, 0, l.Height-roomHeight, roomWidth, roomHeight, level.Type_Wall, level.Type_Floor, false, true)
+	CarveRoom(l, 0, l.Height-roomHeight, z, roomWidth, roomHeight, world.TypeWall, world.TypeFloor, false, true)
 
 	//Bottom right
-	CarveRoom(l, l.Width-roomWidth, l.Height-roomHeight, roomWidth, roomHeight, level.Type_Wall, level.Type_Floor, false, true)
+	CarveRoom(l, l.Width-roomWidth, l.Height-roomHeight, z, roomWidth, roomHeight, world.TypeWall, world.TypeFloor, false, true)
 
 	// Hallways
-	//Top
 	hallwayHeight := 5
 	hallwayWidth := 5
-	CarveRoom(l, roomWidth-1, roomHeight/2-hallwayHeight/2, l.Width-roomWidth*2+2, hallwayHeight, level.Type_Wall, level.Type_Floor, true, false)
-
+	//Top
+	CarveRoom(l, roomWidth-1, roomHeight/2-hallwayHeight/2, z, l.Width-roomWidth*2+2, hallwayHeight, world.TypeWall, world.TypeFloor, true, false)
 	//Bottom
-	CarveRoom(l, roomWidth-1, l.Height-roomHeight/2-hallwayHeight/2, l.Width-roomWidth*2+2, hallwayHeight, level.Type_Wall, level.Type_Floor, true, false)
-
+	CarveRoom(l, roomWidth-1, l.Height-roomHeight/2-hallwayHeight/2, z, l.Width-roomWidth*2+2, hallwayHeight, world.TypeWall, world.TypeFloor, true, false)
 	//Left
-	CarveRoom(l, roomWidth/2-hallwayWidth/2, roomHeight-1, hallwayWidth, l.Height-roomHeight*2+2, level.Type_Wall, level.Type_Floor, true, false)
-
+	CarveRoom(l, roomWidth/2-hallwayWidth/2, roomHeight-1, z, hallwayWidth, l.Height-roomHeight*2+2, world.TypeWall, world.TypeFloor, true, false)
 	//Right
-	CarveRoom(l, l.Width-roomWidth/2-hallwayWidth/2, roomHeight-1, hallwayWidth, l.Height-roomHeight*2+2, level.Type_Wall, level.Type_Floor, true, false)
+	CarveRoom(l, l.Width-roomWidth/2-hallwayWidth/2, roomHeight-1, z, hallwayWidth, l.Height-roomHeight*2+2, world.TypeWall, world.TypeFloor, true, false)
 
 	// Main hallway doors
-	//Top
-	l.SetTileType(roomWidth-1, roomHeight/2, level.Type_Door)
-	l.SetTileType(l.Width-roomWidth, roomHeight/2, level.Type_Door)
-	//Bottom
-	l.SetTileType(roomWidth-1, l.Height-roomHeight/2, level.Type_Door)
-	l.SetTileType(l.Width-roomWidth, l.Height-roomHeight/2, level.Type_Door)
-
-	//Left
-	l.SetTileType(roomWidth/2, roomHeight-1, level.Type_Door)
-	l.SetTileType(roomWidth/2, l.Height-roomHeight, level.Type_Door)
-
-	//Right
-	l.SetTileType(l.Width-roomWidth/2, roomHeight-1, level.Type_Door)
-	l.SetTileType(l.Width-roomWidth/2, l.Height-roomHeight, level.Type_Door)
+	l.SetTileTypeAt(roomWidth-1, roomHeight/2, z, world.TypeDoor)
+	l.SetTileTypeAt(l.Width-roomWidth, roomHeight/2, z, world.TypeDoor)
+	l.SetTileTypeAt(roomWidth-1, l.Height-roomHeight/2, z, world.TypeDoor)
+	l.SetTileTypeAt(l.Width-roomWidth, l.Height-roomHeight/2, z, world.TypeDoor)
+	l.SetTileTypeAt(roomWidth/2, roomHeight-1, z, world.TypeDoor)
+	l.SetTileTypeAt(roomWidth/2, l.Height-roomHeight, z, world.TypeDoor)
+	l.SetTileTypeAt(l.Width-roomWidth/2, roomHeight-1, z, world.TypeDoor)
+	l.SetTileTypeAt(l.Width-roomWidth/2, l.Height-roomHeight, z, world.TypeDoor)
 
 	// Central circle
 	x := l.Width / 2
 	y := l.Height / 2
-
 	r := l.Width / 8
-	CarveCircle(l, x, y, r, level.Type_Wall, level.Type_Floor, false, true)
+	CarveCircle(l, x, y, z, r, world.TypeWall, world.TypeFloor, false, true)
 
 	// Central tunnels
-	//Top
-	CarveMaintenanceTunnel(l, l.Width/2, roomHeight/2+hallwayHeight/2, x, y-r+1, level.Type_MaintenanceTunnelFLoor, level.Type_MaintenanceTunnelDoor)
-	//Bottom
-	CarveMaintenanceTunnel(l, l.Width/2, l.Height-roomHeight/2-hallwayHeight/2, x, y+r-1, level.Type_MaintenanceTunnelFLoor, level.Type_MaintenanceTunnelDoor)
-	//Left
-	CarveMaintenanceTunnel(l, roomWidth/2+hallwayWidth/2, l.Height/2, x-r+1, y, level.Type_MaintenanceTunnelFLoor, level.Type_MaintenanceTunnelDoor)
-	//Right
-	CarveMaintenanceTunnel(l, l.Width-roomWidth/2-hallwayWidth/2, l.Height/2, x+r-1, y, level.Type_MaintenanceTunnelFLoor, level.Type_MaintenanceTunnelDoor)
+	CarveMaintenanceTunnel(l, z, l.Width/2, roomHeight/2+hallwayHeight/2, x, y-r+1, world.TypeMaintenanceTunnelFloor, world.TypeMaintenanceTunnelDoor)
+	CarveMaintenanceTunnel(l, z, l.Width/2, l.Height-roomHeight/2-hallwayHeight/2, x, y+r-1, world.TypeMaintenanceTunnelFloor, world.TypeMaintenanceTunnelDoor)
+	CarveMaintenanceTunnel(l, z, roomWidth/2+hallwayWidth/2, l.Height/2, x-r+1, y, world.TypeMaintenanceTunnelFloor, world.TypeMaintenanceTunnelDoor)
+	CarveMaintenanceTunnel(l, z, l.Width-roomWidth/2-hallwayWidth/2, l.Height/2, x+r-1, y, world.TypeMaintenanceTunnelFloor, world.TypeMaintenanceTunnelDoor)
 
-	l.Polish()
-	// Rooms and tunnels
-	BudRooms(l, l.Width, l.Height, 50)
+	l.Polish(z)
+	BudRooms(l, z, l.Width, l.Height, 50)
 
-	l.Polish()
-	CarveMaintenanceTunnels(l, l.Width, l.Height, 30)
+	l.Polish(z)
+	CarveMaintenanceTunnels(l, z, l.Width, l.Height, 30)
 
-	l.Polish()
+	l.Polish(z)
 }
 
-func GenerateStation(l *level.Level, width, height int) {
+func GenerateStation(l *world.Level, z, width, height int) {
 	// Create center room
 	x := width / 2
 	y := height / 2
 
-	//
 	// Generate the central hallway
-	//
 	wide := utility.GetRandom(0, 2) == 1
 	tWidth := utility.GetRandom(5, 10)
 	tHeight := utility.GetRandom(5, 10)
@@ -157,64 +137,7 @@ func GenerateStation(l *level.Level, width, height int) {
 
 	x -= tWidth / 2
 	y -= tHeight / 2
-	CarveRoom(l, x, y, tWidth, tHeight, level.Type_Wall, level.Type_Floor, false, false)
-
-	// //
-	// // End cap room 1
-	// //
-	// eX := x + tWidth - 1
-	// eY := y + tHeight - 1
-	// eWidth := utility.GetRandom(tWidth+2, tWidth+10)
-	// eHeight := utility.GetRandom(tHeight+2, tHeight+10)
-
-	// dX := eX
-	// dY := eY
-	// sX := eX
-	// sY := eY
-	// if wide {
-	// 	//eWidth = width - tWidth - 1
-	// 	eY = y - tHeight/4
-	// 	eWidth = utility.GetRandom(5, 10)
-	// 	dY -= tHeight / 2
-	// 	sX -= tWidth
-	// } else {
-	// 	//eHeight = height - tHeight - 1
-	// 	eX = x - tWidth/4
-	// 	eHeight = utility.GetRandom(5, 10)
-	// 	dX -= tWidth / 2
-	// 	sY -= tHeight
-	// }
-
-	// CarveRoom(l, eX, eY, eWidth, eHeight, level.Type_Wall, level.Type_Floor, true, true)
-	// l.SetTileType(dX, dY, level.Type_Door)
-	// l.SetTileType(sX, sY, level.Type_Stairs)
-
-	// //
-	// // End cap room 2
-	// //
-	// eX = x + 1
-	// eY = y + 1
-	// eWidth = utility.GetRandom(tWidth+2, tWidth+10)
-	// eHeight = utility.GetRandom(tHeight+2, tHeight+10)
-
-	// dX = eX - 1
-	// dY = eY - 1
-	// if wide {
-	// 	//eWidth = width - tWidth - 1
-	// 	eY = y - tHeight/4
-	// 	eWidth = utility.GetRandom(width/8, width/4)
-	// 	dY += tHeight / 2
-	// 	eX -= eWidth
-	// } else {
-	// 	//eHeight = height - tHeight - 1
-	// 	eX = x - tWidth/4
-	// 	eHeight = utility.GetRandom(height/8, height/4)
-	// 	dX += tWidth / 2
-	// 	eY -= eHeight
-	// }
-
-	// CarveRoom(l, eX, eY, eWidth, eHeight, level.Type_Wall, level.Type_Floor, true, true)
-	// l.SetTileType(dX, dY, level.Type_Door)
+	CarveRoom(l, x, y, z, tWidth, tHeight, world.TypeWall, world.TypeFloor, false, false)
 
 	// Optional second hallway
 	if utility.GetRandom(0, 10) > 5 {
@@ -231,27 +154,23 @@ func GenerateStation(l *level.Level, width, height int) {
 
 		x2 -= tWidth2 / 2
 		y2 -= tHeight2 / 2
-		CarveRoom(l, x2, y2, tWidth2, tHeight2, level.Type_Wall, level.Type_Floor, true, false)
-		CarveRoom(l, x+1, y+1, tWidth-2, tHeight-2, level.Type_Floor, level.Type_Floor, false, false)     // Erase center of hallway
-		CarveRoom(l, x2+1, y2+1, tWidth2-2, tHeight2-2, level.Type_Floor, level.Type_Floor, false, false) // Erase center of hallway
-
+		CarveRoom(l, x2, y2, z, tWidth2, tHeight2, world.TypeWall, world.TypeFloor, true, false)
+		CarveRoom(l, x+1, y+1, z, tWidth-2, tHeight-2, world.TypeFloor, world.TypeFloor, false, false)
+		CarveRoom(l, x2+1, y2+1, z, tWidth2-2, tHeight2-2, world.TypeFloor, world.TypeFloor, false, false)
 	}
 
-	//Bud rooms
-	BudRooms(l, width, height, 50)
+	BudRooms(l, z, width, height, 50)
 
 	// Polish so we can pathfind
-	l.Polish()
+	l.Polish(z)
 
-	//
 	// Maintenance Tunnels
-	//
-	CarveMaintenanceTunnels(l, width, height, 10)
+	CarveMaintenanceTunnels(l, z, width, height, 10)
 
-	l.Polish()
+	l.Polish(z)
 }
 
-func CarveMaintenanceTunnels(l *level.Level, width, height, numTunnels int) {
+func CarveMaintenanceTunnels(l *world.Level, z, width, height, numTunnels int) {
 	for i := 0; i < numTunnels; i++ {
 		done := false
 		tries := 0
@@ -260,8 +179,8 @@ func CarveMaintenanceTunnels(l *level.Level, width, height, numTunnels int) {
 			tX1 := utility.GetRandom(0, width)
 			tY1 := utility.GetRandom(0, height)
 
-			if l.GetTileType(tX1, tY1) == level.Type_Wall {
-				if !l.TileNeighbors(tX1, tY1, level.Type_Open) || !l.TileNeighbors(tX1, tY1, level.Type_Floor) {
+			if l.GetTileType(tX1, tY1, z) == world.TypeWall {
+				if !l.TileNeighbors(tX1, tY1, z, world.TypeOpen) || !l.TileNeighbors(tX1, tY1, z, world.TypeFloor) {
 					continue
 				}
 			} else {
@@ -275,56 +194,75 @@ func CarveMaintenanceTunnels(l *level.Level, width, height, numTunnels int) {
 				continue
 			}
 
-			if l.GetTileType(tX2, tY2) == level.Type_Wall {
-				if !l.TileNeighbors(tX2, tY2, level.Type_Open) || !l.TileNeighbors(tX2, tY2, level.Type_Floor) {
+			if l.GetTileType(tX2, tY2, z) == world.TypeWall {
+				if !l.TileNeighbors(tX2, tY2, z, world.TypeOpen) || !l.TileNeighbors(tX2, tY2, z, world.TypeFloor) {
 					continue
 				}
 			} else {
 				continue
 			}
-			l.GetTileAt(tX1, tY1).Solid = false
-			l.GetTileAt(tX2, tY2).Solid = false
-			steps, distance, success := astar.Path(l.GetTileAt(tX1, tY1), l.GetTileAt(tX2, tY2))
+
+			// Temporarily make endpoints non-solid for pathfinding by setting to floor
+			t1 := l.Level.GetTilePtr(tX1, tY1, z)
+			t2 := l.Level.GetTilePtr(tX2, tY2, z)
+			origType1 := t1.Type
+			origType2 := t2.Type
+			t1.Type = world.TypeFloor
+			t2.Type = world.TypeFloor
+
+			steps, distance, success := path.Path(t1, t2)
+
+			// Restore original types
+			t1.Type = origType1
+			t2.Type = origType2
 
 			if !success || distance > 10 || distance < 2 {
 				continue
 			}
 
-			for step := range steps {
-				t := steps[step].(*level.Tile)
-				l.SetTileType(t.X, t.Y, level.Type_MaintenanceTunnelFLoor)
+			for _, step := range steps {
+				t := step.(*world.Tile)
+				tx, ty, _ := t.Coords()
+				l.SetTileTypeAt(tx, ty, z, world.TypeMaintenanceTunnelFloor)
 			}
 
-			l.SetTileType(tX1, tY1, level.Type_MaintenanceTunnelDoor)
-			l.SetTileType(tX2, tY2, level.Type_MaintenanceTunnelDoor)
+			l.SetTileTypeAt(tX1, tY1, z, world.TypeMaintenanceTunnelDoor)
+			l.SetTileTypeAt(tX2, tY2, z, world.TypeMaintenanceTunnelDoor)
 			done = true
 		}
 	}
 }
 
-func CarveMaintenanceTunnel(l *level.Level, x1, y1, x2, y2 int, floor, door level.TileType) bool {
-	l.GetTileAt(x1, y1).Solid = false
-	l.GetTileAt(x2, y2).Solid = false
-	steps, _, success := astar.Path(l.GetTileAt(x1, y1), l.GetTileAt(x2, y2))
+func CarveMaintenanceTunnel(l *world.Level, z, x1, y1, x2, y2, floor, door int) bool {
+	t1 := l.Level.GetTilePtr(x1, y1, z)
+	t2 := l.Level.GetTilePtr(x2, y2, z)
+	origType1 := t1.Type
+	origType2 := t2.Type
+	t1.Type = world.TypeFloor
+	t2.Type = world.TypeFloor
+
+	steps, _, success := path.Path(t1, t2)
+
+	t1.Type = origType1
+	t2.Type = origType2
 
 	if !success {
 		return false
 	}
 
-	for step := range steps {
-		t := steps[step].(*level.Tile)
-		l.SetTileType(t.X, t.Y, floor)
+	for _, step := range steps {
+		t := step.(*world.Tile)
+		tx, ty, _ := t.Coords()
+		l.SetTileTypeAt(tx, ty, z, floor)
 	}
 
-	l.SetTileType(x1, y1, door)
-	l.SetTileType(x2, y2, door)
+	l.SetTileTypeAt(x1, y1, z, door)
+	l.SetTileTypeAt(x2, y2, z, door)
 
 	return true
 }
 
-func BudRooms(l *level.Level, width, height, numRooms int) {
-	// Bud rooms
-	//numRooms := 50
+func BudRooms(l *world.Level, z, width, height, numRooms int) {
 	for i := 0; i < numRooms; i++ {
 		done := false
 		tries := 0
@@ -337,70 +275,68 @@ func BudRooms(l *level.Level, width, height, numRooms int) {
 			rWidth := utility.GetRandom(4, 10)
 
 			if rX > 0 && rX < l.Width && rY > 0 && rY < l.Height {
-				t := l.GetTileAt(rX, rY)
-				if t.NoBudding {
+				t := l.Level.GetTilePtr(rX, rY, z)
+				if t == nil {
 					continue
 				}
-				if t.Type == level.Type_Wall {
-					//find out which direction to build the roomWidth
+				if l.GetNoBudding(rX, rY, z) {
+					continue
+				}
+				if t.Type == world.TypeWall {
 					//Up
-					if l.GetTileType(rX, rY-2) == level.Type_Open {
-						if l.GetTileType(rX+1, rY) == level.Type_Wall && l.GetTileType(rX-1, rY) == level.Type_Wall {
-							if !RoomIntersects(l, rX-rWidth/2, rY-rHeight-1, rWidth, rHeight) {
-								CarveRoom(l, rX-rWidth/2, rY-rHeight+1, rWidth, rHeight, level.Type_Wall, level.Type_Floor, true, false)
-								l.SetTileType(rX, rY, level.Type_Door)
+					if l.GetTileType(rX, rY-2, z) == world.TypeOpen {
+						if l.GetTileType(rX+1, rY, z) == world.TypeWall && l.GetTileType(rX-1, rY, z) == world.TypeWall {
+							if !RoomIntersects(l, z, rX-rWidth/2, rY-rHeight-1, rWidth, rHeight) {
+								CarveRoom(l, rX-rWidth/2, rY-rHeight+1, z, rWidth, rHeight, world.TypeWall, world.TypeFloor, true, false)
+								l.SetTileTypeAt(rX, rY, z, world.TypeDoor)
 								done = true
 							}
 						}
 					}
 
 					//Down
-					if l.GetTileType(rX, rY+2) == level.Type_Open {
-						if l.GetTileType(rX+1, rY) == level.Type_Wall && l.GetTileType(rX-1, rY) == level.Type_Wall {
-							if !RoomIntersects(l, rX-rWidth/2, rY+1, rWidth, rHeight) {
-								CarveRoom(l, rX-rWidth/2, rY, rWidth, rHeight, level.Type_Wall, level.Type_Floor, true, false)
-								l.SetTileType(rX, rY, level.Type_Door)
+					if l.GetTileType(rX, rY+2, z) == world.TypeOpen {
+						if l.GetTileType(rX+1, rY, z) == world.TypeWall && l.GetTileType(rX-1, rY, z) == world.TypeWall {
+							if !RoomIntersects(l, z, rX-rWidth/2, rY+1, rWidth, rHeight) {
+								CarveRoom(l, rX-rWidth/2, rY, z, rWidth, rHeight, world.TypeWall, world.TypeFloor, true, false)
+								l.SetTileTypeAt(rX, rY, z, world.TypeDoor)
 								done = true
 							}
 						}
 					}
 
-					// //left
-					if l.GetTileType(rX-2, rY) == level.Type_Open {
-						if l.GetTileType(rX, rY+1) == level.Type_Wall && l.GetTileType(rX, rY-1) == level.Type_Wall {
-							if !RoomIntersects(l, rX-rWidth, rY-rHeight/2, rWidth, rHeight) {
-								CarveRoom(l, rX-rWidth+1, rY-rHeight/2, rWidth, rHeight, level.Type_Wall, level.Type_Floor, true, false)
-								l.SetTileType(rX, rY, level.Type_Door)
+					//Left
+					if l.GetTileType(rX-2, rY, z) == world.TypeOpen {
+						if l.GetTileType(rX, rY+1, z) == world.TypeWall && l.GetTileType(rX, rY-1, z) == world.TypeWall {
+							if !RoomIntersects(l, z, rX-rWidth, rY-rHeight/2, rWidth, rHeight) {
+								CarveRoom(l, rX-rWidth+1, rY-rHeight/2, z, rWidth, rHeight, world.TypeWall, world.TypeFloor, true, false)
+								l.SetTileTypeAt(rX, rY, z, world.TypeDoor)
 								done = true
 							}
 						}
 					}
 
-					// //right
-					if l.GetTileType(rX+2, rY) == level.Type_Open {
-						if l.GetTileType(rX, rY+1) == level.Type_Wall && l.GetTileType(rX, rY-1) == level.Type_Wall {
-							if !RoomIntersects(l, rX+1, rY-rHeight/2, rWidth, rHeight) {
-								CarveRoom(l, rX, rY-rHeight/2, rWidth, rHeight, level.Type_Wall, level.Type_Floor, true, false)
-								l.SetTileType(rX, rY, level.Type_Door)
+					//Right
+					if l.GetTileType(rX+2, rY, z) == world.TypeOpen {
+						if l.GetTileType(rX, rY+1, z) == world.TypeWall && l.GetTileType(rX, rY-1, z) == world.TypeWall {
+							if !RoomIntersects(l, z, rX+1, rY-rHeight/2, rWidth, rHeight) {
+								CarveRoom(l, rX, rY-rHeight/2, z, rWidth, rHeight, world.TypeWall, world.TypeFloor, true, false)
+								l.SetTileTypeAt(rX, rY, z, world.TypeDoor)
 								done = true
 							}
 						}
 					}
-
 				}
 			}
-
 		}
 	}
 }
 
-// Attempts to bud a room off the line provided.   Returns if successful.
-func BudRoom(l *level.Level, x1, y1, x2, y2, width, height int) bool {
-
+func BudRoom(l *world.Level, z, x1, y1, x2, y2, width, height int) bool {
 	return true
 }
 
-func RoomIntersects(l *level.Level, x, y, width, height int) bool {
+func RoomIntersects(l *world.Level, z, x, y, width, height int) bool {
 	if x+width > l.Width || y+height > l.Height {
 		return true
 	}
@@ -411,12 +347,11 @@ func RoomIntersects(l *level.Level, x, y, width, height int) bool {
 
 	for currentY := 0; currentY < height; currentY++ {
 		for currentX := 0; currentX < width; currentX++ {
-			t := l.GetTileAt(currentX+x, currentY+y)
+			t := l.Level.GetTilePtr(currentX+x, currentY+y, z)
 			if t == nil {
 				return true
 			}
-
-			if t.Type != level.Type_Open {
+			if t.Type != world.TypeOpen {
 				return true
 			}
 		}

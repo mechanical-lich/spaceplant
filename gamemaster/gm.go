@@ -3,9 +3,10 @@ package gamemaster
 import (
 	"math/rand"
 
+	"github.com/mechanical-lich/spaceplant/component"
 	"github.com/mechanical-lich/spaceplant/factory"
-	"github.com/mechanical-lich/spaceplant/level"
 	"github.com/mechanical-lich/spaceplant/utility"
+	"github.com/mechanical-lich/spaceplant/world"
 )
 
 const hostileMax = 20
@@ -20,18 +21,16 @@ type GameMaster struct {
 }
 
 // Init Initial the game master
-func (gm *GameMaster) Init(l *level.Level) {
-	//log.Println("Placing Crew")
-	//Random food
+func (gm *GameMaster) Init(l *world.Level, z int) {
 	for i := 0; i < crewInitial; i++ {
 		x := rand.Intn(l.Width)
 		y := rand.Intn(l.Height)
-		tile := l.GetTileAt(x, y)
+		tile := l.Level.GetTilePtr(x, y, z)
 		tries := 0
-		for tile.Solid || tile.Type == level.Type_Open || l.GetEntityAt(x, y) != nil {
+		for tile == nil || tile.IsSolid() || tile.Type == world.TypeOpen || l.GetEntityAt(x, y, z) != nil {
 			x = rand.Intn(l.Width)
 			y = rand.Intn(l.Height)
-			tile = l.GetTileAt(x, y)
+			tile = l.Level.GetTilePtr(x, y, z)
 			tries++
 			if tries > 10 {
 				break
@@ -43,22 +42,20 @@ func (gm *GameMaster) Init(l *level.Level) {
 		blueprint := crew[utility.GetRandom(0, len(crew))]
 		entity, err := factory.Create(blueprint, x, y)
 		if err == nil {
+			entity.GetComponent("Position").(*component.PositionComponent).SetPosition(x, y, z)
 			l.AddEntity(entity)
 		}
 	}
 
-	//log.Println("Placing hostiles")
-	//Random hostiles
 	for i := 0; i < hostileInitial; i++ {
-
 		x := rand.Intn(l.Width)
 		y := rand.Intn(l.Height)
-		tile := l.GetTileAt(x, y)
+		tile := l.Level.GetTilePtr(x, y, z)
 		tries := 0
-		for tile.Solid || tile.Type == level.Type_Open || l.GetEntityAt(x, y) != nil {
+		for tile == nil || tile.IsSolid() || tile.Type == world.TypeOpen || l.GetEntityAt(x, y, z) != nil {
 			x = rand.Intn(l.Width)
 			y = rand.Intn(l.Height)
-			tile = l.GetTileAt(x, y)
+			tile = l.Level.GetTilePtr(x, y, z)
 			tries++
 			if tries > 10 {
 				break
@@ -70,18 +67,18 @@ func (gm *GameMaster) Init(l *level.Level) {
 
 		blueprint := hostiles[utility.GetRandom(0, len(hostiles))]
 		if utility.GetRandom(0, 100) == 0 {
-			//log.Println("Spawn a rare hostile enemy!")
 			blueprint = rareHostiles[utility.GetRandom(0, len(rareHostiles))]
 		}
 		food, err := factory.Create(blueprint, x, y)
 		if err == nil {
+			food.GetComponent("Position").(*component.PositionComponent).SetPosition(x, y, z)
 			l.AddEntity(food)
 		}
 	}
 }
 
 // Update Update the game master
-func (gm *GameMaster) Update(l *level.Level, pX, pY int) {
+func (gm *GameMaster) Update(l *world.Level, z, pX, pY int) {
 	hostileCount := 0
 
 	// Random chance to spawn in a new enemy
@@ -97,14 +94,14 @@ func (gm *GameMaster) Update(l *level.Level, pX, pY int) {
 		if hostileCount < hostileMax {
 			x := rand.Intn(l.Width)
 			y := rand.Intn(l.Height)
-			tile := l.GetTileAt(x, y)
+			tile := l.Level.GetTilePtr(x, y, z)
 			tries := 0
 			dist := utility.Distance(pX, pY, x, y)
 
-			for tile.Solid || tile.Type == level.Type_Open || l.GetEntityAt(x, y) != nil || dist < 20 || dist > 50 {
+			for tile == nil || tile.IsSolid() || tile.Type == world.TypeOpen || l.GetEntityAt(x, y, z) != nil || dist < 20 || dist > 50 {
 				x = rand.Intn(l.Width)
 				y = rand.Intn(l.Height)
-				tile = l.GetTileAt(x, y)
+				tile = l.Level.GetTilePtr(x, y, z)
 				dist = utility.Distance(pX, pY, x, y)
 
 				tries++
@@ -116,16 +113,13 @@ func (gm *GameMaster) Update(l *level.Level, pX, pY int) {
 			blueprint := hostiles[utility.GetRandom(0, len(hostiles))]
 
 			if utility.GetRandom(0, 20) == 0 {
-				//log.Println("Spawned a rare hostile enemy")
 				blueprint = rareHostiles[utility.GetRandom(0, len(rareHostiles))]
 			}
 			e, err := factory.Create(blueprint, x, y)
 			if err == nil {
-				//log.Println("Spawning hostile", x, y, pY, pY)
-
+				e.GetComponent("Position").(*component.PositionComponent).SetPosition(x, y, z)
 				l.AddEntity(e)
 			}
 		}
 	}
-
 }

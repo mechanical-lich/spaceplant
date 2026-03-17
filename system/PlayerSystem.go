@@ -4,10 +4,11 @@ import (
 	"fmt"
 
 	"github.com/mechanical-lich/mlge/ecs"
+	"github.com/mechanical-lich/ml-rogue-lib/pkg/rlworld"
 	"github.com/mechanical-lich/spaceplant/component"
 	"github.com/mechanical-lich/spaceplant/eventsystem"
-	"github.com/mechanical-lich/spaceplant/level"
-	"github.com/mechanical-lich/spaceplant/message"
+	"github.com/mechanical-lich/mlge/message"
+	"github.com/mechanical-lich/spaceplant/world"
 )
 
 type PlayerSystem struct {
@@ -23,7 +24,7 @@ func (s *PlayerSystem) Requires() []ecs.ComponentType {
 
 // PlayerSystem .
 func (s *PlayerSystem) UpdateEntity(levelInterface any, entity *ecs.Entity) error {
-	l := levelInterface.(*level.Level)
+	l := levelInterface.(*world.Level)
 
 	if entity.HasComponent("PlayerComponent") {
 		if entity.HasComponent("MyTurn") {
@@ -32,24 +33,21 @@ func (s *PlayerSystem) UpdateEntity(levelInterface any, entity *ecs.Entity) erro
 			playerComponent := entity.GetComponent("PlayerComponent").(*component.PlayerComponent)
 			command := playerComponent.PopCommand()
 
+			z := pc.GetZ()
 			deltaX := 0
 			deltaY := 0
 			switch command {
 			case "W":
 				deltaY--
-
 				dc.Direction = 2
 			case "S":
 				deltaY++
-
 				dc.Direction = 1
 			case "A":
 				deltaX--
-
 				dc.Direction = 3
 			case "D":
 				deltaX++
-
 				dc.Direction = 0
 			case "F":
 				direction := playerComponent.PopCommand()
@@ -78,13 +76,15 @@ func (s *PlayerSystem) UpdateEntity(levelInterface any, entity *ecs.Entity) erro
 					}
 				}
 			case "Period": // Stairs
-				tile := l.GetTileAt(pc.GetX(), pc.GetY())
-				if tile.Type == level.Type_Stairs_Down {
-					eventsystem.EventManager.SendEvent(eventsystem.StairsEventData{})
-				}
-
-				if tile.Type == level.Type_Stairs_Up {
-					eventsystem.EventManager.SendEvent(eventsystem.StairsEventData{Up: true})
+				tile := l.Level.GetTilePtr(pc.GetX(), pc.GetY(), z)
+				if tile != nil {
+					def := rlworld.TileDefinitions[tile.Type]
+					if def.StairsDown {
+						eventsystem.EventManager.SendEvent(eventsystem.StairsEventData{})
+					}
+					if def.StairsUp {
+						eventsystem.EventManager.SendEvent(eventsystem.StairsEventData{Up: true})
+					}
 				}
 
 			case "E":
@@ -110,11 +110,12 @@ func (s *PlayerSystem) UpdateEntity(levelInterface any, entity *ecs.Entity) erro
 				if entity.HasComponent("Inventory") {
 					inventory := entity.GetComponent("Inventory").(*component.InventoryComponent)
 					pc := entity.GetComponent("Position").(*component.PositionComponent)
-					entities := l.GetEntitiesAt(pc.GetX(), pc.GetY())
+					var entities []*ecs.Entity
+					l.GetEntitiesAt(pc.GetX(), pc.GetY(), z, &entities)
 					for _, v := range entities {
 						if v.HasComponent("Item") {
 							inventory.AddItem(v)
-							l.DeleteEntity(v)
+							l.RemoveEntity(v)
 							break
 						}
 					}
@@ -123,11 +124,10 @@ func (s *PlayerSystem) UpdateEntity(levelInterface any, entity *ecs.Entity) erro
 			}
 
 			if move(entity, l, deltaX, deltaY) {
-				entityHit := l.GetEntityAt(pc.GetX()+deltaX, pc.GetY()+deltaY)
+				entityHit := l.GetEntityAt(pc.GetX()+deltaX, pc.GetY()+deltaY, z)
 				if entityHit != nil && entityHit != entity {
 					if entityHit != entity {
 						hit(l, entity, entityHit)
-						//eat(entity, entityHit)
 					}
 				}
 			}

@@ -1,16 +1,19 @@
 package game
 
 import (
+	"image"
 	"image/color"
 	"strconv"
 
 	"github.com/hajimehoshi/ebiten/v2"
+	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
 
+	"github.com/mechanical-lich/mlge/resource"
 	"github.com/mechanical-lich/mlge/state"
 	mlge_text "github.com/mechanical-lich/mlge/text"
 	"github.com/mechanical-lich/spaceplant/component"
 	"github.com/mechanical-lich/spaceplant/config"
-	"github.com/mechanical-lich/spaceplant/message"
+	"github.com/mechanical-lich/mlge/message"
 	"github.com/mechanical-lich/spaceplant/ui"
 )
 
@@ -25,9 +28,7 @@ func (g *GUIViewMain) Update(s state.StateInterface) {
 	g.x++
 	mainState, ok := s.(*MainState)
 	if ok {
-		//if g.minimap == nil {
 		g.minimap = mainState.GetMinimap(0, 0, 100, 100, 150, 150)
-		//}
 	}
 
 }
@@ -36,7 +37,6 @@ func (g *GUIViewMain) Draw(screen *ebiten.Image, s state.StateInterface) {
 	//Draw Minimap
 	if g.minimap != nil {
 		op := &ebiten.DrawImageOptions{}
-		//op.GeoM.Scale(.2, .2)
 		op.GeoM.Translate(config.GameWidth+5, 16)
 		screen.DrawImage(g.minimap, op)
 	}
@@ -63,4 +63,40 @@ func (g *GUIViewMain) Draw(screen *ebiten.Image, s state.StateInterface) {
 		mlge_text.Draw(screen, strconv.Itoa(cX)+","+strconv.Itoa(cY), 16, cX, cY, color.RGBA{255, 0, 0, 255})
 	}
 
+}
+
+// GetMinimap generates a minimap image of specified size and returns the image.
+func (g *MainState) GetMinimap(sX int, sY int, width int, height int, imageWidth int, imageHeight int) *ebiten.Image {
+	worldImage := ebiten.NewImage(imageWidth, imageHeight)
+	pc := g.Player.GetComponent("Position").(*component.PositionComponent)
+
+	view := g.level.GetView(sX, sY, g.CurrentZ, width, height, false, false)
+	for x := 0; x < len(view); x++ {
+		for y := 0; y < len(view[x]); y++ {
+			tX := float64(x * imageWidth / width)
+			tY := float64(y * imageHeight / height)
+			tile := view[x][y]
+
+			op := &ebiten.DrawImageOptions{}
+			op.GeoM.Translate(tX, tY)
+
+			if tile == nil {
+				sX := 19 * config.SpriteWidth
+				worldImage.DrawImage(resource.Textures["map"].SubImage(image.Rect(sX, 0, sX+config.SpriteWidth, config.SpriteHeight)).(*ebiten.Image), op)
+				continue
+			} else {
+				variant := g.level.Level.ResolveVariant(tile)
+				spriteX := variant.SpriteX * config.SpriteWidth
+				tx, ty, tz := tile.Coords()
+				if !g.level.GetSeen(tx, ty, tz) {
+					spriteX = 19 * config.SpriteWidth
+				}
+				worldImage.DrawImage(resource.Textures["map"].SubImage(image.Rect(spriteX, variant.SpriteY, spriteX+config.SpriteWidth, variant.SpriteY+config.SpriteHeight)).(*ebiten.Image), op)
+			}
+		}
+	}
+
+	ebitenutil.DrawRect(worldImage, float64(pc.GetX()*imageWidth/width), float64(pc.GetY()*imageHeight/height), 5, 5, color.RGBA{0, 0, 255, 255})
+
+	return worldImage
 }

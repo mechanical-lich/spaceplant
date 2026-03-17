@@ -1,12 +1,14 @@
-package level
+package world
 
 import (
 	"math"
 
+	"github.com/mechanical-lich/ml-rogue-lib/pkg/rlworld"
 	"github.com/mechanical-lich/spaceplant/utility"
 )
 
-func Los(pX int, pY int, tX int, tY int, level *Level) bool {
+// Los checks line of sight from (pX, pY) to (tX, tY) on the given Z-layer.
+func Los(pX, pY, tX, tY, z int, level *Level) bool {
 	deltaX := pX - tX
 	deltaY := pY - tY
 
@@ -30,7 +32,15 @@ func Los(pX int, pY int, tX int, tY int, level *Level) bool {
 			if tX == pX && tY == pY {
 				return true
 			}
-			if level.IsTileSolid(tX, tY) || level.GetTileType(tX, tY) == Type_Door || level.GetTileType(tX, tY) == Type_MaintenanceTunnelDoor {
+			tile := level.Level.GetTilePtr(tX, tY, z)
+			if tile == nil {
+				break
+			}
+			if tile.IsSolid() {
+				break
+			}
+			def := rlworld.TileDefinitions[tile.Type]
+			if def.Door {
 				break
 			}
 		}
@@ -50,11 +60,18 @@ func Los(pX int, pY int, tX int, tY int, level *Level) bool {
 			return true
 		}
 
-		if level.IsTileSolid(tX, tY) || level.GetTileType(tX, tY) == Type_Door || level.GetTileType(tX, tY) == Type_MaintenanceTunnelDoor {
+		tile := level.Level.GetTilePtr(tX, tY, z)
+		if tile == nil {
+			break
+		}
+		if tile.IsSolid() {
+			break
+		}
+		def := rlworld.TileDefinitions[tile.Type]
+		if def.Door {
 			break
 		}
 	}
 
 	return false
-
 }

@@ -25,7 +25,7 @@ func (t StairsEventData) GetType() event.EventType {
 }
 
 type DropItemEventData struct {
-	X, Y int
+	X, Y, Z int
 	Item *ecs.Entity
 }
 

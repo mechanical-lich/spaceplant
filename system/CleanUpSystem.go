@@ -1,14 +1,14 @@
 package system
 
 import (
-	"github.com/mechanical-lich/spaceplant/level"
+	"github.com/mechanical-lich/spaceplant/world"
 )
 
 type CleanUpSystem struct {
 }
 
 // CleanUpSystem .
-func (s CleanUpSystem) Update(level *level.Level) {
+func (s CleanUpSystem) Update(level *world.Level) {
 	for _, entity := range level.Entities {
 		if entity.HasComponent("MyTurn") {
 			entity.RemoveComponent("MyTurn")
@@ -18,7 +18,5 @@ func (s CleanUpSystem) Update(level *level.Level) {
 			entity.RemoveComponent("AttackComponent")
 			entity.RemoveComponent("Solid")
 		}
-
 	}
-
 }

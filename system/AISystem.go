@@ -3,10 +3,12 @@ package system
 import (
 	"math/rand"
 
-	"github.com/beefsack/go-astar"
 	"github.com/mechanical-lich/mlge/ecs"
+	"github.com/mechanical-lich/mlge/path"
+	"github.com/mechanical-lich/ml-rogue-lib/pkg/rlcombat"
+	"github.com/mechanical-lich/ml-rogue-lib/pkg/rlentity"
 	"github.com/mechanical-lich/spaceplant/component"
-	world "github.com/mechanical-lich/spaceplant/level"
+	"github.com/mechanical-lich/spaceplant/world"
 )
 
 func getRandom(low int, high int) int {
@@ -32,7 +34,7 @@ func (s *AISystem) UpdateEntity(levelInterface any, entity *ecs.Entity) error {
 
 			pc := entity.GetComponent("Position").(*component.PositionComponent)
 
-			if handleDeath(entity) {
+			if rlentity.HandleDeath(entity) {
 				return nil
 			}
 
@@ -44,7 +46,7 @@ func (s *AISystem) UpdateEntity(levelInterface any, entity *ecs.Entity) error {
 					deltaY = getRandom(-1, 2)
 				}
 				move(entity, level, deltaX, deltaY)
-				face(entity, deltaX, deltaY)
+				rlentity.Face(entity, deltaX, deltaY)
 			}
 
 			//Hostile AI
@@ -52,36 +54,27 @@ func (s *AISystem) UpdateEntity(levelInterface any, entity *ecs.Entity) error {
 				hc := entity.GetComponent("HostileAI").(*component.HostileAIComponent)
 				deltaX := 0
 				deltaY := 0
+				z := pc.GetZ()
 
 				//Scan around for food to the best my vision allows me.
-				nearby := level.GetEntitiesAround(pc.GetX(), pc.GetY(), hc.SightRange, hc.SightRange)
+				var nearby []*ecs.Entity
+				level.GetEntitiesAround(pc.GetX(), pc.GetY(), z, hc.SightRange, hc.SightRange, &nearby)
 				if len(nearby) > 0 {
 					closest := entity
 					distance := 999999.0
 					for e := range nearby {
 						if nearby[e] != entity {
-							friendly := false
-							if entity.HasComponent("Description") {
-								if nearby[e].HasComponent("Description") {
-									myDC := entity.GetComponent("Description").(*component.DescriptionComponent)
-									hitDC := nearby[e].GetComponent("Description").(*component.DescriptionComponent)
-
-									if myDC.Faction != "none" && myDC.Faction != "" {
-										if myDC.Faction == hitDC.Faction {
-											friendly = true
-
-										}
-									}
-								}
-							}
-							if !friendly {
+							if !rlcombat.IsFriendly(entity, nearby[e]) {
 								foodPC := nearby[e].GetComponent("Position").(*component.PositionComponent)
 								if nearby[e].HasComponent("Food") && !nearby[e].HasComponent("Dead") {
-									tDistance := level.GetTileAt(pc.GetX(), pc.GetY()).PathEstimatedCost(level.GetTileAt(foodPC.GetX(), foodPC.GetY()))
-									if tDistance < distance {
-
-										closest = nearby[e]
-										distance = tDistance
+									from := level.Level.GetTilePtr(pc.GetX(), pc.GetY(), z)
+									to := level.Level.GetTilePtr(foodPC.GetX(), foodPC.GetY(), z)
+									if from != nil && to != nil {
+										tDistance := from.PathEstimatedCost(to)
+										if tDistance < distance {
+											closest = nearby[e]
+											distance = tDistance
+										}
 									}
 								}
 							}
@@ -92,23 +85,25 @@ func (s *AISystem) UpdateEntity(levelInterface any, entity *ecs.Entity) error {
 						foodPC := closest.GetComponent("Position").(*component.PositionComponent)
 						hc.TargetX = foodPC.GetX()
 						hc.TargetY = foodPC.GetY()
-						steps, _, _ := astar.Path(level.GetTileAt(pc.GetX(), pc.GetY()), level.GetTileAt(hc.TargetX, hc.TargetY))
-						if len(steps) > 0 {
-							t := steps[0].(*world.Tile)
-							if pc.GetX() < t.X {
-								deltaX = 1
-							}
-
-							if pc.GetX() > t.X {
-								deltaX = -1
-							}
-
-							if pc.GetY() < t.Y {
-								deltaY = 1
-							}
-
-							if pc.GetY() > t.Y {
-								deltaY = -1
+						from := level.Level.GetTilePtr(pc.GetX(), pc.GetY(), z)
+						to := level.Level.GetTilePtr(hc.TargetX, hc.TargetY, z)
+						if from != nil && to != nil {
+							steps, _, _ := path.Path(from, to)
+							if len(steps) > 0 {
+								t := steps[0].(*world.Tile)
+								tx, ty, _ := t.Coords()
+								if pc.GetX() < tx {
+									deltaX = 1
+								}
+								if pc.GetX() > tx {
+									deltaX = -1
+								}
+								if pc.GetY() < ty {
+									deltaY = 1
+								}
+								if pc.GetY() > ty {
+									deltaY = -1
+								}
 							}
 						}
 					}
@@ -124,15 +119,13 @@ func (s *AISystem) UpdateEntity(levelInterface any, entity *ecs.Entity) error {
 				}
 
 				if move(entity, level, deltaX, deltaY) {
-					entityHit := level.GetSolidEntityAt(pc.GetX()+deltaX, pc.GetY()+deltaY)
+					entityHit := level.GetSolidEntityAt(pc.GetX()+deltaX, pc.GetY()+deltaY, z)
 					if entityHit != nil && entityHit != entity {
-						if entityHit != entity {
-							hit(level, entity, entityHit)
-							eat(entity, entityHit)
-						}
+						hit(level, entity, entityHit)
+						rlentity.Eat(entity, entityHit)
 					}
 				}
-				face(entity, deltaX, deltaY)
+				rlentity.Face(entity, deltaX, deltaY)
 			}
 
 			//Defensive AI
@@ -140,36 +133,31 @@ func (s *AISystem) UpdateEntity(levelInterface any, entity *ecs.Entity) error {
 				aic := entity.GetComponent("DefensiveAI").(*component.DefensiveAIComponent)
 
 				if aic.Attacked {
-					entityHit := level.GetSolidEntityAt(aic.AttackerX, aic.AttackerY)
+					z := pc.GetZ()
+					entityHit := level.GetSolidEntityAt(aic.AttackerX, aic.AttackerY, z)
 
 					if entityHit == nil {
-						// No attacker there.
 						aic.Attacked = false
 					} else {
-						// Hit the attacker back.
 						hit(level, entity, entityHit)
 					}
 
-					// Point where you attack
 					deltaX := 0
 					deltaY := 0
 					if pc.GetX() < aic.AttackerX {
 						deltaX = 1
 					}
-
 					if pc.GetX() > aic.AttackerX {
 						deltaX = -1
 					}
-
 					if pc.GetY() < aic.AttackerY {
 						deltaY = 1
 					}
-
 					if pc.GetY() > aic.AttackerY {
 						deltaY = -1
 					}
 
-					face(entity, deltaX, deltaY)
+					rlentity.Face(entity, deltaX, deltaY)
 				}
 			}
 		}
