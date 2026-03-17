@@ -20,8 +20,8 @@ func NewGame(title string) (*Game, error) {
 	game := &Game{title: title}
 	ebiten.SetWindowSize(config.ScreenWidth, config.ScreenHeight)
 	ebiten.SetWindowTitle(title)
-	// Load Blueprints
-	err := factory.FactoryLoad("entities.blueprints")
+	// Load Blueprints (JSON format)
+	err := factory.FactoryLoad("data/entity_blueprints.json")
 	if err != nil {
 		return nil, err
 	}

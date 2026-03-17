@@ -50,9 +50,14 @@ func (s LightSystem) UpdateEntity(levelInterface any, entity *ecs.Entity) error 
 					if dist == 0 {
 						dist = 1
 					}
+					// Avoid divide-by-zero if Brightness wasn't set in blueprints
+					brightness := lc.Brightness
+					if brightness == 0 {
+						brightness = 1
+					}
 					t := l.Level.GetTilePtr(x, y, z)
 					if t != nil {
-						t.LightLevel -= 255 - 255*dist/lc.Brightness
+						t.LightLevel -= 255 - 255*dist/brightness
 						if t.LightLevel > 255 {
 							t.LightLevel = 255
 						}

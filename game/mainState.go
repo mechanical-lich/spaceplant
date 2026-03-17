@@ -1,6 +1,7 @@
 package game
 
 import (
+	"fmt"
 	"image/color"
 
 	"github.com/hajimehoshi/ebiten/v2"
@@ -10,13 +11,13 @@ import (
 	"github.com/mechanical-lich/mlge/state"
 	mlge_text "github.com/mechanical-lich/mlge/text"
 
+	"github.com/mechanical-lich/mlge/message"
 	"github.com/mechanical-lich/spaceplant/component"
 	"github.com/mechanical-lich/spaceplant/config"
 	"github.com/mechanical-lich/spaceplant/eventsystem"
 	"github.com/mechanical-lich/spaceplant/factory"
 	"github.com/mechanical-lich/spaceplant/gamemaster"
 	"github.com/mechanical-lich/spaceplant/generation"
-	"github.com/mechanical-lich/mlge/message"
 	"github.com/mechanical-lich/spaceplant/system"
 	"github.com/mechanical-lich/spaceplant/ui"
 	"github.com/mechanical-lich/spaceplant/utility"
@@ -103,6 +104,10 @@ func NewMainState() (*MainState, error) {
 	eventsystem.EventManager.RegisterListener(&m, eventsystem.Stairs)
 	eventsystem.EventManager.RegisterListener(&m, eventsystem.DropItem)
 
+	// Register queued message listener so message.MessageEvent queued via message.PostMessage
+	// are flushed into message.MessageLog by our listener.
+	event.GetQueuedInstance().RegisterListener(&queuedMessageListener{}, message.MessageEventType)
+
 	return &m, nil
 }
 
@@ -111,6 +116,9 @@ func (s *MainState) Done() bool {
 }
 
 func (s *MainState) Update() state.StateInterface {
+	// First, process any queued events (including message events)
+	event.GetQueuedInstance().HandleQueue()
+
 	s.gui.Update(s)
 	s.inventoryView.Update()
 	s.tick++
@@ -197,6 +205,10 @@ func (s *MainState) UpdateEntities() {
 	system.LightSystem{}.ClearLights(s.level, s.CurrentZ)
 
 	for _, entity := range s.level.Entities {
+		if entity == nil {
+			fmt.Println("Entity is nil, probably picked up.")
+			continue
+		}
 		s.systemManager.UpdateSystemsForEntity(s.level, entity)
 	}
 }

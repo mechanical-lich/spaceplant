@@ -1,0 +1,525 @@
+{
+    "player": {
+        "PlayerComponent": {},
+        "DescriptionComponent": {
+            "Name": "Player",
+            "Tags": [
+                "crew"
+            ]
+        },
+        "InventoryComponent": {
+            "StartingInventory": [
+                "laser_trimmers",
+                "helmet",
+                "laser_trimmers",
+                "health",
+                "health",
+                "laser_trimmers2",
+                "helmet2"
+            ]
+        },
+        "HealthComponent": {
+            "MaxHealth": 100
+        },
+        "AppearanceComponent": {
+            "SpriteX": 0,
+            "SpriteY": 0,
+            "R": 255,
+            "G": 255,
+            "B": 255,
+            "Frames": 1
+        },
+        "LightComponent": {
+            "Radius": 10,
+            "Brightness": 10,
+            "R": 0,
+            "G": 0,
+            "B": 125
+        },
+        "SolidComponent": {},
+        "FoodComponent": {
+            "Amount": 3
+        },
+        "InitiativeComponent": {
+            "Speed": 10,
+            "Ticks": 1
+        },
+        "StatsComponent": {
+            "Str": 15,
+            "Dex": 12,
+            "Con": 15,
+            "Int": 10,
+            "Wis": 10,
+            "Damage": "1d4"
+        }
+    },
+    "light": {
+        "LightComponent": {
+            "Radius": 10,
+            "Brightness": 10,
+            "R": 0,
+            "G": 0,
+            "B": 125
+        },
+        "StatsComponent": {
+            "Str": 10,
+            "Dex": 10,
+            "Con": 10,
+            "Int": 10,
+            "Wis": 10,
+            "Damage": "1d4"
+        }
+    },
+    "creeper": {
+        "DescriptionComponent": {
+            "Name": "Creeper",
+            "Tags": [
+                "plantz"
+            ]
+        },
+        "AppearanceComponent": {
+            "SpriteX": 96,
+            "SpriteY": 0,
+            "R": 0,
+            "G": 255,
+            "B": 0,
+            "Frames": 1
+        },
+        "HealthComponent": {
+            "MaxHealth": 10
+        },
+        "SolidComponent": {},
+        "HostileAIComponent": {
+            "SightRange": 10
+        },
+        "InitiativeComponent": {
+            "Speed": 10,
+            "Ticks": 1
+        },
+        "StatsComponent": {
+            "Str": 12,
+            "Dex": 12,
+            "Con": 10,
+            "Int": 10,
+            "Wis": 10,
+            "Damage": "1d4"
+        }
+    },
+    "abomination": {
+        "DescriptionComponent": {
+            "Name": "Abomination",
+            "Tags": [
+                "plantz"
+            ]
+        },
+        "AppearanceComponent": {
+            "SpriteX": 128,
+            "SpriteY": 0,
+            "R": 0,
+            "G": 255,
+            "B": 0,
+            "Frames": 1
+        },
+        "HealthComponent": {
+            "MaxHealth": 10
+        },
+        "SolidComponent": {},
+        "HostileAIComponent": {
+            "SightRange": 10
+        },
+        "InitiativeComponent": {
+            "Speed": 10,
+            "Ticks": 1
+        },
+        "StatsComponent": {
+            "Str": 15,
+            "Dex": 15,
+            "Con": 10,
+            "Int": 10,
+            "Wis": 10,
+            "Damage": "1d4"
+        }
+    },
+    "viner": {
+        "DescriptionComponent": {
+            "Name": "Viner",
+            "Tags": [
+                "plantz"
+            ]
+        },
+        "AppearanceComponent": {
+            "SpriteX": 160,
+            "SpriteY": 0,
+            "R": 0,
+            "G": 255,
+            "B": 0,
+            "Frames": 1
+        },
+        "HealthComponent": {
+            "MaxHealth": 10
+        },
+        "SolidComponent": {},
+        "HostileAIComponent": {
+            "SightRange": 10
+        },
+        "InitiativeComponent": {
+            "Speed": 10,
+            "Ticks": 1
+        },
+        "StatsComponent": {
+            "Str": 14,
+            "Dex": 10,
+            "Con": 14,
+            "Int": 10,
+            "Wis": 10,
+            "Damage": "1d4"
+        }
+    },
+    "scythe": {
+        "DescriptionComponent": {
+            "Name": "Scythe",
+            "Tags": [
+                "plantz"
+            ]
+        },
+        "AppearanceComponent": {
+            "SpriteX": 192,
+            "SpriteY": 0,
+            "R": 0,
+            "G": 255,
+            "B": 0,
+            "Frames": 1
+        },
+        "HealthComponent": {
+            "MaxHealth": 10
+        },
+        "SolidComponent": {},
+        "HostileAIComponent": {
+            "SightRange": 10
+        },
+        "InitiativeComponent": {
+            "Speed": 10,
+            "Ticks": 1
+        },
+        "StatsComponent": {
+            "Str": 12,
+            "Dex": 13,
+            "Con": 10,
+            "Int": 10,
+            "Wis": 10,
+            "Damage": "1d4"
+        }
+    },
+    "scrambler": {
+        "DescriptionComponent": {
+            "Name": "Scrambler",
+            "Tags": [
+                "plantz"
+            ]
+        },
+        "AppearanceComponent": {
+            "SpriteX": 224,
+            "SpriteY": 0,
+            "R": 0,
+            "G": 255,
+            "B": 0,
+            "Frames": 1
+        },
+        "HealthComponent": {
+            "MaxHealth": 10
+        },
+        "SolidComponent": {},
+        "HostileAIComponent": {
+            "SightRange": 10
+        },
+        "InitiativeComponent": {
+            "Speed": 7,
+            "Ticks": 1
+        },
+        "StatsComponent": {
+            "Str": 10,
+            "Dex": 12,
+            "Con": 10,
+            "Int": 10,
+            "Wis": 10,
+            "Damage": "1d4"
+        }
+    },
+    "spitter": {
+        "DescriptionComponent": {
+            "Name": "Spitter",
+            "Tags": [
+                "plantz"
+            ]
+        },
+        "AppearanceComponent": {
+            "SpriteX": 256,
+            "SpriteY": 0,
+            "R": 0,
+            "G": 255,
+            "B": 0,
+            "Frames": 1
+        },
+        "HealthComponent": {
+            "MaxHealth": 10
+        },
+        "SolidComponent": {},
+        "HostileAIComponent": {
+            "SightRange": 10
+        },
+        "InitiativeComponent": {
+            "Speed": 10,
+            "Ticks": 1
+        },
+        "StatsComponent": {
+            "Str": 10,
+            "Dex": 10,
+            "Con": 10,
+            "Int": 10,
+            "Wis": 10,
+            "Damage": "1d4"
+        }
+    },
+    "crewmember": {
+        "DescriptionComponent": {
+            "Name": "Crewmen",
+            "Tags": [
+                "crew"
+            ]
+        },
+        "AppearanceComponent": {
+            "SpriteX": 64,
+            "SpriteY": 0,
+            "R": 200,
+            "G": 200,
+            "B": 125,
+            "Frames": 1
+        },
+        "HealthComponent": {
+            "MaxHealth": 10
+        },
+        "SolidComponent": {},
+        "FoodComponent": {
+            "Amount": 3
+        },
+        "WanderAIComponent": {},
+        "DefensiveAIComponent": {},
+        "InitiativeComponent": {
+            "Speed": 10,
+            "Ticks": 1
+        },
+        "LightComponent": {
+            "Radius": 10,
+            "Brightness": 10,
+            "R": 0,
+            "G": 0,
+            "B": 125
+        },
+        "StatsComponent": {
+            "Str": 10,
+            "Dex": 10,
+            "Con": 10,
+            "Int": 10,
+            "Wis": 10,
+            "Damage": "1d4"
+        }
+    },
+    "officer": {
+        "DescriptionComponent": {
+            "Name": "Officer",
+            "Tags": [
+                "crew"
+            ]
+        },
+        "AppearanceComponent": {
+            "SpriteX": 32,
+            "SpriteY": 0,
+            "R": 200,
+            "G": 200,
+            "B": 125,
+            "Frames": 1
+        },
+        "HealthComponent": {
+            "MaxHealth": 10
+        },
+        "SolidComponent": {},
+        "FoodComponent": {
+            "Amount": 3
+        },
+        "WanderAIComponent": {},
+        "DefensiveAIComponent": {},
+        "InitiativeComponent": {
+            "Speed": 10,
+            "Ticks": 1
+        },
+        "LightComponent": {
+            "Radius": 10,
+            "Brightness": 10,
+            "R": 0,
+            "G": 0,
+            "B": 125
+        },
+        "StatsComponent": {
+            "Str": 10,
+            "Dex": 10,
+            "Con": 10,
+            "Int": 10,
+            "Wis": 10,
+            "Damage": "1d4"
+        }
+    },
+    "health": {
+        "DescriptionComponent": {
+            "Name": "health",
+            "Tags": [
+                "item"
+            ]
+        },
+        "AppearanceComponent": {
+            "SpriteX": 288,
+            "SpriteY": 0,
+            "R": 200,
+            "G": 200,
+            "B": 125,
+            "Frames": 1
+        },
+        "LightComponent": {
+            "Radius": 10,
+            "Brightness": 10,
+            "R": 0,
+            "G": 0,
+            "B": 125
+        },
+        "ItemComponent": {
+            "Effect": "heal",
+            "Value": 10,
+            "Slot": "bag"
+        }
+    },
+    "laser_trimmers": {
+        "DescriptionComponent": {
+            "Name": "laser_trimmers",
+            "Tags": [
+                "item"
+            ]
+        },
+        "AppearanceComponent": {
+            "SpriteX": 320,
+            "SpriteY": 0,
+            "R": 200,
+            "G": 200,
+            "B": 125,
+            "Frames": 1
+        },
+        "LightComponent": {
+            "Radius": 10,
+            "Brightness": 10,
+            "R": 0,
+            "G": 0,
+            "B": 125
+        },
+        "ItemComponent": {
+            "Effect": "",
+            "Value": 2,
+            "Slot": "hand"
+        },
+        "WeaponComponent": {
+            "Range": 1,
+            "Damage": "1d8"
+        }
+    },
+    "laser_trimmers2": {
+        "DescriptionComponent": {
+            "Name": "laser_trimmers2",
+            "Tags": [
+                "item"
+            ]
+        },
+        "AppearanceComponent": {
+            "SpriteX": 320,
+            "SpriteY": 0,
+            "R": 200,
+            "G": 200,
+            "B": 125,
+            "Frames": 1
+        },
+        "LightComponent": {
+            "Radius": 10,
+            "Brightness": 10,
+            "R": 0,
+            "G": 0,
+            "B": 125
+        },
+        "ItemComponent": {
+            "Effect": "",
+            "Value": 2,
+            "Slot": "hand"
+        },
+        "WeaponComponent": {
+            "Range": 2,
+            "Damage": "2d8"
+        }
+    },
+    "helmet": {
+        "DescriptionComponent": {
+            "Name": "helmet",
+            "Tags": [
+                "item"
+            ]
+        },
+        "AppearanceComponent": {
+            "SpriteX": 352,
+            "SpriteY": 0,
+            "R": 200,
+            "G": 200,
+            "B": 125,
+            "Frames": 1
+        },
+        "LightComponent": {
+            "Radius": 10,
+            "Brightness": 10,
+            "R": 0,
+            "G": 0,
+            "B": 125
+        },
+        "ItemComponent": {
+            "Effect": "",
+            "Value": 0,
+            "Slot": "head"
+        },
+        "ArmorComponent": {
+            "Armor": 2
+        }
+    },
+    "helmet2": {
+        "DescriptionComponent": {
+            "Name": "helmet2",
+            "Tags": [
+                "item"
+            ]
+        },
+        "AppearanceComponent": {
+            "SpriteX": 352,
+            "SpriteY": 0,
+            "R": 200,
+            "G": 200,
+            "B": 125,
+            "Frames": 1
+        },
+        "LightComponent": {
+            "Radius": 10,
+            "Brightness": 10,
+            "R": 0,
+            "G": 0,
+            "B": 125
+        },
+        "ItemComponent": {
+            "Effect": "",
+            "Value": 0,
+            "Slot": "head"
+        },
+        "ArmorComponent": {
+            "Armor": 4
+        }
+    }
+}
