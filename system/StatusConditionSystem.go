@@ -13,7 +13,7 @@ type DecayingComponent interface {
 type StatusConditionSystem struct {
 }
 
-var statusConditions = []ecs.ComponentType{"PoisonedComponent", "AlertedComponent"}
+var statusConditions = []ecs.ComponentType{"Poisoned", "Alerted"}
 
 func (s StatusConditionSystem) UpdateSystem(data any) error {
 	return nil

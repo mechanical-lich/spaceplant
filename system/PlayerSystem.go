@@ -26,9 +26,9 @@ func (s *PlayerSystem) UpdateEntity(levelInterface any, entity *ecs.Entity) erro
 	l := levelInterface.(*level.Level)
 
 	if entity.HasComponent("PlayerComponent") {
-		if entity.HasComponent("MyTurnComponent") {
-			pc := entity.GetComponent("PositionComponent").(*component.PositionComponent)
-			dc := entity.GetComponent("DirectionComponent").(*component.DirectionComponent)
+		if entity.HasComponent("MyTurn") {
+			pc := entity.GetComponent("Position").(*component.PositionComponent)
+			dc := entity.GetComponent("Direction").(*component.DirectionComponent)
 			playerComponent := entity.GetComponent("PlayerComponent").(*component.PlayerComponent)
 			command := playerComponent.PopCommand()
 
@@ -59,17 +59,18 @@ func (s *PlayerSystem) UpdateEntity(levelInterface any, entity *ecs.Entity) erro
 					message.AddMessage("Shoot in the " + direction + " direction!")
 				}
 			case "H":
-				if entity.HasComponent("InventoryComponent") {
-					inventory := entity.GetComponent("InventoryComponent").(*component.InventoryComponent)
+				if entity.HasComponent("Inventory") {
+					inventory := entity.GetComponent("Inventory").(*component.InventoryComponent)
 					used := false
 					for _, v := range inventory.Bag {
-						item := v.GetComponent("ItemComponent").(*component.ItemComponent)
+						item := v.GetComponent("Item").(*component.ItemComponent)
 						if item.Effect == "heal" {
-							inventory.Use(v, entity)
+							entity.GetComponent("Health").(*component.HealthComponent).Health += item.Value
+							inventory.RemoveItem(v)
 							used = true
 
 							message.AddMessage(fmt.Sprint("You healed yourself for ", item.Value))
-
+							break
 						}
 					}
 					if !used {
@@ -87,17 +88,17 @@ func (s *PlayerSystem) UpdateEntity(levelInterface any, entity *ecs.Entity) erro
 				}
 
 			case "E":
-				if entity.HasComponent("InventoryComponent") {
-					inventory := entity.GetComponent("InventoryComponent").(*component.InventoryComponent)
+				if entity.HasComponent("Inventory") {
+					inventory := entity.GetComponent("Inventory").(*component.InventoryComponent)
 					used := false
 					for _, v := range inventory.Bag {
-						item := v.GetComponent("ItemComponent").(*component.ItemComponent)
+						item := v.GetComponent("Item").(*component.ItemComponent)
 						if item.Slot != "bag" {
 							// TODO MEH...
 							inventory.Equip(v)
 							used = true
 
-							message.AddMessage(fmt.Sprint("You equipped an item ", v.GetComponent("DescriptionComponent").(*component.DescriptionComponent).Name))
+							message.AddMessage(fmt.Sprint("You equipped an item ", v.GetComponent("Description").(*component.DescriptionComponent).Name))
 							break
 						}
 					}
@@ -106,12 +107,12 @@ func (s *PlayerSystem) UpdateEntity(levelInterface any, entity *ecs.Entity) erro
 					}
 				}
 			case "P": // Pickup
-				if entity.HasComponent("InventoryComponent") {
-					inventory := entity.GetComponent("InventoryComponent").(*component.InventoryComponent)
-					pc := entity.GetComponent("PositionComponent").(*component.PositionComponent)
+				if entity.HasComponent("Inventory") {
+					inventory := entity.GetComponent("Inventory").(*component.InventoryComponent)
+					pc := entity.GetComponent("Position").(*component.PositionComponent)
 					entities := l.GetEntitiesAt(pc.GetX(), pc.GetY())
 					for _, v := range entities {
-						if v.HasComponent("ItemComponent") {
+						if v.HasComponent("Item") {
 							inventory.AddItem(v)
 							l.DeleteEntity(v)
 							break

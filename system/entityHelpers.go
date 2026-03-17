@@ -14,12 +14,12 @@ import (
 func hit(l *level.Level, entity *ecs.Entity, entityHit *ecs.Entity) {
 	if entityHit != entity {
 		//Faction check
-		if entityHit.HasComponent("DescriptionComponent") && entity.HasComponent("DescriptionComponent") {
-			hitDc := entityHit.GetComponent("DescriptionComponent").(*component.DescriptionComponent)
-			dc := entity.GetComponent("DescriptionComponent").(*component.DescriptionComponent)
+		if entityHit.HasComponent("Description") && entity.HasComponent("Description") {
+			hitDc := entityHit.GetComponent("Description").(*component.DescriptionComponent)
+			dc := entity.GetComponent("Description").(*component.DescriptionComponent)
 
-			hitPc := entityHit.GetComponent("PositionComponent").(*component.PositionComponent)
-			pc := entity.GetComponent("PositionComponent").(*component.PositionComponent)
+			hitPc := entityHit.GetComponent("Position").(*component.PositionComponent)
+			pc := entity.GetComponent("Position").(*component.PositionComponent)
 
 			oldX := pc.GetX()
 			oldY := pc.GetY()
@@ -34,16 +34,16 @@ func hit(l *level.Level, entity *ecs.Entity, entityHit *ecs.Entity) {
 		}
 
 		// Attack it
-		if entityHit.HasComponent("HealthComponent") && entityHit.HasComponent("StatsComponent") && entity.HasComponent("StatsComponent") {
-			sc := entity.GetComponent("StatsComponent").(*component.StatsComponent)
-			hitSc := entityHit.GetComponent("StatsComponent").(*component.StatsComponent)
+		if entityHit.HasComponent("Health") && entityHit.HasComponent("Stats") && entity.HasComponent("Stats") {
+			sc := entity.GetComponent("Stats").(*component.StatsComponent)
+			hitSc := entityHit.GetComponent("Stats").(*component.StatsComponent)
 
 			// Apply weapons
 			attackMod := 0
 			attackDice := sc.BasicAttackDice
 
-			if entity.HasComponent("InventoryComponent") {
-				inventory := entity.GetComponent("InventoryComponent").(*component.InventoryComponent)
+			if entity.HasComponent("Inventory") {
+				inventory := entity.GetComponent("Inventory").(*component.InventoryComponent)
 				attackMod += inventory.GetAttackModifier()
 				d := inventory.GetAttackDice()
 				if d != "" {
@@ -69,8 +69,8 @@ func hit(l *level.Level, entity *ecs.Entity, entityHit *ecs.Entity) {
 					entityHit.AddComponent(&component.AttackComponent{SpriteX: 0, SpriteY: 0})
 
 					// Apply defenses
-					if entityHit.HasComponent("InventoryComponent") {
-						inventory := entityHit.GetComponent("InventoryComponent").(*component.InventoryComponent)
+					if entityHit.HasComponent("Inventory") {
+						inventory := entityHit.GetComponent("Inventory").(*component.InventoryComponent)
 						damage -= inventory.GetDefenseModifier()
 						if damage < 0 {
 							damage = 0
@@ -78,20 +78,20 @@ func hit(l *level.Level, entity *ecs.Entity, entityHit *ecs.Entity) {
 					}
 
 					// Apply damage
-					ehc := entityHit.GetComponent("HealthComponent").(*component.HealthComponent)
+					ehc := entityHit.GetComponent("Health").(*component.HealthComponent)
 					if ehc.Health > 0 {
 						ehc.Health -= damage
-						if entityHit.HasComponent("DescriptionComponent") && entity.HasComponent("DescriptionComponent") {
-							hitDc := entityHit.GetComponent("DescriptionComponent").(*component.DescriptionComponent)
-							dc := entity.GetComponent("DescriptionComponent").(*component.DescriptionComponent)
+						if entityHit.HasComponent("Description") && entity.HasComponent("Description") {
+							hitDc := entityHit.GetComponent("Description").(*component.DescriptionComponent)
+							dc := entity.GetComponent("Description").(*component.DescriptionComponent)
 							message.AddMessage(fmt.Sprint(dc.Name+" hit "+hitDc.Name+" for ", damage))
 						}
 					}
 				} else {
 					// Missed
-					if entityHit.HasComponent("DescriptionComponent") && entity.HasComponent("DescriptionComponent") {
-						hitDc := entityHit.GetComponent("DescriptionComponent").(*component.DescriptionComponent)
-						dc := entity.GetComponent("DescriptionComponent").(*component.DescriptionComponent)
+					if entityHit.HasComponent("Description") && entity.HasComponent("Description") {
+						hitDc := entityHit.GetComponent("Description").(*component.DescriptionComponent)
+						dc := entity.GetComponent("Description").(*component.DescriptionComponent)
 						message.AddMessage(fmt.Sprint(dc.Name + " missed " + hitDc.Name))
 					}
 				}
@@ -102,21 +102,21 @@ func hit(l *level.Level, entity *ecs.Entity, entityHit *ecs.Entity) {
 		}
 
 		// Trigger their defenses
-		if entityHit.HasComponent("DefensiveAIComponent") {
-			daic := entityHit.GetComponent("DefensiveAIComponent").(*component.DefensiveAIComponent)
-			pc := entity.GetComponent("PositionComponent").(*component.PositionComponent)
+		if entityHit.HasComponent("DefensiveAI") {
+			daic := entityHit.GetComponent("DefensiveAI").(*component.DefensiveAIComponent)
+			pc := entity.GetComponent("Position").(*component.PositionComponent)
 			daic.Attacked = true
 			daic.AttackerX = pc.GetX()
 			daic.AttackerY = pc.GetY()
 		}
 
-		if !entityHit.HasComponent("AlertedComponent") {
+		if !entityHit.HasComponent("Alerted") {
 			entityHit.AddComponent(&component.AlertedComponent{Duration: 120})
 		}
 
-		if entity.HasComponent("PoisonousComponent") {
-			if !entityHit.HasComponent("PoisonedComponent") {
-				poisonousComponent := entity.GetComponent("PoisonousComponent").(*component.PoisonousComponent)
+		if entity.HasComponent("Poisonous") {
+			if !entityHit.HasComponent("Poisoned") {
+				poisonousComponent := entity.GetComponent("Poisonous").(*component.PoisonousComponent)
 				entityHit.AddComponent(&component.PoisonedComponent{Duration: poisonousComponent.Duration})
 			}
 		}
@@ -127,8 +127,8 @@ func hit(l *level.Level, entity *ecs.Entity, entityHit *ecs.Entity) {
 // Returns true if successfully ate.
 func eat(entity *ecs.Entity, entityHit *ecs.Entity) bool {
 	if entityHit != entity {
-		if entityHit.HasComponent("FoodComponent") {
-			fc := entityHit.GetComponent("FoodComponent").(*component.FoodComponent)
+		if entityHit.HasComponent("Food") {
+			fc := entityHit.GetComponent("Food").(*component.FoodComponent)
 			fc.Amount--
 			return true
 		}
@@ -137,7 +137,7 @@ func eat(entity *ecs.Entity, entityHit *ecs.Entity) bool {
 }
 
 func face(entity *ecs.Entity, deltaX int, deltaY int) {
-	dc := entity.GetComponent("DirectionComponent").(*component.DirectionComponent)
+	dc := entity.GetComponent("Direction").(*component.DirectionComponent)
 	if deltaY > 0 {
 		dc.Direction = 1
 	}
@@ -153,8 +153,8 @@ func face(entity *ecs.Entity, deltaX int, deltaY int) {
 }
 
 func handleDeath(entity *ecs.Entity) bool {
-	if entity.HasComponent("HealthComponent") {
-		hc := entity.GetComponent("HealthComponent").(*component.HealthComponent)
+	if entity.HasComponent("Health") {
+		hc := entity.GetComponent("Health").(*component.HealthComponent)
 		if hc.Health <= 0 {
 			entity.AddComponent(&component.DeadComponent{})
 
@@ -166,7 +166,7 @@ func handleDeath(entity *ecs.Entity) bool {
 
 // Returns true if a solid entity is in the way.
 func move(entity *ecs.Entity, level *level.Level, deltaX int, deltaY int) bool {
-	pc := entity.GetComponent("PositionComponent").(*component.PositionComponent)
+	pc := entity.GetComponent("Position").(*component.PositionComponent)
 	entityHit := level.GetSolidEntityAt(pc.GetX()+deltaX, pc.GetY()+deltaY)
 	if entityHit == nil {
 		tile := level.GetTileAt(pc.GetX()+deltaX, pc.GetY()+deltaY)

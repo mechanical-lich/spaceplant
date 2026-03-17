@@ -27,17 +27,17 @@ func (s *AISystem) Requires() []ecs.ComponentType {
 // AISystem .
 func (s *AISystem) UpdateEntity(levelInterface any, entity *ecs.Entity) error {
 	level := levelInterface.(*world.Level)
-	if !entity.HasComponent("DeadComponent") {
-		if entity.HasComponent("MyTurnComponent") {
+	if !entity.HasComponent("Dead") {
+		if entity.HasComponent("MyTurn") {
 
-			pc := entity.GetComponent("PositionComponent").(*component.PositionComponent)
+			pc := entity.GetComponent("Position").(*component.PositionComponent)
 
 			if handleDeath(entity) {
 				return nil
 			}
 
 			//Wander AI
-			if entity.HasComponent("WanderAIComponent") {
+			if entity.HasComponent("WanderAI") {
 				deltaX := getRandom(-1, 2)
 				deltaY := 0
 				if deltaX == 0 {
@@ -48,8 +48,8 @@ func (s *AISystem) UpdateEntity(levelInterface any, entity *ecs.Entity) error {
 			}
 
 			//Hostile AI
-			if entity.HasComponent("HostileAIComponent") {
-				hc := entity.GetComponent("HostileAIComponent").(*component.HostileAIComponent)
+			if entity.HasComponent("HostileAI") {
+				hc := entity.GetComponent("HostileAI").(*component.HostileAIComponent)
 				deltaX := 0
 				deltaY := 0
 
@@ -61,10 +61,10 @@ func (s *AISystem) UpdateEntity(levelInterface any, entity *ecs.Entity) error {
 					for e := range nearby {
 						if nearby[e] != entity {
 							friendly := false
-							if entity.HasComponent("DescriptionComponent") {
-								if nearby[e].HasComponent("DescriptionComponent") {
-									myDC := entity.GetComponent("DescriptionComponent").(*component.DescriptionComponent)
-									hitDC := nearby[e].GetComponent("DescriptionComponent").(*component.DescriptionComponent)
+							if entity.HasComponent("Description") {
+								if nearby[e].HasComponent("Description") {
+									myDC := entity.GetComponent("Description").(*component.DescriptionComponent)
+									hitDC := nearby[e].GetComponent("Description").(*component.DescriptionComponent)
 
 									if myDC.Faction != "none" && myDC.Faction != "" {
 										if myDC.Faction == hitDC.Faction {
@@ -75,8 +75,8 @@ func (s *AISystem) UpdateEntity(levelInterface any, entity *ecs.Entity) error {
 								}
 							}
 							if !friendly {
-								foodPC := nearby[e].GetComponent("PositionComponent").(*component.PositionComponent)
-								if nearby[e].HasComponent("FoodComponent") && !nearby[e].HasComponent("DeadComponent") {
+								foodPC := nearby[e].GetComponent("Position").(*component.PositionComponent)
+								if nearby[e].HasComponent("Food") && !nearby[e].HasComponent("Dead") {
 									tDistance := level.GetTileAt(pc.GetX(), pc.GetY()).PathEstimatedCost(level.GetTileAt(foodPC.GetX(), foodPC.GetY()))
 									if tDistance < distance {
 
@@ -89,7 +89,7 @@ func (s *AISystem) UpdateEntity(levelInterface any, entity *ecs.Entity) error {
 					}
 
 					if closest != entity {
-						foodPC := closest.GetComponent("PositionComponent").(*component.PositionComponent)
+						foodPC := closest.GetComponent("Position").(*component.PositionComponent)
 						hc.TargetX = foodPC.GetX()
 						hc.TargetY = foodPC.GetY()
 						steps, _, _ := astar.Path(level.GetTileAt(pc.GetX(), pc.GetY()), level.GetTileAt(hc.TargetX, hc.TargetY))
@@ -136,8 +136,8 @@ func (s *AISystem) UpdateEntity(levelInterface any, entity *ecs.Entity) error {
 			}
 
 			//Defensive AI
-			if entity.HasComponent("DefensiveAIComponent") {
-				aic := entity.GetComponent("DefensiveAIComponent").(*component.DefensiveAIComponent)
+			if entity.HasComponent("DefensiveAI") {
+				aic := entity.GetComponent("DefensiveAI").(*component.DefensiveAIComponent)
 
 				if aic.Attacked {
 					entityHit := level.GetSolidEntityAt(aic.AttackerX, aic.AttackerY)

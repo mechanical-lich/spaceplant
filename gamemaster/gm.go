@@ -88,7 +88,7 @@ func (gm *GameMaster) Update(l *level.Level, pX, pY int) {
 	if utility.GetRandom(0, 5) > 3 {
 		// Gather stats
 		for _, e := range l.Entities {
-			if e.HasComponent("HostileAIComponent") {
+			if e.HasComponent("HostileAI") {
 				hostileCount++
 			}
 		}

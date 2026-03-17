@@ -18,8 +18,8 @@ func (s InitiativeSystem) Requires() []ecs.ComponentType {
 
 // InitiativeSystem .
 func (s InitiativeSystem) UpdateEntity(levelInterface any, entity *ecs.Entity) error {
-	if entity.HasComponent("InitiativeComponent") {
-		ic := entity.GetComponent("InitiativeComponent").(*component.InitiativeComponent)
+	if entity.HasComponent("Initiative") {
+		ic := entity.GetComponent("Initiative").(*component.InitiativeComponent)
 		ic.Ticks--
 
 		if ic.Ticks <= 0 {
@@ -28,7 +28,7 @@ func (s InitiativeSystem) UpdateEntity(levelInterface any, entity *ecs.Entity) e
 				ic.Ticks = ic.OverrideValue
 			}
 
-			if !entity.HasComponent("MyTurnComponent") {
+			if !entity.HasComponent("MyTurn") {
 
 				mTC := &component.MyTurnComponent{}
 				entity.AddComponent(mTC)

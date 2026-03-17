@@ -46,10 +46,10 @@ func (view *InventoryView) Update() {
 			inventoryY := view.Y + 48.0
 			itemHeight := 16
 			// Populate buttons for inventory/check for clicks
-			inventory := view.player.GetComponent("InventoryComponent").(*component.InventoryComponent)
+			inventory := view.player.GetComponent("Inventory").(*component.InventoryComponent)
 			view.inventoryButtons = []Button{}
 			for i, v := range inventory.Bag {
-				d := v.GetComponent("DescriptionComponent").(*component.DescriptionComponent)
+				d := v.GetComponent("Description").(*component.DescriptionComponent)
 				b := Button{inventoryX, inventoryY + float64(15+(i*itemHeight)), 100, float64(itemHeight), d.Name}
 				view.inventoryButtons = append(view.inventoryButtons, b)
 
@@ -59,14 +59,20 @@ func (view *InventoryView) Update() {
 				if b.Within(cX, cY) {
 					// TODO Temp use code
 					if inpututil.IsMouseButtonJustPressed(ebiten.MouseButtonLeft) {
-						inventory.Use(v, view.player)
+						item := v.GetComponent("Item").(*component.ItemComponent)
+						if item.Effect == "heal" {
+							view.player.GetComponent("Health").(*component.HealthComponent).Health += item.Value
+							inventory.RemoveItem(v)
+						} else if item.Slot != component.BagSlot {
+							inventory.Equip(v)
+						}
 					}
 				}
 
 				if b2.Within(cX, cY) {
 					// TODO Temp drop code
 					if inpututil.IsMouseButtonJustPressed(ebiten.MouseButtonLeft) {
-						pc := view.player.GetComponent("PositionComponent").(*component.PositionComponent)
+						pc := view.player.GetComponent("Position").(*component.PositionComponent)
 						data := eventsystem.DropItemEventData{
 							X:    pc.GetX(),
 							Y:    pc.GetY(),
@@ -111,8 +117,8 @@ func (view *InventoryView) Draw(screen *ebiten.Image) {
 			ebitenutil.DrawRect(screen, view.X+215, view.Y+50, 2, view.Height-100, color.White)
 
 			// Stats
-			stats := view.player.GetComponent("StatsComponent").(*component.StatsComponent)
-			inventoryComponent := view.player.GetComponent("InventoryComponent").(*component.InventoryComponent)
+			stats := view.player.GetComponent("Stats").(*component.StatsComponent)
+			inventoryComponent := view.player.GetComponent("Inventory").(*component.InventoryComponent)
 
 			statX := int(view.X) + 220
 			statY := int(view.Y) + 100
@@ -143,16 +149,16 @@ func DrawEquipment(screen *ebiten.Image, x, y int, slot string, item *ecs.Entity
 	m := fmt.Sprintf("%s : %s", slot, "-")
 
 	if item != nil {
-		dc := item.GetComponent("DescriptionComponent").(*component.DescriptionComponent)
+		dc := item.GetComponent("Description").(*component.DescriptionComponent)
 		m = fmt.Sprintf("%s : %s", slot, dc.Name)
 
-		if item.HasComponent("WeaponComponent") {
-			wc := item.GetComponent("WeaponComponent").(*component.WeaponComponent)
+		if item.HasComponent("Weapon") {
+			wc := item.GetComponent("Weapon").(*component.WeaponComponent)
 			m = fmt.Sprintf("%s : %s (%s + %d)", slot, dc.Name, wc.AttackDice, wc.AttackBonus)
 		}
 
-		if item.HasComponent("ArmorComponent") {
-			wc := item.GetComponent("ArmorComponent").(*component.ArmorComponent)
+		if item.HasComponent("Armor") {
+			wc := item.GetComponent("Armor").(*component.ArmorComponent)
 			m = fmt.Sprintf("%s : %s (%d)", slot, dc.Name, wc.DefenseBonus)
 		}
 

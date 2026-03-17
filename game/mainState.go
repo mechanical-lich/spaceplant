@@ -129,7 +129,7 @@ func (s *MainState) Update() state.StateInterface {
 	if !s.pause {
 		if s.Player != nil && s.updateDelay <= 0 {
 			playerC := s.Player.GetComponent("PlayerComponent").(*component.PlayerComponent)
-			pc := s.Player.GetComponent("PositionComponent").(*component.PositionComponent)
+			pc := s.Player.GetComponent("Position").(*component.PositionComponent)
 
 			// The amount of ticks it takes to push the command again if the key is held down.
 			if s.pressDelay > 0 {
@@ -137,7 +137,7 @@ func (s *MainState) Update() state.StateInterface {
 			}
 
 			// Pause the game for the player to take their turn
-			if s.Player.HasComponent("MyTurnComponent") {
+			if s.Player.HasComponent("MyTurn") {
 				s.PlayerInputHalt = true
 				// Open Inventory
 				if inpututil.IsKeyJustPressed(ebiten.KeyI) {
@@ -224,7 +224,7 @@ func (s *MainState) UpdateEntities() {
 // Width and Height are in tiles not pixels.
 func (g *MainState) GetMinimap(sX int, sY int, width int, height int, imageWidth int, imageHeight int) *ebiten.Image {
 	worldImage := ebiten.NewImage(imageWidth, imageHeight)
-	pc := g.Player.GetComponent("PositionComponent").(*component.PositionComponent)
+	pc := g.Player.GetComponent("Position").(*component.PositionComponent)
 
 	view := g.levels[g.CurrentLevel].GetView(sX, sY, width, height, false, false)
 	for x := 0; x < len(view); x++ {
@@ -280,7 +280,7 @@ func (g *MainState) HandleEvent(data event.EventData) error {
 	case eventsystem.DropItem:
 		dropItemEvent := data.(eventsystem.DropItemEventData)
 		//TODO Validation please
-		dropItemEvent.Item.GetComponent("PositionComponent").(*component.PositionComponent).SetPosition(dropItemEvent.X, dropItemEvent.Y)
+		dropItemEvent.Item.GetComponent("Position").(*component.PositionComponent).SetPosition(dropItemEvent.X, dropItemEvent.Y, 0)
 		g.levels[g.CurrentLevel].AddEntity(dropItemEvent.Item)
 	}
 

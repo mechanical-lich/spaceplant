@@ -44,8 +44,8 @@ func (g *GUIViewMain) Draw(screen *ebiten.Image, s state.StateInterface) {
 	mainState, _ := s.(*MainState)
 
 	if mainState.Player != nil {
-		if mainState.Player.HasComponent("HealthComponent") {
-			gc := mainState.Player.GetComponent("HealthComponent").(*component.HealthComponent)
+		if mainState.Player.HasComponent("Health") {
+			gc := mainState.Player.GetComponent("Health").(*component.HealthComponent)
 			mlge_text.Draw(screen, "Hp:"+strconv.Itoa(gc.Health), 24, config.GameWidth, 85+100, color.White)
 		}
 	}

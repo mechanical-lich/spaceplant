@@ -50,7 +50,7 @@ func Create(name string, x int, y int) (*ecs.Entity, error) {
 		entity := ecs.Entity{}
 		entity.Blueprint = name
 		pc := &component.PositionComponent{}
-		pc.SetPosition(x, y)
+		pc.SetPosition(x, y, 0)
 		entity.AddComponent(pc)
 
 		entity.AddComponent(&component.DirectionComponent{Direction: 0})
@@ -68,35 +68,35 @@ func Create(name string, x int, y int) (*ecs.Entity, error) {
 
 				entity.AddComponent(&component.AppearanceComponent{SpriteX: int(sx), SpriteY: int(sy), R: uint8(r), G: uint8(g), B: uint8(b), FrameCount: frameCount})
 
-			case "InitiativeComponent":
+			case "Initiative":
 				dv, _ := strconv.Atoi(params[0])
 				ticks, _ := strconv.Atoi(params[1])
 				entity.AddComponent(&component.InitiativeComponent{DefaultValue: dv, Ticks: ticks})
-			case "ItemComponent":
+			case "Item":
 				effect := params[0]
 				value, _ := strconv.Atoi(params[1])
 				slot := params[2]
-				entity.AddComponent(&component.ItemComponent{Effect: effect, Value: value, Slot: slot})
-			case "ArmorComponent":
+				entity.AddComponent(&component.ItemComponent{Effect: effect, Value: value, Slot: component.ItemSlot(slot)})
+			case "Armor":
 				value, _ := strconv.Atoi(params[0])
 				entity.AddComponent(&component.ArmorComponent{DefenseBonus: value})
-			case "WeaponComponent":
+			case "Weapon":
 				value, _ := strconv.Atoi(params[0])
 				dice := params[1]
 				entity.AddComponent(&component.WeaponComponent{AttackBonus: value, AttackDice: dice})
-			case "SolidComponent":
+			case "Solid":
 				entity.AddComponent(&component.SolidComponent{})
 			case "PlayerComponent":
 				entity.AddComponent(&component.PlayerComponent{})
-			case "InanimateComponent":
+			case "Inanimate":
 				entity.AddComponent(&component.InanimateComponent{})
 			case "MassiveComponent":
 				entity.AddComponent(&component.MassiveComponent{})
-			case "NocturnalComponent":
+			case "Nocturnal":
 				entity.AddComponent(&component.NocturnalComponent{})
-			case "NeverSleepComponent":
+			case "NeverSleep":
 				entity.AddComponent(&component.NeverSleepComponent{})
-			case "InventoryComponent":
+			case "Inventory":
 				inv := &component.InventoryComponent{}
 				entity.AddComponent(inv)
 				if len(params) > 0 {
@@ -129,22 +129,22 @@ func Create(name string, x int, y int) (*ecs.Entity, error) {
 				interact := &component.InteractComponent{}
 				interact.Message = append(interact.Message, params...)
 				entity.AddComponent(interact)
-			case "WanderAIComponent":
+			case "WanderAI":
 				entity.AddComponent(&component.WanderAIComponent{})
-			case "HostileAIComponent":
+			case "HostileAI":
 				r := 5
 				if len(params) == 1 {
 					r, _ = strconv.Atoi(params[0])
 				}
 
 				entity.AddComponent(&component.HostileAIComponent{SightRange: r})
-			case "FoodComponent":
+			case "Food":
 				amount, _ := strconv.Atoi(params[0])
 				entity.AddComponent(&component.FoodComponent{Amount: amount})
-			case "HealthComponent":
+			case "Health":
 				amount, _ := strconv.Atoi(params[0])
 				entity.AddComponent(&component.HealthComponent{Health: amount})
-			case "StatsComponent":
+			case "Stats":
 				ac, _ := strconv.Atoi(params[0])
 				str, _ := strconv.Atoi(params[1])
 				dex, _ := strconv.Atoi(params[2])
@@ -152,12 +152,12 @@ func Create(name string, x int, y int) (*ecs.Entity, error) {
 				wis, _ := strconv.Atoi(params[4])
 				d := params[5]
 				entity.AddComponent(&component.StatsComponent{AC: ac, Str: str, Dex: dex, Int: intel, Wis: wis, BasicAttackDice: d})
-			case "PoisonousComponent":
+			case "Poisonous":
 				amount, _ := strconv.Atoi(params[0])
 				entity.AddComponent(&component.PoisonousComponent{Duration: amount})
-			case "DefensiveAIComponent":
+			case "DefensiveAI":
 				entity.AddComponent(&component.DefensiveAIComponent{})
-			case "DescriptionComponent":
+			case "Description":
 				name := params[0]
 				faction := "none"
 				if len(params) == 2 {
@@ -173,11 +173,11 @@ func Create(name string, x int, y int) (*ecs.Entity, error) {
 }
 
 func ImportInventory(importString string, target *ecs.Entity) error {
-	if !target.HasComponent("InventoryComponent") {
+	if !target.HasComponent("Inventory") {
 		return errors.New("no inventory")
 	}
 
-	inventory := target.GetComponent("InventoryComponent").(*component.InventoryComponent)
+	inventory := target.GetComponent("Inventory").(*component.InventoryComponent)
 	imports := strings.Split(importString, ",")
 	for _, v := range imports {
 		entity, err := Create(v, 0, 0)

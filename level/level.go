@@ -222,7 +222,7 @@ func (level *Level) GetView(aX int, aY int, width int, height int, blind bool, c
 func (level *Level) PlaceEntity(x int, y int, entity *ecs.Entity) {
 	if x < level.Width && y < level.Height && x >= 0 && y >= 0 {
 		tile := &level.data[x][y]
-		pc := entity.GetComponent("PositionComponent").(*component.PositionComponent)
+		pc := entity.GetComponent("Position").(*component.PositionComponent)
 		oldTile := &level.data[pc.GetX()][pc.GetY()]
 		for i := 0; i < len(oldTile.Entities); i++ {
 			if oldTile.Entities[i] == entity {
@@ -230,7 +230,7 @@ func (level *Level) PlaceEntity(x int, y int, entity *ecs.Entity) {
 			}
 		}
 		tile.Entities = append(tile.Entities, entity)
-		pc.SetPosition(x, y)
+		pc.SetPosition(x, y, 0)
 	}
 }
 
@@ -267,8 +267,8 @@ func (level *Level) GetEntitiesAround(x int, y int, width int, height int) (enti
 				if len(tile.Entities) > 0 {
 					entity := tile.Entities[0]
 
-					if entity.HasComponent("PositionComponent") {
-						pc := entity.GetComponent("PositionComponent").(*component.PositionComponent)
+					if entity.HasComponent("Position") {
+						pc := entity.GetComponent("Position").(*component.PositionComponent)
 						if pc.GetX() >= left && pc.GetX() <= right && pc.GetY() >= up && pc.GetY() <= down {
 							entities = append(entities, entity)
 						}
@@ -283,7 +283,7 @@ func (level *Level) GetSolidEntityAt(x int, y int) (entity *ecs.Entity) {
 	if x < level.Width && y < level.Height && x >= 0 && y >= 0 {
 		tile := &level.data[x][y]
 		if len(tile.Entities) > 0 {
-			if tile.Entities[0].HasComponent("SolidComponent") {
+			if tile.Entities[0].HasComponent("Solid") {
 
 				return tile.Entities[0]
 			}
@@ -305,8 +305,8 @@ func (level *Level) DeleteEntity(entity *ecs.Entity) {
 }
 
 func (level *Level) RemoveEntity(entity *ecs.Entity) {
-	if entity.HasComponent("PositionComponent") {
-		pc := entity.GetComponent("PositionComponent").(*component.PositionComponent)
+	if entity.HasComponent("Position") {
+		pc := entity.GetComponent("Position").(*component.PositionComponent)
 		x := pc.GetX()
 		y := pc.GetY()
 
@@ -323,8 +323,8 @@ func (level *Level) RemoveEntity(entity *ecs.Entity) {
 
 func (level *Level) AddEntity(entity *ecs.Entity) {
 	level.Entities = append(level.Entities, entity)
-	if entity.HasComponent("PositionComponent") {
-		pc := entity.GetComponent("PositionComponent").(*component.PositionComponent)
+	if entity.HasComponent("Position") {
+		pc := entity.GetComponent("Position").(*component.PositionComponent)
 		x := pc.GetX()
 		y := pc.GetY()
 		level.PlaceEntity(x, y, entity)
@@ -390,15 +390,15 @@ func (level *Level) DrawEntity(screen *ebiten.Image, entity *ecs.Entity, x float
 			ac := entity.GetComponent("AppearanceComponent").(*component.AppearanceComponent)
 
 			// dir := 0
-			// if entity.HasComponent("DirectionComponent") {
-			// 	dc := entity.GetComponent("DirectionComponent").(*component.DirectionComponent)
+			// if entity.HasComponent("Direction") {
+			// 	dc := entity.GetComponent("Direction").(*component.DirectionComponent)
 			// 	dir = dc.Direction
 			// }
 
 			op := &ebiten.DrawImageOptions{}
 
 			// Dead transformation
-			if entity.HasComponent("DeadComponent") {
+			if entity.HasComponent("Dead") {
 				op.GeoM.Scale(1, -1)
 				op.GeoM.Translate(0, float64(config.SpriteHeight))
 			}

@@ -5,6 +5,7 @@ go 1.25.0
 require (
 	github.com/beefsack/go-astar v0.0.0-20200827232313-4ecf9e304482
 	github.com/hajimehoshi/ebiten/v2 v2.8.8
+	github.com/mechanical-lich/ml-rogue-lib v0.0.0-00010101000000-000000000000
 	github.com/mechanical-lich/mlge v1.2.0
 	github.com/sirupsen/logrus v1.9.0
 	github.com/stretchr/testify v1.10.0
