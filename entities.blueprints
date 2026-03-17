@@ -1,13 +1,14 @@
 player
 PlayerComponent:
 DescriptionComponent:Player,crew
+InventoryComponent:laser_trimmers,helmet,laser_trimmers,health,health,laser_trimmers2,helmet2
 HealthComponent:100
-AppearanceComponent:0,0,255,255,255
+AppearanceComponent:0,0,255,255,255,1
 LightComponent:10,10,0,0,125
 SolidComponent:
 FoodComponent:3
 InitiativeComponent:10,1
-StatsComponent:10,10,10,10,10,1d4
+StatsComponent:15,12,15,10,10,1d4
 
 
 light
@@ -16,54 +17,54 @@ StatsComponent:10,10,10,10,10,1d4
 
 creeper
 DescriptionComponent:Creeper,plantz
-AppearanceComponent:96,0,0,255,0
+AppearanceComponent:96,0,0,255,0,1
 HealthComponent:10
 SolidComponent:
 HostileAIComponent:10
 InitiativeComponent:10,1
-StatsComponent:10,10,10,10,10,1d4
+StatsComponent:12,12,10,10,10,1d4
 
 
 abomination
 DescriptionComponent:Abomination,plantz
-AppearanceComponent:128,0,0,255,0
+AppearanceComponent:128,0,0,255,0,1
 HealthComponent:10
 SolidComponent:
 HostileAIComponent:10
 InitiativeComponent:10,1
-StatsComponent:10,10,10,10,10,1d4
+StatsComponent:15,15,10,10,10,1d4
 
 
 viner
 DescriptionComponent:Viner,plantz
-AppearanceComponent:160,0,0,255,0
+AppearanceComponent:160,0,0,255,0,1
 HealthComponent:10
 SolidComponent:
 HostileAIComponent:10
 InitiativeComponent:10,1
-StatsComponent:10,10,10,10,10,1d4
+StatsComponent:14,10,14,10,10,1d4
 
 scythe
 DescriptionComponent:Scythe,plantz
-AppearanceComponent:192,0,0,255,0
+AppearanceComponent:192,0,0,255,0,1
 HealthComponent:10
 SolidComponent:
 HostileAIComponent:10
 InitiativeComponent:10,1
-StatsComponent:10,10,10,10,10,1d4
+StatsComponent:12,13,10,10,10,1d4
 
 scrambler
 DescriptionComponent:Scramber,plantz
-AppearanceComponent:224,0,0,255,0
+AppearanceComponent:224,0,0,255,0,1
 HealthComponent:10
 SolidComponent:
 HostileAIComponent:10
 InitiativeComponent:7,1
-StatsComponent:10,10,10,10,10,1d4
+StatsComponent:10,12,10,10,10,1d4
 
 spitter
 DescriptionComponent:Spitter,plantz
-AppearanceComponent:256,0,0,255,0
+AppearanceComponent:256,0,0,255,0,1
 HealthComponent:10
 SolidComponent:
 HostileAIComponent:10
@@ -72,7 +73,7 @@ StatsComponent:10,10,10,10,10,1d4
 
 crewmember
 DescriptionComponent:Crewmen,crew
-AppearanceComponent:64,0,200,200,125
+AppearanceComponent:64,0,200,200,125,1
 HealthComponent:10
 SolidComponent:
 FoodComponent:3
@@ -84,7 +85,7 @@ StatsComponent:10,10,10,10,10,1d4
 
 officer
 DescriptionComponent:Officer,crew
-AppearanceComponent:32,0,200,200,125
+AppearanceComponent:32,0,200,200,125,1
 HealthComponent:10
 SolidComponent:
 FoodComponent:3
@@ -93,3 +94,37 @@ DefensiveAIComponent:
 InitiativeComponent:10,1
 LightComponent:10,10,0,0,125
 StatsComponent:10,10,10,10,10,1d4
+
+health
+DescriptionComponent:health,item
+AppearanceComponent:288,0,200,200,125,1
+LightComponent:10,10,0,0,125
+ItemComponent:heal,10,bag
+
+laser_trimmers
+DescriptionComponent:laser_trimmers,item
+AppearanceComponent:320,0,200,200,125,1
+LightComponent:10,10,0,0,125
+ItemComponent:,2,hand
+WeaponComponent:1,1d8
+
+laser_trimmers2
+DescriptionComponent:laser_trimmers2,item
+AppearanceComponent:320,0,200,200,125,1
+LightComponent:10,10,0,0,125
+ItemComponent:,2,hand
+WeaponComponent:2,2d8
+
+helmet
+DescriptionComponent:helmet,item
+AppearanceComponent:352,0,200,200,125,1
+LightComponent:10,10,0,0,125
+ItemComponent:,0,head
+ArmorComponent:2
+
+helmet2
+DescriptionComponent:helmet2,item
+AppearanceComponent:352,0,200,200,125,1
+LightComponent:10,10,0,0,125
+ItemComponent:,0,head
+ArmorComponent:4

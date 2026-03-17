@@ -253,7 +253,6 @@ func GenerateStation(l *level.Level, width, height int) {
 
 func CarveMaintenanceTunnels(l *level.Level, width, height, numTunnels int) {
 	for i := 0; i < numTunnels; i++ {
-		//fmt.Println("Generating tunnel ", i+1, " out of ", numTunnels)
 		done := false
 		tries := 0
 		for tries < 99999 && !done {
@@ -327,7 +326,6 @@ func BudRooms(l *level.Level, width, height, numRooms int) {
 	// Bud rooms
 	//numRooms := 50
 	for i := 0; i < numRooms; i++ {
-		//fmt.Println("Generating room ", i+1, " out of ", numRooms)
 		done := false
 		tries := 0
 		for tries < 99999 && !done {

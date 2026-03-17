@@ -154,8 +154,12 @@ func (level *Level) Polish() {
 					tile.TileIndex = level.Theme.MaintenanceTunnelFloor[utility.GetRandom(0, len(level.Theme.MaintenanceTunnelFloor))]
 					tile.ForgroundColor = level.Theme.SecondaryForgroundColor
 					tile.BackgroundColor = level.Theme.SecondaryBackgroundColor
-				case Type_Stairs:
-					tile.TileIndex = level.Theme.Stairs[utility.GetRandom(0, len(level.Theme.Stairs))]
+				case Type_Stairs_Up:
+					tile.TileIndex = level.Theme.StairsUp[utility.GetRandom(0, len(level.Theme.StairsUp))]
+					tile.ForgroundColor = level.Theme.SecondaryForgroundColor
+					tile.BackgroundColor = level.Theme.SecondaryBackgroundColor
+				case Type_Stairs_Down:
+					tile.TileIndex = level.Theme.StairsDown[utility.GetRandom(0, len(level.Theme.StairsDown))]
 					tile.ForgroundColor = level.Theme.SecondaryForgroundColor
 					tile.BackgroundColor = level.Theme.SecondaryBackgroundColor
 				case Type_Open:
@@ -179,6 +183,39 @@ func (level *Level) Polish() {
 		}
 	}
 
+}
+
+func (level *Level) GetView(aX int, aY int, width int, height int, blind bool, centered bool) (data [][]*Tile) {
+	left := aX - width/2
+	right := aX + width/2
+	up := aY - height/2
+	down := aY + height/2
+
+	if centered == false {
+		left = aX
+		right = aX + width - 1
+		up = aY
+		down = aY + height
+	}
+
+	data = make([][]*Tile, width+1-width%2)
+
+	cX := 0
+	for x := left; x <= right; x++ {
+		col := []*Tile{}
+		for y := up; y <= down; y++ {
+			currentTile := level.GetTileAt(x, y)
+			if blind {
+				if y < aY-height/4 || y > aY+height/4 || x > aX+width/4 || x < aX-width/4 {
+					currentTile = nil
+				}
+			}
+			col = append(col, currentTile)
+		}
+		data[cX] = append(data[cX], col...)
+		cX++
+	}
+	return
 }
 
 // Entity functions
@@ -206,6 +243,15 @@ func (level *Level) GetEntityAt(x int, y int) (entity *ecs.Entity) {
 	}
 
 	entity = nil
+	return
+}
+
+func (level *Level) GetEntitiesAt(x int, y int) (entities []*ecs.Entity) {
+	if x < level.Width && y < level.Height && x >= 0 && y >= 0 {
+		tile := &level.data[x][y]
+		return tile.Entities
+	}
+
 	return
 }
 func (level *Level) GetEntitiesAround(x int, y int, width int, height int) (entities []*ecs.Entity) {
@@ -248,6 +294,16 @@ func (level *Level) GetSolidEntityAt(x int, y int) (entity *ecs.Entity) {
 	return
 }
 
+func (level *Level) DeleteEntity(entity *ecs.Entity) {
+	level.RemoveEntity(entity) // Remove from map
+	for i := 0; i < len(level.Entities); i++ {
+		if level.Entities[i] == entity {
+			level.Entities = append(level.Entities[:i], level.Entities[i+1:]...)
+			return
+		}
+	}
+}
+
 func (level *Level) RemoveEntity(entity *ecs.Entity) {
 	if entity.HasComponent("PositionComponent") {
 		pc := entity.GetComponent("PositionComponent").(*component.PositionComponent)
@@ -261,12 +317,6 @@ func (level *Level) RemoveEntity(entity *ecs.Entity) {
 					tile.Entities = append(tile.Entities[:i], tile.Entities[i+1:]...)
 				}
 			}
-		}
-	}
-	for i := 0; i < len(level.Entities); i++ {
-		if level.Entities[i] == entity {
-			level.Entities = append(level.Entities[:i], level.Entities[i+1:]...)
-			return
 		}
 	}
 }
@@ -338,6 +388,7 @@ func (level *Level) DrawEntity(screen *ebiten.Image, entity *ecs.Entity, x float
 	if entity != nil {
 		if entity.HasComponent("AppearanceComponent") {
 			ac := entity.GetComponent("AppearanceComponent").(*component.AppearanceComponent)
+
 			// dir := 0
 			// if entity.HasComponent("DirectionComponent") {
 			// 	dc := entity.GetComponent("DirectionComponent").(*component.DirectionComponent)
@@ -359,7 +410,7 @@ func (level *Level) DrawEntity(screen *ebiten.Image, entity *ecs.Entity, x float
 				op.ColorM.ScaleWithColor(color.RGBA{ac.R, ac.G, ac.B, 255})
 			}
 			// TODO - I don't like this.  The appearance component should specify the resource.
-			screen.DrawImage(resource.Textures["entities"].SubImage(image.Rect(ac.SpriteX, ac.SpriteY, ac.SpriteX+config.SpriteWidth, ac.SpriteY+config.SpriteHeight)).(*ebiten.Image), op)
+			screen.DrawImage(resource.Textures["entities"].SubImage(image.Rect(ac.GetFrameX(), ac.SpriteY, ac.GetFrameX()+config.SpriteWidth, ac.SpriteY+config.SpriteHeight)).(*ebiten.Image), op)
 
 			//Draw FX
 			if entity.HasComponent("AttackComponent") {

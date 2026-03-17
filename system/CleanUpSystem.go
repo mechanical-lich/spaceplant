@@ -1,7 +1,6 @@
 package system
 
 import (
-	"github.com/mechanical-lich/spaceplant/component"
 	"github.com/mechanical-lich/spaceplant/level"
 )
 
@@ -17,14 +16,16 @@ func (s CleanUpSystem) Update(level *level.Level) {
 
 		if entity.HasComponent("DeadComponent") {
 			entity.RemoveComponent("AttackComponent")
-			if entity.HasComponent("FoodComponent") {
-				fc := entity.GetComponent("FoodComponent").(*component.FoodComponent)
-				if fc.Amount <= 0 {
-					level.RemoveEntity(entity)
-				}
-			} else {
-				level.RemoveEntity(entity)
-			}
+			entity.RemoveComponent("SolidComponent")
+
+			// if entity.HasComponent("FoodComponent") {
+			// 	fc := entity.GetComponent("FoodComponent").(*component.FoodComponent)
+			// 	if fc.Amount <= 0 {
+			// 		level.DeleteEntity(entity)
+			// 	}
+			// } else {
+			// 	level.DeleteEntity(entity)
+			// }
 		}
 
 	}

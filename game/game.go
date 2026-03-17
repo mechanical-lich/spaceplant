@@ -8,6 +8,7 @@ import (
 	"github.com/mechanical-lich/game-engine/state"
 	"github.com/mechanical-lich/game-engine/text"
 	"github.com/mechanical-lich/spaceplant/config"
+	"github.com/mechanical-lich/spaceplant/factory"
 )
 
 type Game struct {
@@ -21,7 +22,13 @@ func NewGame(title string) (*Game, error) {
 	ebiten.SetWindowTitle(title)
 	text.LoadDefaultFonts()
 
-	err := LoadAssets()
+	// Load Blueprints
+	err := factory.FactoryLoad("entities.blueprints")
+	if err != nil {
+		return nil, err
+	}
+
+	err = LoadAssets()
 	if err != nil {
 		return nil, err
 	}
@@ -79,6 +86,11 @@ func LoadAssets() error {
 	}
 
 	err = resource.LoadImageAsTexture("fx", "assets/fx.png")
+	if err != nil {
+		return err
+	}
+
+	err = resource.LoadImageAsTexture("inventory", "assets/inventory.png")
 	if err != nil {
 		return err
 	}

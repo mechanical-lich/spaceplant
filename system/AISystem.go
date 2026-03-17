@@ -81,7 +81,6 @@ func (s AISystem) Update(levelInterface interface{}, entity *ecs.Entity) error {
 					}
 
 					if closest != entity {
-						//fmt.Println("Hunting:", closest)
 						foodPC := closest.GetComponent("PositionComponent").(*component.PositionComponent)
 						hc.TargetX = foodPC.GetX()
 						hc.TargetY = foodPC.GetY()

@@ -1,8 +1,13 @@
 package config
 
 const (
-	ScreenWidth  = 1024
+	ScreenWidth  = 1248
 	ScreenHeight = 832
+
+	GameWidth  = 1024
+	GameHeight = 832
+
+	ShowMouseCoords = false
 )
 
 const (

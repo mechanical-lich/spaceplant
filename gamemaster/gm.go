@@ -1,4 +1,4 @@
-package game
+package gamemaster
 
 import (
 	"math/rand"
@@ -10,31 +10,28 @@ import (
 
 const hostileMax = 20
 const crewInitial = 10
-const hostileInitial = 5
+const hostileInitial = 15
 
 var hostiles = []string{"creeper", "viner", "scythe", "scrambler"}
 var rareHostiles = []string{"abomination", "spitter"}
 var crew = []string{"crewmember", "officer"}
 
 type GameMaster struct {
-	level *level.Level
 }
 
 // Init Initial the game master
 func (gm *GameMaster) Init(l *level.Level) {
-	gm.level = l
-
 	//log.Println("Placing Crew")
 	//Random food
 	for i := 0; i < crewInitial; i++ {
-		x := rand.Intn(gm.level.Width)
-		y := rand.Intn(gm.level.Height)
-		tile := gm.level.GetTileAt(x, y)
+		x := rand.Intn(l.Width)
+		y := rand.Intn(l.Height)
+		tile := l.GetTileAt(x, y)
 		tries := 0
-		for tile.Solid || tile.Type == level.Type_Open || gm.level.GetEntityAt(x, y) != nil {
-			x = rand.Intn(gm.level.Width)
-			y = rand.Intn(gm.level.Height)
-			tile = gm.level.GetTileAt(x, y)
+		for tile.Solid || tile.Type == level.Type_Open || l.GetEntityAt(x, y) != nil {
+			x = rand.Intn(l.Width)
+			y = rand.Intn(l.Height)
+			tile = l.GetTileAt(x, y)
 			tries++
 			if tries > 10 {
 				break
@@ -46,21 +43,22 @@ func (gm *GameMaster) Init(l *level.Level) {
 		blueprint := crew[utility.GetRandom(0, len(crew))]
 		entity, err := factory.Create(blueprint, x, y)
 		if err == nil {
-			gm.level.AddEntity(entity)
+			l.AddEntity(entity)
 		}
 	}
 
 	//log.Println("Placing hostiles")
 	//Random hostiles
 	for i := 0; i < hostileInitial; i++ {
-		x := rand.Intn(gm.level.Width)
-		y := rand.Intn(gm.level.Height)
-		tile := gm.level.GetTileAt(x, y)
+
+		x := rand.Intn(l.Width)
+		y := rand.Intn(l.Height)
+		tile := l.GetTileAt(x, y)
 		tries := 0
-		for tile.Solid || tile.Type == level.Type_Open || gm.level.GetEntityAt(x, y) != nil {
-			x = rand.Intn(gm.level.Width)
-			y = rand.Intn(gm.level.Height)
-			tile = gm.level.GetTileAt(x, y)
+		for tile.Solid || tile.Type == level.Type_Open || l.GetEntityAt(x, y) != nil {
+			x = rand.Intn(l.Width)
+			y = rand.Intn(l.Height)
+			tile = l.GetTileAt(x, y)
 			tries++
 			if tries > 10 {
 				break
@@ -69,6 +67,7 @@ func (gm *GameMaster) Init(l *level.Level) {
 		if tries > 10 {
 			continue
 		}
+
 		blueprint := hostiles[utility.GetRandom(0, len(hostiles))]
 		if utility.GetRandom(0, 100) == 0 {
 			//log.Println("Spawn a rare hostile enemy!")
@@ -76,19 +75,19 @@ func (gm *GameMaster) Init(l *level.Level) {
 		}
 		food, err := factory.Create(blueprint, x, y)
 		if err == nil {
-			gm.level.AddEntity(food)
+			l.AddEntity(food)
 		}
 	}
 }
 
 // Update Update the game master
-func (gm *GameMaster) Update(pX, pY int) {
+func (gm *GameMaster) Update(l *level.Level, pX, pY int) {
 	hostileCount := 0
 
 	// Random chance to spawn in a new enemy
 	if utility.GetRandom(0, 5) > 3 {
 		// Gather stats
-		for _, e := range gm.level.Entities {
+		for _, e := range l.Entities {
 			if e.HasComponent("HostileAIComponent") {
 				hostileCount++
 			}
@@ -96,16 +95,16 @@ func (gm *GameMaster) Update(pX, pY int) {
 
 		// Handle hostile count
 		if hostileCount < hostileMax {
-			x := rand.Intn(gm.level.Width)
-			y := rand.Intn(gm.level.Height)
-			tile := gm.level.GetTileAt(x, y)
+			x := rand.Intn(l.Width)
+			y := rand.Intn(l.Height)
+			tile := l.GetTileAt(x, y)
 			tries := 0
 			dist := utility.Distance(pX, pY, x, y)
 
-			for tile.Solid || tile.Type == level.Type_Open || gm.level.GetEntityAt(x, y) != nil || dist < 20 || dist > 50 {
-				x = rand.Intn(gm.level.Width)
-				y = rand.Intn(gm.level.Height)
-				tile = gm.level.GetTileAt(x, y)
+			for tile.Solid || tile.Type == level.Type_Open || l.GetEntityAt(x, y) != nil || dist < 20 || dist > 50 {
+				x = rand.Intn(l.Width)
+				y = rand.Intn(l.Height)
+				tile = l.GetTileAt(x, y)
 				dist = utility.Distance(pX, pY, x, y)
 
 				tries++
@@ -124,7 +123,7 @@ func (gm *GameMaster) Update(pX, pY int) {
 			if err == nil {
 				//log.Println("Spawning hostile", x, y, pY, pY)
 
-				gm.level.AddEntity(e)
+				l.AddEntity(e)
 			}
 		}
 	}

@@ -7,6 +7,8 @@ import (
 	"github.com/mechanical-lich/spaceplant/component"
 	"github.com/mechanical-lich/spaceplant/dice"
 	"github.com/mechanical-lich/spaceplant/level"
+	"github.com/mechanical-lich/spaceplant/message"
+	log "github.com/sirupsen/logrus"
 )
 
 func hit(l *level.Level, entity *ecs.Entity, entityHit *ecs.Entity) {
@@ -31,10 +33,23 @@ func hit(l *level.Level, entity *ecs.Entity, entityHit *ecs.Entity) {
 			}
 		}
 
-		//Attack it
+		// Attack it
 		if entityHit.HasComponent("HealthComponent") && entityHit.HasComponent("StatsComponent") && entity.HasComponent("StatsComponent") {
 			sc := entity.GetComponent("StatsComponent").(*component.StatsComponent)
 			hitSc := entityHit.GetComponent("StatsComponent").(*component.StatsComponent)
+
+			// Apply weapons
+			attackMod := 0
+			attackDice := sc.BasicAttackDice
+
+			if entity.HasComponent("InventoryComponent") {
+				inventory := entity.GetComponent("InventoryComponent").(*component.InventoryComponent)
+				attackMod += inventory.GetAttackModifier()
+				d := inventory.GetAttackDice()
+				if d != "" {
+					attackDice = d
+				}
+			}
 
 			//Roll to hit
 			d := fmt.Sprintf("1d20+%d", getModifier(sc.Dex))
@@ -42,18 +57,25 @@ func hit(l *level.Level, entity *ecs.Entity, entityHit *ecs.Entity) {
 			if err == nil {
 				if roll.Result > hitSc.AC {
 					damage := 0
-					// TODO Figure out weapon dice.
-					d = fmt.Sprintf("%s+%d", sc.BasicAttackDice, getModifier(sc.Str))
-					// fmt.Println(d)
+					d = fmt.Sprintf("%s+%d", attackDice, getModifier(sc.Str)+attackMod)
 					roll, err = dice.ParseDiceRequest(d)
 					if err == nil {
 						damage = roll.Result
 					} else {
-						fmt.Println("Error rolling dice: ", d)
+						log.Error("Error rolling dice: ", d)
 					}
 
 					//Create visual of attack
 					entityHit.AddComponent(&component.AttackComponent{SpriteX: 0, SpriteY: 0})
+
+					// Apply defenses
+					if entityHit.HasComponent("InventoryComponent") {
+						inventory := entityHit.GetComponent("InventoryComponent").(*component.InventoryComponent)
+						damage -= inventory.GetDefenseModifier()
+						if damage < 0 {
+							damage = 0
+						}
+					}
 
 					// Apply damage
 					ehc := entityHit.GetComponent("HealthComponent").(*component.HealthComponent)
@@ -62,7 +84,7 @@ func hit(l *level.Level, entity *ecs.Entity, entityHit *ecs.Entity) {
 						if entityHit.HasComponent("DescriptionComponent") && entity.HasComponent("DescriptionComponent") {
 							hitDc := entityHit.GetComponent("DescriptionComponent").(*component.DescriptionComponent)
 							dc := entity.GetComponent("DescriptionComponent").(*component.DescriptionComponent)
-							fmt.Println(dc.Name+" hit "+hitDc.Name+" for ", damage)
+							message.AddMessage(fmt.Sprint(dc.Name+" hit "+hitDc.Name+" for ", damage))
 						}
 					}
 				} else {
@@ -70,11 +92,11 @@ func hit(l *level.Level, entity *ecs.Entity, entityHit *ecs.Entity) {
 					if entityHit.HasComponent("DescriptionComponent") && entity.HasComponent("DescriptionComponent") {
 						hitDc := entityHit.GetComponent("DescriptionComponent").(*component.DescriptionComponent)
 						dc := entity.GetComponent("DescriptionComponent").(*component.DescriptionComponent)
-						fmt.Println(dc.Name + " missed " + hitDc.Name)
+						message.AddMessage(fmt.Sprint(dc.Name + " missed " + hitDc.Name))
 					}
 				}
 			} else {
-				fmt.Println("Error rolling dice: ", d)
+				log.Error("Error rolling dice: ", d)
 
 			}
 		}
@@ -99,6 +121,7 @@ func hit(l *level.Level, entity *ecs.Entity, entityHit *ecs.Entity) {
 			}
 		}
 	}
+
 }
 
 // Returns true if successfully ate.

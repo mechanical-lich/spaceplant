@@ -64,12 +64,26 @@ func Create(name string, x int, y int) (*ecs.Entity, error) {
 				r, _ := strconv.Atoi(params[2])
 				g, _ := strconv.Atoi(params[3])
 				b, _ := strconv.Atoi(params[4])
-				entity.AddComponent(&component.AppearanceComponent{SpriteX: int(sx), SpriteY: int(sy), R: uint8(r), G: uint8(g), B: uint8(b)})
+				frameCount, _ := strconv.Atoi(params[5])
+
+				entity.AddComponent(&component.AppearanceComponent{SpriteX: int(sx), SpriteY: int(sy), R: uint8(r), G: uint8(g), B: uint8(b), FrameCount: frameCount})
 
 			case "InitiativeComponent":
 				dv, _ := strconv.Atoi(params[0])
 				ticks, _ := strconv.Atoi(params[1])
 				entity.AddComponent(&component.InitiativeComponent{DefaultValue: dv, Ticks: ticks})
+			case "ItemComponent":
+				effect := params[0]
+				value, _ := strconv.Atoi(params[1])
+				slot := params[2]
+				entity.AddComponent(&component.ItemComponent{Effect: effect, Value: value, Slot: slot})
+			case "ArmorComponent":
+				value, _ := strconv.Atoi(params[0])
+				entity.AddComponent(&component.ArmorComponent{DefenseBonus: value})
+			case "WeaponComponent":
+				value, _ := strconv.Atoi(params[0])
+				dice := params[1]
+				entity.AddComponent(&component.WeaponComponent{AttackBonus: value, AttackDice: dice})
 			case "SolidComponent":
 				entity.AddComponent(&component.SolidComponent{})
 			case "PlayerComponent":
@@ -84,10 +98,17 @@ func Create(name string, x int, y int) (*ecs.Entity, error) {
 				entity.AddComponent(&component.NeverSleepComponent{})
 			case "InventoryComponent":
 				inv := &component.InventoryComponent{}
-				for _, item := range params {
-					inv.AddItem(item)
-				}
 				entity.AddComponent(inv)
+				if len(params) > 0 {
+					importString := ""
+					for _, v := range params {
+						if importString != "" {
+							importString += ","
+						}
+						importString += v
+					}
+					ImportInventory(importString, &entity)
+				}
 			case "LightComponent":
 				radius := 5
 				brightness := 5
@@ -149,4 +170,23 @@ func Create(name string, x int, y int) (*ecs.Entity, error) {
 		return &entity, nil
 	}
 	return nil, errors.New("no blueprint found")
+}
+
+func ImportInventory(importString string, target *ecs.Entity) error {
+	if !target.HasComponent("InventoryComponent") {
+		return errors.New("no inventory")
+	}
+
+	inventory := target.GetComponent("InventoryComponent").(*component.InventoryComponent)
+	imports := strings.Split(importString, ",")
+	for _, v := range imports {
+		entity, err := Create(v, 0, 0)
+		if err != nil {
+			return err
+		}
+		inventory.AddItem(entity)
+		inventory.Equip(entity)
+	}
+
+	return nil
 }

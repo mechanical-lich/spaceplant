@@ -1,9 +1,13 @@
 package system
 
 import (
+	"fmt"
+
 	"github.com/mechanical-lich/game-engine/ecs"
 	"github.com/mechanical-lich/spaceplant/component"
+	"github.com/mechanical-lich/spaceplant/eventsystem"
 	"github.com/mechanical-lich/spaceplant/level"
+	"github.com/mechanical-lich/spaceplant/message"
 )
 
 type PlayerSystem struct {
@@ -11,7 +15,7 @@ type PlayerSystem struct {
 
 // PlayerSystem .
 func (s *PlayerSystem) Update(levelInterface interface{}, entity *ecs.Entity) error {
-	level := levelInterface.(*level.Level)
+	l := levelInterface.(*level.Level)
 
 	if entity.HasComponent("PlayerComponent") {
 		if entity.HasComponent("MyTurnComponent") {
@@ -19,7 +23,6 @@ func (s *PlayerSystem) Update(levelInterface interface{}, entity *ecs.Entity) er
 			dc := entity.GetComponent("DirectionComponent").(*component.DirectionComponent)
 			playerComponent := entity.GetComponent("PlayerComponent").(*component.PlayerComponent)
 			command := playerComponent.PopCommand()
-
 			// pX := pc.GetX()
 			// pY := pc.GetY()
 
@@ -45,16 +48,78 @@ func (s *PlayerSystem) Update(levelInterface interface{}, entity *ecs.Entity) er
 			case "F":
 				direction := playerComponent.PopCommand()
 				if direction == "" {
-					playerComponent.AddMessage("Wasn't given a direction to shoot!")
+					message.AddMessage("Wasn't given a direction to shoot!")
 				} else {
-					playerComponent.AddMessage("Shoot in the " + direction + " direction!")
+					message.AddMessage("Shoot in the " + direction + " direction!")
 				}
+			case "H":
+				if entity.HasComponent("InventoryComponent") {
+					inventory := entity.GetComponent("InventoryComponent").(*component.InventoryComponent)
+					used := false
+					for _, v := range inventory.Bag {
+						item := v.GetComponent("ItemComponent").(*component.ItemComponent)
+						if item.Effect == "heal" {
+							inventory.Use(v, entity)
+							used = true
+
+							message.AddMessage(fmt.Sprint("You healed yourself for ", item.Value))
+
+						}
+					}
+					if !used {
+						message.AddMessage("You do not have any healing items")
+					}
+				}
+			case "Period": // Stairs
+				tile := l.GetTileAt(pc.GetX(), pc.GetY())
+				if tile.Type == level.Type_Stairs_Down {
+					eventsystem.EventManager.SendEvent(eventsystem.StairsEventData{})
+				}
+
+				if tile.Type == level.Type_Stairs_Up {
+					eventsystem.EventManager.SendEvent(eventsystem.StairsEventData{Up: true})
+				}
+
+			case "E":
+				if entity.HasComponent("InventoryComponent") {
+					inventory := entity.GetComponent("InventoryComponent").(*component.InventoryComponent)
+					used := false
+					for _, v := range inventory.Bag {
+						item := v.GetComponent("ItemComponent").(*component.ItemComponent)
+						if item.Slot != "bag" {
+							// TODO MEH...
+							inventory.Equip(v)
+							used = true
+
+							message.AddMessage(fmt.Sprint("You equipped an item ", v.GetComponent("DescriptionComponent").(*component.DescriptionComponent).Name))
+							break
+						}
+					}
+					if !used {
+						message.AddMessage("You do not have anything to equip")
+					}
+				}
+			case "P": // Pickup
+				if entity.HasComponent("InventoryComponent") {
+					inventory := entity.GetComponent("InventoryComponent").(*component.InventoryComponent)
+					pc := entity.GetComponent("PositionComponent").(*component.PositionComponent)
+					entities := l.GetEntitiesAt(pc.GetX(), pc.GetY())
+					for _, v := range entities {
+						if v.HasComponent("ItemComponent") {
+							inventory.AddItem(v)
+							l.DeleteEntity(v)
+							break
+						}
+					}
+				}
+
 			}
-			if move(entity, level, deltaX, deltaY) {
-				entityHit := level.GetSolidEntityAt(pc.GetX()+deltaX, pc.GetY()+deltaY)
+
+			if move(entity, l, deltaX, deltaY) {
+				entityHit := l.GetEntityAt(pc.GetX()+deltaX, pc.GetY()+deltaY)
 				if entityHit != nil && entityHit != entity {
 					if entityHit != entity {
-						hit(level, entity, entityHit)
+						hit(l, entity, entityHit)
 						//eat(entity, entityHit)
 					}
 				}

@@ -14,7 +14,8 @@ type Theme struct {
 	MaintenanceTunnelTop   []int
 	MaintenanceTunnelDoor  []int
 	Open                   []int
-	Stairs                 []int
+	StairsUp               []int
+	StairsDown             []int
 
 	OpenForgroundColor       color.Color
 	OpenBackgroundColor      color.Color
@@ -26,12 +27,14 @@ type Theme struct {
 
 func NewDefaultTheme() Theme {
 	return Theme{
-		Wall:                   []int{0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4},
-		WallTop:                []int{10},
-		WallOutside:            []int{4},
-		Floor:                  []int{15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 16}, // Crappy weighted randomness
-		Door:                   []int{11, 12},
-		Stairs:                 []int{14},
+		Wall:        []int{0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4},
+		WallTop:     []int{10},
+		WallOutside: []int{4},
+		Floor:       []int{15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 16}, // Crappy weighted randomness
+		Door:        []int{11, 12},
+		StairsUp:    []int{14},
+		StairsDown:  []int{13},
+
 		MaintenanceTunnelFloor: []int{16},
 		MaintenanceTunnelWall:  []int{17},
 		MaintenanceTunnelTop:   []int{15},

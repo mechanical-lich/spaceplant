@@ -20,7 +20,8 @@ const (
 	Type_Wall
 	Type_Floor
 	Type_Door
-	Type_Stairs
+	Type_Stairs_Up
+	Type_Stairs_Down
 	Type_MaintenanceTunnelWall
 	Type_MaintenanceTunnelFLoor
 	Type_MaintenanceTunnelDoor
@@ -138,9 +139,11 @@ func (t *Tile) Draw(output *ebiten.Image, screenX, screenY int, seen bool) {
 		t.Seen = true
 
 		//Draw entity on tile.  We do this here to prevent yet another loop. ;)
-		entity := t.level.GetEntityAt(t.X, t.Y)
-		if entity != nil && seen {
-			t.level.DrawEntity(output, entity, tX, tY)
+		entities := t.level.GetEntitiesAt(t.X, t.Y)
+		if seen {
+			for _, entity := range entities {
+				t.level.DrawEntity(output, entity, tX, tY)
+			}
 		}
 
 		// Draw fog

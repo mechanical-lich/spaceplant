@@ -1,7 +1,6 @@
 package dice
 
 import (
-	"fmt"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -10,7 +9,6 @@ import (
 func TestTokenizeDiceRequest(t *testing.T) {
 	input := "1d6 + 4d8"
 	output := TokenizeDiceRequest(input)
-	fmt.Println(output)
 
 	assert.Equal(t, 3, len(output), "should have 3 tokens")
 

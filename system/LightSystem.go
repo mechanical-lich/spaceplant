@@ -23,7 +23,6 @@ func (s LightSystem) ClearLights(l *level.Level) {
 // LightSystem .
 func (s LightSystem) Update(levelInterface interface{}, entity *ecs.Entity) error {
 	if entity.HasComponent("LightComponent") && entity.HasComponent("PositionComponent") {
-		//fmt.Println(entity)
 		l, ok := levelInterface.(*level.Level)
 		if !ok {
 			return errors.New("invalid level type")
@@ -39,7 +38,6 @@ func (s LightSystem) Update(levelInterface interface{}, entity *ecs.Entity) erro
 					if dist == 0 {
 						dist = 1
 					}
-					//fmt.Println(dist)
 					t := l.GetTileAt(x, y)
 					if t != nil {
 						t.Light -= 255 - 255*dist/lc.Brightness
