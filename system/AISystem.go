@@ -3,10 +3,10 @@ package system
 import (
 	"math/rand"
 
-	"github.com/mechanical-lich/mlge/ecs"
-	"github.com/mechanical-lich/mlge/path"
 	"github.com/mechanical-lich/ml-rogue-lib/pkg/rlcombat"
 	"github.com/mechanical-lich/ml-rogue-lib/pkg/rlentity"
+	"github.com/mechanical-lich/mlge/ecs"
+	"github.com/mechanical-lich/mlge/path"
 	"github.com/mechanical-lich/spaceplant/component"
 	"github.com/mechanical-lich/spaceplant/world"
 )
@@ -89,8 +89,8 @@ func (s *AISystem) UpdateEntity(levelInterface any, entity *ecs.Entity) error {
 						to := level.Level.GetTilePtr(hc.TargetX, hc.TargetY, z)
 						if from != nil && to != nil {
 							steps, _, _ := path.Path(from, to)
-							if len(steps) > 0 {
-								t := steps[0].(*world.Tile)
+							if len(steps) > 1 {
+								t := steps[1].(*world.Tile)
 								tx, ty, _ := t.Coords()
 								if pc.GetX() < tx {
 									deltaX = 1

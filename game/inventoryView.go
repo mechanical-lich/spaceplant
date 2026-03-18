@@ -108,9 +108,9 @@ func (view *InventoryView) Draw(screen *ebiten.Image) {
 
 				if v.Within(cX, cY) {
 					ebitenutil.DrawRect(screen, v.X, v.Y, v.Width, v.Height, color.RGBA{0, 50, 50, 200})
-					mlge_text.Draw(screen, m, 16, int(v.X), int(v.Y+v.Height), color.Black)
+					mlge_text.Draw(screen, m, 16, int(v.X), int(v.Y), color.Black)
 				} else {
-					mlge_text.Draw(screen, m, 16, int(v.X), int(v.Y+v.Height), color.White)
+					mlge_text.Draw(screen, m, 16, int(v.X), int(v.Y), color.White)
 				}
 			}
 

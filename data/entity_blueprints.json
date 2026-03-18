@@ -3,9 +3,7 @@
         "PlayerComponent": {},
         "DescriptionComponent": {
             "Name": "Player",
-            "Tags": [
-                "crew"
-            ]
+            "Faction": "crew"
         },
         "InventoryComponent": {
             "StartingInventory": [
@@ -73,9 +71,7 @@
     "creeper": {
         "DescriptionComponent": {
             "Name": "Creeper",
-            "Tags": [
-                "plantz"
-            ]
+            "Faction": "plantz"
         },
         "AppearanceComponent": {
             "SpriteX": 96,
@@ -108,9 +104,7 @@
     "abomination": {
         "DescriptionComponent": {
             "Name": "Abomination",
-            "Tags": [
-                "plantz"
-            ]
+            "Faction": "plantz"
         },
         "AppearanceComponent": {
             "SpriteX": 128,
@@ -143,9 +137,7 @@
     "viner": {
         "DescriptionComponent": {
             "Name": "Viner",
-            "Tags": [
-                "plantz"
-            ]
+            "Faction": "plantz"
         },
         "AppearanceComponent": {
             "SpriteX": 160,
@@ -178,9 +170,7 @@
     "scythe": {
         "DescriptionComponent": {
             "Name": "Scythe",
-            "Tags": [
-                "plantz"
-            ]
+            "Faction": "plantz"
         },
         "AppearanceComponent": {
             "SpriteX": 192,
@@ -213,9 +203,7 @@
     "scrambler": {
         "DescriptionComponent": {
             "Name": "Scrambler",
-            "Tags": [
-                "plantz"
-            ]
+            "Faction": "plantz"
         },
         "AppearanceComponent": {
             "SpriteX": 224,
@@ -248,9 +236,7 @@
     "spitter": {
         "DescriptionComponent": {
             "Name": "Spitter",
-            "Tags": [
-                "plantz"
-            ]
+            "Faction": "plantz"
         },
         "AppearanceComponent": {
             "SpriteX": 256,
@@ -283,9 +269,7 @@
     "crewmember": {
         "DescriptionComponent": {
             "Name": "Crewmen",
-            "Tags": [
-                "crew"
-            ]
+            "Faction": "crew"
         },
         "AppearanceComponent": {
             "SpriteX": 64,
@@ -327,9 +311,7 @@
     "officer": {
         "DescriptionComponent": {
             "Name": "Officer",
-            "Tags": [
-                "crew"
-            ]
+            "Faction": "crew"
         },
         "AppearanceComponent": {
             "SpriteX": 32,
@@ -371,9 +353,7 @@
     "health": {
         "DescriptionComponent": {
             "Name": "health",
-            "Tags": [
-                "item"
-            ]
+            "Faction": "item"
         },
         "AppearanceComponent": {
             "SpriteX": 288,
@@ -399,9 +379,7 @@
     "laser_trimmers": {
         "DescriptionComponent": {
             "Name": "laser_trimmers",
-            "Tags": [
-                "item"
-            ]
+            "Faction": "item"
         },
         "AppearanceComponent": {
             "SpriteX": 320,
@@ -431,9 +409,7 @@
     "laser_trimmers2": {
         "DescriptionComponent": {
             "Name": "laser_trimmers2",
-            "Tags": [
-                "item"
-            ]
+            "Faction": "item"
         },
         "AppearanceComponent": {
             "SpriteX": 320,
@@ -463,9 +439,7 @@
     "helmet": {
         "DescriptionComponent": {
             "Name": "helmet",
-            "Tags": [
-                "item"
-            ]
+            "Faction": "item"
         },
         "AppearanceComponent": {
             "SpriteX": 352,
@@ -494,9 +468,7 @@
     "helmet2": {
         "DescriptionComponent": {
             "Name": "helmet2",
-            "Tags": [
-                "item"
-            ]
+            "Faction": "item"
         },
         "AppearanceComponent": {
             "SpriteX": 352,

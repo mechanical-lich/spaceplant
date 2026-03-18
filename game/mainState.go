@@ -106,7 +106,7 @@ func NewMainState() (*MainState, error) {
 
 	// Register queued message listener so message.MessageEvent queued via message.PostMessage
 	// are flushed into message.MessageLog by our listener.
-	event.GetQueuedInstance().RegisterListener(&queuedMessageListener{}, message.MessageEventType)
+	event.GetQueuedInstance().RegisterListener(&queuedMessageListener{level: m.level, player: m.Player}, message.MessageEventType)
 
 	return &m, nil
 }
