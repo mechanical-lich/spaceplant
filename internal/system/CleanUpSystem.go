@@ -1,7 +1,7 @@
 package system
 
 import (
-	"github.com/mechanical-lich/spaceplant/world"
+	"github.com/mechanical-lich/spaceplant/internal/world"
 )
 
 type CleanUpSystem struct {

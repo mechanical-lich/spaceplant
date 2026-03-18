@@ -3,7 +3,7 @@ package main
 import (
 	"log"
 
-	"github.com/mechanical-lich/spaceplant/game"
+	"github.com/mechanical-lich/spaceplant/internal/game"
 )
 
 func main() {

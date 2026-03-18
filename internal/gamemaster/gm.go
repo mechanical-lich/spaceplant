@@ -3,10 +3,10 @@ package gamemaster
 import (
 	"math/rand"
 
-	"github.com/mechanical-lich/spaceplant/component"
-	"github.com/mechanical-lich/spaceplant/factory"
-	"github.com/mechanical-lich/spaceplant/utility"
-	"github.com/mechanical-lich/spaceplant/world"
+	"github.com/mechanical-lich/spaceplant/internal/component"
+	"github.com/mechanical-lich/spaceplant/internal/factory"
+	"github.com/mechanical-lich/spaceplant/internal/utility"
+	"github.com/mechanical-lich/spaceplant/internal/world"
 )
 
 const hostileMax = 20

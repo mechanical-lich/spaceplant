@@ -3,12 +3,12 @@ package system
 import (
 	"fmt"
 
-	"github.com/mechanical-lich/mlge/ecs"
 	"github.com/mechanical-lich/ml-rogue-lib/pkg/rlworld"
-	"github.com/mechanical-lich/spaceplant/component"
-	"github.com/mechanical-lich/spaceplant/eventsystem"
+	"github.com/mechanical-lich/mlge/ecs"
 	"github.com/mechanical-lich/mlge/message"
-	"github.com/mechanical-lich/spaceplant/world"
+	"github.com/mechanical-lich/spaceplant/internal/component"
+	"github.com/mechanical-lich/spaceplant/internal/eventsystem"
+	"github.com/mechanical-lich/spaceplant/internal/world"
 )
 
 type PlayerSystem struct {

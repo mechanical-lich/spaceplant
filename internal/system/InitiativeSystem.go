@@ -2,7 +2,7 @@ package system
 
 import (
 	"github.com/mechanical-lich/mlge/ecs"
-	"github.com/mechanical-lich/spaceplant/component"
+	"github.com/mechanical-lich/spaceplant/internal/component"
 )
 
 type InitiativeSystem struct {

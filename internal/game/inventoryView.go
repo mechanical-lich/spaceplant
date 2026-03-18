@@ -10,8 +10,8 @@ import (
 	"github.com/mechanical-lich/mlge/ecs"
 	"github.com/mechanical-lich/mlge/resource"
 	mlge_text "github.com/mechanical-lich/mlge/text"
-	"github.com/mechanical-lich/spaceplant/component"
-	"github.com/mechanical-lich/spaceplant/eventsystem"
+	"github.com/mechanical-lich/spaceplant/internal/component"
+	"github.com/mechanical-lich/spaceplant/internal/eventsystem"
 )
 
 type InventoryView struct {

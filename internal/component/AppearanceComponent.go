@@ -2,7 +2,7 @@ package component
 
 import (
 	"github.com/mechanical-lich/mlge/ecs"
-	"github.com/mechanical-lich/spaceplant/config"
+	"github.com/mechanical-lich/spaceplant/internal/config"
 )
 
 // MyTurnComponent .

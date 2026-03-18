@@ -6,9 +6,9 @@ import (
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/mechanical-lich/mlge/resource"
 	"github.com/mechanical-lich/mlge/state"
-	"github.com/mechanical-lich/spaceplant/config"
-	"github.com/mechanical-lich/spaceplant/factory"
-	"github.com/mechanical-lich/spaceplant/world"
+	"github.com/mechanical-lich/spaceplant/internal/config"
+	"github.com/mechanical-lich/spaceplant/internal/factory"
+	"github.com/mechanical-lich/spaceplant/internal/world"
 )
 
 type Game struct {

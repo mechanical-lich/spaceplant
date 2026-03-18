@@ -2,8 +2,8 @@ package generation
 
 import (
 	"github.com/mechanical-lich/mlge/path"
-	"github.com/mechanical-lich/spaceplant/utility"
-	"github.com/mechanical-lich/spaceplant/world"
+	"github.com/mechanical-lich/spaceplant/internal/utility"
+	"github.com/mechanical-lich/spaceplant/internal/world"
 )
 
 func GenerateRoundStation(l *world.Level, z int) {

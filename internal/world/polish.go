@@ -2,7 +2,7 @@ package world
 
 import (
 	"github.com/mechanical-lich/ml-rogue-lib/pkg/rlworld"
-	"github.com/mechanical-lich/spaceplant/utility"
+	"github.com/mechanical-lich/spaceplant/internal/utility"
 )
 
 // Polish performs post-generation tile variant selection for a single Z-layer.

@@ -4,9 +4,9 @@ import (
 	"errors"
 
 	"github.com/mechanical-lich/mlge/ecs"
-	"github.com/mechanical-lich/spaceplant/component"
-	"github.com/mechanical-lich/spaceplant/utility"
-	"github.com/mechanical-lich/spaceplant/world"
+	"github.com/mechanical-lich/spaceplant/internal/component"
+	"github.com/mechanical-lich/spaceplant/internal/utility"
+	"github.com/mechanical-lich/spaceplant/internal/world"
 )
 
 type LightSystem struct {

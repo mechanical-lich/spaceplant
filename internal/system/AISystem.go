@@ -7,8 +7,8 @@ import (
 	"github.com/mechanical-lich/ml-rogue-lib/pkg/rlentity"
 	"github.com/mechanical-lich/mlge/ecs"
 	"github.com/mechanical-lich/mlge/path"
-	"github.com/mechanical-lich/spaceplant/component"
-	"github.com/mechanical-lich/spaceplant/world"
+	"github.com/mechanical-lich/spaceplant/internal/component"
+	"github.com/mechanical-lich/spaceplant/internal/world"
 )
 
 func getRandom(low int, high int) int {

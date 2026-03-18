@@ -3,9 +3,9 @@ package game
 import (
 	mlgeevent "github.com/mechanical-lich/mlge/event"
 	"github.com/mechanical-lich/mlge/message"
-	"github.com/mechanical-lich/spaceplant/component"
-	"github.com/mechanical-lich/spaceplant/config"
-	"github.com/mechanical-lich/spaceplant/world"
+	"github.com/mechanical-lich/spaceplant/internal/component"
+	"github.com/mechanical-lich/spaceplant/internal/config"
+	"github.com/mechanical-lich/spaceplant/internal/world"
 
 	"github.com/mechanical-lich/mlge/ecs"
 )

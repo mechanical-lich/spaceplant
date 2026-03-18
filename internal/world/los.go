@@ -4,7 +4,7 @@ import (
 	"math"
 
 	"github.com/mechanical-lich/ml-rogue-lib/pkg/rlworld"
-	"github.com/mechanical-lich/spaceplant/utility"
+	"github.com/mechanical-lich/spaceplant/internal/utility"
 )
 
 // Los checks line of sight from (pX, pY) to (tX, tY) on the given Z-layer.

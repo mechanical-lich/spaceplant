@@ -12,16 +12,16 @@ import (
 	mlge_text "github.com/mechanical-lich/mlge/text"
 
 	"github.com/mechanical-lich/mlge/message"
-	"github.com/mechanical-lich/spaceplant/component"
-	"github.com/mechanical-lich/spaceplant/config"
-	"github.com/mechanical-lich/spaceplant/eventsystem"
-	"github.com/mechanical-lich/spaceplant/factory"
-	"github.com/mechanical-lich/spaceplant/gamemaster"
-	"github.com/mechanical-lich/spaceplant/generation"
-	"github.com/mechanical-lich/spaceplant/system"
-	"github.com/mechanical-lich/spaceplant/ui"
-	"github.com/mechanical-lich/spaceplant/utility"
-	"github.com/mechanical-lich/spaceplant/world"
+	"github.com/mechanical-lich/spaceplant/internal/component"
+	"github.com/mechanical-lich/spaceplant/internal/config"
+	"github.com/mechanical-lich/spaceplant/internal/eventsystem"
+	"github.com/mechanical-lich/spaceplant/internal/factory"
+	"github.com/mechanical-lich/spaceplant/internal/gamemaster"
+	"github.com/mechanical-lich/spaceplant/internal/generation"
+	"github.com/mechanical-lich/spaceplant/internal/system"
+	"github.com/mechanical-lich/spaceplant/internal/ui"
+	"github.com/mechanical-lich/spaceplant/internal/utility"
+	"github.com/mechanical-lich/spaceplant/internal/world"
 )
 
 const numLevels = 4

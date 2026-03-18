@@ -1,8 +1,8 @@
 package generation
 
 import (
-	"github.com/mechanical-lich/spaceplant/utility"
-	"github.com/mechanical-lich/spaceplant/world"
+	"github.com/mechanical-lich/spaceplant/internal/utility"
+	"github.com/mechanical-lich/spaceplant/internal/world"
 )
 
 type Room struct {

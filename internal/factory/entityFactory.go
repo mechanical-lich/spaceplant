@@ -6,7 +6,7 @@ import (
 
 	"github.com/mechanical-lich/ml-rogue-lib/pkg/rlcomponents"
 	"github.com/mechanical-lich/mlge/ecs"
-	"github.com/mechanical-lich/spaceplant/component"
+	"github.com/mechanical-lich/spaceplant/internal/component"
 )
 
 // JSON factory for modern blueprints

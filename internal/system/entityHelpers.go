@@ -1,11 +1,11 @@
 package system
 
 import (
-	"github.com/mechanical-lich/mlge/ecs"
 	"github.com/mechanical-lich/ml-rogue-lib/pkg/rlcombat"
 	"github.com/mechanical-lich/ml-rogue-lib/pkg/rlentity"
-	"github.com/mechanical-lich/spaceplant/component"
-	"github.com/mechanical-lich/spaceplant/world"
+	"github.com/mechanical-lich/mlge/ecs"
+	"github.com/mechanical-lich/spaceplant/internal/component"
+	"github.com/mechanical-lich/spaceplant/internal/world"
 )
 
 // hit performs a melee attack using rlcombat.Hit, then adds the AttackComponent visual.
