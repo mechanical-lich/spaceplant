@@ -2,6 +2,8 @@ package main
 
 import (
 	"log"
+	"os"
+	"path/filepath"
 
 	"github.com/gdamore/tcell/v2"
 	"github.com/mechanical-lich/ml-rogue-lib/pkg/rlasciiclient"
@@ -15,6 +17,12 @@ import (
 )
 
 func main() {
+	if _, err := os.Stat("data"); os.IsNotExist(err) {
+		if exe, err := os.Executable(); err == nil {
+			os.Chdir(filepath.Dir(exe))
+		}
+	}
+
 	if err := game.LoadDataHeadless(); err != nil {
 		log.Fatal(err)
 	}

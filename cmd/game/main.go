@@ -2,6 +2,8 @@ package main
 
 import (
 	"log"
+	"os"
+	"path/filepath"
 
 	"github.com/mechanical-lich/mlge/client"
 	"github.com/mechanical-lich/mlge/ecs"
@@ -12,6 +14,12 @@ import (
 )
 
 func main() {
+	if _, err := os.Stat("data"); os.IsNotExist(err) {
+		if exe, err := os.Executable(); err == nil {
+			os.Chdir(filepath.Dir(exe))
+		}
+	}
+
 	if err := game.LoadData(); err != nil {
 		log.Fatal(err)
 	}
