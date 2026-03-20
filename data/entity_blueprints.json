@@ -19,6 +19,12 @@
         "HealthComponent": {
             "MaxHealth": 100
         },
+        "AsciiAppearanceComponent": {
+            "Character": "@",
+            "R": 0,
+            "G": 0,
+            "B": 255
+        },
         "AppearanceComponent": {
             "SpriteX": 0,
             "SpriteY": 0,
@@ -73,6 +79,12 @@
             "Name": "Creeper",
             "Faction": "plantz"
         },
+        "AsciiAppearanceComponent": {
+            "Character": "c",
+            "R": 80,
+            "G": 200,
+            "B": 50
+        },
         "AppearanceComponent": {
             "SpriteX": 96,
             "SpriteY": 0,
@@ -105,6 +117,12 @@
         "DescriptionComponent": {
             "Name": "Abomination",
             "Faction": "plantz"
+        },
+        "AsciiAppearanceComponent": {
+            "Character": "A",
+            "R": 100,
+            "G": 255,
+            "B": 50
         },
         "AppearanceComponent": {
             "SpriteX": 128,
@@ -139,6 +157,12 @@
             "Name": "Viner",
             "Faction": "plantz"
         },
+        "AsciiAppearanceComponent": {
+            "Character": "v",
+            "R": 60,
+            "G": 180,
+            "B": 50
+        },
         "AppearanceComponent": {
             "SpriteX": 160,
             "SpriteY": 0,
@@ -171,6 +195,12 @@
         "DescriptionComponent": {
             "Name": "Scythe",
             "Faction": "plantz"
+        },
+        "AsciiAppearanceComponent": {
+            "Character": "S",
+            "R": 150,
+            "G": 220,
+            "B": 50
         },
         "AppearanceComponent": {
             "SpriteX": 192,
@@ -205,6 +235,12 @@
             "Name": "Scrambler",
             "Faction": "plantz"
         },
+        "AsciiAppearanceComponent": {
+            "Character": "s",
+            "R": 80,
+            "G": 200,
+            "B": 80
+        },
         "AppearanceComponent": {
             "SpriteX": 224,
             "SpriteY": 0,
@@ -237,6 +273,12 @@
         "DescriptionComponent": {
             "Name": "Spitter",
             "Faction": "plantz"
+        },
+        "AsciiAppearanceComponent": {
+            "Character": "*",
+            "R": 100,
+            "G": 220,
+            "B": 50
         },
         "AppearanceComponent": {
             "SpriteX": 256,
@@ -279,6 +321,12 @@
             "B": 125,
             "Frames": 1
         },
+        "AsciiAppearanceComponent": {
+            "Character": "C",
+            "R": 0,
+            "G": 100,
+            "B": 255
+        },
         "HealthComponent": {
             "MaxHealth": 10
         },
@@ -312,6 +360,12 @@
         "DescriptionComponent": {
             "Name": "Officer",
             "Faction": "crew"
+        },
+        "AsciiAppearanceComponent": {
+            "Character": "O",
+            "R": 200,
+            "G": 200,
+            "B": 100
         },
         "AppearanceComponent": {
             "SpriteX": 32,
@@ -355,6 +409,12 @@
             "Name": "health",
             "Faction": "item"
         },
+        "AsciiAppearanceComponent": {
+            "Character": "!",
+            "R": 255,
+            "G": 50,
+            "B": 50
+        },
         "AppearanceComponent": {
             "SpriteX": 288,
             "SpriteY": 0,
@@ -380,6 +440,12 @@
         "DescriptionComponent": {
             "Name": "laser_trimmers",
             "Faction": "item"
+        },
+        "AsciiAppearanceComponent": {
+            "Character": ")",
+            "R": 100,
+            "G": 200,
+            "B": 255
         },
         "AppearanceComponent": {
             "SpriteX": 320,
@@ -411,6 +477,12 @@
             "Name": "laser_trimmers2",
             "Faction": "item"
         },
+        "AsciiAppearanceComponent": {
+            "Character": ")",
+            "R": 150,
+            "G": 230,
+            "B": 255
+        },
         "AppearanceComponent": {
             "SpriteX": 320,
             "SpriteY": 0,
@@ -441,6 +513,12 @@
             "Name": "helmet",
             "Faction": "item"
         },
+        "AsciiAppearanceComponent": {
+            "Character": "[",
+            "R": 180,
+            "G": 180,
+            "B": 180
+        },
         "AppearanceComponent": {
             "SpriteX": 352,
             "SpriteY": 0,
@@ -469,6 +547,12 @@
         "DescriptionComponent": {
             "Name": "helmet2",
             "Faction": "item"
+        },
+        "AsciiAppearanceComponent": {
+            "Character": "[",
+            "R": 220,
+            "G": 220,
+            "B": 255
         },
         "AppearanceComponent": {
             "SpriteX": 352,

@@ -2,12 +2,11 @@ package ui
 
 import (
 	"github.com/hajimehoshi/ebiten/v2"
-	"github.com/mechanical-lich/mlge/state"
 )
 
 type GUIViewInterface interface {
-	Update(state state.StateInterface)
-	Draw(screen *ebiten.Image, s state.StateInterface)
+	Update(state any)
+	Draw(screen *ebiten.Image, s any)
 }
 
 type GUIViewBase struct {
@@ -21,12 +20,12 @@ func NewGUI(startingView GUIViewInterface) *GUI {
 	return &GUI{State: startingView}
 }
 
-func (g *GUI) Update(s state.StateInterface) {
+func (g *GUI) Update(s any) {
 	if g.State != nil {
 		g.State.Update(s)
 	}
 }
 
-func (g *GUI) Draw(screen *ebiten.Image, s state.StateInterface) {
+func (g *GUI) Draw(screen *ebiten.Image, s any) {
 	g.State.Draw(screen, s)
 }

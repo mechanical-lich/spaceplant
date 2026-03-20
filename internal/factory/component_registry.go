@@ -37,4 +37,5 @@ func registerComponents() {
 	jsonFactory.RegisterComponent("PlayerComponent", func() ecs.Component { return &component.PlayerComponent{} })
 	jsonFactory.RegisterComponent("AttackComponent", func() ecs.Component { return &component.AttackComponent{} })
 	jsonFactory.RegisterComponent("LightComponent", func() ecs.Component { return &component.LightComponent{} })
+	jsonFactory.RegisterComponent("AsciiAppearanceComponent", func() ecs.Component { return &rlcomponents.AsciiAppearanceComponent{} })
 }

@@ -10,7 +10,6 @@ import (
 
 	"github.com/mechanical-lich/mlge/message"
 	"github.com/mechanical-lich/mlge/resource"
-	"github.com/mechanical-lich/mlge/state"
 	mlge_text "github.com/mechanical-lich/mlge/text"
 	"github.com/mechanical-lich/spaceplant/internal/component"
 	"github.com/mechanical-lich/spaceplant/internal/config"
@@ -24,28 +23,30 @@ type GUIViewMain struct {
 	x       int
 }
 
-func (g *GUIViewMain) Update(s state.StateInterface) {
+func (g *GUIViewMain) Update(s any) {
 	g.x++
-	mainState, ok := s.(*MainState)
+	cs, ok := s.(*SPClientState)
 	if ok {
-		g.minimap = mainState.GetMinimap(0, 0, 100, 100, 150, 150)
+		g.minimap = cs.GetMinimap(0, 0, 100, 100, 150, 150)
 	}
-
 }
 
-func (g *GUIViewMain) Draw(screen *ebiten.Image, s state.StateInterface) {
-	//Draw Minimap
+func (g *GUIViewMain) Draw(screen *ebiten.Image, s any) {
+	// Draw Minimap
 	if g.minimap != nil {
 		op := &ebiten.DrawImageOptions{}
 		op.GeoM.Translate(config.GameWidth+5, 16)
 		screen.DrawImage(g.minimap, op)
 	}
 
-	mainState, _ := s.(*MainState)
+	cs, _ := s.(*SPClientState)
+	if cs == nil {
+		return
+	}
 
-	if mainState.Player != nil {
-		if mainState.Player.HasComponent("Health") {
-			gc := mainState.Player.GetComponent("Health").(*component.HealthComponent)
+	if cs.sim.Player != nil {
+		if cs.sim.Player.HasComponent("Health") {
+			gc := cs.sim.Player.GetComponent("Health").(*component.HealthComponent)
 			mlge_text.Draw(screen, "Hp:"+strconv.Itoa(gc.Health), 24, config.GameWidth, 85+100, color.White)
 		}
 	}
@@ -55,22 +56,20 @@ func (g *GUIViewMain) Draw(screen *ebiten.Image, s state.StateInterface) {
 			m := message.MessageLog[len(message.MessageLog)-1-i]
 			mlge_text.Draw(screen, m, 16, config.GameWidth, 85+120+i*32, color.White)
 		}
-
 	}
 
 	if config.ShowMouseCoords {
 		cX, cY := ebiten.CursorPosition()
 		mlge_text.Draw(screen, strconv.Itoa(cX)+","+strconv.Itoa(cY), 16, cX, cY, color.RGBA{255, 0, 0, 255})
 	}
-
 }
 
-// GetMinimap generates a minimap image of specified size and returns the image.
-func (g *MainState) GetMinimap(sX int, sY int, width int, height int, imageWidth int, imageHeight int) *ebiten.Image {
+// GetMinimap generates a minimap image of specified size.
+func (cs *SPClientState) GetMinimap(sX, sY, width, height, imageWidth, imageHeight int) *ebiten.Image {
 	worldImage := ebiten.NewImage(imageWidth, imageHeight)
-	pc := g.Player.GetComponent("Position").(*component.PositionComponent)
+	pc := cs.sim.Player.GetComponent("Position").(*component.PositionComponent)
 
-	view := g.level.GetView(sX, sY, g.CurrentZ, width, height, false, false)
+	view := cs.sim.Level.GetView(sX, sY, cs.sim.CurrentZ, width, height, false, false)
 	for x := 0; x < len(view); x++ {
 		for y := 0; y < len(view[x]); y++ {
 			tX := float64(x * imageWidth / width)
@@ -84,15 +83,14 @@ func (g *MainState) GetMinimap(sX int, sY int, width int, height int, imageWidth
 				sX := 19 * config.SpriteWidth
 				worldImage.DrawImage(resource.Textures["map"].SubImage(image.Rect(sX, 0, sX+config.SpriteWidth, config.SpriteHeight)).(*ebiten.Image), op)
 				continue
-			} else {
-				variant := g.level.Level.ResolveVariant(tile)
-				spriteX := variant.SpriteX * config.SpriteWidth
-				tx, ty, tz := tile.Coords()
-				if !g.level.GetSeen(tx, ty, tz) {
-					spriteX = 19 * config.SpriteWidth
-				}
-				worldImage.DrawImage(resource.Textures["map"].SubImage(image.Rect(spriteX, variant.SpriteY, spriteX+config.SpriteWidth, variant.SpriteY+config.SpriteHeight)).(*ebiten.Image), op)
 			}
+			variant := cs.sim.Level.Level.ResolveVariant(tile)
+			spriteX := variant.SpriteX * config.SpriteWidth
+			tx, ty, tz := tile.Coords()
+			if !cs.sim.Level.GetSeen(tx, ty, tz) {
+				spriteX = 19 * config.SpriteWidth
+			}
+			worldImage.DrawImage(resource.Textures["map"].SubImage(image.Rect(spriteX, variant.SpriteY, spriteX+config.SpriteWidth, variant.SpriteY+config.SpriteHeight)).(*ebiten.Image), op)
 		}
 	}
 
