@@ -11,7 +11,6 @@ type Tile = rlworld.Tile
 type Level struct {
 	*rlworld.Level
 	Theme     Theme
-	Seen      []bool // parallel to Level.Data — fog of war
 	NoBudding []bool // parallel to Level.Data — generation flag
 }
 
@@ -22,7 +21,6 @@ func NewLevel(width, height, depth int, theme Theme) *Level {
 	l := &Level{
 		Level:     base,
 		Theme:     theme,
-		Seen:      make([]bool, total),
 		NoBudding: make([]bool, total),
 	}
 
@@ -102,22 +100,6 @@ func (l *Level) SetNoBudding(x, y, z int, val bool) {
 		return
 	}
 	l.NoBudding[l.tileIndex(x, y, z)] = val
-}
-
-// GetSeen returns whether a tile has been seen.
-func (l *Level) GetSeen(x, y, z int) bool {
-	if !l.Level.InBounds(x, y, z) {
-		return false
-	}
-	return l.Seen[l.tileIndex(x, y, z)]
-}
-
-// SetSeen marks a tile as seen.
-func (l *Level) SetSeen(x, y, z int, val bool) {
-	if !l.Level.InBounds(x, y, z) {
-		return
-	}
-	l.Seen[l.tileIndex(x, y, z)] = val
 }
 
 func (l *Level) tileIndex(x, y, z int) int {

@@ -3,10 +3,10 @@ package system
 import (
 	"math/rand"
 
+	"github.com/mechanical-lich/ml-rogue-lib/pkg/path"
 	"github.com/mechanical-lich/ml-rogue-lib/pkg/rlcombat"
 	"github.com/mechanical-lich/ml-rogue-lib/pkg/rlentity"
 	"github.com/mechanical-lich/mlge/ecs"
-	"github.com/mechanical-lich/mlge/path"
 	"github.com/mechanical-lich/spaceplant/internal/component"
 	"github.com/mechanical-lich/spaceplant/internal/world"
 )
@@ -70,7 +70,7 @@ func (s *AISystem) UpdateEntity(levelInterface any, entity *ecs.Entity) error {
 									from := level.Level.GetTilePtr(pc.GetX(), pc.GetY(), z)
 									to := level.Level.GetTilePtr(foodPC.GetX(), foodPC.GetY(), z)
 									if from != nil && to != nil {
-										tDistance := from.PathEstimatedCost(to)
+										tDistance := level.Level.PathEstimate(from.Idx, to.Idx)
 										if tDistance < distance {
 											closest = nearby[e]
 											distance = tDistance
@@ -88,9 +88,9 @@ func (s *AISystem) UpdateEntity(levelInterface any, entity *ecs.Entity) error {
 						from := level.Level.GetTilePtr(pc.GetX(), pc.GetY(), z)
 						to := level.Level.GetTilePtr(hc.TargetX, hc.TargetY, z)
 						if from != nil && to != nil {
-							steps, _, _ := path.Path(from, to)
+							steps, _, _ := path.Path(level.Level, from.Idx, to.Idx)
 							if len(steps) > 1 {
-								t := steps[1].(*world.Tile)
+								t := level.Level.GetTilePtrIndex(steps[1])
 								tx, ty, _ := t.Coords()
 								if pc.GetX() < tx {
 									deltaX = 1

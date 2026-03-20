@@ -6,6 +6,7 @@ import (
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
+	"github.com/mechanical-lich/ml-rogue-lib/pkg/rlfov"
 	"github.com/mechanical-lich/ml-rogue-lib/pkg/rlworld"
 	"github.com/mechanical-lich/mlge/ecs"
 	"github.com/mechanical-lich/mlge/resource"
@@ -45,7 +46,7 @@ func (l *Level) Render(aX, aY, z, width, height int, blind, centered bool) *ebit
 			if tile != nil {
 				seen := true
 				if config.Los {
-					seen = Los(aX, aY, x, y, z, l)
+					seen = rlfov.Los(l.Level, aX, aY, x, y, z)
 				}
 
 				l.DrawTile(output, tile, screenX, screenY, seen, z)

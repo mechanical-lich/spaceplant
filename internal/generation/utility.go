@@ -1,7 +1,7 @@
 package generation
 
 import (
-	"github.com/mechanical-lich/mlge/path"
+	"github.com/mechanical-lich/ml-rogue-lib/pkg/path"
 	"github.com/mechanical-lich/spaceplant/internal/utility"
 	"github.com/mechanical-lich/spaceplant/internal/world"
 )
@@ -210,7 +210,7 @@ func CarveMaintenanceTunnels(l *world.Level, z, width, height, numTunnels int) {
 			t1.Type = world.TypeFloor
 			t2.Type = world.TypeFloor
 
-			steps, distance, success := path.Path(t1, t2)
+			steps, distance, success := path.Path(l.Level, t1.Idx, t2.Idx)
 
 			// Restore original types
 			t1.Type = origType1
@@ -220,8 +220,8 @@ func CarveMaintenanceTunnels(l *world.Level, z, width, height, numTunnels int) {
 				continue
 			}
 
-			for _, step := range steps {
-				t := step.(*world.Tile)
+			for _, stepID := range steps {
+				t := l.Level.GetTilePtrIndex(stepID)
 				tx, ty, _ := t.Coords()
 				l.SetTileTypeAt(tx, ty, z, world.TypeMaintenanceTunnelFloor)
 			}
@@ -241,7 +241,7 @@ func CarveMaintenanceTunnel(l *world.Level, z, x1, y1, x2, y2, floor, door int) 
 	t1.Type = world.TypeFloor
 	t2.Type = world.TypeFloor
 
-	steps, _, success := path.Path(t1, t2)
+	steps, _, success := path.Path(l.Level, t1.Idx, t2.Idx)
 
 	t1.Type = origType1
 	t2.Type = origType2
@@ -250,8 +250,8 @@ func CarveMaintenanceTunnel(l *world.Level, z, x1, y1, x2, y2, floor, door int) 
 		return false
 	}
 
-	for _, step := range steps {
-		t := step.(*world.Tile)
+	for _, stepID := range steps {
+		t := l.Level.GetTilePtrIndex(stepID)
 		tx, ty, _ := t.Coords()
 		l.SetTileTypeAt(tx, ty, z, floor)
 	}

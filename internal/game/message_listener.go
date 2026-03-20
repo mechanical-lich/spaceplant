@@ -1,6 +1,7 @@
 package game
 
 import (
+	"github.com/mechanical-lich/ml-rogue-lib/pkg/rlfov"
 	mlgeevent "github.com/mechanical-lich/mlge/event"
 	"github.com/mechanical-lich/mlge/message"
 	"github.com/mechanical-lich/spaceplant/internal/component"
@@ -28,7 +29,7 @@ func (q *queuedMessageListener) HandleEvent(evt mlgeevent.EventData) error {
 			if pc.GetZ() != e.Z {
 				return nil
 			}
-			if config.Los && !world.Los(pc.GetX(), pc.GetY(), e.X, e.Y, e.Z, q.level) {
+			if config.Los && !rlfov.Los(q.level.Level, pc.GetX(), pc.GetY(), e.X, e.Y, e.Z) {
 				return nil
 			}
 		}
