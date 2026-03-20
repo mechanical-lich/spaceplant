@@ -5,8 +5,8 @@ go 1.25.0
 require (
 	github.com/gdamore/tcell/v2 v2.13.8
 	github.com/hajimehoshi/ebiten/v2 v2.8.8
-	github.com/mechanical-lich/ml-rogue-lib v0.0.0-00010101000000-000000000000
-	github.com/mechanical-lich/mlge v1.2.0
+	github.com/mechanical-lich/ml-rogue-lib v1.4.1
+	github.com/mechanical-lich/mlge v1.4.0
 )
 
 require (
@@ -29,6 +29,6 @@ require (
 	golang.org/x/text v0.31.0 // indirect
 )
 
-replace github.com/mechanical-lich/mlge => ../mlge
+// replace github.com/mechanical-lich/mlge => ../mlge
 
-replace github.com/mechanical-lich/ml-rogue-lib => ../ml-rogue-lib
+// replace github.com/mechanical-lich/ml-rogue-lib => ../ml-rogue-lib
