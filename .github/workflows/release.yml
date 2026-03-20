@@ -1,0 +1,99 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        include:
+          - os: ubuntu-latest
+            goos: linux
+            goarch: amd64
+            suffix: ""
+          - os: windows-latest
+            goos: windows
+            goarch: amd64
+            suffix: ".exe"
+          - os: macos-latest
+            goos: darwin
+            goarch: amd64
+            suffix: ""
+          - os: macos-latest
+            goos: darwin
+            goarch: arm64
+            suffix: ""
+
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+
+      - name: Install Linux system libs (required by Ebiten)
+        if: matrix.os == 'ubuntu-latest'
+        run: sudo apt-get install -y libgl1-mesa-dev xorg-dev
+
+      - name: Build graphical
+        env:
+          GOOS: ${{ matrix.goos }}
+          GOARCH: ${{ matrix.goarch }}
+          CGO_ENABLED: 1
+        run: go build -ldflags="-s -w" -o dist/spaceplant${{ matrix.suffix }} ./cmd/game
+
+      - name: Build terminal
+        env:
+          GOOS: ${{ matrix.goos }}
+          GOARCH: ${{ matrix.goarch }}
+          CGO_ENABLED: 0
+        run: go build -ldflags="-s -w" -o dist/spaceplant-terminal${{ matrix.suffix }} ./cmd/terminal
+
+      - name: Stage release archive
+        shell: bash
+        run: |
+          ARCHIVE=spaceplant-${{ matrix.goos }}-${{ matrix.goarch }}
+          mkdir -p staging/$ARCHIVE
+          cp dist/spaceplant${{ matrix.suffix }} staging/$ARCHIVE/
+          cp dist/spaceplant-terminal${{ matrix.suffix }} staging/$ARCHIVE/
+          cp -r data staging/$ARCHIVE/
+          cp -r assets staging/$ARCHIVE/
+
+      - name: Zip (Unix)
+        if: matrix.os != 'windows-latest'
+        run: |
+          ARCHIVE=spaceplant-${{ matrix.goos }}-${{ matrix.goarch }}
+          cd staging && zip -r ../$ARCHIVE.zip $ARCHIVE/
+
+      - name: Zip (Windows)
+        if: matrix.os == 'windows-latest'
+        shell: pwsh
+        run: |
+          $archive = "spaceplant-${{ matrix.goos }}-${{ matrix.goarch }}"
+          Compress-Archive -Path "staging/$archive" -DestinationPath "$archive.zip"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: spaceplant-${{ matrix.goos }}-${{ matrix.goarch }}
+          path: spaceplant-${{ matrix.goos }}-${{ matrix.goarch }}.zip
+
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: dist/
+          merge-multiple: true
+
+      - uses: softprops/action-gh-release@v2
+        with:
+          files: dist/*.zip
+          generate_release_notes: true
