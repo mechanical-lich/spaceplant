@@ -38,7 +38,7 @@ jobs:
 
       - name: Install Linux system libs (required by Ebiten)
         if: matrix.os == 'ubuntu-latest'
-        run: sudo apt-get install -y libgl1-mesa-dev xorg-dev
+        run: sudo apt-get update && sudo apt-get install -y libgl1-mesa-dev xorg-dev
 
       - name: Build graphical
         env:
