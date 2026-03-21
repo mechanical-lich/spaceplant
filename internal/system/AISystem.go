@@ -16,6 +16,7 @@ func getRandom(low int, high int) int {
 }
 
 type AISystem struct {
+	Watcher *ecs.Entity
 }
 
 func (s *AISystem) UpdateSystem(data any) error {
@@ -35,6 +36,7 @@ func (s *AISystem) UpdateEntity(levelInterface any, entity *ecs.Entity) error {
 			pc := entity.GetComponent("Position").(*component.PositionComponent)
 
 			if rlentity.HandleDeath(entity) {
+				rlentity.CheckDeathAnnouncement(s.Watcher, entity, level.Level)
 				return nil
 			}
 

@@ -77,7 +77,16 @@
     "creeper": {
         "DescriptionComponent": {
             "Name": "Creeper",
-            "Faction": "plantz"
+            "Faction": "plantz",
+            "PassOverDescription": [
+                "You step over the remains of a creeper.",
+                "A tangle of dead vines lies underfoot."
+            ],
+            "DeathAnnouncements": [
+                "The creeper shrivels and goes limp.",
+                "A creeper collapses in a heap of vines.",
+                "The creeper lets out a wet hiss as it dies."
+            ]
         },
         "AsciiAppearanceComponent": {
             "Character": "c",
@@ -116,7 +125,16 @@
     "abomination": {
         "DescriptionComponent": {
             "Name": "Abomination",
-            "Faction": "plantz"
+            "Faction": "plantz",
+            "PassOverDescription": [
+                "You step over the fallen abomination.",
+                "The abomination's bulk is hard to step around."
+            ],
+            "DeathAnnouncements": [
+                "The abomination lets out a horrible shriek before going still.",
+                "The abomination's mass of plant matter collapses to the floor.",
+                "With a final shudder, the abomination falls."
+            ]
         },
         "AsciiAppearanceComponent": {
             "Character": "A",
@@ -155,7 +173,16 @@
     "viner": {
         "DescriptionComponent": {
             "Name": "Viner",
-            "Faction": "plantz"
+            "Faction": "plantz",
+            "PassOverDescription": [
+                "You step over a dead viner.",
+                "Dead vines crunch underfoot."
+            ],
+            "DeathAnnouncements": [
+                "The viner's tendrils go limp.",
+                "A viner writhes once and dies.",
+                "The viner's vines retract as it expires."
+            ]
         },
         "AsciiAppearanceComponent": {
             "Character": "v",
@@ -194,7 +221,16 @@
     "scythe": {
         "DescriptionComponent": {
             "Name": "Scythe",
-            "Faction": "plantz"
+            "Faction": "plantz",
+            "PassOverDescription": [
+                "You step carefully over the scythe's blades.",
+                "The dead scythe's limbs are still sharp — you step over carefully."
+            ],
+            "DeathAnnouncements": [
+                "The scythe creature falls, its bladed limbs clattering on the floor.",
+                "A scythe topples over with a crash.",
+                "The scythe's blades scrape the deck as it collapses."
+            ]
         },
         "AsciiAppearanceComponent": {
             "Character": "S",
@@ -233,7 +269,16 @@
     "scrambler": {
         "DescriptionComponent": {
             "Name": "Scrambler",
-            "Faction": "plantz"
+            "Faction": "plantz",
+            "PassOverDescription": [
+                "You step over the scrambler's remains.",
+                "The dead scrambler lies in a twitching heap."
+            ],
+            "DeathAnnouncements": [
+                "The scrambler stops moving abruptly.",
+                "A scrambler twitches violently, then goes still.",
+                "The scrambler skitters and collapses."
+            ]
         },
         "AsciiAppearanceComponent": {
             "Character": "s",
@@ -272,7 +317,16 @@
     "spitter": {
         "DescriptionComponent": {
             "Name": "Spitter",
-            "Faction": "plantz"
+            "Faction": "plantz",
+            "PassOverDescription": [
+                "You step over the spitter's deflated husk.",
+                "The spitter's burst sacs squelch underfoot."
+            ],
+            "DeathAnnouncements": [
+                "The spitter's sacs burst as it dies.",
+                "A spitter deflates with a sickening pop.",
+                "The spitter convulses and goes still."
+            ]
         },
         "AsciiAppearanceComponent": {
             "Character": "*",
@@ -311,7 +365,23 @@
     "crewmember": {
         "DescriptionComponent": {
             "Name": "Crewmen",
-            "Faction": "crew"
+            "Faction": "crew",
+            "PassOverDescription": [
+                "You step over the body of a crewmember.",
+                "A fallen crewmember lies here."
+            ],
+            "DeathAnnouncements": [
+                "A crewman has fallen!",
+                "No! A crewmember is dead.",
+                "One of the crew didn't make it."
+            ],
+            "ExcuseMeAnnouncements": [
+                "Excuse me!",
+                "Watch it!",
+                "Coming through!",
+                "Move it, move it!",
+                "Pardon me."
+            ]
         },
         "AppearanceComponent": {
             "SpriteX": 64,
@@ -359,7 +429,22 @@
     "officer": {
         "DescriptionComponent": {
             "Name": "Officer",
-            "Faction": "crew"
+            "Faction": "crew",
+            "PassOverDescription": [
+                "You step over the officer's body.",
+                "The fallen officer lies here."
+            ],
+            "DeathAnnouncements": [
+                "An officer is down!",
+                "The officer has been killed.",
+                "Officer down! The plants got them."
+            ],
+            "ExcuseMeAnnouncements": [
+                "Out of the way, soldier!",
+                "Make a hole!",
+                "Excuse me, coming through.",
+                "Mind yourself!"
+            ]
         },
         "AsciiAppearanceComponent": {
             "Character": "O",
@@ -407,7 +492,12 @@
     "health": {
         "DescriptionComponent": {
             "Name": "health",
-            "Faction": "item"
+            "Faction": "item",
+            "PassOverDescription": [
+                "A medical kit sits here.",
+                "You spot a health pack on the floor.",
+                "There's a med kit here — better pick it up."
+            ]
         },
         "AsciiAppearanceComponent": {
             "Character": "!",
@@ -439,7 +529,12 @@
     "laser_trimmers": {
         "DescriptionComponent": {
             "Name": "laser_trimmers",
-            "Faction": "item"
+            "Faction": "item",
+            "PassOverDescription": [
+                "Laser trimmers lie here.",
+                "You spot some laser trimmers on the floor.",
+                "A pair of laser trimmers has been left here."
+            ]
         },
         "AsciiAppearanceComponent": {
             "Character": ")",
@@ -475,7 +570,12 @@
     "laser_trimmers2": {
         "DescriptionComponent": {
             "Name": "laser_trimmers2",
-            "Faction": "item"
+            "Faction": "item",
+            "PassOverDescription": [
+                "Advanced laser trimmers rest here.",
+                "You notice a set of upgraded laser trimmers.",
+                "Someone left high-grade laser trimmers here."
+            ]
         },
         "AsciiAppearanceComponent": {
             "Character": ")",
@@ -511,7 +611,12 @@
     "helmet": {
         "DescriptionComponent": {
             "Name": "helmet",
-            "Faction": "item"
+            "Faction": "item",
+            "PassOverDescription": [
+                "A helmet rests on the floor.",
+                "You spot a helmet here.",
+                "Someone dropped a helmet."
+            ]
         },
         "AsciiAppearanceComponent": {
             "Character": "[",
@@ -546,7 +651,12 @@
     "helmet2": {
         "DescriptionComponent": {
             "Name": "helmet2",
-            "Faction": "item"
+            "Faction": "item",
+            "PassOverDescription": [
+                "An advanced helmet sits here.",
+                "You notice a high-tech helmet on the floor.",
+                "A reinforced helmet has been left here."
+            ]
         },
         "AsciiAppearanceComponent": {
             "Character": "[",

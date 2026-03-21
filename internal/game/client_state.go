@@ -106,11 +106,14 @@ func (s *SPClientState) Update(_ *transport.Snapshot) client.ClientState {
 
 // Draw renders the level viewport and HUD.
 func (s *SPClientState) Draw(screen *ebiten.Image) {
+	s.sim.Mu.RLock()
 	levelImage := s.sim.Level.Render(
 		s.CameraX, s.CameraY, s.sim.CurrentZ,
 		config.GameWidth/config.SpriteWidth, config.GameHeight/config.SpriteHeight,
 		false, true,
 	)
+	s.sim.Mu.RUnlock()
+
 	op := &ebiten.DrawImageOptions{}
 	screen.DrawImage(levelImage, op)
 

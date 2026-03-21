@@ -3,6 +3,8 @@ package system
 import (
 	"fmt"
 
+	"github.com/mechanical-lich/ml-rogue-lib/pkg/rlcombat"
+	"github.com/mechanical-lich/ml-rogue-lib/pkg/rlentity"
 	"github.com/mechanical-lich/ml-rogue-lib/pkg/rlworld"
 	"github.com/mechanical-lich/mlge/ecs"
 	"github.com/mechanical-lich/mlge/message"
@@ -126,10 +128,13 @@ func (s *PlayerSystem) UpdateEntity(levelInterface any, entity *ecs.Entity) erro
 			if move(entity, l, deltaX, deltaY) {
 				entityHit := l.GetEntityAt(pc.GetX()+deltaX, pc.GetY()+deltaY, z)
 				if entityHit != nil && entityHit != entity {
-					if entityHit != entity {
-						hit(l, entity, entityHit)
+					if rlcombat.IsFriendly(entity, entityHit) {
+						rlentity.CheckExcuseMe(entityHit)
 					}
+					hit(l, entity, entityHit)
 				}
+			} else if deltaX != 0 || deltaY != 0 {
+				rlentity.CheckPassOver(entity, l.Level, pc.GetX(), pc.GetY(), z)
 			}
 		}
 	}

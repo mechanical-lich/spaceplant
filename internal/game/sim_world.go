@@ -1,6 +1,8 @@
 package game
 
 import (
+	"sync"
+
 	"github.com/mechanical-lich/mlge/ecs"
 	"github.com/mechanical-lich/spaceplant/internal/component"
 	"github.com/mechanical-lich/spaceplant/internal/factory"
@@ -22,6 +24,9 @@ type SimWorld struct {
 	CurrentZ      int
 	systemManager *ecs.SystemManager
 	gm            gamemaster.GameMaster
+	// Mu guards Level against concurrent access between the server goroutine
+	// (UpdateEntities writes) and the Ebiten render goroutine (Draw reads).
+	Mu sync.RWMutex
 }
 
 // NewSimWorld constructs and populates the game world: level generation,
@@ -59,7 +64,8 @@ func NewSimWorld() (*SimWorld, error) {
 	sw.systemManager.AddSystem(system.InitiativeSystem{})
 	sw.systemManager.AddSystem(system.StatusConditionSystem{})
 	sw.systemManager.AddSystem(&system.PlayerSystem{})
-	sw.systemManager.AddSystem(&system.AISystem{})
+	aiSystem := &system.AISystem{}
+	sw.systemManager.AddSystem(aiSystem)
 	sw.systemManager.AddSystem(&system.LightSystem{})
 
 	// Player
@@ -68,6 +74,7 @@ func NewSimWorld() (*SimWorld, error) {
 	if err != nil {
 		return nil, err
 	}
+	aiSystem.Watcher = sw.Player
 	sw.Player.GetComponent("Position").(*component.PositionComponent).SetPosition(pX, pY, 0)
 	sw.Level.AddEntity(sw.Player)
 

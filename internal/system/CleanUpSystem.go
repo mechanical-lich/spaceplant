@@ -7,7 +7,7 @@ import (
 type CleanUpSystem struct {
 }
 
-// CleanUpSystem .
+// Update strips transient components from entities each frame.
 func (s CleanUpSystem) Update(level *world.Level) {
 	for _, entity := range level.Entities {
 		if entity.HasComponent("MyTurn") {

@@ -66,8 +66,10 @@ func (s *MainSimState) Tick(_ any) simulation.SimulationState {
 	shouldAdvance := !playerHasTurn || len(playerC.Commands) > 0
 
 	if shouldAdvance {
+		s.sim.Mu.Lock()
 		system.CleanUpSystem{}.Update(s.sim.Level)
 		s.sim.UpdateEntities()
+		s.sim.Mu.Unlock()
 	}
 
 	return nil
