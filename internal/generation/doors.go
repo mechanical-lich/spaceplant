@@ -23,8 +23,6 @@ func spawnDoor(l *world.Level, x, y, z int) {
 		ClosedSpriteY: 0,
 		OpenedSpriteX: 12 * config.SpriteWidth,
 		OpenedSpriteY: 0,
-		// KeyId:         "blue_keycard",
-		// Locked:        true,
 	})
 	e.AddComponent(&component.AppearanceComponent{
 		SpriteX:  11 * config.SpriteWidth,

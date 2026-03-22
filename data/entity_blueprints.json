@@ -1,6 +1,7 @@
 {
     "player": {
         "PlayerComponent": {},
+        "MyTurnComponent": {},
         "DescriptionComponent": {
             "Name": "Player",
             "Faction": "crew"
@@ -13,8 +14,7 @@
                 "health",
                 "health",
                 "laser_trimmers2",
-                "helmet2",
-                "blue_keycard"
+                "helmet2"
             ]
         },
         "HealthComponent": {
@@ -766,7 +766,7 @@
             "Slot": "bag"
         },
         "KeyComponent": {
-            "KeyId": "blue_keycard"
+            "KeyID": "blue_keycard"
         }
     }
 }

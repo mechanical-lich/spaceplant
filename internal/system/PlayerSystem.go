@@ -4,7 +4,9 @@ import (
 	"fmt"
 
 	"github.com/mechanical-lich/ml-rogue-lib/pkg/rlcombat"
+	"github.com/mechanical-lich/ml-rogue-lib/pkg/rlcomponents"
 	"github.com/mechanical-lich/ml-rogue-lib/pkg/rlentity"
+	"github.com/mechanical-lich/ml-rogue-lib/pkg/rlsystems"
 	"github.com/mechanical-lich/ml-rogue-lib/pkg/rlworld"
 	"github.com/mechanical-lich/mlge/ecs"
 	"github.com/mechanical-lich/mlge/message"
@@ -35,9 +37,14 @@ func (s *PlayerSystem) UpdateEntity(levelInterface any, entity *ecs.Entity) erro
 			playerComponent := entity.GetComponent("PlayerComponent").(*component.PlayerComponent)
 			command := playerComponent.PopCommand()
 
+			if command != "" {
+				entity.AddComponent(rlcomponents.GetTurnTaken())
+			}
+
 			z := pc.GetZ()
 			deltaX := 0
 			deltaY := 0
+
 			switch command {
 			case "W":
 				deltaY--
@@ -173,13 +180,5 @@ func toggleDoor(actor, doorEntity *ecs.Entity) {
 	} else {
 		door.Open = true
 	}
-	// Sync appearance immediately.
-	if doorEntity.HasComponent(component.Appearance) {
-		ac := doorEntity.GetComponent(component.Appearance).(*component.AppearanceComponent)
-		if door.Open {
-			ac.SetSprite(door.OpenedSpriteX, door.OpenedSpriteY)
-		} else {
-			ac.SetSprite(door.ClosedSpriteX, door.ClosedSpriteY)
-		}
-	}
+	rlsystems.SyncDoorAppearance(doorEntity, component.Appearance)
 }

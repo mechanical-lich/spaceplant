@@ -25,12 +25,14 @@ func (s StatusConditionSystem) Requires() []ecs.ComponentType {
 
 // StatusConditionSystem .
 func (s StatusConditionSystem) UpdateEntity(levelInterface any, entity *ecs.Entity) error {
-	for _, statusCondition := range statusConditions {
-		if entity.HasComponent(statusCondition) {
-			pc := entity.GetComponent(statusCondition).(DecayingComponent)
+	if entity.HasComponent("MyTurn") {
+		for _, statusCondition := range statusConditions {
+			if entity.HasComponent(statusCondition) {
+				pc := entity.GetComponent(statusCondition).(DecayingComponent)
 
-			if pc.Decay() {
-				entity.RemoveComponent(statusCondition)
+				if pc.Decay() {
+					entity.RemoveComponent(statusCondition)
+				}
 			}
 		}
 	}

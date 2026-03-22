@@ -53,6 +53,7 @@ func NewSimWorld() (*SimWorld, error) {
 		}
 		sw.Level.Polish(z)
 		sw.gm.Init(sw.Level, z)
+		sw.gm.PlaceLockedProgression(sw.Level, pX, pY, z, z+1)
 	}
 
 	// Temp stair gen
@@ -62,7 +63,6 @@ func NewSimWorld() (*SimWorld, error) {
 	sw.Level.Polish(1)
 
 	// Systems
-	sw.systemManager.AddSystem(system.InitiativeSystem{})
 	sw.systemManager.AddSystem(system.StatusConditionSystem{})
 	sw.systemManager.AddSystem(&system.PlayerSystem{})
 	aiSystem := &system.AISystem{}

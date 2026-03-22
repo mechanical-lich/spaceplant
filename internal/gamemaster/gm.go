@@ -1,10 +1,14 @@
 package gamemaster
 
 import (
+	"fmt"
 	"math/rand"
 
+	"github.com/mechanical-lich/ml-rogue-lib/pkg/rlcomponents"
+	"github.com/mechanical-lich/mlge/ecs"
 	"github.com/mechanical-lich/spaceplant/internal/component"
 	"github.com/mechanical-lich/spaceplant/internal/factory"
+	"github.com/mechanical-lich/spaceplant/internal/generation"
 	"github.com/mechanical-lich/spaceplant/internal/utility"
 	"github.com/mechanical-lich/spaceplant/internal/world"
 )
@@ -75,6 +79,102 @@ func (gm *GameMaster) Init(l *world.Level, z int) {
 			l.AddEntity(food)
 		}
 	}
+}
+
+// PlaceLockedProgression locks up to numLocks doors on layer z and places a
+// matching key in the reachable area before each door is locked, preventing
+// soft-locks by construction.
+func (gm *GameMaster) PlaceLockedProgression(l *world.Level, spawnX, spawnY, z, numLocks int) {
+	// Collect all door entities on this Z layer.
+	var doors []*ecs.Entity
+	for _, e := range l.Level.GetEntities() {
+		if e == nil || !e.HasComponent(rlcomponents.Door) || !e.HasComponent(rlcomponents.Position) {
+			continue
+		}
+		pc := e.GetComponent(rlcomponents.Position).(*rlcomponents.PositionComponent)
+		if pc.GetZ() == z {
+			doors = append(doors, e)
+		}
+	}
+
+	rand.Shuffle(len(doors), func(i, j int) { doors[i], doors[j] = doors[j], doors[i] })
+	if numLocks < len(doors) {
+		doors = doors[:numLocks]
+	}
+
+	lockedDoors := map[*ecs.Entity]bool{}
+
+	for i, door := range doors {
+		blocked := map[*ecs.Entity]bool{door: true}
+		for d := range lockedDoors {
+			blocked[d] = true
+		}
+
+		reachable := generation.FloodFillReachable(l, spawnX, spawnY, z, blocked)
+
+		// Filter to tiles with a passable floor type and no entity.
+		var valid [][2]int
+		for _, coord := range reachable {
+			x, y := coord[0], coord[1]
+			tile := l.Level.GetTilePtr(x, y, z)
+			if tile == nil {
+				continue
+			}
+			if tile.Type != world.TypeFloor && tile.Type != world.TypeMaintenanceTunnelFloor {
+				continue
+			}
+			if l.Level.GetEntityAt(x, y, z) != nil {
+				continue
+			}
+			valid = append(valid, coord)
+		}
+
+		if len(valid) == 0 {
+			continue
+		}
+
+		pick := valid[rand.Intn(len(valid))]
+		keyID := fmt.Sprintf("key_%d_%d", z, i)
+		createKeyEntity(l, pick[0], pick[1], z, keyID)
+
+		// Lock the door.
+		dc := door.GetComponent(rlcomponents.Door).(*rlcomponents.DoorComponent)
+		dc.Locked = true
+		dc.KeyId = keyID
+
+		// Red tint so the player can see it is locked.
+		if door.HasComponent(component.Appearance) {
+			ac := door.GetComponent(component.Appearance).(*component.AppearanceComponent)
+			ac.R = 220
+			ac.G = 80
+			ac.B = 80
+		}
+
+		lockedDoors[door] = true
+	}
+}
+
+// createKeyEntity places a key entity that unlocks the door with the given keyID.
+func createKeyEntity(l *world.Level, x, y, z int, keyID string) {
+	e := &ecs.Entity{}
+	pc := &rlcomponents.PositionComponent{}
+	pc.SetPosition(x, y, z)
+	e.AddComponent(pc)
+	e.AddComponent(&rlcomponents.KeyComponent{KeyID: keyID})
+	e.AddComponent(&rlcomponents.ItemComponent{Effect: "key", Value: 10, Slot: rlcomponents.BagSlot})
+	e.AddComponent(&rlcomponents.DescriptionComponent{
+		Name:                "Keycard",
+		Faction:             "item",
+		PassOverDescription: []string{"A keycard lies here."},
+	})
+	e.AddComponent(&component.AppearanceComponent{
+		SpriteX: 416,
+		SpriteY: 0,
+		R:       200,
+		G:       200,
+		B:       125,
+	})
+	l.Level.AddEntity(e)
 }
 
 // Update Update the game master

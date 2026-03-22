@@ -8,6 +8,7 @@ import (
 	"github.com/mechanical-lich/mlge/transport"
 	"github.com/mechanical-lich/spaceplant/internal/component"
 	"github.com/mechanical-lich/spaceplant/internal/eventsystem"
+	"github.com/mechanical-lich/spaceplant/internal/initiative"
 	"github.com/mechanical-lich/spaceplant/internal/system"
 )
 
@@ -68,13 +69,20 @@ func (s *MainSimState) Tick(_ any) simulation.SimulationState {
 	}
 
 	playerC := s.sim.Player.GetComponent("PlayerComponent").(*component.PlayerComponent)
-	playerHasTurn := s.sim.Player.HasComponent("MyTurn")
-	shouldAdvance := !playerHasTurn || len(playerC.Commands) > 0
+	playerHasTaken := s.sim.Player.HasComponent("TurnTaken")
+	shouldAdvance := playerHasTaken || len(playerC.Commands) > 0
 
 	if shouldAdvance {
 		s.sim.Mu.Lock()
 		system.CleanUpSystem{}.Update(s.sim.Level)
+		if playerHasTaken {
+			initiative.PlayerTookTurn(s.sim.Level.Entities)
+		}
 		s.sim.UpdateEntities()
+		// Restore the player's turn after the post-action tick.
+		if playerHasTaken && !s.sim.Player.HasComponent("MyTurn") {
+			s.sim.Player.AddComponent(rlcomponents.GetMyTurn())
+		}
 		s.sim.Mu.Unlock()
 	}
 

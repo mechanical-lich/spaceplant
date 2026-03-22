@@ -5,6 +5,7 @@ import (
 
 	"github.com/mechanical-lich/ml-rogue-lib/pkg/path"
 	"github.com/mechanical-lich/ml-rogue-lib/pkg/rlcombat"
+	"github.com/mechanical-lich/ml-rogue-lib/pkg/rlcomponents"
 	"github.com/mechanical-lich/ml-rogue-lib/pkg/rlentity"
 	"github.com/mechanical-lich/mlge/ecs"
 	"github.com/mechanical-lich/spaceplant/internal/component"
@@ -30,9 +31,14 @@ func (s *AISystem) Requires() []ecs.ComponentType {
 // AISystem .
 func (s *AISystem) UpdateEntity(levelInterface any, entity *ecs.Entity) error {
 	level := levelInterface.(*world.Level)
+
 	if !entity.HasComponent("Dead") {
 		if entity.HasComponent("MyTurn") {
-
+			isAI := entity.HasComponent("WanderAI") || entity.HasComponent("HostileAI") || entity.HasComponent("DefensiveAI")
+			if !isAI {
+				return nil
+			}
+			entity.AddComponent(rlcomponents.GetTurnTaken())
 			pc := entity.GetComponent("Position").(*component.PositionComponent)
 
 			if rlentity.HandleDeath(entity) {

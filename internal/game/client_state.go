@@ -1,6 +1,8 @@
 package game
 
 import (
+	"fmt"
+
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/inpututil"
 	"github.com/mechanical-lich/mlge/client"
@@ -18,14 +20,14 @@ var _ client.ClientState = (*SPClientState)(nil)
 // It polls keyboard input and forwards action commands to the server,
 // then renders the level and HUD each frame.
 type SPClientState struct {
-	sim         *SimWorld
-	transport   transport.ClientTransport
-	gui         *ui.GUI
+	sim           *SimWorld
+	transport     transport.ClientTransport
+	gui           *ui.GUI
 	inventoryView *InventoryView
-	CameraX     int
-	CameraY     int
-	pressDelay  int
-	tick        int
+	CameraX       int
+	CameraY       int
+	pressDelay    int
+	tick          int
 }
 
 // NewSPClientState creates a ready-to-use graphical client state.
@@ -54,6 +56,11 @@ func (s *SPClientState) Update(_ *transport.Snapshot) client.ClientState {
 	s.gui.Update(s)
 	s.inventoryView.Update()
 	s.tick++
+
+	fps := ebiten.ActualFPS()
+	tps := ebiten.ActualTPS()
+	title := fmt.Sprintf("%s - FPS: %.1f TPS: %.1f", "Space Plants!", fps, tps)
+	ebiten.SetWindowTitle(title)
 
 	// Close inventory on Escape.
 	if inpututil.IsKeyJustPressed(ebiten.KeyEscape) && s.inventoryView.Visible {
