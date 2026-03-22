@@ -28,5 +28,10 @@ func (pc *AppearanceComponent) Update() {
 	if pc.CurrentFrame >= pc.FrameCount {
 		pc.CurrentFrame = 0
 	}
+}
 
+// SetSprite implements rlsystems.AppearanceUpdater, used by DoorSystem.
+func (pc *AppearanceComponent) SetSprite(x, y int) {
+	pc.SpriteX = x
+	pc.SpriteY = y
 }

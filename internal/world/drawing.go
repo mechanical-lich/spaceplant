@@ -145,7 +145,11 @@ func DrawEntity(screen *ebiten.Image, entity *ecs.Entity, x, y float64) {
 		op.ColorM.ScaleWithColor(color.RGBA{ac.R, ac.G, ac.B, 255})
 	}
 
-	screen.DrawImage(resource.Textures["entities"].SubImage(image.Rect(ac.GetFrameX(), ac.SpriteY, ac.GetFrameX()+config.SpriteWidth, ac.SpriteY+config.SpriteHeight)).(*ebiten.Image), op)
+	texName := ac.Resource
+	if texName == "" {
+		texName = "entities"
+	}
+	screen.DrawImage(resource.Textures[texName].SubImage(image.Rect(ac.GetFrameX(), ac.SpriteY, ac.GetFrameX()+config.SpriteWidth, ac.SpriteY+config.SpriteHeight)).(*ebiten.Image), op)
 
 	// Draw FX
 	if entity.HasComponent("AttackComponent") {

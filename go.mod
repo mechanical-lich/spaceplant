@@ -5,7 +5,7 @@ go 1.25.0
 require (
 	github.com/gdamore/tcell/v2 v2.13.8
 	github.com/hajimehoshi/ebiten/v2 v2.8.8
-	github.com/mechanical-lich/ml-rogue-lib v1.5.0
+	github.com/mechanical-lich/ml-rogue-lib v1.6.0
 	github.com/mechanical-lich/mlge v1.4.0
 )
 

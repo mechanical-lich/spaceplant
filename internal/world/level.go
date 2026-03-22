@@ -1,6 +1,7 @@
 package world
 
 import (
+	"github.com/mechanical-lich/ml-rogue-lib/pkg/rlcomponents"
 	"github.com/mechanical-lich/ml-rogue-lib/pkg/rlworld"
 )
 
@@ -39,7 +40,13 @@ func NewLevel(width, height, depth int, theme Theme) *Level {
 			return 0 // open space is free for pathfinding
 		}
 		x, y, z := to.Coords()
-		if l.Level.GetSolidEntityAt(x, y, z) != nil {
+		if blocker := l.Level.GetSolidEntityAt(x, y, z); blocker != nil {
+			if blocker.HasComponent(rlcomponents.Door) {
+				dc := blocker.GetComponent(rlcomponents.Door).(*rlcomponents.DoorComponent)
+				if dc.Open {
+					return 10 // open doors are passable
+				}
+			}
 			return 100
 		}
 		return 10

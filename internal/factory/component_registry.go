@@ -27,7 +27,8 @@ func registerComponents() {
 	jsonFactory.RegisterComponent("NeverSleepComponent", func() ecs.Component { return &rlcomponents.NeverSleepComponent{} })
 	jsonFactory.RegisterComponent("NocturnalComponent", func() ecs.Component { return &rlcomponents.NocturnalComponent{} })
 	jsonFactory.RegisterComponent("MassiveComponent", func() ecs.Component { return &component.MassiveComponent{} })
-	jsonFactory.RegisterComponent("InteractComponent", func() ecs.Component { return &component.InteractComponent{} })
+	jsonFactory.RegisterComponent("InteractionComponent", func() ecs.Component { return &rlcomponents.InteractionComponent{} })
+	jsonFactory.RegisterComponent("DoorComponent", func() ecs.Component { return &rlcomponents.DoorComponent{} })
 	jsonFactory.RegisterComponent("ItemComponent", func() ecs.Component { return &rlcomponents.ItemComponent{} })
 	jsonFactory.RegisterComponent("ArmorComponent", func() ecs.Component { return &rlcomponents.ArmorComponent{} })
 	jsonFactory.RegisterComponent("WeaponComponent", func() ecs.Component { return &rlcomponents.WeaponComponent{} })
@@ -38,4 +39,5 @@ func registerComponents() {
 	jsonFactory.RegisterComponent("AttackComponent", func() ecs.Component { return &component.AttackComponent{} })
 	jsonFactory.RegisterComponent("LightComponent", func() ecs.Component { return &component.LightComponent{} })
 	jsonFactory.RegisterComponent("AsciiAppearanceComponent", func() ecs.Component { return &rlcomponents.AsciiAppearanceComponent{} })
+	jsonFactory.RegisterComponent("KeyComponent", func() ecs.Component { return &rlcomponents.KeyComponent{} })
 }

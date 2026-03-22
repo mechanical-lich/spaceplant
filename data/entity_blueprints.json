@@ -13,7 +13,8 @@
                 "health",
                 "health",
                 "laser_trimmers2",
-                "helmet2"
+                "helmet2",
+                "blue_keycard"
             ]
         },
         "HealthComponent": {
@@ -489,6 +490,48 @@
             "Damage": "1d4"
         }
     },
+    "terminal": {
+        "DescriptionComponent": {
+            "Name": "Terminal",
+            "Faction": "crew",
+            "ID": "terminal_default"
+        },
+        "AsciiAppearanceComponent": {
+            "Character": "T",
+            "R": 0,
+            "G": 200,
+            "B": 200
+        },
+        "AppearanceComponent": {
+            "SpriteX": 384,
+            "SpriteY": 0,
+            "R": 0,
+            "G": 200,
+            "B": 200,
+            "Frames": 1
+        },
+        "SolidComponent": {},
+        "InanimateComponent": {},
+        "InteractionComponent": {
+            "Prompt": "The terminal flickers to life.",
+            "Repeatable": false,
+            "Triggers": [
+                {
+                    "Type": "post_message",
+                    "Params": {
+                        "sender": "Terminal",
+                        "message": "AIRLOCK OVERRIDE ACCEPTED. Door unlocked."
+                    }
+                },
+                {
+                    "Type": "unlock_door",
+                    "Params": {
+                        "target_id": "airlock_door"
+                    }
+                }
+            ]
+        }
+    },
     "health": {
         "DescriptionComponent": {
             "Name": "health",
@@ -686,6 +729,44 @@
         },
         "ArmorComponent": {
             "Armor": 4
+        }
+    },
+    "blue_keycard": {
+        "DescriptionComponent": {
+            "Name": "Blue Keycard",
+            "Faction": "item",
+            "PassOverDescription": [
+                "A blue keycard lies here."
+            ]
+        },
+        "AsciiAppearanceComponent": {
+            "Character": "K",
+            "R": 0,
+            "G": 0,
+            "B": 255
+        },
+        "AppearanceComponent": {
+            "SpriteX": 416,
+            "SpriteY": 0,
+            "R": 200,
+            "G": 200,
+            "B": 125,
+            "Frames": 1
+        },
+        "LightComponent": {
+            "Radius": 10,
+            "Brightness": 10,
+            "R": 0,
+            "G": 0,
+            "B": 125
+        },
+        "ItemComponent": {
+            "Effect": "key",
+            "Value": 10,
+            "Slot": "bag"
+        },
+        "KeyComponent": {
+            "KeyId": "blue_keycard"
         }
     }
 }

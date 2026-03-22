@@ -34,16 +34,20 @@ const (
 
 // Spaceplant-specific component types (not in rlcomponents).
 const (
-	Appearance ecs.ComponentType = "AppearanceComponent"
-	Player     ecs.ComponentType = "PlayerComponent"
-	Attack     ecs.ComponentType = "AttackComponent"
-	Massive    ecs.ComponentType = "MassiveComponent"
-	Interact   ecs.ComponentType = "InteractComponent"
-	SpLight    ecs.ComponentType = "LightComponent" // spaceplant's own light (incompatible with rlcomponents.Light)
+	Appearance  ecs.ComponentType = "AppearanceComponent"
+	Player      ecs.ComponentType = "PlayerComponent"
+	Attack      ecs.ComponentType = "AttackComponent"
+	Massive     ecs.ComponentType = "MassiveComponent"
+	SpLight     ecs.ComponentType = "LightComponent" // spaceplant's own light (incompatible with rlcomponents.Light)
+	Interaction                   = rlcomponents.Interaction
+	Door                          = rlcomponents.Door
 )
 
 // Type aliases for rlcomponents - these replace spaceplant's duplicate component structs.
 type (
+	InteractionComponent = rlcomponents.InteractionComponent
+	Trigger              = rlcomponents.Trigger
+	DoorComponent        = rlcomponents.DoorComponent
 	PositionComponent    = rlcomponents.PositionComponent
 	HealthComponent      = rlcomponents.HealthComponent
 	StatsComponent       = rlcomponents.StatsComponent

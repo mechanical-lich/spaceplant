@@ -1,6 +1,7 @@
 package game
 
 import (
+	"github.com/mechanical-lich/ml-rogue-lib/pkg/rlcomponents"
 	"github.com/mechanical-lich/mlge/event"
 	"github.com/mechanical-lich/mlge/message"
 	"github.com/mechanical-lich/mlge/simulation"
@@ -30,6 +31,11 @@ func NewMainSimState(sim *SimWorld) *MainSimState {
 	event.GetQueuedInstance().RegisterListener(
 		&queuedMessageListener{level: sim.Level, player: sim.Player},
 		message.MessageEventType,
+	)
+
+	event.GetQueuedInstance().RegisterListener(
+		&interactionListener{sim: sim},
+		rlcomponents.InteractionEventType,
 	)
 
 	return s

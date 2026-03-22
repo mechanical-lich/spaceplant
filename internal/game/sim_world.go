@@ -3,6 +3,7 @@ package game
 import (
 	"sync"
 
+	"github.com/mechanical-lich/ml-rogue-lib/pkg/rlsystems"
 	"github.com/mechanical-lich/mlge/ecs"
 	"github.com/mechanical-lich/spaceplant/internal/component"
 	"github.com/mechanical-lich/spaceplant/internal/factory"
@@ -67,6 +68,7 @@ func NewSimWorld() (*SimWorld, error) {
 	aiSystem := &system.AISystem{}
 	sw.systemManager.AddSystem(aiSystem)
 	sw.systemManager.AddSystem(&system.LightSystem{})
+	sw.systemManager.AddSystem(&rlsystems.DoorSystem{AppearanceType: component.Appearance})
 
 	// Player
 	var err error

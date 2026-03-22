@@ -22,16 +22,16 @@ func GenerateRoundStation(l *world.Level, z int) {
 	CarveCircle(l, x, y, z, r/2, world.TypeWall, world.TypeFloor, false, true) // Inner
 
 	// Inner Doors
-	l.SetTileTypeAt(x, y+r/2-1, z, world.TypeDoor)
-	l.SetTileTypeAt(x, y-r/2+1, z, world.TypeDoor)
-	l.SetTileTypeAt(x+r/2-1, y, z, world.TypeDoor)
-	l.SetTileTypeAt(x-r/2+1, y, z, world.TypeDoor)
+	spawnDoor(l, x, y+r/2-1, z)
+	spawnDoor(l, x, y-r/2+1, z)
+	spawnDoor(l, x+r/2-1, y, z)
+	spawnDoor(l, x-r/2+1, y, z)
 
 	// Outer Doors
-	l.SetTileTypeAt(x, y+r-1, z, world.TypeDoor)
-	l.SetTileTypeAt(x, y-r+1, z, world.TypeDoor)
-	l.SetTileTypeAt(x+r-1, y, z, world.TypeDoor)
-	l.SetTileTypeAt(x-r+1, y, z, world.TypeDoor)
+	spawnDoor(l, x, y+r-1, z)
+	spawnDoor(l, x, y-r+1, z)
+	spawnDoor(l, x+r-1, y, z)
+	spawnDoor(l, x-r+1, y, z)
 
 	// Hallways
 	//Right
@@ -90,14 +90,14 @@ func GenerateRectangleStation(l *world.Level, z int) {
 	CarveRoom(l, l.Width-roomWidth/2-hallwayWidth/2, roomHeight-1, z, hallwayWidth, l.Height-roomHeight*2+2, world.TypeWall, world.TypeFloor, true, false)
 
 	// Main hallway doors
-	l.SetTileTypeAt(roomWidth-1, roomHeight/2, z, world.TypeDoor)
-	l.SetTileTypeAt(l.Width-roomWidth, roomHeight/2, z, world.TypeDoor)
-	l.SetTileTypeAt(roomWidth-1, l.Height-roomHeight/2, z, world.TypeDoor)
-	l.SetTileTypeAt(l.Width-roomWidth, l.Height-roomHeight/2, z, world.TypeDoor)
-	l.SetTileTypeAt(roomWidth/2, roomHeight-1, z, world.TypeDoor)
-	l.SetTileTypeAt(roomWidth/2, l.Height-roomHeight, z, world.TypeDoor)
-	l.SetTileTypeAt(l.Width-roomWidth/2, roomHeight-1, z, world.TypeDoor)
-	l.SetTileTypeAt(l.Width-roomWidth/2, l.Height-roomHeight, z, world.TypeDoor)
+	spawnDoor(l, roomWidth-1, roomHeight/2, z)
+	spawnDoor(l, l.Width-roomWidth, roomHeight/2, z)
+	spawnDoor(l, roomWidth-1, l.Height-roomHeight/2, z)
+	spawnDoor(l, l.Width-roomWidth, l.Height-roomHeight/2, z)
+	spawnDoor(l, roomWidth/2, roomHeight-1, z)
+	spawnDoor(l, roomWidth/2, l.Height-roomHeight, z)
+	spawnDoor(l, l.Width-roomWidth/2, roomHeight-1, z)
+	spawnDoor(l, l.Width-roomWidth/2, l.Height-roomHeight, z)
 
 	// Central circle
 	x := l.Width / 2
@@ -106,10 +106,10 @@ func GenerateRectangleStation(l *world.Level, z int) {
 	CarveCircle(l, x, y, z, r, world.TypeWall, world.TypeFloor, false, true)
 
 	// Central tunnels
-	CarveMaintenanceTunnel(l, z, l.Width/2, roomHeight/2+hallwayHeight/2, x, y-r+1, world.TypeMaintenanceTunnelFloor, world.TypeMaintenanceTunnelDoor)
-	CarveMaintenanceTunnel(l, z, l.Width/2, l.Height-roomHeight/2-hallwayHeight/2, x, y+r-1, world.TypeMaintenanceTunnelFloor, world.TypeMaintenanceTunnelDoor)
-	CarveMaintenanceTunnel(l, z, roomWidth/2+hallwayWidth/2, l.Height/2, x-r+1, y, world.TypeMaintenanceTunnelFloor, world.TypeMaintenanceTunnelDoor)
-	CarveMaintenanceTunnel(l, z, l.Width-roomWidth/2-hallwayWidth/2, l.Height/2, x+r-1, y, world.TypeMaintenanceTunnelFloor, world.TypeMaintenanceTunnelDoor)
+	CarveMaintenanceTunnel(l, z, l.Width/2, roomHeight/2+hallwayHeight/2, x, y-r+1, world.TypeMaintenanceTunnelFloor)
+	CarveMaintenanceTunnel(l, z, l.Width/2, l.Height-roomHeight/2-hallwayHeight/2, x, y+r-1, world.TypeMaintenanceTunnelFloor)
+	CarveMaintenanceTunnel(l, z, roomWidth/2+hallwayWidth/2, l.Height/2, x-r+1, y, world.TypeMaintenanceTunnelFloor)
+	CarveMaintenanceTunnel(l, z, l.Width-roomWidth/2-hallwayWidth/2, l.Height/2, x+r-1, y, world.TypeMaintenanceTunnelFloor)
 
 	l.Polish(z)
 	BudRooms(l, z, l.Width, l.Height, 50)
@@ -226,14 +226,14 @@ func CarveMaintenanceTunnels(l *world.Level, z, width, height, numTunnels int) {
 				l.SetTileTypeAt(tx, ty, z, world.TypeMaintenanceTunnelFloor)
 			}
 
-			l.SetTileTypeAt(tX1, tY1, z, world.TypeMaintenanceTunnelDoor)
-			l.SetTileTypeAt(tX2, tY2, z, world.TypeMaintenanceTunnelDoor)
+			spawnMaintenanceDoor(l, tX1, tY1, z)
+			spawnMaintenanceDoor(l, tX2, tY2, z)
 			done = true
 		}
 	}
 }
 
-func CarveMaintenanceTunnel(l *world.Level, z, x1, y1, x2, y2, floor, door int) bool {
+func CarveMaintenanceTunnel(l *world.Level, z, x1, y1, x2, y2, floor int) bool {
 	t1 := l.Level.GetTilePtr(x1, y1, z)
 	t2 := l.Level.GetTilePtr(x2, y2, z)
 	origType1 := t1.Type
@@ -256,8 +256,8 @@ func CarveMaintenanceTunnel(l *world.Level, z, x1, y1, x2, y2, floor, door int) 
 		l.SetTileTypeAt(tx, ty, z, floor)
 	}
 
-	l.SetTileTypeAt(x1, y1, z, door)
-	l.SetTileTypeAt(x2, y2, z, door)
+	spawnMaintenanceDoor(l, x1, y1, z)
+	spawnMaintenanceDoor(l, x2, y2, z)
 
 	return true
 }
@@ -288,7 +288,7 @@ func BudRooms(l *world.Level, z, width, height, numRooms int) {
 						if l.GetTileType(rX+1, rY, z) == world.TypeWall && l.GetTileType(rX-1, rY, z) == world.TypeWall {
 							if !RoomIntersects(l, z, rX-rWidth/2, rY-rHeight-1, rWidth, rHeight) {
 								CarveRoom(l, rX-rWidth/2, rY-rHeight+1, z, rWidth, rHeight, world.TypeWall, world.TypeFloor, true, false)
-								l.SetTileTypeAt(rX, rY, z, world.TypeDoor)
+								spawnDoor(l, rX, rY, z)
 								done = true
 							}
 						}
@@ -299,7 +299,7 @@ func BudRooms(l *world.Level, z, width, height, numRooms int) {
 						if l.GetTileType(rX+1, rY, z) == world.TypeWall && l.GetTileType(rX-1, rY, z) == world.TypeWall {
 							if !RoomIntersects(l, z, rX-rWidth/2, rY+1, rWidth, rHeight) {
 								CarveRoom(l, rX-rWidth/2, rY, z, rWidth, rHeight, world.TypeWall, world.TypeFloor, true, false)
-								l.SetTileTypeAt(rX, rY, z, world.TypeDoor)
+								spawnDoor(l, rX, rY, z)
 								done = true
 							}
 						}
@@ -310,7 +310,7 @@ func BudRooms(l *world.Level, z, width, height, numRooms int) {
 						if l.GetTileType(rX, rY+1, z) == world.TypeWall && l.GetTileType(rX, rY-1, z) == world.TypeWall {
 							if !RoomIntersects(l, z, rX-rWidth, rY-rHeight/2, rWidth, rHeight) {
 								CarveRoom(l, rX-rWidth+1, rY-rHeight/2, z, rWidth, rHeight, world.TypeWall, world.TypeFloor, true, false)
-								l.SetTileTypeAt(rX, rY, z, world.TypeDoor)
+								spawnDoor(l, rX, rY, z)
 								done = true
 							}
 						}
@@ -321,7 +321,7 @@ func BudRooms(l *world.Level, z, width, height, numRooms int) {
 						if l.GetTileType(rX, rY+1, z) == world.TypeWall && l.GetTileType(rX, rY-1, z) == world.TypeWall {
 							if !RoomIntersects(l, z, rX+1, rY-rHeight/2, rWidth, rHeight) {
 								CarveRoom(l, rX, rY-rHeight/2, z, rWidth, rHeight, world.TypeWall, world.TypeFloor, true, false)
-								l.SetTileTypeAt(rX, rY, z, world.TypeDoor)
+								spawnDoor(l, rX, rY, z)
 								done = true
 							}
 						}
