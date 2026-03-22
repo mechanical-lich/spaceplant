@@ -11,10 +11,15 @@ import (
 // hit performs a melee attack using rlcombat.Hit, then adds the AttackComponent visual.
 func hit(l *world.Level, entity *ecs.Entity, entityHit *ecs.Entity) {
 	// Add visual FX before the hit (so it shows even on miss via faction swap)
-	if entityHit != entity && !rlcombat.IsFriendly(entity, entityHit) {
-		entityHit.AddComponent(&component.AttackComponent{SpriteX: 0, SpriteY: 0})
+	// if entityHit != entity && !rlcombat.IsFriendly(entity, entityHit) {
+	// 	entityHit.AddComponent(&component.AttackComponent{SpriteX: 0, SpriteY: 0})
+	// }
+	if rlcombat.Hit(l.Level, entity, entityHit, true) {
+		// Add visual FX after the hit (so it shows on hit even if friendly swap)
+		if entityHit != entity && !entityHit.HasComponent(component.Dead) {
+			entityHit.AddComponent(&component.AttackComponent{SpriteX: 0, SpriteY: 0})
+		}
 	}
-	rlcombat.Hit(l.Level, entity, entityHit, true)
 }
 
 // move attempts to move an entity using rlentity.Move, with MassiveComponent handling.

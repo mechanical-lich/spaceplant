@@ -101,19 +101,17 @@ func (s *SPClientState) Update(_ *transport.Snapshot) client.ClientState {
 		}
 	}
 
-	// Keep camera on the player.
-	if s.sim.Player != nil {
-		pc := s.sim.Player.GetComponent("Position").(*component.PositionComponent)
-		s.CameraX = pc.GetX()
-		s.CameraY = pc.GetY()
-	}
-
 	return nil
 }
 
 // Draw renders the level viewport and HUD.
 func (s *SPClientState) Draw(screen *ebiten.Image) {
 	s.sim.Mu.RLock()
+	if s.sim.Player != nil {
+		pc := s.sim.Player.GetComponent("Position").(*component.PositionComponent)
+		s.CameraX = pc.GetX()
+		s.CameraY = pc.GetY()
+	}
 	levelImage := s.sim.Level.Render(
 		s.CameraX, s.CameraY, s.sim.CurrentZ,
 		config.GameWidth/config.SpriteWidth, config.GameHeight/config.SpriteHeight,
