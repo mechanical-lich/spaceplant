@@ -27,7 +27,6 @@ type SPClientState struct {
 	CameraX       int
 	CameraY       int
 	pressDelay    int
-	tick          int
 }
 
 // NewSPClientState creates a ready-to-use graphical client state.
@@ -53,8 +52,6 @@ func (s *SPClientState) Done() bool { return false }
 func (s *SPClientState) Update(_ *transport.Snapshot) client.ClientState {
 	mlgeevent.GetQueuedInstance().HandleQueue()
 
-	s.tick++
-
 	fps := ebiten.ActualFPS()
 	tps := ebiten.ActualTPS()
 	title := fmt.Sprintf("%s - FPS: %.1f TPS: %.1f", "Space Plants!", fps, tps)
@@ -72,26 +69,11 @@ func (s *SPClientState) Update(_ *transport.Snapshot) client.ClientState {
 		return nil
 	}
 
-	// Hold RLock for all sim reads: GUI update, inventory update, sprite
-	// animation, and turn check — all touch entity component maps.
+	// GUI, inventory, and turn check are read-only — RLock is sufficient.
 	s.sim.Mu.RLock()
-
 	s.gui.Update(s)
 	s.inventoryView.Update()
-
-	// Sprite animation (every 20 frames).
-	if s.tick%20 == 0 {
-		for _, entity := range s.sim.Level.Entities {
-			if entity.HasComponent("AppearanceComponent") {
-				ac := entity.GetComponent("AppearanceComponent").(*component.AppearanceComponent)
-				ac.Update()
-			}
-		}
-	}
-
-	// Snapshot turn ownership before releasing the lock.
 	hasTurn := s.sim.Player != nil && s.sim.Player.HasComponent("MyTurn")
-
 	s.sim.Mu.RUnlock()
 
 	// Send movement/action commands only when it is the player's turn.

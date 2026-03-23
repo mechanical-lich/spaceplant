@@ -83,6 +83,13 @@ func (s *MainSimState) Tick(_ any) simulation.SimulationState {
 		if playerHasTaken && !s.sim.Player.HasComponent("MyTurn") {
 			s.sim.Player.AddComponent(rlcomponents.GetMyTurn())
 		}
+		// Advance sprite animation cycles on the server tick so the client
+		// only ever reads appearance state under RLock.
+		for _, entity := range s.sim.Level.Entities {
+			if entity.HasComponent("AppearanceComponent") {
+				entity.GetComponent("AppearanceComponent").(*component.AppearanceComponent).Update()
+			}
+		}
 		s.sim.Mu.Unlock()
 	}
 
