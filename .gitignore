@@ -1,5 +1,8 @@
 bin/
 vendor/
 .DS_Store
-game
+# ignore the `game` executable at repo root
+/game
+# but do not ignore the `game/` directory
+!/game/
 terminal
