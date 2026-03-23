@@ -21,19 +21,7 @@ func GenerateRoundStation(l *world.Level, z int) {
 	CarveCircle(l, x, y, z, r, world.TypeWall, world.TypeFloor, false, true)   // Outer
 	CarveCircle(l, x, y, z, r/2, world.TypeWall, world.TypeFloor, false, true) // Inner
 
-	// Inner Doors
-	spawnDoor(l, x, y+r/2-1, z)
-	spawnDoor(l, x, y-r/2+1, z)
-	spawnDoor(l, x+r/2-1, y, z)
-	spawnDoor(l, x-r/2+1, y, z)
-
-	// Outer Doors
-	spawnDoor(l, x, y+r-1, z)
-	spawnDoor(l, x, y-r+1, z)
-	spawnDoor(l, x+r-1, y, z)
-	spawnDoor(l, x-r+1, y, z)
-
-	// Hallways
+	// Hallways — carve before placing doors so hallway borders don't overwrite door tiles
 	//Right
 	maxHallWidth := l.Width/2 - r
 	hWidth := maxHallWidth
@@ -59,6 +47,19 @@ func GenerateRoundStation(l *world.Level, z int) {
 	// Rooms and tunnels
 	BudRooms(l, z, l.Width, l.Height, 100)
 	CarveMaintenanceTunnels(l, z, l.Width, l.Height, 30)
+
+	// Doors last — after all carving so no subsequent CarveRoom overwrites the floor tile
+	// Inner Doors
+	spawnDoor(l, x, y+r/2-1, z)
+	spawnDoor(l, x, y-r/2+1, z)
+	spawnDoor(l, x+r/2-1, y, z)
+	spawnDoor(l, x-r/2+1, y, z)
+
+	// Outer Doors
+	spawnDoor(l, x, y+r-1, z)
+	spawnDoor(l, x, y-r+1, z)
+	spawnDoor(l, x+r-1, y, z)
+	spawnDoor(l, x-r+1, y, z)
 }
 
 func GenerateRectangleStation(l *world.Level, z int) {
