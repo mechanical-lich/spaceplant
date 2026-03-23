@@ -133,8 +133,29 @@ func (s *PlayerSystem) UpdateEntity(levelInterface any, entity *ecs.Entity) erro
 			}
 
 			if move(entity, l, deltaX, deltaY) {
-				entityHit := l.GetEntityAt(pc.GetX()+deltaX, pc.GetY()+deltaY, z)
-				if entityHit != nil && entityHit != entity {
+				// Prefer non-door entities (e.g. monsters) over doors so that
+				// bumping into a monster standing in a doorway attacks rather
+				// than toggling the door.
+				var candidates []*ecs.Entity
+				l.GetEntitiesAt(pc.GetX()+deltaX, pc.GetY()+deltaY, z, &candidates)
+				var entityHit, doorHit *ecs.Entity
+				for _, e := range candidates {
+					if e == entity {
+						continue
+					}
+					if e.HasComponent(component.Door) {
+						if doorHit == nil {
+							doorHit = e
+						}
+					} else if entityHit == nil {
+						entityHit = e
+					}
+				}
+				if entityHit == nil {
+					entityHit = doorHit
+				}
+
+				if entityHit != nil {
 					if rlentity.CheckInteraction(entity, entityHit) {
 						// interaction consumed the bump — do not attack or swap
 					} else if entityHit.HasComponent(component.Door) {
