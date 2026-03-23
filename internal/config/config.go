@@ -8,6 +8,7 @@ const (
 	GameHeight = 832
 
 	ShowMouseCoords = false
+	DrawEntityPaths = true
 )
 
 const (

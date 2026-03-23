@@ -51,10 +51,23 @@ func (g *GUIViewMain) Draw(screen *ebiten.Image, s any) {
 		}
 	}
 
-	for i := 0; i < 10; i++ {
-		if i < len(message.MessageLog) {
-			m := message.MessageLog[len(message.MessageLog)-1-i]
-			mlge_text.Draw(screen, m, 16, config.GameWidth, 85+120+i*32, color.White)
+	const (
+		msgFontSize  = 16
+		msgLineH     = 20
+		msgMaxChars  = 30 // ~(ScreenWidth-GameWidth) / avg char width at size 16
+		msgStartY    = 85 + 120
+		msgMaxHeight = 400
+	)
+	y := msgStartY
+	for i := 0; i < len(message.MessageLog) && y < msgStartY+msgMaxHeight; i++ {
+		m := message.MessageLog[len(message.MessageLog)-1-i]
+		lines := mlge_text.Wrap(m, msgMaxChars, 0)
+		for _, line := range lines {
+			mlge_text.Draw(screen, line, msgFontSize, config.GameWidth, y, color.White)
+			y += msgLineH
+			if y >= msgStartY+msgMaxHeight {
+				break
+			}
 		}
 	}
 

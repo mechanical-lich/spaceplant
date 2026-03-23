@@ -7,6 +7,7 @@ import (
 	"github.com/mechanical-lich/ml-rogue-lib/pkg/rlcombat"
 	"github.com/mechanical-lich/ml-rogue-lib/pkg/rlcomponents"
 	"github.com/mechanical-lich/ml-rogue-lib/pkg/rlentity"
+	"github.com/mechanical-lich/ml-rogue-lib/pkg/rlworld"
 	"github.com/mechanical-lich/mlge/ecs"
 	"github.com/mechanical-lich/spaceplant/internal/component"
 	"github.com/mechanical-lich/spaceplant/internal/world"
@@ -93,25 +94,35 @@ func (s *AISystem) UpdateEntity(levelInterface any, entity *ecs.Entity) error {
 						foodPC := closest.GetComponent("Position").(*component.PositionComponent)
 						hc.TargetX = foodPC.GetX()
 						hc.TargetY = foodPC.GetY()
-						from := level.Level.GetTilePtr(pc.GetX(), pc.GetY(), z)
+
+						// Start pathfinding from the footprint tile closest to the target.
+						fromX, fromY := pc.GetX(), pc.GetY()
+						var graph path.Graph = level.Level
+						if entity.HasComponent(rlcomponents.Size) {
+							sc := entity.GetComponent(rlcomponents.Size).(*rlcomponents.SizeComponent)
+							w, h := sc.Width, sc.Height
+							if w > 1 || h > 1 {
+								graph = &rlworld.SizedGraph{Level: level.Level, Width: w, Height: h, Entity: entity}
+								startX := fromX - w/2
+								startY := fromY - h/2
+								fromX = max(startX, min(hc.TargetX, startX+w-1))
+								fromY = max(startY, min(hc.TargetY, startY+h-1))
+							}
+						}
+
+						from := level.Level.GetTilePtr(fromX, fromY, z)
 						to := level.Level.GetTilePtr(hc.TargetX, hc.TargetY, z)
 						if from != nil && to != nil {
-							steps, _, _ := path.Path(level.Level, from.Idx, to.Idx)
+							steps, _, _ := path.Path(graph, from.Idx, to.Idx)
+							hc.Path = append(hc.Path[:0], steps...)
 							if len(steps) > 1 {
-								t := level.Level.GetTilePtrIndex(steps[1])
-								tx, ty, _ := t.Coords()
-								if pc.GetX() < tx {
-									deltaX = 1
-								}
-								if pc.GetX() > tx {
-									deltaX = -1
-								}
-								if pc.GetY() < ty {
-									deltaY = 1
-								}
-								if pc.GetY() > ty {
-									deltaY = -1
-								}
+								// Derive direction from the path itself (always cardinal).
+								s0 := level.Level.GetTilePtrIndex(steps[0])
+								s1 := level.Level.GetTilePtrIndex(steps[1])
+								sx, sy, _ := s0.Coords()
+								nx, ny, _ := s1.Coords()
+								deltaX = nx - sx
+								deltaY = ny - sy
 							}
 						}
 					}
@@ -127,8 +138,9 @@ func (s *AISystem) UpdateEntity(levelInterface any, entity *ecs.Entity) error {
 				}
 
 				if move(entity, level, deltaX, deltaY) {
-					entityHit := level.GetSolidEntityAt(pc.GetX()+deltaX, pc.GetY()+deltaY, z)
-					if entityHit != nil && entityHit != entity {
+					var blockers []*ecs.Entity
+					rlentity.FootprintBlockers(entity, level, pc.GetX()+deltaX, pc.GetY()+deltaY, z, &blockers)
+					for _, entityHit := range blockers {
 						hit(level, entity, entityHit)
 						rlentity.Eat(entity, entityHit)
 					}

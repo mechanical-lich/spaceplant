@@ -53,8 +53,6 @@ func (s *SPClientState) Done() bool { return false }
 func (s *SPClientState) Update(_ *transport.Snapshot) client.ClientState {
 	mlgeevent.GetQueuedInstance().HandleQueue()
 
-	s.gui.Update(s)
-	s.inventoryView.Update()
 	s.tick++
 
 	fps := ebiten.ActualFPS()
@@ -74,6 +72,13 @@ func (s *SPClientState) Update(_ *transport.Snapshot) client.ClientState {
 		return nil
 	}
 
+	// Hold RLock for all sim reads: GUI update, inventory update, sprite
+	// animation, and turn check — all touch entity component maps.
+	s.sim.Mu.RLock()
+
+	s.gui.Update(s)
+	s.inventoryView.Update()
+
 	// Sprite animation (every 20 frames).
 	if s.tick%20 == 0 {
 		for _, entity := range s.sim.Level.Entities {
@@ -84,8 +89,13 @@ func (s *SPClientState) Update(_ *transport.Snapshot) client.ClientState {
 		}
 	}
 
+	// Snapshot turn ownership before releasing the lock.
+	hasTurn := s.sim.Player != nil && s.sim.Player.HasComponent("MyTurn")
+
+	s.sim.Mu.RUnlock()
+
 	// Send movement/action commands only when it is the player's turn.
-	if s.sim.Player != nil && s.sim.Player.HasComponent("MyTurn") {
+	if hasTurn {
 		if s.pressDelay > 0 {
 			s.pressDelay--
 		}

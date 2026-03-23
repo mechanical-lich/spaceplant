@@ -137,6 +137,10 @@
                 "With a final shudder, the abomination falls."
             ]
         },
+        "SizeComponent": {
+            "Width": 2,
+            "Height": 2
+        },
         "AsciiAppearanceComponent": {
             "Character": "A",
             "R": 100,
@@ -144,8 +148,9 @@
             "B": 50
         },
         "AppearanceComponent": {
-            "SpriteX": 128,
+            "SpriteX": 0,
             "SpriteY": 0,
+            "Resource": "large_entities",
             "R": 0,
             "G": 255,
             "B": 0,
@@ -156,7 +161,7 @@
         },
         "SolidComponent": {},
         "HostileAIComponent": {
-            "SightRange": 10
+            "SightRange": 20
         },
         "InitiativeComponent": {
             "Speed": 10,

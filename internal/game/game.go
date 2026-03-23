@@ -32,6 +32,7 @@ func LoadAssets() error {
 	textures := []struct{ key, path string }{
 		{"map", "assets/map32x48.png"},
 		{"entities", "assets/entities 32x48.png"},
+		{"large_entities", "assets/large_entities.png"},
 		{"decorations", "assets/decorations.png"},
 		{"pickups", "assets/pickups.png"},
 		{"fx", "assets/fx.png"},

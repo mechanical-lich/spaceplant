@@ -6,6 +6,7 @@ import (
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
+	"github.com/mechanical-lich/ml-rogue-lib/pkg/rlcomponents"
 	"github.com/mechanical-lich/ml-rogue-lib/pkg/rlfov"
 	"github.com/mechanical-lich/ml-rogue-lib/pkg/rlworld"
 	"github.com/mechanical-lich/mlge/ecs"
@@ -58,7 +59,7 @@ func (l *Level) Render(aX, aY, z, width, height int, blind, centered bool) *ebit
 					tX := float64(screenX * config.SpriteWidth)
 					tY := float64(screenY * config.SpriteHeight)
 					for _, entity := range entBuf {
-						DrawEntity(output, entity, tX, tY)
+						DrawEntity(output, entity, tX, tY, x, y)
 					}
 
 					// Draw fog
@@ -79,6 +80,36 @@ func (l *Level) Render(aX, aY, z, width, height int, blind, centered bool) *ebit
 			screenY++
 		}
 		screenX++
+	}
+
+	// Draw entity paths (debug overlay)
+	if config.DrawEntityPaths {
+		dotW := float64(config.SpriteWidth) / 4
+		dotH := float64(config.SpriteHeight) / 4
+		pathColor := color.RGBA{255, 220, 0, 200}
+		for _, entity := range l.Level.Entities {
+			if !entity.HasComponent(component.HostileAI) {
+				continue
+			}
+			pc := entity.GetComponent(component.Position).(*component.PositionComponent)
+			if pc.GetZ() != z {
+				continue
+			}
+			hc := entity.GetComponent(component.HostileAI).(*component.HostileAIComponent)
+			for _, tileIdx := range hc.Path {
+				tile := l.Level.GetTilePtrIndex(tileIdx)
+				if tile == nil {
+					continue
+				}
+				tx, ty, tz := tile.Coords()
+				if tz != z {
+					continue
+				}
+				sx := float64((tx-left)*config.SpriteWidth) + float64(config.SpriteWidth)/2 - dotW/2
+				sy := float64((ty-up)*config.SpriteHeight) + float64(config.SpriteHeight)/2 - dotH/2
+				ebitenutil.DrawRect(output, sx, sy, dotW, dotH, pathColor)
+			}
+		}
 	}
 
 	return output
@@ -121,7 +152,9 @@ func (l *Level) DrawTile(output *ebiten.Image, t *Tile, screenX, screenY int, se
 }
 
 // DrawEntity draws a single entity at the given screen position.
-func DrawEntity(screen *ebiten.Image, entity *ecs.Entity, x, y float64) {
+// tileWorldX/Y is the world coordinate of the tile being drawn — used to
+// select the correct sub-rect of sized entity sprites.
+func DrawEntity(screen *ebiten.Image, entity *ecs.Entity, screenX, screenY float64, tileWorldX, tileWorldY int) {
 	if entity == nil {
 		return
 	}
@@ -130,16 +163,45 @@ func DrawEntity(screen *ebiten.Image, entity *ecs.Entity, x, y float64) {
 	}
 	ac := entity.GetComponent("AppearanceComponent").(*component.AppearanceComponent)
 
+	// Determine entity size and which sub-tile of the sprite to draw.
+	entityW, entityH := 1, 1
+	subX, subY := 0, 0
+	if entity.HasComponent(rlcomponents.Size) {
+		sc := entity.GetComponent(rlcomponents.Size).(*rlcomponents.SizeComponent)
+		if sc.Width > 0 {
+			entityW = sc.Width
+		}
+		if sc.Height > 0 {
+			entityH = sc.Height
+		}
+		pc := entity.GetComponent(rlcomponents.Position).(*rlcomponents.PositionComponent)
+		startX := pc.GetX() - entityW/2
+		startY := pc.GetY() - entityH/2
+		subX = tileWorldX - startX
+		subY = tileWorldY - startY
+	}
+
+	// Compute source rect on the sprite sheet.
+	// For sized entities each animation frame spans entityW*SpriteWidth pixels.
+	frameX := ac.SpriteX + (entityW * config.SpriteWidth * ac.CurrentFrame)
+	srcX := frameX + subX*config.SpriteWidth
+	srcY := ac.SpriteY + subY*config.SpriteHeight
+	srcRect := image.Rect(srcX, srcY, srcX+config.SpriteWidth, srcY+config.SpriteHeight)
+
 	op := &ebiten.DrawImageOptions{}
 
-	// Dead transformation
+	// Dead transformation — flip the Y sub-tile index so the whole sprite
+	// appears upside-down as a unit rather than each tile flipping in place.
 	if entity.HasComponent("Dead") {
+		subY = (entityH - 1) - subY
+		srcY = ac.SpriteY + subY*config.SpriteHeight
+		srcRect = image.Rect(srcX, srcY, srcX+config.SpriteWidth, srcY+config.SpriteHeight)
 		op.GeoM.Scale(1, -1)
 		op.GeoM.Translate(0, float64(config.SpriteHeight))
 	}
 
 	// Position
-	op.GeoM.Translate(x, y)
+	op.GeoM.Translate(screenX, screenY)
 	// Color
 	if config.ColorShading {
 		op.ColorM.ScaleWithColor(color.RGBA{ac.R, ac.G, ac.B, 255})
@@ -149,19 +211,21 @@ func DrawEntity(screen *ebiten.Image, entity *ecs.Entity, x, y float64) {
 	if texName == "" {
 		texName = "entities"
 	}
-	screen.DrawImage(resource.Textures[texName].SubImage(image.Rect(ac.GetFrameX(), ac.SpriteY, ac.GetFrameX()+config.SpriteWidth, ac.SpriteY+config.SpriteHeight)).(*ebiten.Image), op)
+	screen.DrawImage(resource.Textures[texName].SubImage(srcRect).(*ebiten.Image), op)
 
-	// Draw FX
+	// Draw FX on the tile where the hit landed.
 	if entity.HasComponent("AttackComponent") {
 		attackC := entity.GetComponent("AttackComponent").(*component.AttackComponent)
-		if attackC.Frame == 3 {
-			entity.RemoveComponent("AttackComponent")
-		} else {
-			xOffset := attackC.SpriteX + (attackC.Frame * config.SpriteWidth)
-			fxOp := &ebiten.DrawImageOptions{}
-			fxOp.GeoM.Translate(x, y)
-			screen.DrawImage(resource.Textures["fx"].SubImage(image.Rect(xOffset, attackC.SpriteY, xOffset+config.SpriteWidth, attackC.SpriteY+config.SpriteHeight)).(*ebiten.Image), fxOp)
-			attackC.Frame++
+		if tileWorldX == attackC.X && tileWorldY == attackC.Y {
+			if attackC.Frame == 3 {
+				entity.RemoveComponent("AttackComponent")
+			} else {
+				xOffset := attackC.SpriteX + (attackC.Frame * config.SpriteWidth)
+				fxOp := &ebiten.DrawImageOptions{}
+				fxOp.GeoM.Translate(screenX, screenY)
+				screen.DrawImage(resource.Textures["fx"].SubImage(image.Rect(xOffset, attackC.SpriteY, xOffset+config.SpriteWidth, attackC.SpriteY+config.SpriteHeight)).(*ebiten.Image), fxOp)
+				attackC.Frame++
+			}
 		}
 	}
 }
