@@ -773,5 +773,39 @@
         "KeyComponent": {
             "KeyID": "blue_keycard"
         }
+    },
+    "door": {
+        "SolidComponent": {},
+        "DoorComponent": {
+            "ClosedSpriteX": 352,
+            "ClosedSpriteY": 0,
+            "OpenedSpriteX": 384,
+            "OpenedSpriteY": 0
+        },
+        "AppearanceComponent": {
+            "SpriteX": 352,
+            "SpriteY": 0,
+            "Resource": "map"
+        },
+        "DescriptionComponent": {
+            "Name": "Door"
+        }
+    },
+    "maintenance_door": {
+        "SolidComponent": {},
+        "DoorComponent": {
+            "ClosedSpriteX": 576,
+            "ClosedSpriteY": 0,
+            "OpenedSpriteX": 576,
+            "OpenedSpriteY": 0
+        },
+        "AppearanceComponent": {
+            "SpriteX": 576,
+            "SpriteY": 0,
+            "Resource": "map"
+        },
+        "DescriptionComponent": {
+            "Name": "Maintenance Door"
+        }
     }
 }
