@@ -6,15 +6,15 @@ import (
 
 // Tile type indices — populated after LoadTileDefinitions.
 var (
-	TypeOpen                  int
-	TypeWall                  int
-	TypeFloor                 int
-	TypeDoor                  int
-	TypeStairsUp              int
-	TypeStairsDown            int
-	TypeMaintenanceTunnelWall int
+	TypeOpen                   int
+	TypeWall                   int
+	TypeFloor                  int
+	TypeDoor                   int
+	TypeStairsUp               int
+	TypeStairsDown             int
+	TypeMaintenanceTunnelWall  int
 	TypeMaintenanceTunnelFloor int
-	TypeMaintenanceTunnelDoor int
+	TypeMaintenanceTunnelDoor  int
 )
 
 func LoadTileDefinitions(path string) error {
@@ -24,11 +24,9 @@ func LoadTileDefinitions(path string) error {
 	TypeOpen = rlworld.TileNameToIndex["open"]
 	TypeWall = rlworld.TileNameToIndex["wall"]
 	TypeFloor = rlworld.TileNameToIndex["floor"]
-	TypeDoor = rlworld.TileNameToIndex["door"]
 	TypeStairsUp = rlworld.TileNameToIndex["stairs_up"]
 	TypeStairsDown = rlworld.TileNameToIndex["stairs_down"]
 	TypeMaintenanceTunnelWall = rlworld.TileNameToIndex["maintenance_tunnel_wall"]
 	TypeMaintenanceTunnelFloor = rlworld.TileNameToIndex["maintenance_tunnel_floor"]
-	TypeMaintenanceTunnelDoor = rlworld.TileNameToIndex["maintenance_tunnel_door"]
 	return nil
 }

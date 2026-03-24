@@ -796,7 +796,7 @@
         "DoorComponent": {
             "ClosedSpriteX": 576,
             "ClosedSpriteY": 0,
-            "OpenedSpriteX": 576,
+            "OpenedSpriteX": 608,
             "OpenedSpriteY": 0
         },
         "AppearanceComponent": {

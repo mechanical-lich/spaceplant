@@ -5,7 +5,11 @@
     "air": true,
     "autoTile": 0,
     "variants": [
-      {"variant": 0, "spriteX": 19, "spriteY": 0}
+      {
+        "variant": 0,
+        "spriteX": 20,
+        "spriteY": 0
+      }
     ]
   },
   {
@@ -13,18 +17,66 @@
     "solid": true,
     "autoTile": 0,
     "variants": [
-      {"variant": 0, "spriteX": 0, "spriteY": 0},
-      {"variant": 1, "spriteX": 1, "spriteY": 0},
-      {"variant": 2, "spriteX": 2, "spriteY": 0},
-      {"variant": 3, "spriteX": 3, "spriteY": 0},
-      {"variant": 4, "spriteX": 4, "spriteY": 0},
-      {"variant": 5, "spriteX": 5, "spriteY": 0},
-      {"variant": 6, "spriteX": 6, "spriteY": 0},
-      {"variant": 7, "spriteX": 7, "spriteY": 0},
-      {"variant": 8, "spriteX": 8, "spriteY": 0},
-      {"variant": 9, "spriteX": 9, "spriteY": 0},
-      {"variant": 10, "spriteX": 10, "spriteY": 0},
-      {"variant": 11, "spriteX": 4, "spriteY": 0}
+      {
+        "variant": 0,
+        "spriteX": 0,
+        "spriteY": 0
+      },
+      {
+        "variant": 1,
+        "spriteX": 1,
+        "spriteY": 0
+      },
+      {
+        "variant": 2,
+        "spriteX": 2,
+        "spriteY": 0
+      },
+      {
+        "variant": 3,
+        "spriteX": 3,
+        "spriteY": 0
+      },
+      {
+        "variant": 4,
+        "spriteX": 4,
+        "spriteY": 0
+      },
+      {
+        "variant": 5,
+        "spriteX": 5,
+        "spriteY": 0
+      },
+      {
+        "variant": 6,
+        "spriteX": 6,
+        "spriteY": 0
+      },
+      {
+        "variant": 7,
+        "spriteX": 7,
+        "spriteY": 0
+      },
+      {
+        "variant": 8,
+        "spriteX": 8,
+        "spriteY": 0
+      },
+      {
+        "variant": 9,
+        "spriteX": 9,
+        "spriteY": 0
+      },
+      {
+        "variant": 10,
+        "spriteX": 10,
+        "spriteY": 0
+      },
+      {
+        "variant": 11,
+        "spriteX": 4,
+        "spriteY": 0
+      }
     ]
   },
   {
@@ -32,18 +84,16 @@
     "solid": false,
     "autoTile": 0,
     "variants": [
-      {"variant": 0, "spriteX": 15, "spriteY": 0},
-      {"variant": 1, "spriteX": 16, "spriteY": 0}
-    ]
-  },
-  {
-    "name": "door",
-    "solid": false,
-    "door": true,
-    "autoTile": 0,
-    "variants": [
-      {"variant": 0, "spriteX": 11, "spriteY": 0},
-      {"variant": 1, "spriteX": 12, "spriteY": 0}
+      {
+        "variant": 0,
+        "spriteX": 15,
+        "spriteY": 0
+      },
+      {
+        "variant": 1,
+        "spriteX": 16,
+        "spriteY": 0
+      }
     ]
   },
   {
@@ -52,7 +102,11 @@
     "stairsUp": true,
     "autoTile": 0,
     "variants": [
-      {"variant": 0, "spriteX": 14, "spriteY": 0}
+      {
+        "variant": 0,
+        "spriteX": 14,
+        "spriteY": 0
+      }
     ]
   },
   {
@@ -61,7 +115,11 @@
     "stairsDown": true,
     "autoTile": 0,
     "variants": [
-      {"variant": 0, "spriteX": 13, "spriteY": 0}
+      {
+        "variant": 0,
+        "spriteX": 13,
+        "spriteY": 0
+      }
     ]
   },
   {
@@ -69,8 +127,16 @@
     "solid": true,
     "autoTile": 0,
     "variants": [
-      {"variant": 0, "spriteX": 17, "spriteY": 0},
-      {"variant": 1, "spriteX": 15, "spriteY": 0}
+      {
+        "variant": 0,
+        "spriteX": 17,
+        "spriteY": 0
+      },
+      {
+        "variant": 1,
+        "spriteX": 15,
+        "spriteY": 0
+      }
     ]
   },
   {
@@ -78,16 +144,11 @@
     "solid": false,
     "autoTile": 0,
     "variants": [
-      {"variant": 0, "spriteX": 16, "spriteY": 0}
-    ]
-  },
-  {
-    "name": "maintenance_tunnel_door",
-    "solid": false,
-    "door": true,
-    "autoTile": 0,
-    "variants": [
-      {"variant": 0, "spriteX": 18, "spriteY": 0}
+      {
+        "variant": 0,
+        "spriteX": 16,
+        "spriteY": 0
+      }
     ]
   }
 ]

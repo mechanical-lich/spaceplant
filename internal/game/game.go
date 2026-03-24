@@ -29,19 +29,5 @@ func LoadDataHeadless() error {
 
 // LoadAssets loads all image textures into the resource cache.
 func LoadAssets() error {
-	textures := []struct{ key, path string }{
-		{"map", "assets/map32x48.png"},
-		{"entities", "assets/entities 32x48.png"},
-		{"large_entities", "assets/large_entities.png"},
-		{"decorations", "assets/decorations.png"},
-		{"pickups", "assets/pickups.png"},
-		{"fx", "assets/fx.png"},
-		{"inventory", "assets/inventory.png"},
-	}
-	for _, t := range textures {
-		if err := resource.LoadImageAsTexture(t.key, t.path); err != nil {
-			return err
-		}
-	}
-	return nil
+	return resource.LoadAssetsFromJSON("data/assets.json")
 }
