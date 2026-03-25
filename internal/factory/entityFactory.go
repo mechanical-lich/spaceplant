@@ -17,8 +17,8 @@ func init() {
 }
 
 // FactoryLoad loads blueprints using the JSON factory only.
-func FactoryLoad(filename string) error {
-	return jsonFactory.LoadBlueprintsFromFile(filename)
+func FactoryLoad(folderName string) error {
+	return jsonFactory.LoadBlueprintsFromDir(folderName)
 }
 
 func Create(name string, x int, y int) (*ecs.Entity, error) {

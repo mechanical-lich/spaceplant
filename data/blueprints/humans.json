@@ -1,0 +1,188 @@
+{
+    "player": {
+        "PlayerComponent": {},
+        "MyTurnComponent": {},
+        "DescriptionComponent": {
+            "Name": "Player",
+            "Faction": "crew"
+        },
+        "InventoryComponent": {
+            "StartingInventory": [
+                "laser_trimmers",
+                "helmet",
+                "laser_trimmers",
+                "health",
+                "health",
+                "laser_trimmers2",
+                "helmet2"
+            ]
+        },
+        "HealthComponent": {
+            "MaxHealth": 100
+        },
+        "AsciiAppearanceComponent": {
+            "Character": "@",
+            "R": 0,
+            "G": 0,
+            "B": 255
+        },
+        "AppearanceComponent": {
+            "SpriteX": 0,
+            "SpriteY": 0,
+            "R": 255,
+            "G": 255,
+            "B": 255,
+            "Frames": 1
+        },
+        "LightComponent": {
+            "Radius": 10,
+            "Brightness": 10,
+            "R": 0,
+            "G": 0,
+            "B": 125
+        },
+        "SolidComponent": {},
+        "FoodComponent": {
+            "Amount": 3
+        },
+        "InitiativeComponent": {
+            "Speed": 10,
+            "Ticks": 1
+        },
+        "StatsComponent": {
+            "Str": 15,
+            "Dex": 12,
+            "Con": 15,
+            "Int": 10,
+            "Wis": 10,
+            "Damage": "1d4"
+        }
+    },
+    "crewmember": {
+        "DescriptionComponent": {
+            "Name": "Crewmen",
+            "Faction": "crew",
+            "PassOverDescription": [
+                "You step over the body of a crewmember.",
+                "A fallen crewmember lies here."
+            ],
+            "DeathAnnouncements": [
+                "A crewman has fallen!",
+                "No! A crewmember is dead.",
+                "One of the crew didn't make it."
+            ],
+            "ExcuseMeAnnouncements": [
+                "Excuse me!",
+                "Watch it!",
+                "Coming through!",
+                "Move it, move it!",
+                "Pardon me."
+            ]
+        },
+        "AppearanceComponent": {
+            "SpriteX": 64,
+            "SpriteY": 0,
+            "R": 200,
+            "G": 200,
+            "B": 125,
+            "Frames": 1
+        },
+        "AsciiAppearanceComponent": {
+            "Character": "C",
+            "R": 0,
+            "G": 100,
+            "B": 255
+        },
+        "HealthComponent": {
+            "MaxHealth": 10
+        },
+        "SolidComponent": {},
+        "FoodComponent": {
+            "Amount": 3
+        },
+        "WanderAIComponent": {},
+        "DefensiveAIComponent": {},
+        "InitiativeComponent": {
+            "Speed": 10,
+            "Ticks": 1
+        },
+        "LightComponent": {
+            "Radius": 10,
+            "Brightness": 10,
+            "R": 0,
+            "G": 0,
+            "B": 125
+        },
+        "StatsComponent": {
+            "Str": 10,
+            "Dex": 10,
+            "Con": 10,
+            "Int": 10,
+            "Wis": 10,
+            "Damage": "1d4"
+        }
+    },
+    "officer": {
+        "DescriptionComponent": {
+            "Name": "Officer",
+            "Faction": "crew",
+            "PassOverDescription": [
+                "You step over the officer's body.",
+                "The fallen officer lies here."
+            ],
+            "DeathAnnouncements": [
+                "An officer is down!",
+                "The officer has been killed.",
+                "Officer down! The plants got them."
+            ],
+            "ExcuseMeAnnouncements": [
+                "Out of the way, soldier!",
+                "Make a hole!",
+                "Excuse me, coming through.",
+                "Mind yourself!"
+            ]
+        },
+        "AsciiAppearanceComponent": {
+            "Character": "O",
+            "R": 200,
+            "G": 200,
+            "B": 100
+        },
+        "AppearanceComponent": {
+            "SpriteX": 32,
+            "SpriteY": 0,
+            "R": 200,
+            "G": 200,
+            "B": 125,
+            "Frames": 1
+        },
+        "HealthComponent": {
+            "MaxHealth": 10
+        },
+        "SolidComponent": {},
+        "FoodComponent": {
+            "Amount": 3
+        },
+        "WanderAIComponent": {},
+        "DefensiveAIComponent": {},
+        "InitiativeComponent": {
+            "Speed": 10,
+            "Ticks": 1
+        },
+        "LightComponent": {
+            "Radius": 10,
+            "Brightness": 10,
+            "R": 0,
+            "G": 0,
+            "B": 125
+        },
+        "StatsComponent": {
+            "Str": 10,
+            "Dex": 10,
+            "Con": 10,
+            "Int": 10,
+            "Wis": 10,
+            "Damage": "1d4"
+        }
+    }
+}

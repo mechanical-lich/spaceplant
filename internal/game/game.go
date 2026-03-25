@@ -9,7 +9,7 @@ import (
 // LoadData loads blueprints, tile definitions, and image assets from disk.
 // Call once at startup before creating the simulation world.
 func LoadData() error {
-	if err := factory.FactoryLoad("data/entity_blueprints.json"); err != nil {
+	if err := factory.FactoryLoad("data/blueprints"); err != nil {
 		return err
 	}
 	if err := world.LoadTileDefinitions("data/tile_definitions.json"); err != nil {
@@ -21,7 +21,7 @@ func LoadData() error {
 // LoadDataHeadless loads blueprints and tile definitions without image assets.
 // Use this for terminal or headless entry points that have no Ebiten window.
 func LoadDataHeadless() error {
-	if err := factory.FactoryLoad("data/entity_blueprints.json"); err != nil {
+	if err := factory.FactoryLoad("data/blueprints"); err != nil {
 		return err
 	}
 	return world.LoadTileDefinitions("data/tile_definitions.json")

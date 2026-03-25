@@ -1,0 +1,95 @@
+{
+    "terminal": {
+        "DescriptionComponent": {
+            "Name": "Terminal",
+            "Faction": "crew",
+            "ID": "terminal_default"
+        },
+        "AsciiAppearanceComponent": {
+            "Character": "T",
+            "R": 0,
+            "G": 200,
+            "B": 200
+        },
+        "AppearanceComponent": {
+            "SpriteX": 384,
+            "SpriteY": 0,
+            "R": 0,
+            "G": 200,
+            "B": 200,
+            "Frames": 1
+        },
+        "SolidComponent": {},
+        "InanimateComponent": {},
+        "InteractionComponent": {
+            "Prompt": "The terminal flickers to life.",
+            "Repeatable": false,
+            "Triggers": [
+                {
+                    "Type": "post_message",
+                    "Params": {
+                        "sender": "Terminal",
+                        "message": "AIRLOCK OVERRIDE ACCEPTED. Door unlocked."
+                    }
+                },
+                {
+                    "Type": "unlock_door",
+                    "Params": {
+                        "target_id": "airlock_door"
+                    }
+                }
+            ]
+        }
+    },
+    "light": {
+        "LightComponent": {
+            "Radius": 10,
+            "Brightness": 10,
+            "R": 0,
+            "G": 0,
+            "B": 125
+        },
+        "StatsComponent": {
+            "Str": 10,
+            "Dex": 10,
+            "Con": 10,
+            "Int": 10,
+            "Wis": 10,
+            "Damage": "1d4"
+        }
+    },
+    "door": {
+        "SolidComponent": {},
+        "DoorComponent": {
+            "ClosedSpriteX": 352,
+            "ClosedSpriteY": 0,
+            "OpenedSpriteX": 384,
+            "OpenedSpriteY": 0
+        },
+        "AppearanceComponent": {
+            "SpriteX": 352,
+            "SpriteY": 0,
+            "Resource": "map"
+        },
+        "DescriptionComponent": {
+            "Name": "Door"
+        }
+    },
+    "maintenance_door": {
+        "SolidComponent": {},
+        "DoorComponent": {
+            "ClosedSpriteX": 576,
+            "ClosedSpriteY": 0,
+            "OpenedSpriteX": 608,
+            "OpenedSpriteY": 0
+        },
+        "AppearanceComponent": {
+            "SpriteX": 576,
+            "SpriteY": 0,
+            "Resource": "map"
+        },
+        "DescriptionComponent": {
+            "Name": "Maintenance Door"
+        }
+    }
+}

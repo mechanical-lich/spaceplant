@@ -1,0 +1,295 @@
+{
+    "creeper": {
+        "DescriptionComponent": {
+            "Name": "Creeper",
+            "Faction": "plantz",
+            "PassOverDescription": [
+                "You step over the remains of a creeper.",
+                "A tangle of dead vines lies underfoot."
+            ],
+            "DeathAnnouncements": [
+                "The creeper shrivels and goes limp.",
+                "A creeper collapses in a heap of vines.",
+                "The creeper lets out a wet hiss as it dies."
+            ]
+        },
+        "AsciiAppearanceComponent": {
+            "Character": "c",
+            "R": 80,
+            "G": 200,
+            "B": 50
+        },
+        "AppearanceComponent": {
+            "SpriteX": 96,
+            "SpriteY": 0,
+            "R": 0,
+            "G": 255,
+            "B": 0,
+            "Frames": 1
+        },
+        "HealthComponent": {
+            "MaxHealth": 10
+        },
+        "SolidComponent": {},
+        "HostileAIComponent": {
+            "SightRange": 10
+        },
+        "InitiativeComponent": {
+            "Speed": 10,
+            "Ticks": 1
+        },
+        "StatsComponent": {
+            "Str": 12,
+            "Dex": 12,
+            "Con": 10,
+            "Int": 10,
+            "Wis": 10,
+            "Damage": "1d4"
+        }
+    },
+    "abomination": {
+        "DescriptionComponent": {
+            "Name": "Abomination",
+            "Faction": "plantz",
+            "PassOverDescription": [
+                "You step over the fallen abomination.",
+                "The abomination's bulk is hard to step around."
+            ],
+            "DeathAnnouncements": [
+                "The abomination lets out a horrible shriek before going still.",
+                "The abomination's mass of plant matter collapses to the floor.",
+                "With a final shudder, the abomination falls."
+            ]
+        },
+        "SizeComponent": {
+            "Width": 2,
+            "Height": 2
+        },
+        "AsciiAppearanceComponent": {
+            "Character": "A",
+            "R": 100,
+            "G": 255,
+            "B": 50
+        },
+        "AppearanceComponent": {
+            "SpriteX": 0,
+            "SpriteY": 0,
+            "Resource": "large_entities",
+            "R": 0,
+            "G": 255,
+            "B": 0,
+            "Frames": 1
+        },
+        "HealthComponent": {
+            "MaxHealth": 10
+        },
+        "SolidComponent": {},
+        "HostileAIComponent": {
+            "SightRange": 20
+        },
+        "InitiativeComponent": {
+            "Speed": 10,
+            "Ticks": 1
+        },
+        "StatsComponent": {
+            "Str": 15,
+            "Dex": 15,
+            "Con": 10,
+            "Int": 10,
+            "Wis": 10,
+            "Damage": "1d4"
+        }
+    },
+    "viner": {
+        "DescriptionComponent": {
+            "Name": "Viner",
+            "Faction": "plantz",
+            "PassOverDescription": [
+                "You step over a dead viner.",
+                "Dead vines crunch underfoot."
+            ],
+            "DeathAnnouncements": [
+                "The viner's tendrils go limp.",
+                "A viner writhes once and dies.",
+                "The viner's vines retract as it expires."
+            ]
+        },
+        "AsciiAppearanceComponent": {
+            "Character": "v",
+            "R": 60,
+            "G": 180,
+            "B": 50
+        },
+        "AppearanceComponent": {
+            "SpriteX": 160,
+            "SpriteY": 0,
+            "R": 0,
+            "G": 255,
+            "B": 0,
+            "Frames": 1
+        },
+        "HealthComponent": {
+            "MaxHealth": 10
+        },
+        "SolidComponent": {},
+        "HostileAIComponent": {
+            "SightRange": 10
+        },
+        "InitiativeComponent": {
+            "Speed": 10,
+            "Ticks": 1
+        },
+        "StatsComponent": {
+            "Str": 14,
+            "Dex": 10,
+            "Con": 14,
+            "Int": 10,
+            "Wis": 10,
+            "Damage": "1d4"
+        }
+    },
+    "scythe": {
+        "DescriptionComponent": {
+            "Name": "Scythe",
+            "Faction": "plantz",
+            "PassOverDescription": [
+                "You step carefully over the scythe's blades.",
+                "The dead scythe's limbs are still sharp — you step over carefully."
+            ],
+            "DeathAnnouncements": [
+                "The scythe creature falls, its bladed limbs clattering on the floor.",
+                "A scythe topples over with a crash.",
+                "The scythe's blades scrape the deck as it collapses."
+            ]
+        },
+        "AsciiAppearanceComponent": {
+            "Character": "S",
+            "R": 150,
+            "G": 220,
+            "B": 50
+        },
+        "AppearanceComponent": {
+            "SpriteX": 192,
+            "SpriteY": 0,
+            "R": 0,
+            "G": 255,
+            "B": 0,
+            "Frames": 1
+        },
+        "HealthComponent": {
+            "MaxHealth": 10
+        },
+        "SolidComponent": {},
+        "HostileAIComponent": {
+            "SightRange": 10
+        },
+        "InitiativeComponent": {
+            "Speed": 10,
+            "Ticks": 1
+        },
+        "StatsComponent": {
+            "Str": 12,
+            "Dex": 13,
+            "Con": 10,
+            "Int": 10,
+            "Wis": 10,
+            "Damage": "1d4"
+        }
+    },
+    "scrambler": {
+        "DescriptionComponent": {
+            "Name": "Scrambler",
+            "Faction": "plantz",
+            "PassOverDescription": [
+                "You step over the scrambler's remains.",
+                "The dead scrambler lies in a twitching heap."
+            ],
+            "DeathAnnouncements": [
+                "The scrambler stops moving abruptly.",
+                "A scrambler twitches violently, then goes still.",
+                "The scrambler skitters and collapses."
+            ]
+        },
+        "AsciiAppearanceComponent": {
+            "Character": "s",
+            "R": 80,
+            "G": 200,
+            "B": 80
+        },
+        "AppearanceComponent": {
+            "SpriteX": 224,
+            "SpriteY": 0,
+            "R": 0,
+            "G": 255,
+            "B": 0,
+            "Frames": 1
+        },
+        "HealthComponent": {
+            "MaxHealth": 10
+        },
+        "SolidComponent": {},
+        "HostileAIComponent": {
+            "SightRange": 10
+        },
+        "InitiativeComponent": {
+            "Speed": 7,
+            "Ticks": 1
+        },
+        "StatsComponent": {
+            "Str": 10,
+            "Dex": 12,
+            "Con": 10,
+            "Int": 10,
+            "Wis": 10,
+            "Damage": "1d4"
+        }
+    },
+    "spitter": {
+        "DescriptionComponent": {
+            "Name": "Spitter",
+            "Faction": "plantz",
+            "PassOverDescription": [
+                "You step over the spitter's deflated husk.",
+                "The spitter's burst sacs squelch underfoot."
+            ],
+            "DeathAnnouncements": [
+                "The spitter's sacs burst as it dies.",
+                "A spitter deflates with a sickening pop.",
+                "The spitter convulses and goes still."
+            ]
+        },
+        "AsciiAppearanceComponent": {
+            "Character": "*",
+            "R": 100,
+            "G": 220,
+            "B": 50
+        },
+        "AppearanceComponent": {
+            "SpriteX": 256,
+            "SpriteY": 0,
+            "R": 0,
+            "G": 255,
+            "B": 0,
+            "Frames": 1
+        },
+        "HealthComponent": {
+            "MaxHealth": 10
+        },
+        "SolidComponent": {},
+        "HostileAIComponent": {
+            "SightRange": 10
+        },
+        "InitiativeComponent": {
+            "Speed": 10,
+            "Ticks": 1
+        },
+        "StatsComponent": {
+            "Str": 10,
+            "Dex": 10,
+            "Con": 10,
+            "Int": 10,
+            "Wis": 10,
+            "Damage": "1d4"
+        }
+    }
+}
