@@ -54,7 +54,7 @@ func (l *Level) Render(aX, aY, z, width, height int, blind, centered bool) *ebit
 					seen = rlfov.Los(l.Level, aX, aY, x, y, z)
 				}
 
-				l.DrawTile(output, tile, screenX, screenY, seen, z)
+				l.DrawTile(output, tile, screenX, screenY, seen, z, cfg.SpriteSizeW, cfg.SpriteSizeH, cfg.ColorShading)
 
 				if seen {
 					// Draw entities on this tile
@@ -63,7 +63,7 @@ func (l *Level) Render(aX, aY, z, width, height int, blind, centered bool) *ebit
 					tX := float64(screenX) * sw
 					tY := float64(screenY) * sh
 					for _, entity := range entBuf {
-						DrawEntity(output, entity, tX, tY, x, y)
+						DrawEntity(output, entity, tX, tY, x, y, cfg.SpriteSizeW, cfg.SpriteSizeH, cfg.ColorShading)
 					}
 
 					// Draw fog
@@ -120,10 +120,9 @@ func (l *Level) Render(aX, aY, z, width, height int, blind, centered bool) *ebit
 }
 
 // DrawTile draws a single tile to the output image.
-func (l *Level) DrawTile(output *ebiten.Image, t *Tile, screenX, screenY int, seen bool, z int) {
-	cfg := config.Global()
-	sw := float64(cfg.SpriteSizeW)
-	sh := float64(cfg.SpriteSizeH)
+func (l *Level) DrawTile(output *ebiten.Image, t *Tile, screenX, screenY int, seen bool, z, spW, spH int, colorShading bool) {
+	sw := float64(spW)
+	sh := float64(spH)
 	tX := float64(screenX) * sw
 	tY := float64(screenY) * sh
 	fgColor := l.Theme.TileForgroundColor(t.Type)
@@ -135,14 +134,14 @@ func (l *Level) DrawTile(output *ebiten.Image, t *Tile, screenX, screenY int, se
 	// Draw foreground sprite
 	op := &ebiten.DrawImageOptions{}
 	op.GeoM.Translate(tX, tY)
-	if cfg.ColorShading {
+	if colorShading {
 		op.ColorM.ScaleWithColor(fgColor)
 	}
 
 	// Resolve sprite coordinates from tile definition
 	variant := l.Level.ResolveVariant(t)
-	sX := variant.SpriteX * cfg.SpriteSizeW
-	output.DrawImage(resource.Textures["map"].SubImage(image.Rect(sX, variant.SpriteY, sX+cfg.SpriteSizeW, variant.SpriteY+cfg.SpriteSizeH)).(*ebiten.Image), op)
+	sX := variant.SpriteX * spW
+	output.DrawImage(resource.Textures["map"].SubImage(image.Rect(sX, variant.SpriteY, sX+spW, variant.SpriteY+spH)).(*ebiten.Image), op)
 
 	tx, ty, _ := t.Coords()
 	tileSeen := l.GetSeen(tx, ty, z)
@@ -161,7 +160,7 @@ func (l *Level) DrawTile(output *ebiten.Image, t *Tile, screenX, screenY int, se
 // DrawEntity draws a single entity at the given screen position.
 // tileWorldX/Y is the world coordinate of the tile being drawn — used to
 // select the correct sub-rect of sized entity sprites.
-func DrawEntity(screen *ebiten.Image, entity *ecs.Entity, screenX, screenY float64, tileWorldX, tileWorldY int) {
+func DrawEntity(screen *ebiten.Image, entity *ecs.Entity, screenX, screenY float64, tileWorldX, tileWorldY, spW, spH int, colorShading bool) {
 	if entity == nil {
 		return
 	}
@@ -190,8 +189,7 @@ func DrawEntity(screen *ebiten.Image, entity *ecs.Entity, screenX, screenY float
 
 	// Compute source rect on the sprite sheet.
 	// For sized entities each animation frame spans entityW*SpriteWidth pixels.
-	cfg := config.Global()
-	sw, sh := cfg.SpriteSizeW, cfg.SpriteSizeH
+	sw, sh := spW, spH
 	frameX := ac.SpriteX + (entityW * sw * ac.CurrentFrame)
 	srcX := frameX + subX*sw
 	srcY := ac.SpriteY + subY*sh
@@ -212,7 +210,7 @@ func DrawEntity(screen *ebiten.Image, entity *ecs.Entity, screenX, screenY float
 	// Position
 	op.GeoM.Translate(screenX, screenY)
 	// Color
-	if cfg.ColorShading {
+	if colorShading {
 		op.ColorM.ScaleWithColor(color.RGBA{ac.R, ac.G, ac.B, 255})
 	}
 
