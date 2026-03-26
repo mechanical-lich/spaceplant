@@ -11,6 +11,7 @@ import (
 	"github.com/mechanical-lich/mlge/ecs"
 	"github.com/mechanical-lich/mlge/message"
 	"github.com/mechanical-lich/spaceplant/internal/component"
+	"github.com/mechanical-lich/spaceplant/internal/entityhelpers"
 	"github.com/mechanical-lich/spaceplant/internal/eventsystem"
 	"github.com/mechanical-lich/spaceplant/internal/world"
 )
@@ -84,7 +85,7 @@ func (s *PlayerSystem) UpdateEntity(levelInterface any, entity *ecs.Entity) erro
 					}
 					item := v.GetComponent(component.Item).(*component.ItemComponent)
 					if item.Effect == "heal" {
-						healBodyParts(entity, item.Value)
+						entityhelpers.HealBodyParts(entity, item.Value)
 						removeFn(v)
 						used = true
 						message.AddMessage(fmt.Sprint("You used a health pack (", item.Value, " HP spread across damaged parts)"))
@@ -166,7 +167,7 @@ func (s *PlayerSystem) UpdateEntity(levelInterface any, entity *ecs.Entity) erro
 
 			}
 
-			if move(entity, l, deltaX, deltaY) {
+			if entityhelpers.Move(entity, l, deltaX, deltaY) {
 				// Prefer non-door entities (e.g. monsters) over doors so that
 				// bumping into a monster standing in a doorway attacks rather
 				// than toggling the door.
@@ -196,9 +197,9 @@ func (s *PlayerSystem) UpdateEntity(levelInterface any, entity *ecs.Entity) erro
 						toggleDoor(entity, entityHit)
 					} else if rlcombat.IsFriendly(entity, entityHit) {
 						rlentity.CheckExcuseMe(entityHit)
-						hit(l, entity, entityHit)
+						entityhelpers.Hit(l, entity, entityHit)
 					} else {
-						hit(l, entity, entityHit)
+						entityhelpers.Hit(l, entity, entityHit)
 					}
 				}
 			} else if deltaX != 0 || deltaY != 0 {

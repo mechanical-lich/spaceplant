@@ -10,6 +10,7 @@ import (
 	"github.com/mechanical-lich/ml-rogue-lib/pkg/rlworld"
 	"github.com/mechanical-lich/mlge/ecs"
 	"github.com/mechanical-lich/spaceplant/internal/component"
+	"github.com/mechanical-lich/spaceplant/internal/entityhelpers"
 	"github.com/mechanical-lich/spaceplant/internal/world"
 )
 
@@ -54,7 +55,7 @@ func (s *AISystem) UpdateEntity(levelInterface any, entity *ecs.Entity) error {
 				if deltaX == 0 {
 					deltaY = getRandom(-1, 2)
 				}
-				move(entity, level, deltaX, deltaY)
+				entityhelpers.Move(entity, level, deltaX, deltaY)
 				rlentity.Face(entity, deltaX, deltaY)
 			}
 
@@ -137,11 +138,11 @@ func (s *AISystem) UpdateEntity(levelInterface any, entity *ecs.Entity) error {
 					}
 				}
 
-				if move(entity, level, deltaX, deltaY) {
+				if entityhelpers.Move(entity, level, deltaX, deltaY) {
 					var blockers []*ecs.Entity
 					rlentity.FootprintBlockers(entity, level, pc.GetX()+deltaX, pc.GetY()+deltaY, z, &blockers)
 					for _, entityHit := range blockers {
-						hit(level, entity, entityHit)
+						entityhelpers.Hit(level, entity, entityHit)
 						rlentity.Eat(entity, entityHit)
 					}
 				}
@@ -159,7 +160,7 @@ func (s *AISystem) UpdateEntity(levelInterface any, entity *ecs.Entity) error {
 					if entityHit == nil {
 						aic.Attacked = false
 					} else {
-						hit(level, entity, entityHit)
+						entityhelpers.Hit(level, entity, entityHit)
 					}
 
 					deltaX := 0

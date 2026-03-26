@@ -12,6 +12,7 @@ import (
 	"github.com/mechanical-lich/mlge/resource"
 	mlge_text "github.com/mechanical-lich/mlge/text"
 	"github.com/mechanical-lich/spaceplant/internal/component"
+	"github.com/mechanical-lich/spaceplant/internal/entityhelpers"
 	"github.com/mechanical-lich/spaceplant/internal/eventsystem"
 )
 
@@ -57,39 +58,6 @@ func playerRemoveItem(player *ecs.Entity, item *ecs.Entity) {
 	}
 	if player.HasComponent(component.Inventory) {
 		player.GetComponent(component.Inventory).(*component.InventoryComponent).RemoveItem(item)
-	}
-}
-
-func healBodyParts(entity *ecs.Entity, amount int) {
-	if !entity.HasComponent(component.Body) {
-		return
-	}
-	bc := entity.GetComponent(component.Body).(*component.BodyComponent)
-	var damaged []string
-	for name, part := range bc.Parts {
-		if !part.Amputated && part.HP < part.MaxHP {
-			damaged = append(damaged, name)
-		}
-	}
-	if len(damaged) == 0 {
-		return
-	}
-	perPart := amount / len(damaged)
-	remainder := amount % len(damaged)
-	for i, name := range damaged {
-		part := bc.Parts[name]
-		heal := perPart
-		if i < remainder {
-			heal++
-		}
-		part.HP += heal
-		if part.HP > part.MaxHP {
-			part.HP = part.MaxHP
-		}
-		if part.HP > 0 && part.Broken {
-			part.Broken = false
-		}
-		bc.Parts[name] = part
 	}
 }
 
@@ -158,7 +126,7 @@ func (view *InventoryView) Update() {
 					if inpututil.IsMouseButtonJustPressed(ebiten.MouseButtonLeft) {
 						item := v.GetComponent("Item").(*component.ItemComponent)
 						if item.Effect == "heal" {
-							healBodyParts(view.player, item.Value)
+							entityhelpers.HealBodyParts(view.player, item.Value)
 							playerRemoveItem(view.player, v)
 						} else if item.Slot != component.BagSlot {
 							playerEquipItem(view.player, v)
