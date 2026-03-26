@@ -2,6 +2,7 @@ package game
 
 import (
 	"fmt"
+	"math"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/inpututil"
@@ -88,7 +89,7 @@ func (s *SPClientState) Update(_ *transport.Snapshot) client.ClientState {
 					Type:    CmdAction,
 					Payload: ActionPayload{Key: k.String()},
 				})
-				s.pressDelay = config.PressDelay
+				s.pressDelay = config.Global().PressDelay
 			}
 		}
 	}
@@ -98,20 +99,31 @@ func (s *SPClientState) Update(_ *transport.Snapshot) client.ClientState {
 
 // Draw renders the level viewport and HUD.
 func (s *SPClientState) Draw(screen *ebiten.Image) {
+	cfg := config.Global()
+	// Snap to nearest integer so every source pixel maps to the same
+	// number of screen pixels — non-integer scales make pixel art wiggle.
+	scale := math.Round(cfg.RenderScale)
+	if scale < 1 {
+		scale = 1
+	}
+
 	s.sim.Mu.RLock()
 	if s.sim.Player != nil {
 		pc := s.sim.Player.GetComponent("Position").(*component.PositionComponent)
 		s.CameraX = pc.GetX()
 		s.CameraY = pc.GetY()
 	}
+	tilesW := int(math.Ceil(float64(cfg.WorldWidth) / (float64(cfg.SpriteSizeW) * scale)))
+	tilesH := int(math.Ceil(float64(cfg.WorldHeight) / (float64(cfg.SpriteSizeH) * scale)))
 	levelImage := s.sim.Level.Render(
 		s.CameraX, s.CameraY, s.sim.CurrentZ,
-		config.GameWidth/config.SpriteWidth, config.GameHeight/config.SpriteHeight,
+		tilesW, tilesH,
 		false, true,
 	)
 	s.sim.Mu.RUnlock()
 
 	op := &ebiten.DrawImageOptions{}
+	op.GeoM.Scale(scale, scale)
 	screen.DrawImage(levelImage, op)
 
 	s.gui.Draw(screen, s)

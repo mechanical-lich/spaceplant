@@ -43,10 +43,11 @@ func main() {
 	go server.Run()
 
 	clientState := game.NewSPClientState(sim, cliT)
+	cfg := config.Global()
 	c := client.NewClient(cliT, codec, clientState, sim, func() []*ecs.Entity { return sim.Level.Entities }, client.ClientConfig{
-		ScreenWidth:  config.ScreenWidth,
-		ScreenHeight: config.ScreenHeight,
-		WindowTitle:  "Space Plant!",
+		ScreenWidth:  cfg.ScreenWidth,
+		ScreenHeight: cfg.ScreenHeight,
+		WindowTitle:  cfg.Title,
 	})
 
 	if err := c.Run(); err != nil {

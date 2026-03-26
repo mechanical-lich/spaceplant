@@ -1,0 +1,20 @@
+{
+    "spriteSizeW": 32,
+    "spriteSizeH": 48,
+    "worldWidth": 832,
+    "worldHeight": 816,
+    "screenWidth": 1200,
+    "screenHeight": 816,
+    "title": "Space Plant!",
+    "blueprintPath": "data/blueprints",
+    "lighting": true,
+    "colorShading": false,
+    "los": true,
+    "pressDelay": 10,
+    "updateDelay": 0,
+    "showMouseCoords": false,
+    "renderScale": 1,
+    "renderPathfindingSteps": false,
+    "profileCPU": false,
+    "profileMemory": false
+}

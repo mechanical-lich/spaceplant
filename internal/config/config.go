@@ -1,28 +1,58 @@
 package config
 
-const (
-	ScreenWidth  = 1348
-	ScreenHeight = 832
-
-	GameWidth  = 1024
-	GameHeight = 832
-
-	ShowMouseCoords = false
-	DrawEntityPaths = false
+import (
+	"encoding/json"
+	"log"
+	"os"
 )
 
-const (
-	// Render width/height
-	TileWidth  = 32
-	TileHeight = 48
+// Config holds all configuration settings for spaceplant.
+type Config struct {
+	SpriteSizeW            int    `json:"spriteSizeW"`            // Sprite width on the sprite sheet
+	SpriteSizeH            int    `json:"spriteSizeH"`            // Sprite height on the sprite sheet
+	WorldWidth             int    `json:"worldWidth"`             // Draw width for the world portion of the screen
+	WorldHeight            int    `json:"worldHeight"`            // Draw height for the world portion of the screen
+	ScreenWidth            int    `json:"screenWidth"`            // Total window width
+	ScreenHeight           int    `json:"screenHeight"`           // Total window height
+	Title                  string `json:"title"`                  // Window title
+	BlueprintPath          string `json:"blueprintPath"`          // Path to blueprint directory
+	Lighting               bool   `json:"lighting"`               // Whether to render fog-of-war lighting
+	ColorShading           bool   `json:"colorShading"`           // Whether to apply colour shading to sprites
+	Los                    bool   `json:"los"`                    // Whether to apply line-of-sight culling
+	PressDelay             int    `json:"pressDelay"`             // Key-repeat delay in ticks
+	UpdateDelay            int    `json:"updateDelay"`            // Extra tick delay between updates
+	ShowMouseCoords        bool   `json:"showMouseCoords"`        // Overlay cursor coordinates
+	RenderScale            float64 `json:"renderScale"`            // Viewport zoom: 1.0 = 1:1, 2.0 = each tile twice as large
+	RenderPathfindingSteps bool    `json:"renderPathfindingSteps"` // Debug: draw AI pathfinding dots
+	ProfileCPU             bool    `json:"profileCPU"`             // Whether to profile CPU usage
+	ProfileMemory          bool    `json:"profileMemory"`          // Whether to profile memory usage
+}
 
-	// Sprite size on the sprite sheet
-	SpriteWidth  = 32
-	SpriteHeight = 48
+// LoadConfig reads and unmarshals a JSON config file.
+func LoadConfig(filePath string) (*Config, error) {
+	data, err := os.ReadFile(filePath)
+	if err != nil {
+		log.Fatalf("Failed to read config file: %v", err)
+		return nil, err
+	}
+	var cfg Config
+	if err = json.Unmarshal(data, &cfg); err != nil {
+		log.Fatalf("Failed to parse config file: %v", err)
+		return nil, err
+	}
+	return &cfg, nil
+}
 
-	Lighting     = true
-	ColorShading = false
-	Los          = true
-	PressDelay   = 10
-	UpdateDelay  = 0
-)
+var settings *Config
+
+// Global returns the singleton config, loading it from data/config.json on first call.
+func Global() *Config {
+	if settings == nil {
+		var err error
+		settings, err = LoadConfig("data/config.json")
+		if err != nil {
+			log.Fatalf("Failed to load config: %v", err)
+		}
+	}
+	return settings
+}

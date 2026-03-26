@@ -29,7 +29,7 @@ func (q *queuedMessageListener) HandleEvent(evt mlgeevent.EventData) error {
 			if pc.GetZ() != e.Z {
 				return nil
 			}
-			if config.Los && !rlfov.Los(q.level.Level, pc.GetX(), pc.GetY(), e.X, e.Y, e.Z) {
+			if config.Global().Los && !rlfov.Los(q.level.Level, pc.GetX(), pc.GetY(), e.X, e.Y, e.Z) {
 				return nil
 			}
 		}

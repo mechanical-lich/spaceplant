@@ -19,12 +19,7 @@ import (
 	"github.com/mechanical-lich/spaceplant/internal/ui"
 )
 
-const (
-	msgPanelX = config.GameWidth + 4
-	msgPanelW = config.ScreenWidth - config.GameWidth - 8
-	msgPanelH = 250
-	msgPanelY = config.ScreenHeight - msgPanelH - 4
-)
+const msgPanelH = 250
 
 // Main gui
 type GUIViewMain struct {
@@ -38,8 +33,12 @@ func (g *GUIViewMain) initMsgArea() {
 	if g.msgArea != nil {
 		return
 	}
-	g.msgArea = minui.NewScrollingTextArea("msglog", msgPanelW, msgPanelH)
-	g.msgArea.SetPosition(msgPanelX, msgPanelY)
+	cfg := config.Global()
+	panelX := cfg.WorldWidth + 4
+	panelW := cfg.ScreenWidth - cfg.WorldWidth - 8
+	panelY := cfg.ScreenHeight - msgPanelH - 4
+	g.msgArea = minui.NewScrollingTextArea("msglog", panelW, msgPanelH)
+	g.msgArea.SetPosition(panelX, panelY)
 	g.msgArea.LineHeight = 15
 }
 
@@ -61,7 +60,7 @@ func (g *GUIViewMain) Draw(screen *ebiten.Image, s any) {
 	// Draw Minimap
 	if g.minimap != nil {
 		op := &ebiten.DrawImageOptions{}
-		op.GeoM.Translate(config.GameWidth+5, 16)
+		op.GeoM.Translate(float64(config.Global().WorldWidth)+5, 16)
 		screen.DrawImage(g.minimap, op)
 	}
 
@@ -103,7 +102,7 @@ func (g *GUIViewMain) Draw(screen *ebiten.Image, s any) {
 					col = color.RGBA{255, 0, 0, 255}
 				}
 			}
-			mlge_text.Draw(screen, label, 14, config.GameWidth+4, y, col)
+			mlge_text.Draw(screen, label, 14, config.Global().WorldWidth+4, y, col)
 			y += 16
 		}
 	}
@@ -111,7 +110,7 @@ func (g *GUIViewMain) Draw(screen *ebiten.Image, s any) {
 	g.initMsgArea()
 	g.msgArea.Draw(screen)
 
-	if config.ShowMouseCoords {
+	if config.Global().ShowMouseCoords {
 		cX, cY := ebiten.CursorPosition()
 		mlge_text.Draw(screen, strconv.Itoa(cX)+","+strconv.Itoa(cY), 16, cX, cY, color.RGBA{255, 0, 0, 255})
 	}
@@ -132,18 +131,19 @@ func (cs *SPClientState) GetMinimap(sX, sY, width, height, imageWidth, imageHeig
 			op := &ebiten.DrawImageOptions{}
 			op.GeoM.Translate(tX, tY)
 
+			sw, sh := config.Global().SpriteSizeW, config.Global().SpriteSizeH
 			if tile == nil {
-				sX := 19 * config.SpriteWidth
-				worldImage.DrawImage(resource.Textures["map"].SubImage(image.Rect(sX, 0, sX+config.SpriteWidth, config.SpriteHeight)).(*ebiten.Image), op)
+				sX := 19 * sw
+				worldImage.DrawImage(resource.Textures["map"].SubImage(image.Rect(sX, 0, sX+sw, sh)).(*ebiten.Image), op)
 				continue
 			}
 			variant := cs.sim.Level.Level.ResolveVariant(tile)
-			spriteX := variant.SpriteX * config.SpriteWidth
+			spriteX := variant.SpriteX * sw
 			tx, ty, tz := tile.Coords()
 			if !cs.sim.Level.GetSeen(tx, ty, tz) {
-				spriteX = 19 * config.SpriteWidth
+				spriteX = 19 * sw
 			}
-			worldImage.DrawImage(resource.Textures["map"].SubImage(image.Rect(spriteX, variant.SpriteY, spriteX+config.SpriteWidth, variant.SpriteY+config.SpriteHeight)).(*ebiten.Image), op)
+			worldImage.DrawImage(resource.Textures["map"].SubImage(image.Rect(spriteX, variant.SpriteY, spriteX+sw, variant.SpriteY+sh)).(*ebiten.Image), op)
 		}
 	}
 

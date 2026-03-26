@@ -20,7 +20,7 @@ func (pc AppearanceComponent) GetType() ecs.ComponentType {
 }
 
 func (pc AppearanceComponent) GetFrameX() int {
-	return pc.SpriteX + (config.TileWidth * pc.CurrentFrame)
+	return pc.SpriteX + (config.Global().SpriteSizeW * pc.CurrentFrame)
 }
 
 func (pc *AppearanceComponent) Update() {
