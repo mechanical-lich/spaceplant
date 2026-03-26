@@ -31,8 +31,8 @@ github.com/jfreymuth/vorbis v1.0.2 h1:m1xH6+ZI4thH927pgKD8JOH4eaGRm18rEE9/0WKjvN
 github.com/jfreymuth/vorbis v1.0.2/go.mod h1:DoftRo4AznKnShRl1GxiTFCseHr4zR9BN3TWXyuzrqQ=
 github.com/lucasb-eyer/go-colorful v1.3.0 h1:2/yBRLdWBZKrf7gB40FoiKfAWYQ0lqNcbuQwVHXptag=
 github.com/lucasb-eyer/go-colorful v1.3.0/go.mod h1:R4dSotOR9KMtayYi1e77YzuveK+i7ruzyGqttikkLy0=
-github.com/mechanical-lich/ml-rogue-lib v1.7.0 h1:YqoAq9bKbyggXgVPtTqH69d3jlNq2TZGqqYCPlcEl3E=
-github.com/mechanical-lich/ml-rogue-lib v1.7.0/go.mod h1:UPOB+FMPGH4tSCrCBdMtjhsdKxfDa9NNcgIEeq28jdQ=
+github.com/mechanical-lich/ml-rogue-lib v1.7.1 h1:QiO9zyWqWfR/EUsVsZc4fw/8Oh2Nq/cQU68WTTr/dPo=
+github.com/mechanical-lich/ml-rogue-lib v1.7.1/go.mod h1:UPOB+FMPGH4tSCrCBdMtjhsdKxfDa9NNcgIEeq28jdQ=
 github.com/mechanical-lich/mlge v1.4.0 h1:W53F/hgdXvXhS3PfI3soR57ckLMqxh8geo1cBn0uZ7M=
 github.com/mechanical-lich/mlge v1.4.0/go.mod h1:01gKi6utmjTe+yuQia0LV7CNu/cLAuQS+19Ee2rze4g=
 github.com/pierrec/lz4/v4 v4.1.21 h1:yOVMLb6qSIDP67pl/5F7RepeKYu/VmTyEXvuMI5d9mQ=

@@ -1,7 +1,8 @@
 package entityhelpers
 
 import (
-	v2 "github.com/mechanical-lich/ml-rogue-lib/pkg/rlcombat/v2"
+	"github.com/mechanical-lich/ml-rogue-lib/pkg/rlcombat/rlbodycombat"
+
 	"github.com/mechanical-lich/ml-rogue-lib/pkg/rlcomponents"
 	"github.com/mechanical-lich/ml-rogue-lib/pkg/rlentity"
 	"github.com/mechanical-lich/mlge/ecs"
@@ -45,7 +46,7 @@ func HealBodyParts(entity *ecs.Entity, amount int) {
 // Hit performs a melee attack using rlcombat.Hit, then adds the AttackComponent visual.
 // The FX is placed on the target's footprint tile closest to the attacker.
 func Hit(l *world.Level, entity *ecs.Entity, entityHit *ecs.Entity) {
-	if v2.Hit(l.Level, entity, entityHit, true) {
+	if rlbodycombat.Hit(l.Level, entity, entityHit, true) {
 		if entityHit != entity && !entityHit.HasComponent(component.Dead) {
 			hitX, hitY := HitTile(entity, entityHit)
 			entityHit.AddComponent(&component.AttackComponent{SpriteX: 0, SpriteY: 0, X: hitX, Y: hitY})
