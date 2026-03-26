@@ -1,9 +1,9 @@
 package system
 
 import (
-	"github.com/mechanical-lich/ml-rogue-lib/pkg/rlcombat"
 	"github.com/mechanical-lich/ml-rogue-lib/pkg/rlcomponents"
 	"github.com/mechanical-lich/ml-rogue-lib/pkg/rlentity"
+	v2 "github.com/mechanical-lich/ml-rogue-lib/pkg/rlcombat/v2"
 	"github.com/mechanical-lich/mlge/ecs"
 	"github.com/mechanical-lich/spaceplant/internal/component"
 	"github.com/mechanical-lich/spaceplant/internal/world"
@@ -12,7 +12,7 @@ import (
 // hit performs a melee attack using rlcombat.Hit, then adds the AttackComponent visual.
 // The FX is placed on the target's footprint tile closest to the attacker.
 func hit(l *world.Level, entity *ecs.Entity, entityHit *ecs.Entity) {
-	if rlcombat.Hit(l.Level, entity, entityHit, true) {
+	if v2.Hit(l.Level, entity, entityHit, true) {
 		if entityHit != entity && !entityHit.HasComponent(component.Dead) {
 			hitX, hitY := hitTile(entity, entityHit)
 			entityHit.AddComponent(&component.AttackComponent{SpriteX: 0, SpriteY: 0, X: hitX, Y: hitY})
@@ -38,6 +38,40 @@ func hitTile(attacker, target *ecs.Entity) (int, int) {
 	startY := tpc.GetY() - th/2
 	return max(startX, min(apc.GetX(), startX+tw-1)),
 		max(startY, min(apc.GetY(), startY+th-1))
+}
+
+// healBodyParts distributes amount HP equally across all damaged, non-amputated body parts.
+func healBodyParts(entity *ecs.Entity, amount int) {
+	if !entity.HasComponent(component.Body) {
+		return
+	}
+	bc := entity.GetComponent(component.Body).(*component.BodyComponent)
+	var damaged []string
+	for name, part := range bc.Parts {
+		if !part.Amputated && part.HP < part.MaxHP {
+			damaged = append(damaged, name)
+		}
+	}
+	if len(damaged) == 0 {
+		return
+	}
+	perPart := amount / len(damaged)
+	remainder := amount % len(damaged)
+	for i, name := range damaged {
+		part := bc.Parts[name]
+		heal := perPart
+		if i < remainder {
+			heal++
+		}
+		part.HP += heal
+		if part.HP > part.MaxHP {
+			part.HP = part.MaxHP
+		}
+		if part.HP > 0 && part.Broken {
+			part.Broken = false
+		}
+		bc.Parts[name] = part
+	}
 }
 
 // move attempts to move an entity using rlentity.Move, with MassiveComponent handling.

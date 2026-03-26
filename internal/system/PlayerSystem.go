@@ -66,23 +66,33 @@ func (s *PlayerSystem) UpdateEntity(levelInterface any, entity *ecs.Entity) erro
 					message.AddMessage("Shoot in the " + direction + " direction!")
 				}
 			case "H":
-				if entity.HasComponent("Inventory") {
-					inventory := entity.GetComponent("Inventory").(*component.InventoryComponent)
-					used := false
-					for _, v := range inventory.Bag {
-						item := v.GetComponent("Item").(*component.ItemComponent)
-						if item.Effect == "heal" {
-							entity.GetComponent("Health").(*component.HealthComponent).Health += item.Value
-							inventory.RemoveItem(v)
-							used = true
-
-							message.AddMessage(fmt.Sprint("You healed yourself for ", item.Value))
-							break
-						}
+				used := false
+				var bag []*ecs.Entity
+				var removeFn func(*ecs.Entity) bool
+				if entity.HasComponent(component.BodyInventory) {
+					inv := entity.GetComponent(component.BodyInventory).(*component.BodyInventoryComponent)
+					bag = inv.Bag
+					removeFn = inv.RemoveItem
+				} else if entity.HasComponent(component.Inventory) {
+					inv := entity.GetComponent(component.Inventory).(*component.InventoryComponent)
+					bag = inv.Bag
+					removeFn = inv.RemoveItem
+				}
+				for _, v := range bag {
+					if !v.HasComponent(component.Item) {
+						continue
 					}
-					if !used {
-						message.AddMessage("You do not have any healing items")
+					item := v.GetComponent(component.Item).(*component.ItemComponent)
+					if item.Effect == "heal" {
+						healBodyParts(entity, item.Value)
+						removeFn(v)
+						used = true
+						message.AddMessage(fmt.Sprint("You used a health pack (", item.Value, " HP spread across damaged parts)"))
+						break
 					}
+				}
+				if !used {
+					message.AddMessage("You do not have any healing items")
 				}
 			case "Period": // Stairs
 				tile := l.Level.GetTilePtr(pc.GetX(), pc.GetY(), z)
@@ -97,33 +107,57 @@ func (s *PlayerSystem) UpdateEntity(levelInterface any, entity *ecs.Entity) erro
 				}
 
 			case "E":
-				if entity.HasComponent("Inventory") {
-					inventory := entity.GetComponent("Inventory").(*component.InventoryComponent)
-					used := false
-					for _, v := range inventory.Bag {
-						item := v.GetComponent("Item").(*component.ItemComponent)
-						if item.Slot != "bag" {
-							// TODO MEH...
-							inventory.Equip(v)
+				used := false
+				if entity.HasComponent(component.BodyInventory) && entity.HasComponent(component.Body) {
+					inv := entity.GetComponent(component.BodyInventory).(*component.BodyInventoryComponent)
+					bc := entity.GetComponent(component.Body).(*component.BodyComponent)
+					for _, v := range inv.Bag {
+						if !v.HasComponent(component.Item) {
+							continue
+						}
+						item := v.GetComponent(component.Item).(*component.ItemComponent)
+						if item.Slot != component.BagSlot {
+							inv.AutoEquip(v, bc)
 							used = true
-
-							message.AddMessage(fmt.Sprint("You equipped an item ", v.GetComponent("Description").(*component.DescriptionComponent).Name))
+							message.AddMessage(fmt.Sprint("You equipped ", v.GetComponent(component.Description).(*component.DescriptionComponent).Name))
 							break
 						}
 					}
-					if !used {
-						message.AddMessage("You do not have anything to equip")
+				} else if entity.HasComponent(component.Inventory) {
+					inv := entity.GetComponent(component.Inventory).(*component.InventoryComponent)
+					for _, v := range inv.Bag {
+						if !v.HasComponent(component.Item) {
+							continue
+						}
+						item := v.GetComponent(component.Item).(*component.ItemComponent)
+						if item.Slot != component.BagSlot {
+							inv.Equip(v)
+							used = true
+							message.AddMessage(fmt.Sprint("You equipped ", v.GetComponent(component.Description).(*component.DescriptionComponent).Name))
+							break
+						}
 					}
 				}
+				if !used {
+					message.AddMessage("You do not have anything to equip")
+				}
 			case "P": // Pickup
-				if entity.HasComponent("Inventory") {
-					inventory := entity.GetComponent("Inventory").(*component.InventoryComponent)
-					pc := entity.GetComponent("Position").(*component.PositionComponent)
-					var entities []*ecs.Entity
-					l.GetEntitiesAt(pc.GetX(), pc.GetY(), z, &entities)
+				var entities []*ecs.Entity
+				l.GetEntitiesAt(pc.GetX(), pc.GetY(), z, &entities)
+				if entity.HasComponent(component.BodyInventory) {
+					inv := entity.GetComponent(component.BodyInventory).(*component.BodyInventoryComponent)
 					for _, v := range entities {
-						if v.HasComponent("Item") {
-							inventory.AddItem(v)
+						if v.HasComponent(component.Item) {
+							inv.AddItem(v)
+							l.RemoveEntity(v)
+							break
+						}
+					}
+				} else if entity.HasComponent(component.Inventory) {
+					inv := entity.GetComponent(component.Inventory).(*component.InventoryComponent)
+					for _, v := range entities {
+						if v.HasComponent(component.Item) {
+							inv.AddItem(v)
 							l.RemoveEntity(v)
 							break
 						}

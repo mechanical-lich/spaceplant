@@ -3,6 +3,7 @@ package game
 import (
 	"fmt"
 	"image/color"
+	"slices"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
@@ -37,6 +38,104 @@ func NewInventoryView(player *ecs.Entity) *InventoryView {
 	return view
 }
 
+// --- inventory helpers that work with either BodyInventoryComponent or InventoryComponent ---
+
+func playerBag(player *ecs.Entity) []*ecs.Entity {
+	if player.HasComponent(component.BodyInventory) {
+		return player.GetComponent(component.BodyInventory).(*component.BodyInventoryComponent).Bag
+	}
+	if player.HasComponent(component.Inventory) {
+		return player.GetComponent(component.Inventory).(*component.InventoryComponent).Bag
+	}
+	return nil
+}
+
+func playerRemoveItem(player *ecs.Entity, item *ecs.Entity) {
+	if player.HasComponent(component.BodyInventory) {
+		player.GetComponent(component.BodyInventory).(*component.BodyInventoryComponent).RemoveItem(item)
+		return
+	}
+	if player.HasComponent(component.Inventory) {
+		player.GetComponent(component.Inventory).(*component.InventoryComponent).RemoveItem(item)
+	}
+}
+
+func healBodyParts(entity *ecs.Entity, amount int) {
+	if !entity.HasComponent(component.Body) {
+		return
+	}
+	bc := entity.GetComponent(component.Body).(*component.BodyComponent)
+	var damaged []string
+	for name, part := range bc.Parts {
+		if !part.Amputated && part.HP < part.MaxHP {
+			damaged = append(damaged, name)
+		}
+	}
+	if len(damaged) == 0 {
+		return
+	}
+	perPart := amount / len(damaged)
+	remainder := amount % len(damaged)
+	for i, name := range damaged {
+		part := bc.Parts[name]
+		heal := perPart
+		if i < remainder {
+			heal++
+		}
+		part.HP += heal
+		if part.HP > part.MaxHP {
+			part.HP = part.MaxHP
+		}
+		if part.HP > 0 && part.Broken {
+			part.Broken = false
+		}
+		bc.Parts[name] = part
+	}
+}
+
+func playerEquipItem(player *ecs.Entity, item *ecs.Entity) {
+	if player.HasComponent(component.BodyInventory) && player.HasComponent(component.Body) {
+		inv := player.GetComponent(component.BodyInventory).(*component.BodyInventoryComponent)
+		bc := player.GetComponent(component.Body).(*component.BodyComponent)
+		inv.AutoEquip(item, bc)
+		return
+	}
+	if player.HasComponent(component.Inventory) {
+		player.GetComponent(component.Inventory).(*component.InventoryComponent).Equip(item)
+	}
+}
+
+// playerEquipped returns a slot→item map regardless of inventory type.
+func playerEquipped(player *ecs.Entity) map[string]*ecs.Entity {
+	if player.HasComponent(component.BodyInventory) {
+		return player.GetComponent(component.BodyInventory).(*component.BodyInventoryComponent).Equipped
+	}
+	if player.HasComponent(component.Inventory) {
+		inv := player.GetComponent(component.Inventory).(*component.InventoryComponent)
+		m := map[string]*ecs.Entity{}
+		if inv.Head != nil {
+			m["Head"] = inv.Head
+		}
+		if inv.Torso != nil {
+			m["Torso"] = inv.Torso
+		}
+		if inv.Legs != nil {
+			m["Legs"] = inv.Legs
+		}
+		if inv.Feet != nil {
+			m["Feet"] = inv.Feet
+		}
+		if inv.RightHand != nil {
+			m["R Hand"] = inv.RightHand
+		}
+		if inv.LeftHand != nil {
+			m["L Hand"] = inv.LeftHand
+		}
+		return m
+	}
+	return nil
+}
+
 func (view *InventoryView) Update() {
 	if view.player != nil && view.Visible {
 		cX, cY := ebiten.CursorPosition()
@@ -45,10 +144,9 @@ func (view *InventoryView) Update() {
 			inventoryX := view.X + 4.0
 			inventoryY := view.Y + 48.0
 			itemHeight := 16
-			// Populate buttons for inventory/check for clicks
-			inventory := view.player.GetComponent("Inventory").(*component.InventoryComponent)
+			bag := playerBag(view.player)
 			view.inventoryButtons = []Button{}
-			for i, v := range inventory.Bag {
+			for i, v := range bag {
 				d := v.GetComponent("Description").(*component.DescriptionComponent)
 				b := Button{inventoryX, inventoryY + float64(15+(i*itemHeight)), 100, float64(itemHeight), d.Name}
 				view.inventoryButtons = append(view.inventoryButtons, b)
@@ -57,20 +155,18 @@ func (view *InventoryView) Update() {
 				view.inventoryButtons = append(view.inventoryButtons, b2)
 
 				if b.Within(cX, cY) {
-					// TODO Temp use code
 					if inpututil.IsMouseButtonJustPressed(ebiten.MouseButtonLeft) {
 						item := v.GetComponent("Item").(*component.ItemComponent)
 						if item.Effect == "heal" {
-							view.player.GetComponent("Health").(*component.HealthComponent).Health += item.Value
-							inventory.RemoveItem(v)
+							healBodyParts(view.player, item.Value)
+							playerRemoveItem(view.player, v)
 						} else if item.Slot != component.BagSlot {
-							inventory.Equip(v)
+							playerEquipItem(view.player, v)
 						}
 					}
 				}
 
 				if b2.Within(cX, cY) {
-					// TODO Temp drop code
 					if inpututil.IsMouseButtonJustPressed(ebiten.MouseButtonLeft) {
 						pc := view.player.GetComponent("Position").(*component.PositionComponent)
 						data := eventsystem.DropItemEventData{
@@ -80,12 +176,11 @@ func (view *InventoryView) Update() {
 							Item: v,
 						}
 						eventsystem.EventManager.SendEvent(data)
-						inventory.RemoveItem(v)
+						playerRemoveItem(view.player, v)
 					}
 				}
 			}
 		}
-
 	}
 }
 
@@ -93,19 +188,15 @@ func (view *InventoryView) Draw(screen *ebiten.Image) {
 	if view.player != nil && view.Visible {
 		cX, cY := ebiten.CursorPosition()
 		if view.tab == 0 {
-			// Dialog background
 			op := &ebiten.DrawImageOptions{}
-			//Position
 			op.GeoM.Translate(view.X, view.Y)
-
 			screen.DrawImage(resource.Textures["inventory"], op)
-			// Inventory
+
 			for _, v := range view.inventoryButtons {
 				m := fmt.Sprintf("* %s", v.Text)
 				if v.Text == "drop" {
 					m = "drop"
 				}
-
 				if v.Within(cX, cY) {
 					ebitenutil.DrawRect(screen, v.X, v.Y, v.Width, v.Height, color.RGBA{0, 50, 50, 200})
 					mlge_text.Draw(screen, m, 16, int(v.X), int(v.Y), color.Black)
@@ -114,13 +205,9 @@ func (view *InventoryView) Draw(screen *ebiten.Image) {
 				}
 			}
 
-			//Divider
 			ebitenutil.DrawRect(screen, view.X+215, view.Y+50, 2, view.Height-100, color.White)
 
-			// Stats
 			stats := view.player.GetComponent("Stats").(*component.StatsComponent)
-			inventoryComponent := view.player.GetComponent("Inventory").(*component.InventoryComponent)
-
 			statX := int(view.X) + 220
 			statY := int(view.Y) + 100
 			DrawStat(screen, statX, statY, "AC", stats.AC)
@@ -129,14 +216,15 @@ func (view *InventoryView) Draw(screen *ebiten.Image) {
 			DrawStat(screen, statX, statY+75, "INT", stats.Int)
 			DrawStat(screen, statX, statY+100, "WIS", stats.Wis)
 
-			// Equipment
-			DrawEquipment(screen, statX, statY+150, "Head", inventoryComponent.Head)
-			DrawEquipment(screen, statX, statY+175, "L Hand", inventoryComponent.LeftHand)
-			DrawEquipment(screen, statX, statY+200, "R Hand", inventoryComponent.RightHand)
-			DrawEquipment(screen, statX, statY+225, "Torso", inventoryComponent.Torso)
-			DrawEquipment(screen, statX, statY+250, "Legs", inventoryComponent.Legs)
-			DrawEquipment(screen, statX, statY+275, "Feet", inventoryComponent.Feet)
-
+			equipped := playerEquipped(view.player)
+			keys := make([]string, 0, len(equipped))
+			for k := range equipped {
+				keys = append(keys, k)
+			}
+			slices.Sort(keys)
+			for i, slot := range keys {
+				DrawEquipment(screen, statX, statY+150+(i*25), slot, equipped[slot])
+			}
 		}
 	}
 }
@@ -162,7 +250,6 @@ func DrawEquipment(screen *ebiten.Image, x, y int, slot string, item *ecs.Entity
 			wc := item.GetComponent("Armor").(*component.ArmorComponent)
 			m = fmt.Sprintf("%s : %s (%d)", slot, dc.Name, wc.DefenseBonus)
 		}
-
 	}
 	mlge_text.Draw(screen, m, 16, x, y, color.White)
 }

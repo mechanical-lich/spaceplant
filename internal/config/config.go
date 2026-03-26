@@ -1,7 +1,7 @@
 package config
 
 const (
-	ScreenWidth  = 1248
+	ScreenWidth  = 1348
 	ScreenHeight = 832
 
 	GameWidth  = 1024

@@ -2,6 +2,7 @@ package game
 
 import (
 	"fmt"
+	"slices"
 
 	"github.com/gdamore/tcell/v2"
 	"github.com/mechanical-lich/ml-rogue-lib/pkg/rltermgui"
@@ -10,40 +11,115 @@ import (
 	"github.com/mechanical-lich/spaceplant/internal/component"
 )
 
-// TermHUD is a static overlay showing HP and the recent message log.
-// It is always visible and never consumes input.
+const termMsgLines = 8 // visible message rows at the bottom
+
+// TermHUD is a static overlay showing body-part health and the recent message log.
+// PgUp/PgDn scroll the message log; all other keys pass through to the game.
 type TermHUD struct {
-	sim *SimWorld
+	sim         *SimWorld
+	msgOffset   int // 0 = newest at bottom; positive = scrolled back in history
 }
 
-func NewTermHUD(sim *SimWorld) *TermHUD        { return &TermHUD{sim: sim} }
-func (h *TermHUD) Visible() bool               { return true }
-func (h *TermHUD) HandleKey(*tcell.EventKey) bool { return false }
+func NewTermHUD(sim *SimWorld) *TermHUD { return &TermHUD{sim: sim} }
+func (h *TermHUD) Visible() bool        { return true }
+
+func (h *TermHUD) HandleKey(ev *tcell.EventKey) bool {
+	switch ev.Key() {
+	case tcell.KeyPgUp:
+		h.msgOffset += termMsgLines
+		return true
+	case tcell.KeyPgDn:
+		h.msgOffset -= termMsgLines
+		if h.msgOffset < 0 {
+			h.msgOffset = 0
+		}
+		return true
+	}
+	return false
+}
 
 func (h *TermHUD) Draw(s tcell.Screen) {
 	w, rows := s.Size()
 
-	// HP and Z layer — top-right corner.
-	if h.sim.Player != nil && h.sim.Player.HasComponent("Health") {
-		hc := h.sim.Player.GetComponent("Health").(*component.HealthComponent)
-		hp := fmt.Sprintf(" HP:%d/%d Z:%d ", hc.Health, hc.MaxHealth, h.sim.CurrentZ)
-		rltermgui.DrawText(s, w-len(hp), 0, hp,
-			tcell.StyleDefault.Foreground(tcell.ColorGreen).Background(tcell.ColorBlack))
+	// Body part health — stacked in top-right corner.
+	if h.sim.Player != nil && h.sim.Player.HasComponent(component.Body) {
+		bc := h.sim.Player.GetComponent(component.Body).(*component.BodyComponent)
+		keys := make([]string, 0, len(bc.Parts))
+		for k := range bc.Parts {
+			keys = append(keys, k)
+		}
+		slices.Sort(keys)
+		for i, name := range keys {
+			part := bc.Parts[name]
+			var text string
+			var fg tcell.Color
+			if part.Amputated {
+				text = fmt.Sprintf(" %s:amp ", name)
+				fg = tcell.ColorGray
+			} else {
+				pct := 0
+				if part.MaxHP > 0 {
+					pct = part.HP * 100 / part.MaxHP
+					if pct < 0 {
+						pct = 0
+					}
+				}
+				text = fmt.Sprintf(" %s:%d%% ", name, pct)
+				switch {
+				case pct >= 50:
+					fg = tcell.ColorGreen
+				case pct >= 25:
+					fg = tcell.ColorYellow
+				default:
+					fg = tcell.ColorRed
+				}
+			}
+			rltermgui.DrawText(s, w-len(text), i, text,
+				tcell.StyleDefault.Foreground(fg).Background(tcell.ColorBlack))
+		}
 	}
 
-	// Last 5 messages — bottom of screen.
-	const maxMsgs = 5
+	// Message log — bottom termMsgLines rows, scrollable with PgUp/PgDn.
 	msgs := message.MessageLog
-	start := len(msgs) - maxMsgs
-	if start < 0 {
-		start = 0
+	total := len(msgs)
+
+	// Clamp offset so we never scroll past the oldest message.
+	maxOffset := total - termMsgLines
+	if maxOffset < 0 {
+		maxOffset = 0
 	}
+	if h.msgOffset > maxOffset {
+		h.msgOffset = maxOffset
+	}
+
+	// The window end is "offset from the newest": offset 0 means the last
+	// termMsgLines messages; offset N means N messages further back.
+	endIdx := total - h.msgOffset
+	startIdx := endIdx - termMsgLines
+	if startIdx < 0 {
+		startIdx = 0
+	}
+
 	msgStyle := tcell.StyleDefault.Foreground(tcell.ColorYellow).Background(tcell.ColorBlack)
-	for i, msg := range msgs[start:] {
-		if len(msg) > w {
-			msg = msg[:w]
+	dimStyle := tcell.StyleDefault.Foreground(tcell.ColorGray).Background(tcell.ColorBlack)
+
+	for i, msg := range msgs[startIdx:endIdx] {
+		if len([]rune(msg)) > w {
+			msg = string([]rune(msg)[:w])
 		}
-		rltermgui.DrawText(s, 0, rows-maxMsgs+i, msg, msgStyle)
+		rltermgui.DrawText(s, 0, rows-termMsgLines+i, msg, msgStyle)
+	}
+
+	// Scroll hint when there are messages above or below the current window.
+	hint := ""
+	if h.msgOffset > 0 {
+		hint += "↓PgDn "
+	}
+	if h.msgOffset < maxOffset {
+		hint += "↑PgUp"
+	}
+	if hint != "" {
+		rltermgui.DrawText(s, 0, rows-termMsgLines-1, hint, dimStyle)
 	}
 }
 
@@ -85,21 +161,26 @@ func (v *TermInventoryView) Draw(s tcell.Screen) {
 	selected := tcell.StyleDefault.Foreground(tcell.ColorBlack).Background(tcell.ColorYellow)
 	dim := v.ContentStyle.Foreground(tcell.ColorGray)
 
-	if v.sim.Player == nil || !v.sim.Player.HasComponent("Inventory") {
+	bag := playerBag(v.sim.Player)
+	equipped := playerEquipped(v.sim.Player)
+
+	if bag == nil && equipped == nil {
 		rltermgui.DrawText(s, ix, iy, "No inventory.", dim)
 		rltermgui.DrawText(s, ix, iy+ih-1, "[Esc] close", dim)
 		return
 	}
-	inv := v.sim.Player.GetComponent("Inventory").(*component.InventoryComponent)
+	if bag == nil {
+		bag = nil // keep nil safe for range below
+	}
 
 	colW := iw / 2
 
 	// Left column: bag.
 	rltermgui.DrawText(s, ix, iy, "── Bag ──", dim)
-	if len(inv.Bag) == 0 {
+	if len(bag) == 0 {
 		rltermgui.DrawText(s, ix, iy+1, "  (empty)", dim)
 	} else {
-		for i, item := range inv.Bag {
+		for i, item := range bag {
 			if i >= ih-3 {
 				break
 			}
@@ -108,7 +189,6 @@ func (v *TermInventoryView) Draw(s tcell.Screen) {
 			style := normal
 			if i == v.cursor {
 				style = selected
-				// Pad so the highlight fills the column width.
 				for len([]rune(line)) < colW {
 					line += " "
 				}
@@ -120,23 +200,20 @@ func (v *TermInventoryView) Draw(s tcell.Screen) {
 		}
 	}
 
-	// Right column: equipped slots.
+	// Right column: equipped slots (sorted by part name).
 	rx := ix + colW + 1
 	rltermgui.DrawText(s, rx, iy, "── Equipped ──", dim)
-	slots := [6][2]string{
-		{"Head   ", equippedName(inv.Head)},
-		{"R.Hand ", equippedName(inv.RightHand)},
-		{"L.Hand ", equippedName(inv.LeftHand)},
-		{"Torso  ", equippedName(inv.Torso)},
-		{"Legs   ", equippedName(inv.Legs)},
-		{"Feet   ", equippedName(inv.Feet)},
+	eqKeys := make([]string, 0, len(equipped))
+	for k := range equipped {
+		eqKeys = append(eqKeys, k)
 	}
+	slices.Sort(eqKeys)
 	maxRight := iw - colW - 1
-	for i, sl := range slots {
+	for i, slot := range eqKeys {
 		if i >= ih-3 {
 			break
 		}
-		line := " " + sl[0] + sl[1]
+		line := fmt.Sprintf(" %-10s %s", slot, equippedName(equipped[slot]))
 		if len([]rune(line)) > maxRight {
 			line = string([]rune(line)[:maxRight])
 		}
@@ -155,19 +232,12 @@ func (v *TermInventoryView) HandleKey(ev *tcell.EventKey) bool {
 			v.cursor--
 		}
 	case tcell.KeyDown:
-		inv := v.inventoryOrNil()
-		if inv != nil && v.cursor < len(inv.Bag)-1 {
+		bag := playerBag(v.sim.Player)
+		if v.cursor < len(bag)-1 {
 			v.cursor++
 		}
 	}
 	return true // consume all input while open
-}
-
-func (v *TermInventoryView) inventoryOrNil() *component.InventoryComponent {
-	if v.sim.Player == nil || !v.sim.Player.HasComponent("Inventory") {
-		return nil
-	}
-	return v.sim.Player.GetComponent("Inventory").(*component.InventoryComponent)
 }
 
 func itemName(e *ecs.Entity) string {

@@ -6,7 +6,7 @@
             "Name": "Player",
             "Faction": "crew"
         },
-        "InventoryComponent": {
+        "BodyInventoryComponent": {
             "StartingInventory": [
                 "laser_trimmers",
                 "helmet",
@@ -17,8 +17,47 @@
                 "helmet2"
             ]
         },
-        "HealthComponent": {
-            "MaxHealth": 100
+        "BodyComponent": {
+            "Parts": {
+                "head": {
+                    "Name": "head",
+                    "HP": 30,
+                    "MaxHP": 30,
+                    "KillsWhenBroken": true,
+                    "CompatibleItemSlots": ["head"]
+                },
+                "torso": {
+                    "Name": "torso",
+                    "HP": 50,
+                    "MaxHP": 50,
+                    "KillsWhenBroken": true,
+                    "CompatibleItemSlots": ["torso"]
+                },
+                "right_arm": {
+                    "Name": "right_arm",
+                    "HP": 25,
+                    "MaxHP": 25,
+                    "CompatibleItemSlots": ["hand"]
+                },
+                "left_arm": {
+                    "Name": "left_arm",
+                    "HP": 25,
+                    "MaxHP": 25,
+                    "CompatibleItemSlots": ["hand"]
+                },
+                "legs": {
+                    "Name": "legs",
+                    "HP": 30,
+                    "MaxHP": 30,
+                    "CompatibleItemSlots": ["legs"]
+                },
+                "feet": {
+                    "Name": "feet",
+                    "HP": 20,
+                    "MaxHP": 20,
+                    "CompatibleItemSlots": ["feet"]
+                }
+            }
         },
         "AsciiAppearanceComponent": {
             "Character": "@",
@@ -93,8 +132,47 @@
             "G": 100,
             "B": 255
         },
-        "HealthComponent": {
-            "MaxHealth": 10
+        "BodyComponent": {
+            "Parts": {
+                "head": {
+                    "Name": "head",
+                    "HP": 3,
+                    "MaxHP": 3,
+                    "KillsWhenBroken": true,
+                    "CompatibleItemSlots": ["head"]
+                },
+                "torso": {
+                    "Name": "torso",
+                    "HP": 5,
+                    "MaxHP": 5,
+                    "KillsWhenBroken": true,
+                    "CompatibleItemSlots": ["torso"]
+                },
+                "right_arm": {
+                    "Name": "right_arm",
+                    "HP": 3,
+                    "MaxHP": 3,
+                    "CompatibleItemSlots": ["hand"]
+                },
+                "left_arm": {
+                    "Name": "left_arm",
+                    "HP": 3,
+                    "MaxHP": 3,
+                    "CompatibleItemSlots": ["hand"]
+                },
+                "legs": {
+                    "Name": "legs",
+                    "HP": 3,
+                    "MaxHP": 3,
+                    "CompatibleItemSlots": ["legs"]
+                },
+                "feet": {
+                    "Name": "feet",
+                    "HP": 2,
+                    "MaxHP": 2,
+                    "CompatibleItemSlots": ["feet"]
+                }
+            }
         },
         "SolidComponent": {},
         "FoodComponent": {
@@ -156,8 +234,47 @@
             "B": 125,
             "Frames": 1
         },
-        "HealthComponent": {
-            "MaxHealth": 10
+        "BodyComponent": {
+            "Parts": {
+                "head": {
+                    "Name": "head",
+                    "HP": 3,
+                    "MaxHP": 3,
+                    "KillsWhenBroken": true,
+                    "CompatibleItemSlots": ["head"]
+                },
+                "torso": {
+                    "Name": "torso",
+                    "HP": 5,
+                    "MaxHP": 5,
+                    "KillsWhenBroken": true,
+                    "CompatibleItemSlots": ["torso"]
+                },
+                "right_arm": {
+                    "Name": "right_arm",
+                    "HP": 3,
+                    "MaxHP": 3,
+                    "CompatibleItemSlots": ["hand"]
+                },
+                "left_arm": {
+                    "Name": "left_arm",
+                    "HP": 3,
+                    "MaxHP": 3,
+                    "CompatibleItemSlots": ["hand"]
+                },
+                "legs": {
+                    "Name": "legs",
+                    "HP": 3,
+                    "MaxHP": 3,
+                    "CompatibleItemSlots": ["legs"]
+                },
+                "feet": {
+                    "Name": "feet",
+                    "HP": 2,
+                    "MaxHP": 2,
+                    "CompatibleItemSlots": ["feet"]
+                }
+            }
         },
         "SolidComponent": {},
         "FoodComponent": {

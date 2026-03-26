@@ -7,29 +7,30 @@ import (
 
 // Re-export rlcomponents type constants for use throughout the codebase.
 const (
-	Position    = rlcomponents.Position
-	Health      = rlcomponents.Health
-	Stats       = rlcomponents.Stats
-	Initiative  = rlcomponents.Initiative
-	MyTurn      = rlcomponents.MyTurn
-	Dead        = rlcomponents.Dead
-	Description = rlcomponents.Description
-	Solid       = rlcomponents.Solid
-	Inanimate   = rlcomponents.Inanimate
-	Direction   = rlcomponents.Direction
-	WanderAI    = rlcomponents.WanderAI
-	HostileAI   = rlcomponents.HostileAI
-	DefensiveAI = rlcomponents.DefensiveAI
-	Alerted     = rlcomponents.Alerted
-	Poisoned    = rlcomponents.Poisoned
-	Poisonous   = rlcomponents.Poisonous
-	Food        = rlcomponents.Food
-	Inventory   = rlcomponents.Inventory
-	Item        = rlcomponents.Item
-	Armor       = rlcomponents.Armor
-	Weapon      = rlcomponents.Weapon
-	NeverSleep  = rlcomponents.NeverSleep
-	Nocturnal   = rlcomponents.Nocturnal
+	Position      = rlcomponents.Position
+	Stats         = rlcomponents.Stats
+	Initiative    = rlcomponents.Initiative
+	MyTurn        = rlcomponents.MyTurn
+	Dead          = rlcomponents.Dead
+	Description   = rlcomponents.Description
+	Solid         = rlcomponents.Solid
+	Inanimate     = rlcomponents.Inanimate
+	Direction     = rlcomponents.Direction
+	WanderAI      = rlcomponents.WanderAI
+	HostileAI     = rlcomponents.HostileAI
+	DefensiveAI   = rlcomponents.DefensiveAI
+	Alerted       = rlcomponents.Alerted
+	Poisoned      = rlcomponents.Poisoned
+	Poisonous     = rlcomponents.Poisonous
+	Food          = rlcomponents.Food
+	Inventory     = rlcomponents.Inventory
+	Item          = rlcomponents.Item
+	Armor         = rlcomponents.Armor
+	Weapon        = rlcomponents.Weapon
+	NeverSleep    = rlcomponents.NeverSleep
+	Nocturnal     = rlcomponents.Nocturnal
+	Body          = rlcomponents.Body
+	BodyInventory = rlcomponents.BodyInventory
 )
 
 // Spaceplant-specific component types (not in rlcomponents).
@@ -45,33 +46,35 @@ const (
 
 // Type aliases for rlcomponents - these replace spaceplant's duplicate component structs.
 type (
-	InteractionComponent = rlcomponents.InteractionComponent
-	Trigger              = rlcomponents.Trigger
-	DoorComponent        = rlcomponents.DoorComponent
-	PositionComponent    = rlcomponents.PositionComponent
-	HealthComponent      = rlcomponents.HealthComponent
-	StatsComponent       = rlcomponents.StatsComponent
-	InitiativeComponent  = rlcomponents.InitiativeComponent
-	MyTurnComponent      = rlcomponents.MyTurnComponent
-	DeadComponent        = rlcomponents.DeadComponent
-	DescriptionComponent = rlcomponents.DescriptionComponent
-	SolidComponent       = rlcomponents.SolidComponent
-	InanimateComponent   = rlcomponents.InanimateComponent
-	DirectionComponent   = rlcomponents.DirectionComponent
-	WanderAIComponent    = rlcomponents.WanderAIComponent
-	HostileAIComponent   = rlcomponents.HostileAIComponent
-	DefensiveAIComponent = rlcomponents.DefensiveAIComponent
-	AlertedComponent     = rlcomponents.AlertedComponent
-	PoisonedComponent    = rlcomponents.PoisonedComponent
-	PoisonousComponent   = rlcomponents.PoisonousComponent
-	FoodComponent        = rlcomponents.FoodComponent
-	NeverSleepComponent  = rlcomponents.NeverSleepComponent
-	NocturnalComponent   = rlcomponents.NocturnalComponent
-	WeaponComponent      = rlcomponents.WeaponComponent
-	ArmorComponent       = rlcomponents.ArmorComponent
-	ItemComponent        = rlcomponents.ItemComponent
-	InventoryComponent   = rlcomponents.InventoryComponent
-	ItemSlot             = rlcomponents.ItemSlot
+	InteractionComponent     = rlcomponents.InteractionComponent
+	Trigger                  = rlcomponents.Trigger
+	DoorComponent            = rlcomponents.DoorComponent
+	PositionComponent        = rlcomponents.PositionComponent
+	StatsComponent           = rlcomponents.StatsComponent
+	InitiativeComponent      = rlcomponents.InitiativeComponent
+	MyTurnComponent          = rlcomponents.MyTurnComponent
+	DeadComponent            = rlcomponents.DeadComponent
+	DescriptionComponent     = rlcomponents.DescriptionComponent
+	SolidComponent           = rlcomponents.SolidComponent
+	InanimateComponent       = rlcomponents.InanimateComponent
+	DirectionComponent       = rlcomponents.DirectionComponent
+	WanderAIComponent        = rlcomponents.WanderAIComponent
+	HostileAIComponent       = rlcomponents.HostileAIComponent
+	DefensiveAIComponent     = rlcomponents.DefensiveAIComponent
+	AlertedComponent         = rlcomponents.AlertedComponent
+	PoisonedComponent        = rlcomponents.PoisonedComponent
+	PoisonousComponent       = rlcomponents.PoisonousComponent
+	FoodComponent            = rlcomponents.FoodComponent
+	NeverSleepComponent      = rlcomponents.NeverSleepComponent
+	NocturnalComponent       = rlcomponents.NocturnalComponent
+	WeaponComponent          = rlcomponents.WeaponComponent
+	ArmorComponent           = rlcomponents.ArmorComponent
+	ItemComponent            = rlcomponents.ItemComponent
+	InventoryComponent       = rlcomponents.InventoryComponent
+	BodyInventoryComponent   = rlcomponents.BodyInventoryComponent
+	BodyComponent            = rlcomponents.BodyComponent
+	BodyPart                 = rlcomponents.BodyPart
+	ItemSlot                 = rlcomponents.ItemSlot
 )
 
 // Re-export item slot constants.

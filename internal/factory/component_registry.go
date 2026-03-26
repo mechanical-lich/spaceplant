@@ -9,8 +9,7 @@ import (
 // registerComponents registers all component constructors with the jsonFactory.
 func registerComponents() {
 	jsonFactory.RegisterComponent("DescriptionComponent", func() ecs.Component { return &rlcomponents.DescriptionComponent{} })
-	jsonFactory.RegisterComponent("HealthComponent", func() ecs.Component { return &rlcomponents.HealthComponent{} })
-	jsonFactory.RegisterComponent("AppearanceComponent", func() ecs.Component { return &component.AppearanceComponent{} })
+jsonFactory.RegisterComponent("AppearanceComponent", func() ecs.Component { return &component.AppearanceComponent{} })
 	jsonFactory.RegisterComponent("SolidComponent", func() ecs.Component { return &rlcomponents.SolidComponent{} })
 	jsonFactory.RegisterComponent("InitiativeComponent", func() ecs.Component { return &rlcomponents.InitiativeComponent{} })
 	jsonFactory.RegisterComponent("InventoryComponent", func() ecs.Component { return &rlcomponents.InventoryComponent{} })
@@ -42,4 +41,6 @@ func registerComponents() {
 	jsonFactory.RegisterComponent("KeyComponent", func() ecs.Component { return &rlcomponents.KeyComponent{} })
 	jsonFactory.RegisterComponent("TurnTakenComponent", func() ecs.Component { return &rlcomponents.TurnTakenComponent{} })
 	jsonFactory.RegisterComponent("SizeComponent", func() ecs.Component { return &rlcomponents.SizeComponent{} })
+	jsonFactory.RegisterComponent("BodyComponent", func() ecs.Component { return &rlcomponents.BodyComponent{} })
+	jsonFactory.RegisterComponent("BodyInventoryComponent", func() ecs.Component { return &rlcomponents.BodyInventoryComponent{} })
 }

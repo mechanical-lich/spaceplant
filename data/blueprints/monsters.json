@@ -27,8 +27,25 @@
             "B": 0,
             "Frames": 1
         },
-        "HealthComponent": {
-            "MaxHealth": 10
+        "BodyComponent": {
+            "Parts": {
+                "core": {
+                    "Name": "core",
+                    "HP": 10,
+                    "MaxHP": 10,
+                    "KillsWhenBroken": true
+                },
+                "vine_left": {
+                    "Name": "vine_left",
+                    "HP": 4,
+                    "MaxHP": 4
+                },
+                "vine_right": {
+                    "Name": "vine_right",
+                    "HP": 4,
+                    "MaxHP": 4
+                }
+            }
         },
         "SolidComponent": {},
         "HostileAIComponent": {
@@ -80,8 +97,35 @@
             "B": 0,
             "Frames": 1
         },
-        "HealthComponent": {
-            "MaxHealth": 10
+        "BodyComponent": {
+            "Parts": {
+                "central_mass": {
+                    "Name": "central_mass",
+                    "HP": 10,
+                    "MaxHP": 10,
+                    "KillsWhenBroken": true
+                },
+                "appendage_1": {
+                    "Name": "appendage_1",
+                    "HP": 5,
+                    "MaxHP": 5
+                },
+                "appendage_2": {
+                    "Name": "appendage_2",
+                    "HP": 5,
+                    "MaxHP": 5
+                },
+                "appendage_3": {
+                    "Name": "appendage_3",
+                    "HP": 5,
+                    "MaxHP": 5
+                },
+                "appendage_4": {
+                    "Name": "appendage_4",
+                    "HP": 5,
+                    "MaxHP": 5
+                }
+            }
         },
         "SolidComponent": {},
         "HostileAIComponent": {
@@ -128,8 +172,30 @@
             "B": 0,
             "Frames": 1
         },
-        "HealthComponent": {
-            "MaxHealth": 10
+        "BodyComponent": {
+            "Parts": {
+                "core": {
+                    "Name": "core",
+                    "HP": 10,
+                    "MaxHP": 10,
+                    "KillsWhenBroken": true
+                },
+                "tendril_1": {
+                    "Name": "tendril_1",
+                    "HP": 3,
+                    "MaxHP": 3
+                },
+                "tendril_2": {
+                    "Name": "tendril_2",
+                    "HP": 3,
+                    "MaxHP": 3
+                },
+                "tendril_3": {
+                    "Name": "tendril_3",
+                    "HP": 3,
+                    "MaxHP": 3
+                }
+            }
         },
         "SolidComponent": {},
         "HostileAIComponent": {
@@ -176,8 +242,25 @@
             "B": 0,
             "Frames": 1
         },
-        "HealthComponent": {
-            "MaxHealth": 10
+        "BodyComponent": {
+            "Parts": {
+                "thorax": {
+                    "Name": "thorax",
+                    "HP": 10,
+                    "MaxHP": 10,
+                    "KillsWhenBroken": true
+                },
+                "blade_left": {
+                    "Name": "blade_left",
+                    "HP": 5,
+                    "MaxHP": 5
+                },
+                "blade_right": {
+                    "Name": "blade_right",
+                    "HP": 5,
+                    "MaxHP": 5
+                }
+            }
         },
         "SolidComponent": {},
         "HostileAIComponent": {
@@ -224,8 +307,30 @@
             "B": 0,
             "Frames": 1
         },
-        "HealthComponent": {
-            "MaxHealth": 10
+        "BodyComponent": {
+            "Parts": {
+                "body": {
+                    "Name": "body",
+                    "HP": 10,
+                    "MaxHP": 10,
+                    "KillsWhenBroken": true
+                },
+                "leg_cluster_left": {
+                    "Name": "leg_cluster_left",
+                    "HP": 3,
+                    "MaxHP": 3
+                },
+                "leg_cluster_right": {
+                    "Name": "leg_cluster_right",
+                    "HP": 3,
+                    "MaxHP": 3
+                },
+                "leg_cluster_rear": {
+                    "Name": "leg_cluster_rear",
+                    "HP": 3,
+                    "MaxHP": 3
+                }
+            }
         },
         "SolidComponent": {},
         "HostileAIComponent": {
@@ -272,8 +377,26 @@
             "B": 0,
             "Frames": 1
         },
-        "HealthComponent": {
-            "MaxHealth": 10
+        "BodyComponent": {
+            "Parts": {
+                "body": {
+                    "Name": "body",
+                    "HP": 7,
+                    "MaxHP": 7,
+                    "KillsWhenBroken": true
+                },
+                "sac": {
+                    "Name": "sac",
+                    "HP": 6,
+                    "MaxHP": 6,
+                    "KillsWhenAmputated": true
+                },
+                "root_anchor": {
+                    "Name": "root_anchor",
+                    "HP": 4,
+                    "MaxHP": 4
+                }
+            }
         },
         "SolidComponent": {},
         "HostileAIComponent": {

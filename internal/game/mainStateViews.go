@@ -1,8 +1,10 @@
 package game
 
 import (
+	"fmt"
 	"image"
 	"image/color"
+	"slices"
 	"strconv"
 
 	"github.com/hajimehoshi/ebiten/v2"
@@ -11,24 +13,48 @@ import (
 	"github.com/mechanical-lich/mlge/message"
 	"github.com/mechanical-lich/mlge/resource"
 	mlge_text "github.com/mechanical-lich/mlge/text"
+	"github.com/mechanical-lich/mlge/ui/minui"
 	"github.com/mechanical-lich/spaceplant/internal/component"
 	"github.com/mechanical-lich/spaceplant/internal/config"
 	"github.com/mechanical-lich/spaceplant/internal/ui"
 )
 
+const (
+	msgPanelX = config.GameWidth + 4
+	msgPanelW = config.ScreenWidth - config.GameWidth - 8
+	msgPanelH = 250
+	msgPanelY = config.ScreenHeight - msgPanelH - 4
+)
+
 // Main gui
 type GUIViewMain struct {
 	ui.GUIViewBase
-	minimap *ebiten.Image
-	x       int
+	minimap    *ebiten.Image
+	msgArea    *minui.ScrollingTextArea
+	msgSynced  int // number of MessageLog entries already pushed to msgArea
+}
+
+func (g *GUIViewMain) initMsgArea() {
+	if g.msgArea != nil {
+		return
+	}
+	g.msgArea = minui.NewScrollingTextArea("msglog", msgPanelW, msgPanelH)
+	g.msgArea.SetPosition(msgPanelX, msgPanelY)
+	g.msgArea.LineHeight = 15
 }
 
 func (g *GUIViewMain) Update(s any) {
-	g.x++
+	g.initMsgArea()
 	cs, ok := s.(*SPClientState)
 	if ok {
 		g.minimap = cs.GetMinimap(0, 0, 100, 100, 150, 150)
 	}
+	// Append any new messages (MessageLog grows monotonically).
+	for g.msgSynced < len(message.MessageLog) {
+		g.msgArea.AddText(message.MessageLog[g.msgSynced])
+		g.msgSynced++
+	}
+	g.msgArea.Update()
 }
 
 func (g *GUIViewMain) Draw(screen *ebiten.Image, s any) {
@@ -44,32 +70,46 @@ func (g *GUIViewMain) Draw(screen *ebiten.Image, s any) {
 		return
 	}
 
-	if cs.sim.Player != nil {
-		if cs.sim.Player.HasComponent("Health") {
-			gc := cs.sim.Player.GetComponent("Health").(*component.HealthComponent)
-			mlge_text.Draw(screen, "Hp:"+strconv.Itoa(gc.Health), 24, config.GameWidth, 85+100, color.White)
+	if cs.sim.Player != nil && cs.sim.Player.HasComponent(component.Body) {
+		bc := cs.sim.Player.GetComponent(component.Body).(*component.BodyComponent)
+		keys := make([]string, 0, len(bc.Parts))
+		for k := range bc.Parts {
+			keys = append(keys, k)
+		}
+		slices.Sort(keys)
+		y := 185
+		for _, name := range keys {
+			part := bc.Parts[name]
+			var label string
+			var col color.RGBA
+			if part.Amputated {
+				label = fmt.Sprintf("%s: amputated", name)
+				col = color.RGBA{100, 100, 100, 255}
+			} else {
+				pct := 0
+				if part.MaxHP > 0 {
+					pct = part.HP * 100 / part.MaxHP
+					if pct < 0 {
+						pct = 0
+					}
+				}
+				label = fmt.Sprintf("%s: %d%%", name, pct)
+				switch {
+				case pct >= 50:
+					col = color.RGBA{0, 255, 0, 255}
+				case pct >= 25:
+					col = color.RGBA{255, 255, 0, 255}
+				default:
+					col = color.RGBA{255, 0, 0, 255}
+				}
+			}
+			mlge_text.Draw(screen, label, 14, config.GameWidth+4, y, col)
+			y += 16
 		}
 	}
 
-	const (
-		msgFontSize  = 16
-		msgLineH     = 20
-		msgMaxChars  = 30 // ~(ScreenWidth-GameWidth) / avg char width at size 16
-		msgStartY    = 85 + 120
-		msgMaxHeight = 400
-	)
-	y := msgStartY
-	for i := 0; i < len(message.MessageLog) && y < msgStartY+msgMaxHeight; i++ {
-		m := message.MessageLog[len(message.MessageLog)-1-i]
-		lines := mlge_text.Wrap(m, msgMaxChars, 0)
-		for _, line := range lines {
-			mlge_text.Draw(screen, line, msgFontSize, config.GameWidth, y, color.White)
-			y += msgLineH
-			if y >= msgStartY+msgMaxHeight {
-				break
-			}
-		}
-	}
+	g.initMsgArea()
+	g.msgArea.Draw(screen)
 
 	if config.ShowMouseCoords {
 		cX, cY := ebiten.CursorPosition()

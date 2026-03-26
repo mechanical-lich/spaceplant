@@ -25,12 +25,6 @@ func Create(name string, x int, y int) (*ecs.Entity, error) {
 	// Prefer JSON factory blueprints if available
 	if jsonFactory.BlueprintExists(name) {
 		entity, err := jsonFactory.CreateWithCallback(name, func(comp ecs.Component) error {
-			// Auto-initialize health if present
-			if hc, ok := comp.(*rlcomponents.HealthComponent); ok {
-				if hc.Health == 0 {
-					hc.Health = hc.MaxHealth
-				}
-			}
 			return nil
 		})
 		if err != nil {
@@ -43,7 +37,7 @@ func Create(name string, x int, y int) (*ecs.Entity, error) {
 		entity.AddComponent(pc)
 		entity.AddComponent(&component.DirectionComponent{Direction: 0})
 
-		// Preload starting inventory if present
+		// Preload starting inventory if present (legacy InventoryComponent).
 		if entity.HasComponent(component.Inventory) {
 			inv := entity.GetComponent(component.Inventory).(*rlcomponents.InventoryComponent)
 			if inv.StartingInventory != nil {
@@ -55,6 +49,22 @@ func Create(name string, x int, y int) (*ecs.Entity, error) {
 					inv.AddItem(itemEntity)
 				}
 				inv.EquipAllBest()
+			}
+		}
+
+		// Preload starting inventory for body-aware inventory.
+		if entity.HasComponent(component.BodyInventory) && entity.HasComponent(component.Body) {
+			inv := entity.GetComponent(component.BodyInventory).(*rlcomponents.BodyInventoryComponent)
+			bc := entity.GetComponent(component.Body).(*rlcomponents.BodyComponent)
+			if inv.StartingInventory != nil {
+				for _, item := range inv.StartingInventory {
+					itemEntity, err := Create(item, 0, 0)
+					if err != nil {
+						return nil, err
+					}
+					inv.AddItem(itemEntity)
+				}
+				inv.EquipAllBest(bc)
 			}
 		}
 
