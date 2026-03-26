@@ -1,7 +1,7 @@
 {
     "spriteSizeW": 32,
     "spriteSizeH": 48,
-    "worldWidth": 832,
+    "worldWidth": 864,
     "worldHeight": 816,
     "screenWidth": 1200,
     "screenHeight": 816,
@@ -10,8 +10,7 @@
     "lighting": true,
     "colorShading": false,
     "los": true,
-    "pressDelay": 10,
-    "updateDelay": 0,
+    "pressDelay": 15,
     "showMouseCoords": false,
     "renderScale": 1,
     "renderPathfindingSteps": false,

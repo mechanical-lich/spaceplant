@@ -3,6 +3,7 @@
         "DescriptionComponent": {
             "Name": "Creeper",
             "Faction": "plantz",
+            "LongDescription": "A medium sized plant creature that looks vaguely human",
             "PassOverDescription": [
                 "You step over the remains of a creeper.",
                 "A tangle of dead vines lies underfoot."
@@ -68,6 +69,7 @@
         "DescriptionComponent": {
             "Name": "Abomination",
             "Faction": "plantz",
+            "LongDescription": "A towering mass of writhing vines and limbs.",
             "PassOverDescription": [
                 "You step over the fallen abomination.",
                 "The abomination's bulk is hard to step around."
@@ -148,6 +150,7 @@
         "DescriptionComponent": {
             "Name": "Viner",
             "Faction": "plantz",
+            "LongDescription": "A tall creature made up of thin vines.",
             "PassOverDescription": [
                 "You step over a dead viner.",
                 "Dead vines crunch underfoot."
@@ -218,6 +221,7 @@
         "DescriptionComponent": {
             "Name": "Scythe",
             "Faction": "plantz",
+            "LongDescription": "A snake like creature with a vaguely humanoid head and a long scythe like tail.",
             "PassOverDescription": [
                 "You step carefully over the scythe's blades.",
                 "The dead scythe's limbs are still sharp — you step over carefully."
@@ -283,6 +287,7 @@
         "DescriptionComponent": {
             "Name": "Scrambler",
             "Faction": "plantz",
+            "LongDescription": "A head shaped creature that skitters on multiple legs.",
             "PassOverDescription": [
                 "You step over the scrambler's remains.",
                 "The dead scrambler lies in a twitching heap."

@@ -24,38 +24,50 @@
                     "HP": 30,
                     "MaxHP": 30,
                     "KillsWhenBroken": true,
-                    "CompatibleItemSlots": ["head"]
+                    "CompatibleItemSlots": [
+                        "head"
+                    ]
                 },
                 "torso": {
                     "Name": "torso",
                     "HP": 50,
                     "MaxHP": 50,
                     "KillsWhenBroken": true,
-                    "CompatibleItemSlots": ["torso"]
+                    "CompatibleItemSlots": [
+                        "torso"
+                    ]
                 },
                 "right_arm": {
                     "Name": "right_arm",
                     "HP": 25,
                     "MaxHP": 25,
-                    "CompatibleItemSlots": ["hand"]
+                    "CompatibleItemSlots": [
+                        "hand"
+                    ]
                 },
                 "left_arm": {
                     "Name": "left_arm",
                     "HP": 25,
                     "MaxHP": 25,
-                    "CompatibleItemSlots": ["hand"]
+                    "CompatibleItemSlots": [
+                        "hand"
+                    ]
                 },
                 "legs": {
                     "Name": "legs",
                     "HP": 30,
                     "MaxHP": 30,
-                    "CompatibleItemSlots": ["legs"]
+                    "CompatibleItemSlots": [
+                        "legs"
+                    ]
                 },
                 "feet": {
                     "Name": "feet",
                     "HP": 20,
                     "MaxHP": 20,
-                    "CompatibleItemSlots": ["feet"]
+                    "CompatibleItemSlots": [
+                        "feet"
+                    ]
                 }
             }
         },
@@ -101,6 +113,7 @@
         "DescriptionComponent": {
             "Name": "Crewmen",
             "Faction": "crew",
+            "LongDescription": "A crewmember of the ship.",
             "PassOverDescription": [
                 "You step over the body of a crewmember.",
                 "A fallen crewmember lies here."
@@ -139,38 +152,50 @@
                     "HP": 3,
                     "MaxHP": 3,
                     "KillsWhenBroken": true,
-                    "CompatibleItemSlots": ["head"]
+                    "CompatibleItemSlots": [
+                        "head"
+                    ]
                 },
                 "torso": {
                     "Name": "torso",
                     "HP": 5,
                     "MaxHP": 5,
                     "KillsWhenBroken": true,
-                    "CompatibleItemSlots": ["torso"]
+                    "CompatibleItemSlots": [
+                        "torso"
+                    ]
                 },
                 "right_arm": {
                     "Name": "right_arm",
                     "HP": 3,
                     "MaxHP": 3,
-                    "CompatibleItemSlots": ["hand"]
+                    "CompatibleItemSlots": [
+                        "hand"
+                    ]
                 },
                 "left_arm": {
                     "Name": "left_arm",
                     "HP": 3,
                     "MaxHP": 3,
-                    "CompatibleItemSlots": ["hand"]
+                    "CompatibleItemSlots": [
+                        "hand"
+                    ]
                 },
                 "legs": {
                     "Name": "legs",
                     "HP": 3,
                     "MaxHP": 3,
-                    "CompatibleItemSlots": ["legs"]
+                    "CompatibleItemSlots": [
+                        "legs"
+                    ]
                 },
                 "feet": {
                     "Name": "feet",
                     "HP": 2,
                     "MaxHP": 2,
-                    "CompatibleItemSlots": ["feet"]
+                    "CompatibleItemSlots": [
+                        "feet"
+                    ]
                 }
             }
         },
@@ -204,6 +229,7 @@
         "DescriptionComponent": {
             "Name": "Officer",
             "Faction": "crew",
+            "LongDescription": "A ranking officer of the ship.",
             "PassOverDescription": [
                 "You step over the officer's body.",
                 "The fallen officer lies here."
@@ -241,38 +267,50 @@
                     "HP": 3,
                     "MaxHP": 3,
                     "KillsWhenBroken": true,
-                    "CompatibleItemSlots": ["head"]
+                    "CompatibleItemSlots": [
+                        "head"
+                    ]
                 },
                 "torso": {
                     "Name": "torso",
                     "HP": 5,
                     "MaxHP": 5,
                     "KillsWhenBroken": true,
-                    "CompatibleItemSlots": ["torso"]
+                    "CompatibleItemSlots": [
+                        "torso"
+                    ]
                 },
                 "right_arm": {
                     "Name": "right_arm",
                     "HP": 3,
                     "MaxHP": 3,
-                    "CompatibleItemSlots": ["hand"]
+                    "CompatibleItemSlots": [
+                        "hand"
+                    ]
                 },
                 "left_arm": {
                     "Name": "left_arm",
                     "HP": 3,
                     "MaxHP": 3,
-                    "CompatibleItemSlots": ["hand"]
+                    "CompatibleItemSlots": [
+                        "hand"
+                    ]
                 },
                 "legs": {
                     "Name": "legs",
                     "HP": 3,
                     "MaxHP": 3,
-                    "CompatibleItemSlots": ["legs"]
+                    "CompatibleItemSlots": [
+                        "legs"
+                    ]
                 },
                 "feet": {
                     "Name": "feet",
                     "HP": 2,
                     "MaxHP": 2,
-                    "CompatibleItemSlots": ["feet"]
+                    "CompatibleItemSlots": [
+                        "feet"
+                    ]
                 }
             }
         },

@@ -56,11 +56,13 @@ func main() {
 	// Keep the AsciiWorld in sync with the terminal client's World.
 	tc.World = asciiWorld
 
-	// GUI: static HUD + inventory popup.
+	// GUI: static HUD + inventory popup + look mode.
 	inv := game.NewTermInventoryView(sim)
+	look := game.NewTermLookView(sim)
 	tc.GUI = &rltermgui.GUI{}
 	tc.GUI.Add(game.NewTermHUD(sim))
 	tc.GUI.Add(inv)
+	tc.GUI.Add(look)
 
 	// Follow the player: center camera on player position each tick.
 	tc.OnTick = func(snap *transport.Snapshot) {

@@ -5,9 +5,11 @@ import (
 	"slices"
 
 	"github.com/gdamore/tcell/v2"
+	"github.com/mechanical-lich/ml-rogue-lib/pkg/rlworld"
 	"github.com/mechanical-lich/ml-rogue-lib/pkg/rltermgui"
 	"github.com/mechanical-lich/mlge/ecs"
 	"github.com/mechanical-lich/mlge/message"
+	mlge_text "github.com/mechanical-lich/mlge/text"
 	"github.com/mechanical-lich/spaceplant/internal/component"
 )
 
@@ -238,6 +240,225 @@ func (v *TermInventoryView) HandleKey(ev *tcell.EventKey) bool {
 		}
 	}
 	return true // consume all input while open
+}
+
+// TermLookView is a tile-inspection mode activated by pressing L.
+// Arrow keys / WASD move the cursor; Escape exits. All input is consumed
+// while active so the game does not act on movement keys.
+type TermLookView struct {
+	sim     *SimWorld
+	active  bool
+	cursorX int
+	cursorY int
+}
+
+func NewTermLookView(sim *SimWorld) *TermLookView { return &TermLookView{sim: sim} }
+func (v *TermLookView) Visible() bool             { return true } // always present to intercept L
+
+func (v *TermLookView) HandleKey(ev *tcell.EventKey) bool {
+	if !v.active {
+		if ev.Rune() == 'l' || ev.Rune() == 'L' {
+			v.active = true
+			if v.sim.Player != nil {
+				pc := v.sim.Player.GetComponent("Position").(*component.PositionComponent)
+				v.cursorX = pc.GetX()
+				v.cursorY = pc.GetY()
+			}
+			return true
+		}
+		return false
+	}
+	// Active — handle cursor movement and exit.
+	if ev.Key() == tcell.KeyEscape || ev.Rune() == 'l' || ev.Rune() == 'L' {
+		v.active = false
+		return true
+	}
+	switch ev.Key() {
+	case tcell.KeyUp:
+		v.cursorY--
+		return true
+	case tcell.KeyDown:
+		v.cursorY++
+		return true
+	case tcell.KeyLeft:
+		v.cursorX--
+		return true
+	case tcell.KeyRight:
+		v.cursorX++
+		return true
+	}
+	switch ev.Rune() {
+	case 'w', 'W':
+		v.cursorY--
+		return true
+	case 's', 'S':
+		v.cursorY++
+		return true
+	case 'a', 'A':
+		v.cursorX--
+		return true
+	case 'd', 'D':
+		v.cursorX++
+		return true
+	}
+	return true // swallow all other input while in look mode
+}
+
+func (v *TermLookView) Draw(s tcell.Screen) {
+	if !v.active {
+		return
+	}
+	sw, sh := s.Size()
+
+	// Recompute camera the same way OnTick does.
+	cameraX, cameraY := 0, 0
+	if v.sim.Player != nil {
+		pc := v.sim.Player.GetComponent("Position").(*component.PositionComponent)
+		cameraX = pc.GetX() - sw/2
+		cameraY = pc.GetY() - sh/2
+	}
+
+	// Highlight cursor cell by inverting colours.
+	sx := v.cursorX - cameraX
+	sy := v.cursorY - cameraY
+	if sx >= 0 && sx < sw && sy >= 0 && sy < sh {
+		mainC, combC, _, _ := s.GetContent(sx, sy)
+		s.SetContent(sx, sy, mainC, combC,
+			tcell.StyleDefault.Foreground(tcell.ColorBlack).Background(tcell.ColorYellow))
+	}
+
+	// Info panel — right side, above message rows.
+	const panelW = 40
+	panelH := sh - termMsgLines - 1
+	if panelH < 4 {
+		return
+	}
+	panelX := sw - panelW
+	panelY := 0
+
+	borderStyle := tcell.StyleDefault.Foreground(tcell.ColorYellow).Background(tcell.ColorBlack)
+	bgStyle := tcell.StyleDefault.Foreground(tcell.ColorWhite).Background(tcell.ColorBlack)
+	headerStyle := tcell.StyleDefault.Foreground(tcell.ColorYellow).Background(tcell.ColorBlack)
+	dimStyle := tcell.StyleDefault.Foreground(tcell.ColorGray).Background(tcell.ColorBlack)
+
+	rltermgui.FillRect(s, panelX, panelY, panelW, panelH, bgStyle)
+	rltermgui.DrawBox(s, panelX, panelY, panelW, panelH, " Look [L/Esc] ", borderStyle)
+
+	ix := panelX + 1
+	iw := panelW - 2
+	maxY := panelY + panelH - 1
+	y := panelY + 1
+
+	drawLine := func(text string, style tcell.Style) bool {
+		if y >= maxY {
+			return false
+		}
+		if len([]rune(text)) > iw {
+			text = string([]rune(text)[:iw])
+		}
+		rltermgui.DrawText(s, ix, y, text, style)
+		y++
+		return true
+	}
+
+	tile := v.sim.Level.Level.GetTilePtr(v.cursorX, v.cursorY, v.sim.CurrentZ)
+	if tile == nil {
+		drawLine(fmt.Sprintf("(%d,%d) — out of bounds", v.cursorX, v.cursorY), dimStyle)
+		return
+	}
+
+	def := rlworld.TileDefinitions[tile.Type]
+	lightPct := (255 - tile.LightLevel) * 100 / 255
+	if !drawLine(fmt.Sprintf("%s (%d,%d) light:%d%%", def.Name, v.cursorX, v.cursorY, lightPct), headerStyle) {
+		return
+	}
+	if def.Description != "" {
+		for _, line := range mlge_text.Wrap(def.Description, iw, 0) {
+			if !drawLine("  "+line, dimStyle) {
+				return
+			}
+		}
+	}
+	y++ // gap before entities
+
+	var buf []*ecs.Entity
+	v.sim.Level.Level.GetEntitiesAt(v.cursorX, v.cursorY, v.sim.CurrentZ, &buf)
+	for _, e := range buf {
+		if !e.HasComponent(component.Description) {
+			continue
+		}
+		dc := e.GetComponent(component.Description).(*component.DescriptionComponent)
+		if !drawLine(dc.Name, bgStyle) {
+			return
+		}
+		if dc.LongDescription != "" {
+			for _, line := range mlge_text.Wrap(dc.LongDescription, iw-2, 0) {
+				if !drawLine("  "+line, dimStyle) {
+					return
+				}
+			}
+		}
+		if e.HasComponent(component.Door) {
+			door := e.GetComponent(component.Door).(*component.DoorComponent)
+			doorState := "closed"
+			if door.Open {
+				doorState = "open"
+			}
+			lockState := "unlocked"
+			if door.Locked {
+				lockState = "locked"
+			}
+			if !drawLine(fmt.Sprintf("  %s  %s", doorState, lockState), dimStyle) {
+				return
+			}
+		}
+		if e.HasComponent(component.Body) {
+			bc := e.GetComponent(component.Body).(*component.BodyComponent)
+			partKeys := make([]string, 0, len(bc.Parts))
+			for k := range bc.Parts {
+				partKeys = append(partKeys, k)
+			}
+			slices.Sort(partKeys)
+			for _, pk := range partKeys {
+				p := bc.Parts[pk]
+				col, strike := termBodyPartStyle(p)
+				st := tcell.StyleDefault.Foreground(col).Background(tcell.ColorBlack)
+				if strike {
+					st = st.Attributes(tcell.AttrStrikeThrough)
+				}
+				if !drawLine("  "+p.Name, st) {
+					return
+				}
+			}
+		}
+		y++ // gap between entities
+	}
+}
+
+func termBodyPartStyle(p component.BodyPart) (tcell.Color, bool) {
+	if p.Amputated {
+		return tcell.ColorPurple, true
+	}
+	if p.Broken {
+		return tcell.ColorPurple, false
+	}
+	pct := 100
+	if p.MaxHP > 0 {
+		pct = p.HP * 100 / p.MaxHP
+		if pct < 0 {
+			pct = 0
+		}
+	}
+	switch {
+	case pct >= 75:
+		return tcell.ColorGreen, false
+	case pct >= 50:
+		return tcell.ColorYellow, false
+	case pct >= 25:
+		return tcell.ColorOrange, false
+	default:
+		return tcell.ColorRed, false
+	}
 }
 
 func itemName(e *ecs.Entity) string {

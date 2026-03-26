@@ -71,6 +71,12 @@
             "SpriteY": 0,
             "Resource": "map"
         },
+        "AsciiAppearanceComponent": {
+            "Character": "D",
+            "R": 125,
+            "G": 125,
+            "B": 125
+        },
         "DescriptionComponent": {
             "Name": "Door"
         }
@@ -87,6 +93,12 @@
             "SpriteX": 576,
             "SpriteY": 0,
             "Resource": "map"
+        },
+        "AsciiAppearanceComponent": {
+            "Character": "M",
+            "R": 125,
+            "G": 125,
+            "B": 125
         },
         "DescriptionComponent": {
             "Name": "Maintenance Door"
