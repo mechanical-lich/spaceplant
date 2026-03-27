@@ -11,6 +11,7 @@ import (
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
 
+	"github.com/mechanical-lich/ml-rogue-lib/pkg/rlcomponents"
 	"github.com/mechanical-lich/ml-rogue-lib/pkg/rlworld"
 	"github.com/mechanical-lich/mlge/ecs"
 	"github.com/mechanical-lich/mlge/message"
@@ -38,6 +39,7 @@ type entityHoverInfo struct {
 	IsDoor          bool
 	DoorOpen        bool
 	DoorLocked      bool
+	DoorKeyName     string
 }
 
 type hoveredTileInfo struct {
@@ -132,6 +134,9 @@ func (g *GUIViewMain) updateHover(cs *SPClientState) {
 			ei.IsDoor = true
 			ei.DoorOpen = dc2.Open
 			ei.DoorLocked = dc2.Locked
+			if dc2.Locked && dc2.KeyId != "" {
+				ei.DoorKeyName = findKeyDisplayName(cs.sim, dc2.KeyId)
+			}
 		}
 		if e.HasComponent(component.Body) {
 			bc := e.GetComponent(component.Body).(*component.BodyComponent)
@@ -266,6 +271,10 @@ func (g *GUIViewMain) drawHoverPanel(screen *ebiten.Image, startY int) {
 			}
 			mlge_text.Draw(screen, fmt.Sprintf("%s  %s", doorState, lockState), 11, x+4, y, dimCol)
 			y += lineH - 1
+			if e.DoorKeyName != "" {
+				mlge_text.Draw(screen, fmt.Sprintf("requires: %s", e.DoorKeyName), 11, x+4, y, dimCol)
+				y += lineH - 1
+			}
 		}
 		for _, p := range e.BodyParts {
 			col, strike := bodyPartStyle(p)
@@ -342,4 +351,23 @@ func (cs *SPClientState) GetMinimap(sX, sY, width, height, imageWidth, imageHeig
 	ebitenutil.DrawRect(worldImage, float64(pc.GetX()*imageWidth/width), float64(pc.GetY()*imageHeight/height), 5, 5, color.RGBA{0, 0, 255, 255})
 
 	return worldImage
+}
+
+// findKeyDisplayName searches level entities for a key matching keyID and
+// returns its display name, falling back to keyID if none is found.
+func findKeyDisplayName(sim *SimWorld, keyID string) string {
+	for _, e := range sim.Level.Level.Entities {
+		if e == nil || !e.HasComponent(rlcomponents.Key) {
+			continue
+		}
+		kc := e.GetComponent(rlcomponents.Key).(*rlcomponents.KeyComponent)
+		if kc.KeyID != keyID {
+			continue
+		}
+		if e.HasComponent(component.Description) {
+			return e.GetComponent(component.Description).(*component.DescriptionComponent).Name
+		}
+		return keyID
+	}
+	return keyID
 }

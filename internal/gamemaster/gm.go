@@ -70,7 +70,7 @@ func (gm *GameMaster) Init(l *world.Level, z int) {
 		}
 
 		blueprint := hostiles[utility.GetRandom(0, len(hostiles))]
-		if utility.GetRandom(0, 100) == 0 {
+		if utility.GetRandom(0, 30) == 0 {
 			blueprint = rareHostiles[utility.GetRandom(0, len(rareHostiles))]
 		}
 		food, err := factory.Create(blueprint, x, y)
