@@ -97,7 +97,7 @@
             "Amount": 3
         },
         "InitiativeComponent": {
-            "Speed": 10,
+            "DefaultValue": 4,
             "Ticks": 1
         },
         "StatsComponent": {
@@ -206,7 +206,7 @@
         "WanderAIComponent": {},
         "DefensiveAIComponent": {},
         "InitiativeComponent": {
-            "Speed": 10,
+            "DefaultValue": 4,
             "Ticks": 1
         },
         "LightComponent": {
@@ -321,7 +321,7 @@
         "WanderAIComponent": {},
         "DefensiveAIComponent": {},
         "InitiativeComponent": {
-            "Speed": 10,
+            "DefaultValue": 4,
             "Ticks": 1
         },
         "LightComponent": {

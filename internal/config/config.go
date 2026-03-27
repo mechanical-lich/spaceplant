@@ -25,6 +25,7 @@ type Config struct {
 	RenderPathfindingSteps bool    `json:"renderPathfindingSteps"` // Debug: draw AI pathfinding dots
 	ProfileCPU             bool    `json:"profileCPU"`             // Whether to profile CPU usage
 	ProfileMemory          bool    `json:"profileMemory"`          // Whether to profile memory usage
+	NpcTurnDelayTicks      int     `json:"npcTurnDelayTicks"`      // Server ticks to pause between NPC-only turns (0 = no delay)
 }
 
 // LoadConfig reads and unmarshals a JSON config file.

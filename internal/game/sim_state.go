@@ -7,6 +7,7 @@ import (
 	"github.com/mechanical-lich/mlge/simulation"
 	"github.com/mechanical-lich/mlge/transport"
 	"github.com/mechanical-lich/spaceplant/internal/component"
+	"github.com/mechanical-lich/spaceplant/internal/config"
 	"github.com/mechanical-lich/spaceplant/internal/eventsystem"
 	"github.com/mechanical-lich/spaceplant/internal/initiative"
 	"github.com/mechanical-lich/spaceplant/internal/system"
@@ -15,16 +16,29 @@ import (
 // compile-time assertion
 var _ simulation.SimulationState = (*MainSimState)(nil)
 
-// MainSimState is the server-side gameplay state. It owns the turn-based gate:
-// the simulation only advances when the player has queued an action command.
+// MainSimState is the server-side gameplay state.
+//
+// Turn flow:
+//   - waitingForPlayer == true  → block until the player queues a command, then run
+//     CleanUp → UpdateEntities (player acts) → AdvanceInitiative.
+//     If the player's counter hits zero again immediately, stay in waitingForPlayer;
+//     otherwise enter the NPC phase with a configurable inter-turn delay.
+//   - waitingForPlayer == false → NPC phase. Count down npcDelay; when it reaches
+//     zero run CleanUp → AdvanceInitiative → UpdateEntities (NPCs act).
+//     If player gets MyTurn, flip back to waitingForPlayer; else reset npcDelay.
 type MainSimState struct {
-	sim  *SimWorld
-	done bool
+	sim              *SimWorld
+	done             bool
+	waitingForPlayer bool
+	npcDelay         int
 }
 
 // NewMainSimState registers event listeners and returns a ready-to-use state.
 func NewMainSimState(sim *SimWorld) *MainSimState {
-	s := &MainSimState{sim: sim}
+	s := &MainSimState{
+		sim:              sim,
+		waitingForPlayer: true,
+	}
 
 	eventsystem.EventManager.RegisterListener(s, eventsystem.Stairs)
 	eventsystem.EventManager.RegisterListener(s, eventsystem.DropItem)
@@ -59,8 +73,6 @@ func (s *MainSimState) ProcessCommand(cmd *transport.Command) {
 }
 
 // Tick advances the simulation by one server tick.
-// The turn-based gate: advance only when it is not the player's turn, or when
-// the player has a command queued (meaning they have acted this tick).
 func (s *MainSimState) Tick(_ any) simulation.SimulationState {
 	event.GetQueuedInstance().HandleQueue()
 
@@ -69,31 +81,66 @@ func (s *MainSimState) Tick(_ any) simulation.SimulationState {
 	}
 
 	playerC := s.sim.Player.GetComponent("PlayerComponent").(*component.PlayerComponent)
-	playerHasTaken := s.sim.Player.HasComponent("TurnTaken")
-	shouldAdvance := playerHasTaken || len(playerC.Commands) > 0
 
-	if shouldAdvance {
+	if s.waitingForPlayer {
+		// Block until the player has queued a command.
+		if len(playerC.Commands) == 0 {
+			return nil
+		}
+
 		s.sim.Mu.Lock()
 		system.CleanUpSystem{}.Update(s.sim.Level)
-		if playerHasTaken {
-			initiative.PlayerTookTurn(s.sim.Level.Entities)
+		s.sim.UpdateEntities() // player consumes their command and sets TurnTaken
+		s.advanceAnimations()
+
+		playerGotTurn, _ := initiative.AdvanceInitiative(s.sim.Level.Entities, s.sim.Player)
+		if !playerGotTurn {
+			// Enter NPC phase with no delay so NPCs react immediately to the
+			// player's action. The delay is applied after each NPC round.
+			s.waitingForPlayer = false
+			s.npcDelay = 0
 		}
-		s.sim.UpdateEntities()
-		// Restore the player's turn after the post-action tick.
-		if playerHasTaken && !s.sim.Player.HasComponent("MyTurn") {
+		s.sim.Mu.Unlock()
+	} else {
+		// NPC phase: wait out the inter-turn delay, then let NPCs act.
+		if s.npcDelay > 0 {
+			s.npcDelay--
+			return nil
+		}
+		s.sim.TurnCount++
+		s.sim.Mu.Lock()
+		system.CleanUpSystem{}.Update(s.sim.Level)
+		playerGotTurn, anyGotTurn := initiative.AdvanceInitiative(s.sim.Level.Entities, s.sim.Player)
+
+		// Strip the player's MyTurn so the PlayerSystem doesn't consume a
+		// queued command during the NPC phase.
+		if playerGotTurn {
+			s.sim.Player.RemoveComponent(rlcomponents.MyTurn)
+		}
+
+		s.sim.UpdateEntities() // NPCs act; player is excluded
+		s.advanceAnimations()
+
+		if playerGotTurn {
 			s.sim.Player.AddComponent(rlcomponents.GetMyTurn())
+			s.waitingForPlayer = true
+		} else if anyGotTurn {
+			s.npcDelay = config.Global().NpcTurnDelayTicks
 		}
-		// Advance sprite animation cycles on the server tick so the client
-		// only ever reads appearance state under RLock.
-		for _, entity := range s.sim.Level.Entities {
-			if entity.HasComponent("AppearanceComponent") {
-				entity.GetComponent("AppearanceComponent").(*component.AppearanceComponent).Update()
-			}
-		}
+		// If nothing fired, npcDelay stays 0 and we retry immediately next tick.
 		s.sim.Mu.Unlock()
 	}
 
 	return nil
+}
+
+// advanceAnimations steps every entity's sprite animation cycle.
+func (s *MainSimState) advanceAnimations() {
+	for _, entity := range s.sim.Level.Entities {
+		if entity.HasComponent("AppearanceComponent") {
+			entity.GetComponent("AppearanceComponent").(*component.AppearanceComponent).Update()
+		}
+	}
 }
 
 // HandleEvent responds to Stairs and DropItem events fired by systems.

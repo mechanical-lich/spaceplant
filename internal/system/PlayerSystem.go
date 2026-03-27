@@ -38,6 +38,20 @@ func (s *PlayerSystem) UpdateEntity(levelInterface any, entity *ecs.Entity) erro
 			playerComponent := entity.GetComponent("PlayerComponent").(*component.PlayerComponent)
 			command := playerComponent.PopCommand()
 
+			// Non-turn-consuming commands — these don't end the turn.
+			switch command {
+			case "R":
+				ic := entity.GetComponent("Initiative").(*component.InitiativeComponent)
+				if ic.OverrideValue > 0 {
+					ic.OverrideValue = 0
+					message.AddMessage("Rush mode off.")
+				} else {
+					ic.OverrideValue = 2
+					message.AddMessage("Rush mode on!")
+				}
+				return nil
+			}
+
 			if command != "" {
 				entity.AddComponent(rlcomponents.GetTurnTaken())
 			}
@@ -175,7 +189,7 @@ func (s *PlayerSystem) UpdateEntity(levelInterface any, entity *ecs.Entity) erro
 				l.GetEntitiesAt(pc.GetX()+deltaX, pc.GetY()+deltaY, z, &candidates)
 				var entityHit, doorHit *ecs.Entity
 				for _, e := range candidates {
-					if e == entity {
+					if e == entity || e.HasComponent(rlcomponents.Dead) {
 						continue
 					}
 					if e.HasComponent(component.Door) {

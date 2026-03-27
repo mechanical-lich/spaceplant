@@ -25,6 +25,8 @@ type SimWorld struct {
 	CurrentZ      int
 	systemManager *ecs.SystemManager
 	gm            gamemaster.GameMaster
+	// TurnCount is incremented each time the player takes a turn.
+	TurnCount int
 	// Mu guards Level against concurrent access between the server goroutine
 	// (UpdateEntities writes) and the Ebiten render goroutine (Draw reads).
 	Mu sync.RWMutex

@@ -55,7 +55,10 @@ func (s *SPClientState) Update(_ *transport.Snapshot) client.ClientState {
 
 	fps := ebiten.ActualFPS()
 	tps := ebiten.ActualTPS()
-	title := fmt.Sprintf("%s - FPS: %.1f TPS: %.1f", "Space Plants!", fps, tps)
+	s.sim.Mu.RLock()
+	turnCount := s.sim.TurnCount
+	s.sim.Mu.RUnlock()
+	title := fmt.Sprintf("%s - Turn: %d FPS: %.1f TPS: %.1f", "Space Plants!", turnCount, fps, tps)
 	ebiten.SetWindowTitle(title)
 
 	// Close inventory on Escape.
@@ -79,11 +82,22 @@ func (s *SPClientState) Update(_ *transport.Snapshot) client.ClientState {
 
 	// Send movement/action commands only when it is the player's turn.
 	if hasTurn {
+		// Toggle commands — fire once on key-down, ignore held repeats.
+		if inpututil.IsKeyJustPressed(ebiten.KeyR) {
+			s.transport.SendCommand(&transport.Command{
+				Type:    CmdAction,
+				Payload: ActionPayload{Key: "R"},
+			})
+		}
+
 		if s.pressDelay > 0 {
 			s.pressDelay--
 		}
 		keys := inpututil.AppendPressedKeys([]ebiten.Key{})
 		for _, k := range keys {
+			if k == ebiten.KeyR {
+				continue
+			}
 			if s.pressDelay == 0 {
 				s.transport.SendCommand(&transport.Command{
 					Type:    CmdAction,

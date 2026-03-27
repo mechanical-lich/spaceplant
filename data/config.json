@@ -10,10 +10,11 @@
     "lighting": true,
     "colorShading": false,
     "los": true,
-    "pressDelay": 15,
     "showMouseCoords": false,
     "renderScale": 1,
     "renderPathfindingSteps": false,
     "profileCPU": false,
-    "profileMemory": false
+    "profileMemory": false,
+    "pressDelay": 6,
+    "npcTurnDelayTicks": 2
 }

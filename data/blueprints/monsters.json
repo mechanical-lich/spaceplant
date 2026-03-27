@@ -61,7 +61,7 @@
             "SightRange": 10
         },
         "InitiativeComponent": {
-            "Speed": 10,
+            "DefaultValue": 4,
             "Ticks": 1
         },
         "StatsComponent": {
@@ -152,7 +152,7 @@
             "SightRange": 20
         },
         "InitiativeComponent": {
-            "Speed": 10,
+            "DefaultValue": 4,
             "Ticks": 1
         },
         "StatsComponent": {
@@ -231,7 +231,7 @@
             "SightRange": 10
         },
         "InitiativeComponent": {
-            "Speed": 10,
+            "DefaultValue": 2,
             "Ticks": 1
         },
         "StatsComponent": {
@@ -309,7 +309,7 @@
             "SightRange": 10
         },
         "InitiativeComponent": {
-            "Speed": 10,
+            "DefaultValue": 3,
             "Ticks": 1
         },
         "StatsComponent": {
@@ -380,7 +380,7 @@
             "SightRange": 10
         },
         "InitiativeComponent": {
-            "Speed": 7,
+            "DefaultValue": 2,
             "Ticks": 1
         },
         "StatsComponent": {
@@ -448,7 +448,7 @@
             "SightRange": 10
         },
         "InitiativeComponent": {
-            "Speed": 10,
+            "DefaultValue": 4,
             "Ticks": 1
         },
         "StatsComponent": {
