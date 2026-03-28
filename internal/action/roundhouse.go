@@ -11,7 +11,7 @@ import (
 	"github.com/mechanical-lich/spaceplant/internal/world"
 )
 
-// RoundhouseKickAction attacks the solid entity at (TargetX, TargetY) on the entity's Z level.
+// RoundhouseKickAction attacks kicks all solid entities in the 8 tiles surrounding the entity.
 type RoundhouseKickAction struct {
 }
 
