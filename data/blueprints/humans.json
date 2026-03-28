@@ -1,7 +1,6 @@
 {
     "player": {
         "PlayerComponent": {},
-        "MyTurnComponent": {},
         "DescriptionComponent": {
             "Name": "Player",
             "Faction": "crew"
@@ -97,8 +96,8 @@
             "Amount": 3
         },
         "EnergyComponent": {
-            "Speed": 25,
-            "Energy": 100
+            "Speed": 100,
+            "Energy": 0
         },
         "StatsComponent": {
             "Str": 15,
@@ -206,7 +205,7 @@
         "WanderAIComponent": {},
         "DefensiveAIComponent": {},
         "EnergyComponent": {
-            "Speed": 25
+            "Speed": 100
         },
         "LightComponent": {
             "Radius": 10,
@@ -320,7 +319,7 @@
         "WanderAIComponent": {},
         "DefensiveAIComponent": {},
         "EnergyComponent": {
-            "Speed": 25
+            "Speed": 100
         },
         "LightComponent": {
             "Radius": 10,

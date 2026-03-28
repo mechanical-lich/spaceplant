@@ -61,7 +61,7 @@
             "SightRange": 10
         },
         "EnergyComponent": {
-            "Speed": 25
+            "Speed": 100
         },
         "StatsComponent": {
             "Str": 12,
@@ -151,7 +151,7 @@
             "SightRange": 20
         },
         "EnergyComponent": {
-            "Speed": 25
+            "Speed": 100
         },
         "StatsComponent": {
             "Str": 15,
@@ -229,7 +229,7 @@
             "SightRange": 10
         },
         "EnergyComponent": {
-            "Speed": 50
+            "Speed": 200
         },
         "StatsComponent": {
             "Str": 14,
@@ -306,7 +306,7 @@
             "SightRange": 10
         },
         "EnergyComponent": {
-            "Speed": 33
+            "Speed": 150
         },
         "StatsComponent": {
             "Str": 12,
@@ -376,7 +376,7 @@
             "SightRange": 10
         },
         "EnergyComponent": {
-            "Speed": 50
+            "Speed": 200
         },
         "StatsComponent": {
             "Str": 10,
@@ -443,7 +443,7 @@
             "SightRange": 10
         },
         "EnergyComponent": {
-            "Speed": 25
+            "Speed": 100
         },
         "StatsComponent": {
             "Str": 10,

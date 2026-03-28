@@ -19,29 +19,48 @@ import (
 // compile-time assertion
 var _ simulation.SimulationState = (*MainSimState)(nil)
 
+// tickPhase tracks which stage of the turn cycle we are in.
+type tickPhase int
+
+const (
+	// phaseWaitingForInput blocks until the player queues a command.
+	phaseWaitingForInput tickPhase = iota
+
+	// phaseRunningTick processes one tick: all entities with Energy > 0 act
+	// once (player and NPCs unified). After acting, TickCount is incremented
+	// and we check whether anyone still has energy for another tick.
+	phaseRunningTick
+
+	// phaseTurnComplete fires when no entity has energy left. It increments
+	// TurnCount, resets TickCount, and calls AdvanceEnergy so every entity
+	// gains Speed energy before the next tick.
+	phaseTurnComplete
+)
+
 // MainSimState is the server-side gameplay state.
 //
-// Turn flow (energy-based):
-//   - waitingForPlayer == true  → block until the player queues a command, then run
-//     CleanUp → re-grant MyTurn if energy still at threshold → UpdateEntities.
-//     If the player still has enough energy after cost deduction, they act again
-//     immediately (no game time passes). Otherwise enter the NPC phase.
-//   - waitingForPlayer == false → NPC phase. CleanUp deducts costs; any NPC with
-//     leftover energy >= threshold gets MyTurn again (multi-action, no time advance).
-//     When no one has leftover energy, AdvanceEnergy ticks everyone. Visible NPC
-//     actions incur a configurable inter-turn delay for visual feedback.
+// Turn / Tick flow:
+//
+//	phaseTurnComplete  → AdvanceEnergy → phaseWaitingForInput (player can act)
+//	                                   → phaseRunningTick     (only NPCs can act)
+//	phaseWaitingForInput → player queues command → phaseRunningTick
+//	phaseRunningTick → CleanUp → check turns → UpdateEntities → TickCount++
+//	                 → player still has energy → phaseWaitingForInput
+//	                 → only NPCs have energy   → phaseRunningTick
+//	                 → nobody has energy       → phaseTurnComplete
 type MainSimState struct {
-	sim              *SimWorld
-	done             bool
-	waitingForPlayer bool
-	npcDelay         int
+	sim      *SimWorld
+	done     bool
+	phase    tickPhase
+	npcDelay int
 }
 
 // NewMainSimState registers event listeners and returns a ready-to-use state.
+// Starts at phaseTurnComplete so AdvanceEnergy runs before anyone acts.
 func NewMainSimState(sim *SimWorld) *MainSimState {
 	s := &MainSimState{
-		sim:              sim,
-		waitingForPlayer: true,
+		sim:   sim,
+		phase: phaseTurnComplete,
 	}
 
 	eventsystem.EventManager.RegisterListener(s, eventsystem.Stairs)
@@ -84,86 +103,103 @@ func (s *MainSimState) Tick(_ any) simulation.SimulationState {
 		return nil
 	}
 
-	playerC := s.sim.Player.GetComponent("PlayerComponent").(*component.PlayerComponent)
+	switch s.phase {
+	case phaseTurnComplete:
+		s.sim.Mu.Lock()
+		s.sim.TurnCount++
+		s.sim.TickCount = 0
+		playerGotTurn, _ := rlenergy.AdvanceEnergy(s.sim.Level.Entities, s.sim.Player)
+		if playerGotTurn {
+			s.phase = phaseWaitingForInput
+		} else {
+			s.phase = phaseRunningTick
+		}
+		s.sim.Mu.Unlock()
 
-	if s.waitingForPlayer {
-		// Block until the player has queued a command.
+	case phaseWaitingForInput:
+		playerC := s.sim.Player.GetComponent("PlayerComponent").(*component.PlayerComponent)
 		if len(playerC.Commands) == 0 {
 			return nil
 		}
+		s.phase = phaseRunningTick
+		fallthrough
 
-		s.sim.Mu.Lock()
-		system.CleanUpSystem{}.Update(s.sim.Level)
-
-		// Process the player's action first, before any other entity.
-		s.sim.UpdatePlayer()
-
-		// Immediately deduct cost if the player consumed their turn.
-		// This avoids a one-tick delay between acting and cost resolution.
-		rlenergy.ResolveTurn(s.sim.Player)
-
-		// Full world update — lighting, doors, status effects, etc.
-		// Player won't re-act here because MyTurn was already stripped.
-		s.sim.UpdateEntities()
-		s.advanceAnimations()
-
-		// Decide what happens next.
-		if rlenergy.CanAct(s.sim.Player) {
-			// Player has enough energy to act again (multi-action).
-			s.sim.Player.AddComponent(rlcomponents.GetMyTurn())
-		} else {
-			// Advance time so the player doesn't wait an extra tick.
-			playerGotTurn, _ := rlenergy.AdvanceEnergy(s.sim.Level.Entities, s.sim.Player)
-			if !playerGotTurn {
-				s.waitingForPlayer = false
-				s.npcDelay = 0
-			}
-		}
-		s.sim.Mu.Unlock()
-	} else {
-		// NPC phase: wait out the inter-turn delay, then let NPCs act.
+	case phaseRunningTick:
 		if s.npcDelay > 0 {
 			s.npcDelay--
 			return nil
 		}
 
 		s.sim.Mu.Lock()
+
+		// Resolve costs from the previous tick.
 		system.CleanUpSystem{}.Update(s.sim.Level)
 
-		// Re-grant turns to entities that still have leftover energy (multi-action).
-		playerGotTurn, anyGotTurn := rlenergy.RegrantTurns(s.sim.Level.Entities, s.sim.Player)
+		// Re-grant turns to entities with leftover energy (multi-action).
+		// No-op for entities that already hold MyTurn from AdvanceEnergy.
+		rlenergy.RegrantTurns(s.sim.Level.Entities, s.sim.Player)
+
+		// Check who currently holds MyTurn — covers both AdvanceEnergy-granted
+		// and RegrantTurns-granted turns.
+		playerGotTurn, anyGotTurn := s.anyHasMyTurn()
 
 		if !anyGotTurn {
-			// No leftover energy anywhere — advance time (tick everyone).
-			s.sim.TurnCount++
-			playerGotTurn, anyGotTurn = rlenergy.AdvanceEnergy(s.sim.Level.Entities, s.sim.Player)
+			s.phase = phaseTurnComplete
+			s.sim.Mu.Unlock()
+			return nil
 		}
 
-		// Strip the player's MyTurn so the PlayerSystem doesn't consume a
-		// queued command during the NPC phase.
+		// If the player has MyTurn but no command yet, the whole tick must
+		// wait — remove MyTurn and park until input arrives.
 		if playerGotTurn {
-			s.sim.Player.RemoveComponent(rlcomponents.MyTurn)
-		}
-
-		if anyGotTurn {
-			s.sim.UpdateEntities()
-			s.advanceAnimations()
-		}
-
-		if playerGotTurn {
-			s.sim.Player.AddComponent(rlcomponents.GetMyTurn())
-			s.waitingForPlayer = true
-		} else if anyGotTurn {
-			// Only delay if a visible NPC acted — off-screen actions resolve instantly.
-			if s.anyVisibleNPCActed() {
-				s.npcDelay = config.Global().NpcTurnDelayTicks
+			playerC := s.sim.Player.GetComponent("PlayerComponent").(*component.PlayerComponent)
+			if len(playerC.Commands) == 0 {
+				s.sim.Player.RemoveComponent(rlcomponents.MyTurn)
+				s.phase = phaseWaitingForInput
+				s.sim.Mu.Unlock()
+				return nil
 			}
 		}
-		// If nothing fired, npcDelay stays 0 and we retry immediately next tick.
+
+		// Run all entity systems — player and NPCs in the same unified pass.
+		s.sim.UpdateEntities()
+		s.advanceAnimations()
+		s.sim.TickCount++
+
+		// Resolve the player's turn immediately so the client sees hasTurn=false
+		// and stops sending commands. CanAct below then uses post-action energy.
+		rlenergy.ResolveTurn(s.sim.Player)
+
+		// Check NPC delay while TurnTaken is still on NPCs (before next CleanUp).
+		if s.anyVisibleNPCActed() {
+			s.npcDelay = config.Global().NpcTurnDelayTicks
+		}
+
+		if rlenergy.CanAct(s.sim.Player) {
+			s.sim.Player.AddComponent(rlcomponents.GetMyTurn())
+			s.phase = phaseWaitingForInput
+		} else {
+			s.phase = phaseRunningTick
+		}
+
 		s.sim.Mu.Unlock()
 	}
 
 	return nil
+}
+
+// anyHasMyTurn returns whether any entity currently holds MyTurn, and
+// specifically whether the player does.
+func (s *MainSimState) anyHasMyTurn() (playerHasTurn, anyHasTurn bool) {
+	for _, e := range s.sim.Level.Entities {
+		if e != nil && e.HasComponent(rlcomponents.MyTurn) {
+			anyHasTurn = true
+			if e == s.sim.Player {
+				playerHasTurn = true
+			}
+		}
+	}
+	return
 }
 
 // anyVisibleNPCActed returns true if any non-player entity that just acted

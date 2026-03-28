@@ -21,6 +21,9 @@ func (s CleanUpSystem) Update(level *world.Level) {
 		if entity.HasComponent(rlcomponents.Dead) {
 			entity.RemoveComponent(component.Attack)
 			entity.RemoveComponent(rlcomponents.Solid)
+			entity.RemoveComponent(rlcomponents.MyTurn)
+			entity.RemoveComponent(rlcomponents.TurnTaken)
+			entity.RemoveComponent(rlcomponents.Energy)
 
 			if entity.HasComponent(rlcomponents.Drops) {
 				fmt.Println("Processing drops for", entity.Blueprint)

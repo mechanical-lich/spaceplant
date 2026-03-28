@@ -56,9 +56,10 @@ func (s *SPClientState) Update(_ *transport.Snapshot) client.ClientState {
 	fps := ebiten.ActualFPS()
 	tps := ebiten.ActualTPS()
 	s.sim.Mu.RLock()
+	tickCount := s.sim.TickCount
 	turnCount := s.sim.TurnCount
 	s.sim.Mu.RUnlock()
-	title := fmt.Sprintf("%s - Turn: %d FPS: %.1f TPS: %.1f", "Space Plants!", turnCount, fps, tps)
+	title := fmt.Sprintf("%s - Turn: %d Tick: %d FPS: %.1f TPS: %.1f", "Space Plants!", turnCount, tickCount, fps, tps)
 	ebiten.SetWindowTitle(title)
 
 	// Close inventory on Escape.

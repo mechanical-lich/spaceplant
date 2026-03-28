@@ -25,7 +25,9 @@ type SimWorld struct {
 	CurrentZ      int
 	systemManager *ecs.SystemManager
 	gm            gamemaster.GameMaster
-	// TurnCount is incremented each time the player takes a turn.
+	// TickCount is incremented each time the simulation advances by one tick.
+	TickCount int
+	// TurnCount is incremented each time the player takes a turn (i.e. spends energy).
 	TurnCount int
 	// Mu guards Level against concurrent access between the server goroutine
 	// (UpdateEntities writes) and the Ebiten render goroutine (Draw reads).
@@ -105,10 +107,3 @@ func (sw *SimWorld) UpdateEntities() {
 	}
 }
 
-// UpdatePlayer runs systems only on the player entity, without clearing
-// lights. Call UpdateEntities afterwards for a full world pass.
-func (sw *SimWorld) UpdatePlayer() {
-	if sw.Player != nil {
-		sw.systemManager.UpdateSystemsForEntity(sw.Level, sw.Player)
-	}
-}
