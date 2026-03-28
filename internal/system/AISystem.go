@@ -58,7 +58,7 @@ func (s *AISystem) UpdateEntity(levelInterface any, entity *ecs.Entity) error {
 				if deltaX == 0 {
 					deltaY = getRandom(-1, 2)
 				}
-				if entityhelpers.Move(entity, level, deltaX, deltaY) {
+				if !entityhelpers.Move(entity, level, deltaX, deltaY) && (deltaX != 0 || deltaY != 0) {
 					destTile := level.Level.GetTilePtr(pc.GetX(), pc.GetY(), pc.GetZ())
 					if destTile != nil {
 						actionCost = rlenergy.MoveCost(destTile, energy.CostMove)
@@ -155,11 +155,11 @@ func (s *AISystem) UpdateEntity(levelInterface any, entity *ecs.Entity) error {
 							entityhelpers.Hit(level, entity, entityHit)
 							rlentity.Eat(entity, entityHit)
 						}
-					} else {
-						destTile := level.Level.GetTilePtr(pc.GetX(), pc.GetY(), z)
-						if destTile != nil {
-							actionCost = rlenergy.MoveCost(destTile, energy.CostMove)
-						}
+					}
+				} else if deltaX != 0 || deltaY != 0 {
+					destTile := level.Level.GetTilePtr(pc.GetX(), pc.GetY(), z)
+					if destTile != nil {
+						actionCost = rlenergy.MoveCost(destTile, energy.CostMove)
 					}
 				}
 				rlentity.Face(entity, deltaX, deltaY)

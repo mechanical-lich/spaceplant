@@ -228,14 +228,14 @@ func (s *PlayerSystem) UpdateEntity(levelInterface any, entity *ecs.Entity) erro
 						actionCost = energy.CostAttack
 						entityhelpers.Hit(l, entity, entityHit)
 					}
-				} else {
-					// Successful move — cost based on destination terrain.
-					destTile := l.Level.GetTilePtr(pc.GetX(), pc.GetY(), z)
-					if destTile != nil {
-						actionCost = rlenergy.MoveCost(destTile, energy.CostMove)
-					}
 				}
 			} else if deltaX != 0 || deltaY != 0 {
+				// Move returned false — moved successfully or terrain-blocked.
+				// Apply terrain-based cost for the destination tile.
+				destTile := l.Level.GetTilePtr(pc.GetX(), pc.GetY(), z)
+				if destTile != nil {
+					actionCost = rlenergy.MoveCost(destTile, energy.CostMove)
+				}
 				rlentity.CheckPassOver(entity, l.Level, pc.GetX(), pc.GetY(), z)
 			}
 
