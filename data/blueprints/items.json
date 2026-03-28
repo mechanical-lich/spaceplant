@@ -87,6 +87,12 @@
                 "Someone left high-grade laser trimmers here."
             ]
         },
+        "ItemSkillsComponent": {
+            "Skills": [
+                "roundhouse_kick",
+                "flamethrower"
+            ]
+        },
         "AsciiAppearanceComponent": {
             "Character": ")",
             "R": 150,
@@ -196,6 +202,39 @@
         },
         "ArmorComponent": {
             "Armor": 4
+        }
+    },
+    "flamethrower": {
+        "DescriptionComponent": {
+            "Name": "flamethrower",
+            "Faction": "item",
+            "PassOverDescription": [
+                "A flamethrower lies here.",
+                "You spot a flamethrower on the floor.",
+                "Someone left a flamethrower here."
+            ]
+        },
+        "AsciiAppearanceComponent": {
+            "Character": ")",
+            "R": 255,
+            "G": 120,
+            "B": 0
+        },
+        "AppearanceComponent": {
+            "SpriteX": 320,
+            "SpriteY": 0,
+            "R": 255,
+            "G": 120,
+            "B": 0,
+            "Frames": 1
+        },
+        "ItemComponent": {
+            "Slot": "hand"
+        },
+        "ItemSkillsComponent": {
+            "skills": [
+                "flamethrower"
+            ]
         }
     },
     "blue_keycard": {

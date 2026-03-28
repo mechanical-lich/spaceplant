@@ -54,6 +54,14 @@ func Hit(l *world.Level, entity *ecs.Entity, entityHit *ecs.Entity) {
 	}
 }
 
+func SavingThrow(l *world.Level, entity *ecs.Entity, entityHit *ecs.Entity, saveType string, dc int, damageType string, damageDice string) {
+	if rlbodycombat.SavingThrow(entityHit, saveType, dc, damageType, damageDice) {
+		if entityHit != entity && !entityHit.HasComponent(component.Dead) {
+			entityHit.AddComponent(&component.AttackComponent{SpriteX: 0, SpriteY: 0, X: 0, Y: 0})
+		}
+	}
+}
+
 // HitTile returns the world tile on the target's footprint closest to the attacker.
 func HitTile(attacker, target *ecs.Entity) (int, int) {
 	apc := attacker.GetComponent(rlcomponents.Position).(*rlcomponents.PositionComponent)

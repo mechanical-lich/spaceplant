@@ -84,5 +84,12 @@ func (s *PlayerSystem) UpdateEntity(levelInterface any, entity *ecs.Entity) erro
 	}
 
 	entity.AddComponent(rlcomponents.GetTurnTaken())
-	return act.Execute(entity, l)
+	err := act.Execute(entity, l)
+
+	// Re-sync item-granted skills after any equip operation.
+	if _, isEquip := act.(action.EquipAction); isEquip {
+		skill.SyncEquippedSkills(entity)
+	}
+
+	return err
 }

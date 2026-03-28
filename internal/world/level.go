@@ -12,9 +12,9 @@ type Tile = rlworld.Tile
 // Level embeds rlworld.Level and adds spaceplant-specific state.
 type Level struct {
 	*rlworld.Level
-	Theme      Theme
-	NoBudding  []bool                        // parallel to Level.Data — generation flag
-	TileAnims  map[TileAnimKey][]*TileAnim   // visual-only tile overlay animations
+	Theme     Theme
+	NoBudding []bool                      // parallel to Level.Data — generation flag
+	TileAnims map[TileAnimKey][]*TileAnim // visual-only tile overlay animations
 }
 
 // NewLevel creates a single 3D level.
@@ -139,6 +139,9 @@ func (l *Level) drawAndAdvanceTileAnims(dst *ebiten.Image, x, y, z int, sx, sy f
 	live := anims[:0]
 	for _, a := range anims {
 		a.draw(dst, sx, sy, spW, spH)
+		if a.LightLevel > 0 {
+			l.GetTilePtr(x, y, z).LightLevel = 255 - a.LightLevel
+		}
 		if !a.advance() {
 			live = append(live, a)
 		}

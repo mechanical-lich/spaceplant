@@ -1,21 +1,27 @@
 package action
 
-// SimpleFactory creates an action with no direction parameter.
-// Used for skills that add new key bindings.
-type SimpleFactory func() Action
+// SkillFactory creates an action using parameters from a skill definition.
+// Actions that don't need parameters simply ignore them.
+type SkillFactory func(params ActionParams) Action
 
-var simpleRegistry = map[string]SimpleFactory{}
+var skillRegistry = map[string]SkillFactory{}
 
-// RegisterSimple registers a no-parameter action factory under the given ID.
-// Call this at startup before skills are loaded.
-func RegisterSimple(id string, factory SimpleFactory) {
-	simpleRegistry[id] = factory
+// RegisterSkill registers a param-aware action factory under the given ID.
+func RegisterSkill(id string, factory SkillFactory) {
+	skillRegistry[id] = factory
 }
 
-// CreateSimple instantiates an action by ID, or nil if the ID is unknown.
-func CreateSimple(id string) Action {
-	if f, ok := simpleRegistry[id]; ok {
-		return f()
+// RegisterSimple registers a no-parameter action factory. It is a convenience
+// wrapper around RegisterSkill for actions that don't use skill params.
+func RegisterSimple(id string, factory func() Action) {
+	skillRegistry[id] = func(_ ActionParams) Action { return factory() }
+}
+
+// CreateSkillAction instantiates an action by ID with the given skill params,
+// or nil if the ID is unknown.
+func CreateSkillAction(id string, params ActionParams) Action {
+	if f, ok := skillRegistry[id]; ok {
+		return f(params)
 	}
 	return nil
 }
@@ -26,4 +32,7 @@ func init() {
 	RegisterSimple("equip", func() Action { return EquipAction{} })
 	RegisterSimple("stairs", func() Action { return StairsAction{} })
 	RegisterSimple("roundhouse_kick", func() Action { return RoundhouseKickAction{} })
+	RegisterSkill("cone_of", func(p ActionParams) Action {
+		return ConeOfAction{Params: p}
+	})
 }

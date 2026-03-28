@@ -4,6 +4,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+
+	"github.com/mechanical-lich/spaceplant/internal/action"
 )
 
 // StatModifier adjusts a named stat by a signed delta.
@@ -22,6 +24,8 @@ type SkillDef struct {
 	// ActionBindings adds new key → action mappings when this skill is active.
 	// Keys are key-name strings (e.g. "K"); values are registered action IDs.
 	ActionBindings map[string]string `json:"action_bindings,omitempty"`
+	// ActionParams holds data-driven parameters passed to the action when executed.
+	ActionParams action.ActionParams `json:"action_params,omitempty"`
 }
 
 var registry = map[string]*SkillDef{}

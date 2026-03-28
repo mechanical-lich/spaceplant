@@ -43,5 +43,37 @@
     "action_bindings": {
       "K": "roundhouse_kick"
     }
+  },
+  {
+    "id": "flamethrower",
+    "name": "Flamethrower",
+    "description": "Unleash a cone of fire in the direction you are facing. Bound to C.",
+    "action_bindings": {
+      "C": "cone_of"
+    },
+    "action_params": {
+      "depth": 3,
+      "spread": -1,
+      "damage_dice": "1d8",
+      "damage_type": "fire",
+      "save_stat": "dex",
+      "save_dc": 15
+    }
+  },
+  {
+    "id": "acid_spray",
+    "name": "Acid Spray",
+    "description": "Unleash a cone of acid in the direction you are facing. Bound to C.",
+    "action_bindings": {
+      "C": "cone_of"
+    },
+    "action_params": {
+      "depth": 5,
+      "spread": 0,
+      "damage_dice": "1d8",
+      "damage_type": "acid",
+      "save_stat": "dex",
+      "save_dc": 15
+    }
   }
 ]

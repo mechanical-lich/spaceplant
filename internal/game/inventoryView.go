@@ -14,6 +14,7 @@ import (
 	"github.com/mechanical-lich/spaceplant/internal/component"
 	"github.com/mechanical-lich/spaceplant/internal/entityhelpers"
 	"github.com/mechanical-lich/spaceplant/internal/eventsystem"
+	"github.com/mechanical-lich/spaceplant/internal/skill"
 )
 
 type InventoryView struct {
@@ -130,6 +131,7 @@ func (view *InventoryView) Update() {
 							playerRemoveItem(view.player, v)
 						} else if item.Slot != component.BagSlot {
 							playerEquipItem(view.player, v)
+							skill.SyncEquippedSkills(view.player)
 						}
 					}
 				}

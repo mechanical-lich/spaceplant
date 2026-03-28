@@ -21,7 +21,7 @@ func ActionForKey(entity *ecs.Entity, key string) action.Action {
 		}
 
 		if actionID, ok := def.ActionBindings[key]; ok {
-			if act := action.CreateSimple(actionID); act != nil {
+			if act := action.CreateSkillAction(actionID, def.ActionParams); act != nil {
 				return act
 			}
 		}

@@ -26,6 +26,8 @@ type TileAnim struct {
 	// Set to -1 for an indefinite animation that never expires.
 	TTL int
 
+	LightLevel int // optional light level to set on the tile while the animation is active
+
 	// internal state
 	frame int
 	tick  int
@@ -48,6 +50,7 @@ func (a *TileAnim) advance() bool {
 		a.tick = 0
 		a.frame = (a.frame + 1) % a.FrameCount
 	}
+
 	return false
 }
 
