@@ -11,6 +11,7 @@ import (
 	"github.com/mechanical-lich/mlge/ecs"
 	"github.com/mechanical-lich/mlge/message"
 	"github.com/mechanical-lich/spaceplant/internal/component"
+	"github.com/mechanical-lich/ml-rogue-lib/pkg/rlenergy"
 	"github.com/mechanical-lich/spaceplant/internal/energy"
 	"github.com/mechanical-lich/spaceplant/internal/entityhelpers"
 	"github.com/mechanical-lich/spaceplant/internal/eventsystem"
@@ -231,14 +232,14 @@ func (s *PlayerSystem) UpdateEntity(levelInterface any, entity *ecs.Entity) erro
 					// Successful move — cost based on destination terrain.
 					destTile := l.Level.GetTilePtr(pc.GetX(), pc.GetY(), z)
 					if destTile != nil {
-						actionCost = energy.MoveCost(destTile)
+						actionCost = rlenergy.MoveCost(destTile, energy.CostMove)
 					}
 				}
 			} else if deltaX != 0 || deltaY != 0 {
 				rlentity.CheckPassOver(entity, l.Level, pc.GetX(), pc.GetY(), z)
 			}
 
-			energy.SetActionCost(entity, actionCost)
+			rlenergy.SetActionCost(entity, actionCost)
 		}
 	}
 

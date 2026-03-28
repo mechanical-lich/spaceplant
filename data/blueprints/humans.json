@@ -98,8 +98,7 @@
         },
         "EnergyComponent": {
             "Speed": 25,
-            "Energy": 100,
-            "Threshold": 100
+            "Energy": 100
         },
         "StatsComponent": {
             "Str": 15,
@@ -207,8 +206,7 @@
         "WanderAIComponent": {},
         "DefensiveAIComponent": {},
         "EnergyComponent": {
-            "Speed": 25,
-            "Threshold": 100
+            "Speed": 25
         },
         "LightComponent": {
             "Radius": 10,
@@ -322,8 +320,7 @@
         "WanderAIComponent": {},
         "DefensiveAIComponent": {},
         "EnergyComponent": {
-            "Speed": 25,
-            "Threshold": 100
+            "Speed": 25
         },
         "LightComponent": {
             "Radius": 10,

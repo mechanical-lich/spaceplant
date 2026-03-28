@@ -1,17 +1,18 @@
 package game
 
 import (
+	"math"
+
 	"github.com/mechanical-lich/ml-rogue-lib/pkg/rlcomponents"
+	"github.com/mechanical-lich/ml-rogue-lib/pkg/rlenergy"
 	"github.com/mechanical-lich/mlge/event"
 	"github.com/mechanical-lich/mlge/message"
 	"github.com/mechanical-lich/mlge/simulation"
 	"github.com/mechanical-lich/mlge/transport"
-	"math"
 
 	"github.com/mechanical-lich/spaceplant/internal/component"
 	"github.com/mechanical-lich/spaceplant/internal/config"
 	"github.com/mechanical-lich/spaceplant/internal/eventsystem"
-	"github.com/mechanical-lich/spaceplant/internal/initiative"
 	"github.com/mechanical-lich/spaceplant/internal/system"
 )
 
@@ -99,19 +100,7 @@ func (s *MainSimState) Tick(_ any) simulation.SimulationState {
 
 		// Immediately deduct cost if the player consumed their turn.
 		// This avoids a one-tick delay between acting and cost resolution.
-		if s.sim.Player.HasComponent(rlcomponents.TurnTaken) {
-			if s.sim.Player.HasComponent(component.Energy) {
-				ec := s.sim.Player.GetComponent(component.Energy).(*component.EnergyComponent)
-				cost := ec.LastActionCost
-				if cost == 0 {
-					cost = ec.Threshold
-				}
-				ec.Energy -= cost
-				ec.LastActionCost = 0
-			}
-			s.sim.Player.RemoveComponent(rlcomponents.MyTurn)
-			s.sim.Player.RemoveComponent(rlcomponents.TurnTaken)
-		}
+		rlenergy.ResolveTurn(s.sim.Player)
 
 		// Full world update — lighting, doors, status effects, etc.
 		// Player won't re-act here because MyTurn was already stripped.
@@ -119,12 +108,12 @@ func (s *MainSimState) Tick(_ any) simulation.SimulationState {
 		s.advanceAnimations()
 
 		// Decide what happens next.
-		if s.playerHasEnergy() {
+		if rlenergy.CanAct(s.sim.Player) {
 			// Player has enough energy to act again (multi-action).
 			s.sim.Player.AddComponent(rlcomponents.GetMyTurn())
 		} else {
 			// Advance time so the player doesn't wait an extra tick.
-			playerGotTurn, _ := initiative.AdvanceEnergy(s.sim.Level.Entities, s.sim.Player)
+			playerGotTurn, _ := rlenergy.AdvanceEnergy(s.sim.Level.Entities, s.sim.Player)
 			if !playerGotTurn {
 				s.waitingForPlayer = false
 				s.npcDelay = 0
@@ -142,12 +131,12 @@ func (s *MainSimState) Tick(_ any) simulation.SimulationState {
 		system.CleanUpSystem{}.Update(s.sim.Level)
 
 		// Re-grant turns to entities that still have leftover energy (multi-action).
-		playerGotTurn, anyGotTurn := s.regrantTurns()
+		playerGotTurn, anyGotTurn := rlenergy.RegrantTurns(s.sim.Level.Entities, s.sim.Player)
 
 		if !anyGotTurn {
 			// No leftover energy anywhere — advance time (tick everyone).
 			s.sim.TurnCount++
-			playerGotTurn, anyGotTurn = initiative.AdvanceEnergy(s.sim.Level.Entities, s.sim.Player)
+			playerGotTurn, anyGotTurn = rlenergy.AdvanceEnergy(s.sim.Level.Entities, s.sim.Player)
 		}
 
 		// Strip the player's MyTurn so the PlayerSystem doesn't consume a
@@ -175,35 +164,6 @@ func (s *MainSimState) Tick(_ any) simulation.SimulationState {
 	}
 
 	return nil
-}
-
-// playerHasEnergy returns true if the player's energy is at or above threshold.
-func (s *MainSimState) playerHasEnergy() bool {
-	if !s.sim.Player.HasComponent(component.Energy) {
-		return false
-	}
-	ec := s.sim.Player.GetComponent(component.Energy).(*component.EnergyComponent)
-	return ec.Energy >= ec.Threshold
-}
-
-// regrantTurns checks every entity (except the player) for leftover energy
-// and re-grants MyTurn if they can act again. It also checks the player.
-// Returns (playerGotTurn, anyGotTurn).
-func (s *MainSimState) regrantTurns() (playerGotTurn, anyGotTurn bool) {
-	for _, entity := range s.sim.Level.Entities {
-		if entity.HasComponent(rlcomponents.MyTurn) || !entity.HasComponent(component.Energy) {
-			continue
-		}
-		ec := entity.GetComponent(component.Energy).(*component.EnergyComponent)
-		if ec.Energy >= ec.Threshold {
-			entity.AddComponent(rlcomponents.GetMyTurn())
-			anyGotTurn = true
-			if entity == s.sim.Player {
-				playerGotTurn = true
-			}
-		}
-	}
-	return
 }
 
 // anyVisibleNPCActed returns true if any non-player entity that just acted

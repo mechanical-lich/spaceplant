@@ -10,6 +10,7 @@ import (
 	"github.com/mechanical-lich/ml-rogue-lib/pkg/rlworld"
 	"github.com/mechanical-lich/mlge/ecs"
 	"github.com/mechanical-lich/spaceplant/internal/component"
+	"github.com/mechanical-lich/ml-rogue-lib/pkg/rlenergy"
 	"github.com/mechanical-lich/spaceplant/internal/energy"
 	"github.com/mechanical-lich/spaceplant/internal/entityhelpers"
 	"github.com/mechanical-lich/spaceplant/internal/world"
@@ -60,7 +61,7 @@ func (s *AISystem) UpdateEntity(levelInterface any, entity *ecs.Entity) error {
 				if entityhelpers.Move(entity, level, deltaX, deltaY) {
 					destTile := level.Level.GetTilePtr(pc.GetX(), pc.GetY(), pc.GetZ())
 					if destTile != nil {
-						actionCost = energy.MoveCost(destTile)
+						actionCost = rlenergy.MoveCost(destTile, energy.CostMove)
 					}
 				}
 				rlentity.Face(entity, deltaX, deltaY)
@@ -157,7 +158,7 @@ func (s *AISystem) UpdateEntity(levelInterface any, entity *ecs.Entity) error {
 					} else {
 						destTile := level.Level.GetTilePtr(pc.GetX(), pc.GetY(), z)
 						if destTile != nil {
-							actionCost = energy.MoveCost(destTile)
+							actionCost = rlenergy.MoveCost(destTile, energy.CostMove)
 						}
 					}
 				}
@@ -198,7 +199,7 @@ func (s *AISystem) UpdateEntity(levelInterface any, entity *ecs.Entity) error {
 				}
 			}
 
-			energy.SetActionCost(entity, actionCost)
+			rlenergy.SetActionCost(entity, actionCost)
 		}
 	}
 
