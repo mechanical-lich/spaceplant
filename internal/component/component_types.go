@@ -9,7 +9,6 @@ import (
 const (
 	Position      = rlcomponents.Position
 	Stats         = rlcomponents.Stats
-	Initiative    = rlcomponents.Initiative
 	MyTurn        = rlcomponents.MyTurn
 	Dead          = rlcomponents.Dead
 	Description   = rlcomponents.Description
@@ -31,6 +30,7 @@ const (
 	Nocturnal     = rlcomponents.Nocturnal
 	Body          = rlcomponents.Body
 	BodyInventory = rlcomponents.BodyInventory
+	Energy        = rlcomponents.EnergyType
 )
 
 // Spaceplant-specific component types (not in rlcomponents).
@@ -51,7 +51,6 @@ type (
 	DoorComponent            = rlcomponents.DoorComponent
 	PositionComponent        = rlcomponents.PositionComponent
 	StatsComponent           = rlcomponents.StatsComponent
-	InitiativeComponent      = rlcomponents.InitiativeComponent
 	MyTurnComponent          = rlcomponents.MyTurnComponent
 	DeadComponent            = rlcomponents.DeadComponent
 	DescriptionComponent     = rlcomponents.DescriptionComponent
@@ -75,6 +74,7 @@ type (
 	BodyComponent            = rlcomponents.BodyComponent
 	BodyPart                 = rlcomponents.BodyPart
 	ItemSlot                 = rlcomponents.ItemSlot
+	EnergyComponent          = rlcomponents.EnergyComponent
 )
 
 // Re-export item slot constants.

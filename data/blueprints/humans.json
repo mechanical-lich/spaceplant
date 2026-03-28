@@ -96,9 +96,10 @@
         "FoodComponent": {
             "Amount": 3
         },
-        "InitiativeComponent": {
-            "DefaultValue": 4,
-            "Ticks": 1
+        "EnergyComponent": {
+            "Speed": 25,
+            "Energy": 100,
+            "Threshold": 100
         },
         "StatsComponent": {
             "Str": 15,
@@ -205,9 +206,9 @@
         },
         "WanderAIComponent": {},
         "DefensiveAIComponent": {},
-        "InitiativeComponent": {
-            "DefaultValue": 4,
-            "Ticks": 1
+        "EnergyComponent": {
+            "Speed": 25,
+            "Threshold": 100
         },
         "LightComponent": {
             "Radius": 10,
@@ -320,9 +321,9 @@
         },
         "WanderAIComponent": {},
         "DefensiveAIComponent": {},
-        "InitiativeComponent": {
-            "DefaultValue": 4,
-            "Ticks": 1
+        "EnergyComponent": {
+            "Speed": 25,
+            "Threshold": 100
         },
         "LightComponent": {
             "Radius": 10,

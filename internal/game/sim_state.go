@@ -20,11 +20,11 @@ var _ simulation.SimulationState = (*MainSimState)(nil)
 //
 // Turn flow:
 //   - waitingForPlayer == true  → block until the player queues a command, then run
-//     CleanUp → UpdateEntities (player acts) → AdvanceInitiative.
-//     If the player's counter hits zero again immediately, stay in waitingForPlayer;
+//     CleanUp → UpdateEntities (player acts) → AdvanceEnergy.
+//     If the player's energy reaches threshold again immediately, stay in waitingForPlayer;
 //     otherwise enter the NPC phase with a configurable inter-turn delay.
 //   - waitingForPlayer == false → NPC phase. Count down npcDelay; when it reaches
-//     zero run CleanUp → AdvanceInitiative → UpdateEntities (NPCs act).
+//     zero run CleanUp → AdvanceEnergy → UpdateEntities (NPCs act).
 //     If player gets MyTurn, flip back to waitingForPlayer; else reset npcDelay.
 type MainSimState struct {
 	sim              *SimWorld
@@ -93,7 +93,7 @@ func (s *MainSimState) Tick(_ any) simulation.SimulationState {
 		s.sim.UpdateEntities() // player consumes their command and sets TurnTaken
 		s.advanceAnimations()
 
-		playerGotTurn, _ := initiative.AdvanceInitiative(s.sim.Level.Entities, s.sim.Player)
+		playerGotTurn, _ := initiative.AdvanceEnergy(s.sim.Level.Entities, s.sim.Player)
 		if !playerGotTurn {
 			// Enter NPC phase with no delay so NPCs react immediately to the
 			// player's action. The delay is applied after each NPC round.
@@ -110,7 +110,7 @@ func (s *MainSimState) Tick(_ any) simulation.SimulationState {
 		s.sim.TurnCount++
 		s.sim.Mu.Lock()
 		system.CleanUpSystem{}.Update(s.sim.Level)
-		playerGotTurn, anyGotTurn := initiative.AdvanceInitiative(s.sim.Level.Entities, s.sim.Player)
+		playerGotTurn, anyGotTurn := initiative.AdvanceEnergy(s.sim.Level.Entities, s.sim.Player)
 
 		// Strip the player's MyTurn so the PlayerSystem doesn't consume a
 		// queued command during the NPC phase.

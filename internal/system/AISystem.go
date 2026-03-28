@@ -10,6 +10,7 @@ import (
 	"github.com/mechanical-lich/ml-rogue-lib/pkg/rlworld"
 	"github.com/mechanical-lich/mlge/ecs"
 	"github.com/mechanical-lich/spaceplant/internal/component"
+	"github.com/mechanical-lich/spaceplant/internal/energy"
 	"github.com/mechanical-lich/spaceplant/internal/entityhelpers"
 	"github.com/mechanical-lich/spaceplant/internal/world"
 )
@@ -42,6 +43,7 @@ func (s *AISystem) UpdateEntity(levelInterface any, entity *ecs.Entity) error {
 			}
 			entity.AddComponent(rlcomponents.GetTurnTaken())
 			pc := entity.GetComponent("Position").(*component.PositionComponent)
+			actionCost := energy.CostMove
 
 			if rlentity.HandleDeath(entity) {
 				rlentity.CheckDeathAnnouncement(s.Watcher, entity, level.Level)
@@ -55,7 +57,12 @@ func (s *AISystem) UpdateEntity(levelInterface any, entity *ecs.Entity) error {
 				if deltaX == 0 {
 					deltaY = getRandom(-1, 2)
 				}
-				entityhelpers.Move(entity, level, deltaX, deltaY)
+				if entityhelpers.Move(entity, level, deltaX, deltaY) {
+					destTile := level.Level.GetTilePtr(pc.GetX(), pc.GetY(), pc.GetZ())
+					if destTile != nil {
+						actionCost = energy.MoveCost(destTile)
+					}
+				}
 				rlentity.Face(entity, deltaX, deltaY)
 			}
 
@@ -141,9 +148,17 @@ func (s *AISystem) UpdateEntity(levelInterface any, entity *ecs.Entity) error {
 				if entityhelpers.Move(entity, level, deltaX, deltaY) {
 					var blockers []*ecs.Entity
 					rlentity.FootprintBlockers(entity, level, pc.GetX()+deltaX, pc.GetY()+deltaY, z, &blockers)
-					for _, entityHit := range blockers {
-						entityhelpers.Hit(level, entity, entityHit)
-						rlentity.Eat(entity, entityHit)
+					if len(blockers) > 0 {
+						actionCost = energy.CostAttack
+						for _, entityHit := range blockers {
+							entityhelpers.Hit(level, entity, entityHit)
+							rlentity.Eat(entity, entityHit)
+						}
+					} else {
+						destTile := level.Level.GetTilePtr(pc.GetX(), pc.GetY(), z)
+						if destTile != nil {
+							actionCost = energy.MoveCost(destTile)
+						}
 					}
 				}
 				rlentity.Face(entity, deltaX, deltaY)
@@ -154,6 +169,7 @@ func (s *AISystem) UpdateEntity(levelInterface any, entity *ecs.Entity) error {
 				aic := entity.GetComponent("DefensiveAI").(*component.DefensiveAIComponent)
 
 				if aic.Attacked {
+					actionCost = energy.CostAttack
 					z := pc.GetZ()
 					entityHit := level.GetSolidEntityAt(aic.AttackerX, aic.AttackerY, z)
 
@@ -181,6 +197,8 @@ func (s *AISystem) UpdateEntity(levelInterface any, entity *ecs.Entity) error {
 					rlentity.Face(entity, deltaX, deltaY)
 				}
 			}
+
+			energy.SetActionCost(entity, actionCost)
 		}
 	}
 

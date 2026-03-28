@@ -11,7 +11,7 @@ func registerComponents() {
 	jsonFactory.RegisterComponent("DescriptionComponent", func() ecs.Component { return &rlcomponents.DescriptionComponent{} })
 	jsonFactory.RegisterComponent("AppearanceComponent", func() ecs.Component { return &component.AppearanceComponent{} })
 	jsonFactory.RegisterComponent("SolidComponent", func() ecs.Component { return &rlcomponents.SolidComponent{} })
-	jsonFactory.RegisterComponent("InitiativeComponent", func() ecs.Component { return &rlcomponents.InitiativeComponent{} })
+	jsonFactory.RegisterComponent("EnergyComponent", func() ecs.Component { return &rlcomponents.EnergyComponent{} })
 	jsonFactory.RegisterComponent("InventoryComponent", func() ecs.Component { return &rlcomponents.InventoryComponent{} })
 	jsonFactory.RegisterComponent("StatsComponent", func() ecs.Component { return &rlcomponents.StatsComponent{} })
 	jsonFactory.RegisterComponent("InanimateComponent", func() ecs.Component { return &rlcomponents.InanimateComponent{} })

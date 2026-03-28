@@ -5,6 +5,7 @@ import "github.com/mechanical-lich/mlge/ecs"
 // PlayerComponent - Handles websocket communications
 type PlayerComponent struct {
 	Commands []string
+	Rushing  bool
 }
 
 // GetType get the type

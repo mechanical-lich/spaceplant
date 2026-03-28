@@ -6,23 +6,18 @@ import (
 	"github.com/mechanical-lich/spaceplant/internal/component"
 )
 
-// AdvanceInitiative decrements the initiative tick counter for every entity
-// that has an InitiativeComponent and grants MyTurn to those whose counter
-// reaches zero. Returns (playerGotTurn, anyGotTurn).
-func AdvanceInitiative(entities []*ecs.Entity, player *ecs.Entity) (playerGotTurn, anyGotTurn bool) {
+// AdvanceEnergy adds Speed to Energy for every entity with an EnergyComponent.
+// When Energy reaches the Threshold the entity receives MyTurn.
+// Returns (playerGotTurn, anyGotTurn).
+func AdvanceEnergy(entities []*ecs.Entity, player *ecs.Entity) (playerGotTurn, anyGotTurn bool) {
 	for _, entity := range entities {
-		if !entity.HasComponent("Initiative") {
+		if !entity.HasComponent(component.Energy) {
 			continue
 		}
-		ic := entity.GetComponent("Initiative").(*component.InitiativeComponent)
-		ic.Ticks--
+		ec := entity.GetComponent(component.Energy).(*component.EnergyComponent)
+		ec.Energy += ec.Speed
 
-		if ic.Ticks <= 0 {
-			ic.Ticks = ic.DefaultValue
-			if ic.OverrideValue > 0 {
-				ic.Ticks = ic.OverrideValue
-			}
-
+		if ec.Energy >= ec.Threshold && !entity.HasComponent(rlcomponents.MyTurn) {
 			entity.AddComponent(rlcomponents.GetMyTurn())
 			entity.RemoveComponent(rlcomponents.TurnTaken)
 

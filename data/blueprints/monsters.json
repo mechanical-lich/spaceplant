@@ -60,9 +60,9 @@
         "HostileAIComponent": {
             "SightRange": 10
         },
-        "InitiativeComponent": {
-            "DefaultValue": 4,
-            "Ticks": 1
+        "EnergyComponent": {
+            "Speed": 25,
+            "Threshold": 100
         },
         "StatsComponent": {
             "Str": 12,
@@ -151,9 +151,9 @@
         "HostileAIComponent": {
             "SightRange": 20
         },
-        "InitiativeComponent": {
-            "DefaultValue": 4,
-            "Ticks": 1
+        "EnergyComponent": {
+            "Speed": 25,
+            "Threshold": 100
         },
         "StatsComponent": {
             "Str": 15,
@@ -230,9 +230,9 @@
         "HostileAIComponent": {
             "SightRange": 10
         },
-        "InitiativeComponent": {
-            "DefaultValue": 2,
-            "Ticks": 1
+        "EnergyComponent": {
+            "Speed": 50,
+            "Threshold": 100
         },
         "StatsComponent": {
             "Str": 14,
@@ -308,9 +308,9 @@
         "HostileAIComponent": {
             "SightRange": 10
         },
-        "InitiativeComponent": {
-            "DefaultValue": 3,
-            "Ticks": 1
+        "EnergyComponent": {
+            "Speed": 33,
+            "Threshold": 100
         },
         "StatsComponent": {
             "Str": 12,
@@ -379,9 +379,9 @@
         "HostileAIComponent": {
             "SightRange": 10
         },
-        "InitiativeComponent": {
-            "DefaultValue": 2,
-            "Ticks": 1
+        "EnergyComponent": {
+            "Speed": 50,
+            "Threshold": 100
         },
         "StatsComponent": {
             "Str": 10,
@@ -447,9 +447,9 @@
         "HostileAIComponent": {
             "SightRange": 10
         },
-        "InitiativeComponent": {
-            "DefaultValue": 4,
-            "Ticks": 1
+        "EnergyComponent": {
+            "Speed": 25,
+            "Threshold": 100
         },
         "StatsComponent": {
             "Str": 10,

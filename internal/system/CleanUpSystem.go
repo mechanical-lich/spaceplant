@@ -16,6 +16,15 @@ type CleanUpSystem struct {
 func (s CleanUpSystem) Update(level *world.Level) {
 	for _, entity := range level.Entities {
 		if entity.HasComponent(rlcomponents.MyTurn) && entity.HasComponent(rlcomponents.TurnTaken) {
+			if entity.HasComponent(component.Energy) {
+				ec := entity.GetComponent(component.Energy).(*component.EnergyComponent)
+				cost := ec.LastActionCost
+				if cost == 0 {
+					cost = ec.Threshold
+				}
+				ec.Energy -= cost
+				ec.LastActionCost = 0
+			}
 			entity.RemoveComponent(rlcomponents.MyTurn)
 			entity.RemoveComponent(rlcomponents.TurnTaken)
 		}

@@ -11,6 +11,7 @@ import (
 	"github.com/mechanical-lich/mlge/ecs"
 	"github.com/mechanical-lich/mlge/message"
 	"github.com/mechanical-lich/spaceplant/internal/component"
+	"github.com/mechanical-lich/spaceplant/internal/energy"
 	"github.com/mechanical-lich/spaceplant/internal/entityhelpers"
 	"github.com/mechanical-lich/spaceplant/internal/eventsystem"
 	"github.com/mechanical-lich/spaceplant/internal/world"
@@ -41,12 +42,14 @@ func (s *PlayerSystem) UpdateEntity(levelInterface any, entity *ecs.Entity) erro
 			// Non-turn-consuming commands — these don't end the turn.
 			switch command {
 			case "R":
-				ic := entity.GetComponent("Initiative").(*component.InitiativeComponent)
-				if ic.OverrideValue > 0 {
-					ic.OverrideValue = 0
+				ec := entity.GetComponent(component.Energy).(*component.EnergyComponent)
+				if playerComponent.Rushing {
+					ec.Speed /= 2
+					playerComponent.Rushing = false
 					message.AddMessage("Rush mode off.")
 				} else {
-					ic.OverrideValue = 2
+					ec.Speed *= 2
+					playerComponent.Rushing = true
 					message.AddMessage("Rush mode on!")
 				}
 				return nil
@@ -59,6 +62,7 @@ func (s *PlayerSystem) UpdateEntity(levelInterface any, entity *ecs.Entity) erro
 			z := pc.GetZ()
 			deltaX := 0
 			deltaY := 0
+			actionCost := energy.CostMove // default
 
 			switch command {
 			case "W":
@@ -74,6 +78,7 @@ func (s *PlayerSystem) UpdateEntity(levelInterface any, entity *ecs.Entity) erro
 				deltaX++
 				dc.Direction = 0
 			case "F":
+				actionCost = energy.CostAttack
 				direction := playerComponent.PopCommand()
 				if direction == "" {
 					message.AddMessage("Wasn't given a direction to shoot!")
@@ -81,6 +86,7 @@ func (s *PlayerSystem) UpdateEntity(levelInterface any, entity *ecs.Entity) erro
 					message.AddMessage("Shoot in the " + direction + " direction!")
 				}
 			case "H":
+				actionCost = energy.CostQuick
 				used := false
 				var bag []*ecs.Entity
 				var removeFn func(*ecs.Entity) bool
@@ -110,6 +116,7 @@ func (s *PlayerSystem) UpdateEntity(levelInterface any, entity *ecs.Entity) erro
 					message.AddMessage("You do not have any healing items")
 				}
 			case "Period": // Stairs
+				actionCost = energy.CostQuick
 				tile := l.Level.GetTilePtr(pc.GetX(), pc.GetY(), z)
 				if tile != nil {
 					def := rlworld.TileDefinitions[tile.Type]
@@ -122,6 +129,7 @@ func (s *PlayerSystem) UpdateEntity(levelInterface any, entity *ecs.Entity) erro
 				}
 
 			case "E":
+				actionCost = energy.CostQuick
 				used := false
 				if entity.HasComponent(component.BodyInventory) && entity.HasComponent(component.Body) {
 					inv := entity.GetComponent(component.BodyInventory).(*component.BodyInventoryComponent)
@@ -157,6 +165,7 @@ func (s *PlayerSystem) UpdateEntity(levelInterface any, entity *ecs.Entity) erro
 					message.AddMessage("You do not have anything to equip")
 				}
 			case "P": // Pickup
+				actionCost = energy.CostQuick
 				var entities []*ecs.Entity
 				l.GetEntitiesAt(pc.GetX(), pc.GetY(), z, &entities)
 				if entity.HasComponent(component.BodyInventory) {
@@ -208,17 +217,28 @@ func (s *PlayerSystem) UpdateEntity(levelInterface any, entity *ecs.Entity) erro
 					if rlentity.CheckInteraction(entity, entityHit) {
 						// interaction consumed the bump — do not attack or swap
 					} else if entityHit.HasComponent(component.Door) {
+						actionCost = energy.CostQuick
 						toggleDoor(entity, entityHit)
 					} else if rlcombat.IsFriendly(entity, entityHit) {
+						actionCost = energy.CostAttack
 						rlentity.CheckExcuseMe(entityHit)
 						entityhelpers.Hit(l, entity, entityHit)
 					} else {
+						actionCost = energy.CostAttack
 						entityhelpers.Hit(l, entity, entityHit)
+					}
+				} else {
+					// Successful move — cost based on destination terrain.
+					destTile := l.Level.GetTilePtr(pc.GetX(), pc.GetY(), z)
+					if destTile != nil {
+						actionCost = energy.MoveCost(destTile)
 					}
 				}
 			} else if deltaX != 0 || deltaY != 0 {
 				rlentity.CheckPassOver(entity, l.Level, pc.GetX(), pc.GetY(), z)
 			}
+
+			energy.SetActionCost(entity, actionCost)
 		}
 	}
 

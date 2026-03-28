@@ -85,6 +85,7 @@
     "name": "floor",
     "description": "The floor of the ship.",
     "solid": false,
+    "movementCost": 1,
     "autoTile": 0,
     "variants": [
       {
@@ -103,6 +104,7 @@
     "name": "stairs_up",
     "description": "Stairs leading up to the next deck.",
     "solid": false,
+    "movementCost": 1,
     "stairsUp": true,
     "autoTile": 0,
     "variants": [
@@ -117,6 +119,7 @@
     "name": "stairs_down",
     "description": "Stairs leading down to a lower deck.",
     "solid": false,
+    "movementCost": 1,
     "stairsDown": true,
     "autoTile": 0,
     "variants": [
@@ -149,6 +152,7 @@
     "name": "maintenance_tunnel_floor",
     "description": "The floor of the maintenance tunnel.",
     "solid": false,
+    "movementCost": 2,
     "autoTile": 0,
     "variants": [
       {
