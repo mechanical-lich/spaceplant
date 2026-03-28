@@ -174,7 +174,23 @@ func (g *GUIViewMain) Draw(screen *ebiten.Image, s any) {
 		return
 	}
 
+	mlge_text.Draw(screen,
+		fmt.Sprintf("Turn: %d  Tick: %d", cs.sim.TurnCount, cs.sim.TickCount),
+		12, config.Global().WorldWidth+5, 170, color.RGBA{200, 200, 200, 255})
+
 	y := 185
+	if cs.sim.Player != nil && cs.sim.Player.HasComponent(rlcomponents.Energy) {
+		ec := cs.sim.Player.GetComponent(rlcomponents.Energy).(*rlcomponents.EnergyComponent)
+		var energyCol color.RGBA
+		if ec.Energy < 0 {
+			energyCol = color.RGBA{255, 60, 60, 255}
+		} else {
+			energyCol = color.RGBA{100, 200, 255, 255}
+		}
+		mlge_text.Draw(screen, fmt.Sprintf("Energy: %d", ec.Energy), 14, config.Global().WorldWidth+4, y, energyCol)
+		y += 20
+	}
+
 	if cs.sim.Player != nil && cs.sim.Player.HasComponent(component.Body) {
 		bc := cs.sim.Player.GetComponent(component.Body).(*component.BodyComponent)
 		keys := make([]string, 0, len(bc.Parts))

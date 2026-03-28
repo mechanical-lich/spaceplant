@@ -1,20 +1,11 @@
 package system
 
 import (
-	"fmt"
-
-	"github.com/mechanical-lich/ml-rogue-lib/pkg/rlcombat"
 	"github.com/mechanical-lich/ml-rogue-lib/pkg/rlcomponents"
-	"github.com/mechanical-lich/ml-rogue-lib/pkg/rlentity"
-	"github.com/mechanical-lich/ml-rogue-lib/pkg/rlsystems"
-	"github.com/mechanical-lich/ml-rogue-lib/pkg/rlworld"
 	"github.com/mechanical-lich/mlge/ecs"
 	"github.com/mechanical-lich/mlge/message"
+	"github.com/mechanical-lich/spaceplant/internal/action"
 	"github.com/mechanical-lich/spaceplant/internal/component"
-	"github.com/mechanical-lich/ml-rogue-lib/pkg/rlenergy"
-	"github.com/mechanical-lich/spaceplant/internal/energy"
-	"github.com/mechanical-lich/spaceplant/internal/entityhelpers"
-	"github.com/mechanical-lich/spaceplant/internal/eventsystem"
 	"github.com/mechanical-lich/spaceplant/internal/world"
 )
 
@@ -29,247 +20,65 @@ func (s *PlayerSystem) Requires() []ecs.ComponentType {
 	return nil
 }
 
-// PlayerSystem .
+// UpdateEntity processes one player action per tick when the player has MyTurn.
 func (s *PlayerSystem) UpdateEntity(levelInterface any, entity *ecs.Entity) error {
+	if !entity.HasComponent(component.Player) {
+		return nil
+	}
+	if entity.HasComponent(rlcomponents.Dead) {
+		return nil
+	}
+	if !entity.HasComponent(rlcomponents.MyTurn) {
+		return nil
+	}
+
 	l := levelInterface.(*world.Level)
+	playerComponent := entity.GetComponent(component.Player).(*component.PlayerComponent)
+	command := playerComponent.PopCommand()
 
-	if entity.HasComponent("PlayerComponent") {
-		if entity.HasComponent("MyTurn") {
-			pc := entity.GetComponent("Position").(*component.PositionComponent)
-			dc := entity.GetComponent("Direction").(*component.DirectionComponent)
-			playerComponent := entity.GetComponent("PlayerComponent").(*component.PlayerComponent)
-			command := playerComponent.PopCommand()
-
-			// Non-turn-consuming commands — these don't end the turn.
-			switch command {
-			case "R":
-				ec := entity.GetComponent(component.Energy).(*component.EnergyComponent)
-				if playerComponent.Rushing {
-					ec.Speed /= 2
-					playerComponent.Rushing = false
-					message.AddMessage("Rush mode off.")
-				} else {
-					ec.Speed *= 2
-					playerComponent.Rushing = true
-					message.AddMessage("Rush mode on!")
-				}
-				return nil
-			}
-
-			if command != "" {
-				entity.AddComponent(rlcomponents.GetTurnTaken())
-			}
-
-			z := pc.GetZ()
-			deltaX := 0
-			deltaY := 0
-			actionCost := energy.CostMove // default
-
-			switch command {
-			case "W":
-				deltaY--
-				dc.Direction = 2
-			case "S":
-				deltaY++
-				dc.Direction = 1
-			case "A":
-				deltaX--
-				dc.Direction = 3
-			case "D":
-				deltaX++
-				dc.Direction = 0
-			case "F":
-				actionCost = energy.CostAttack
-				direction := playerComponent.PopCommand()
-				if direction == "" {
-					message.AddMessage("Wasn't given a direction to shoot!")
-				} else {
-					message.AddMessage("Shoot in the " + direction + " direction!")
-				}
-			case "H":
-				actionCost = energy.CostQuick
-				used := false
-				var bag []*ecs.Entity
-				var removeFn func(*ecs.Entity) bool
-				if entity.HasComponent(component.BodyInventory) {
-					inv := entity.GetComponent(component.BodyInventory).(*component.BodyInventoryComponent)
-					bag = inv.Bag
-					removeFn = inv.RemoveItem
-				} else if entity.HasComponent(component.Inventory) {
-					inv := entity.GetComponent(component.Inventory).(*component.InventoryComponent)
-					bag = inv.Bag
-					removeFn = inv.RemoveItem
-				}
-				for _, v := range bag {
-					if !v.HasComponent(component.Item) {
-						continue
-					}
-					item := v.GetComponent(component.Item).(*component.ItemComponent)
-					if item.Effect == "heal" {
-						entityhelpers.HealBodyParts(entity, item.Value)
-						removeFn(v)
-						used = true
-						message.AddMessage(fmt.Sprint("You used a health pack (", item.Value, " HP spread across damaged parts)"))
-						break
-					}
-				}
-				if !used {
-					message.AddMessage("You do not have any healing items")
-				}
-			case "Period": // Stairs
-				actionCost = energy.CostQuick
-				tile := l.Level.GetTilePtr(pc.GetX(), pc.GetY(), z)
-				if tile != nil {
-					def := rlworld.TileDefinitions[tile.Type]
-					if def.StairsDown {
-						eventsystem.EventManager.SendEvent(eventsystem.StairsEventData{})
-					}
-					if def.StairsUp {
-						eventsystem.EventManager.SendEvent(eventsystem.StairsEventData{Up: true})
-					}
-				}
-
-			case "E":
-				actionCost = energy.CostQuick
-				used := false
-				if entity.HasComponent(component.BodyInventory) && entity.HasComponent(component.Body) {
-					inv := entity.GetComponent(component.BodyInventory).(*component.BodyInventoryComponent)
-					bc := entity.GetComponent(component.Body).(*component.BodyComponent)
-					for _, v := range inv.Bag {
-						if !v.HasComponent(component.Item) {
-							continue
-						}
-						item := v.GetComponent(component.Item).(*component.ItemComponent)
-						if item.Slot != component.BagSlot {
-							inv.AutoEquip(v, bc)
-							used = true
-							message.AddMessage(fmt.Sprint("You equipped ", v.GetComponent(component.Description).(*component.DescriptionComponent).Name))
-							break
-						}
-					}
-				} else if entity.HasComponent(component.Inventory) {
-					inv := entity.GetComponent(component.Inventory).(*component.InventoryComponent)
-					for _, v := range inv.Bag {
-						if !v.HasComponent(component.Item) {
-							continue
-						}
-						item := v.GetComponent(component.Item).(*component.ItemComponent)
-						if item.Slot != component.BagSlot {
-							inv.Equip(v)
-							used = true
-							message.AddMessage(fmt.Sprint("You equipped ", v.GetComponent(component.Description).(*component.DescriptionComponent).Name))
-							break
-						}
-					}
-				}
-				if !used {
-					message.AddMessage("You do not have anything to equip")
-				}
-			case "P": // Pickup
-				actionCost = energy.CostQuick
-				var entities []*ecs.Entity
-				l.GetEntitiesAt(pc.GetX(), pc.GetY(), z, &entities)
-				if entity.HasComponent(component.BodyInventory) {
-					inv := entity.GetComponent(component.BodyInventory).(*component.BodyInventoryComponent)
-					for _, v := range entities {
-						if v.HasComponent(component.Item) {
-							inv.AddItem(v)
-							l.RemoveEntity(v)
-							break
-						}
-					}
-				} else if entity.HasComponent(component.Inventory) {
-					inv := entity.GetComponent(component.Inventory).(*component.InventoryComponent)
-					for _, v := range entities {
-						if v.HasComponent(component.Item) {
-							inv.AddItem(v)
-							l.RemoveEntity(v)
-							break
-						}
-					}
-				}
-
-			}
-
-			if entityhelpers.Move(entity, l, deltaX, deltaY) {
-				// Prefer non-door entities (e.g. monsters) over doors so that
-				// bumping into a monster standing in a doorway attacks rather
-				// than toggling the door.
-				var candidates []*ecs.Entity
-				l.GetEntitiesAt(pc.GetX()+deltaX, pc.GetY()+deltaY, z, &candidates)
-				var entityHit, doorHit *ecs.Entity
-				for _, e := range candidates {
-					if e == entity || e.HasComponent(rlcomponents.Dead) {
-						continue
-					}
-					if e.HasComponent(component.Door) {
-						if doorHit == nil {
-							doorHit = e
-						}
-					} else if entityHit == nil {
-						entityHit = e
-					}
-				}
-				if entityHit == nil {
-					entityHit = doorHit
-				}
-
-				if entityHit != nil {
-					if rlentity.CheckInteraction(entity, entityHit) {
-						// interaction consumed the bump — do not attack or swap
-					} else if entityHit.HasComponent(component.Door) {
-						actionCost = energy.CostQuick
-						toggleDoor(entity, entityHit)
-					} else if rlcombat.IsFriendly(entity, entityHit) {
-						actionCost = energy.CostAttack
-						rlentity.CheckExcuseMe(entityHit)
-						entityhelpers.Hit(l, entity, entityHit)
-					} else {
-						actionCost = energy.CostAttack
-						entityhelpers.Hit(l, entity, entityHit)
-					}
-				}
-			} else if deltaX != 0 || deltaY != 0 {
-				// Move returned false — moved successfully or terrain-blocked.
-				// Apply terrain-based cost for the destination tile.
-				destTile := l.Level.GetTilePtr(pc.GetX(), pc.GetY(), z)
-				if destTile != nil {
-					actionCost = rlenergy.MoveCost(destTile, energy.CostMove)
-				}
-				rlentity.CheckPassOver(entity, l.Level, pc.GetX(), pc.GetY(), z)
-			}
-
-			rlenergy.SetActionCost(entity, actionCost)
+	// Non-turn-consuming commands.
+	switch command {
+	case "R":
+		ec := entity.GetComponent(component.Energy).(*component.EnergyComponent)
+		if playerComponent.Rushing {
+			ec.Speed /= 2
+			playerComponent.Rushing = false
+			message.AddMessage("Rush mode off.")
+		} else {
+			ec.Speed *= 2
+			playerComponent.Rushing = true
+			message.AddMessage("Rush mode on!")
 		}
+		return nil
 	}
 
-	return nil
-}
-
-// toggleDoor opens or closes a door entity, with locked/faction checks.
-// It also immediately syncs the appearance sprite so the change is visible
-// this tick (door entities are iterated before the player, so DoorSystem
-// would otherwise lag one tick behind).
-func toggleDoor(actor, doorEntity *ecs.Entity) {
-	door := doorEntity.GetComponent(component.Door).(*component.DoorComponent)
-	if door.Open {
-		door.Open = false
-	} else if door.Locked {
-		message.AddMessage("The door is locked.")
-		return
-	} else if door.OwnedBy != "" {
-		if !actor.HasComponent(component.Description) {
-			message.AddMessage("Access denied.")
-			return
-		}
-		desc := actor.GetComponent(component.Description).(*component.DescriptionComponent)
-		if desc.Faction != door.OwnedBy {
-			message.AddMessage("Access denied.")
-			return
-		}
-		door.Open = true
-	} else {
-		door.Open = true
+	var act action.Action
+	switch command {
+	case "W":
+		act = action.MoveAction{DeltaX: 0, DeltaY: -1}
+	case "S":
+		act = action.MoveAction{DeltaX: 0, DeltaY: 1}
+	case "A":
+		act = action.MoveAction{DeltaX: -1, DeltaY: 0}
+	case "D":
+		act = action.MoveAction{DeltaX: 1, DeltaY: 0}
+	case "F":
+		dir := playerComponent.PopCommand()
+		act = action.ShootAction{Direction: dir}
+	case "H":
+		act = action.HealAction{}
+	case "Period":
+		act = action.StairsAction{}
+	case "E":
+		act = action.EquipAction{}
+	case "P":
+		act = action.PickupAction{}
 	}
-	rlsystems.SyncDoorAppearance(doorEntity, component.Appearance)
+
+	if act == nil {
+		return nil
+	}
+
+	entity.AddComponent(rlcomponents.GetTurnTaken())
+	return act.Execute(entity, l)
 }

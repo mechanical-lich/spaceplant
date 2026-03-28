@@ -9,16 +9,10 @@ import (
 	"github.com/mechanical-lich/ml-rogue-lib/pkg/rlentity"
 	"github.com/mechanical-lich/ml-rogue-lib/pkg/rlworld"
 	"github.com/mechanical-lich/mlge/ecs"
+	"github.com/mechanical-lich/spaceplant/internal/action"
 	"github.com/mechanical-lich/spaceplant/internal/component"
-	"github.com/mechanical-lich/ml-rogue-lib/pkg/rlenergy"
-	"github.com/mechanical-lich/spaceplant/internal/energy"
-	"github.com/mechanical-lich/spaceplant/internal/entityhelpers"
 	"github.com/mechanical-lich/spaceplant/internal/world"
 )
-
-func getRandom(low int, high int) int {
-	return (rand.Intn((high - low))) + low
-}
 
 type AISystem struct {
 	Watcher *ecs.Entity
@@ -32,176 +26,169 @@ func (s *AISystem) Requires() []ecs.ComponentType {
 	return nil
 }
 
-// AISystem .
+// UpdateEntity runs AI decision logic for one NPC tick, then executes the
+// chosen action using the same shared action types the player uses.
 func (s *AISystem) UpdateEntity(levelInterface any, entity *ecs.Entity) error {
+	if entity.HasComponent(rlcomponents.Dead) {
+		return nil
+	}
+	if !entity.HasComponent(rlcomponents.MyTurn) {
+		return nil
+	}
+
+	isAI := entity.HasComponent(component.WanderAI) ||
+		entity.HasComponent(component.HostileAI) ||
+		entity.HasComponent(component.DefensiveAI)
+	if !isAI {
+		return nil
+	}
+
 	level := levelInterface.(*world.Level)
+	entity.AddComponent(rlcomponents.GetTurnTaken())
 
-	if !entity.HasComponent("Dead") {
-		if entity.HasComponent("MyTurn") {
-			isAI := entity.HasComponent("WanderAI") || entity.HasComponent("HostileAI") || entity.HasComponent("DefensiveAI")
-			if !isAI {
-				return nil
-			}
-			entity.AddComponent(rlcomponents.GetTurnTaken())
-			pc := entity.GetComponent("Position").(*component.PositionComponent)
-			actionCost := energy.CostMove
+	if rlentity.HandleDeath(entity) {
+		rlentity.CheckDeathAnnouncement(s.Watcher, entity, level.Level)
+		return nil
+	}
 
-			if rlentity.HandleDeath(entity) {
-				rlentity.CheckDeathAnnouncement(s.Watcher, entity, level.Level)
-				return nil
-			}
+	pc := entity.GetComponent(component.Position).(*component.PositionComponent)
 
-			//Wander AI
-			if entity.HasComponent("WanderAI") {
-				deltaX := getRandom(-1, 2)
-				deltaY := 0
-				if deltaX == 0 {
-					deltaY = getRandom(-1, 2)
-				}
-				if !entityhelpers.Move(entity, level, deltaX, deltaY) && (deltaX != 0 || deltaY != 0) {
-					destTile := level.Level.GetTilePtr(pc.GetX(), pc.GetY(), pc.GetZ())
-					if destTile != nil {
-						actionCost = rlenergy.MoveCost(destTile, energy.CostMove)
-					}
-				}
-				rlentity.Face(entity, deltaX, deltaY)
-			}
-
-			//Hostile AI
-			if entity.HasComponent("HostileAI") {
-				hc := entity.GetComponent("HostileAI").(*component.HostileAIComponent)
-				deltaX := 0
-				deltaY := 0
-				z := pc.GetZ()
-
-				//Scan around for food to the best my vision allows me.
-				var nearby []*ecs.Entity
-				level.GetEntitiesAround(pc.GetX(), pc.GetY(), z, hc.SightRange, hc.SightRange, &nearby)
-				if len(nearby) > 0 {
-					closest := entity
-					distance := 999999.0
-					for e := range nearby {
-						if nearby[e] != entity {
-							if !rlcombat.IsFriendly(entity, nearby[e]) {
-								foodPC := nearby[e].GetComponent("Position").(*component.PositionComponent)
-								if nearby[e].HasComponent("Food") && !nearby[e].HasComponent("Dead") {
-									from := level.Level.GetTilePtr(pc.GetX(), pc.GetY(), z)
-									to := level.Level.GetTilePtr(foodPC.GetX(), foodPC.GetY(), z)
-									if from != nil && to != nil {
-										tDistance := level.Level.PathEstimate(from.Idx, to.Idx)
-										if tDistance < distance {
-											closest = nearby[e]
-											distance = tDistance
-										}
-									}
-								}
-							}
-						}
-					}
-
-					if closest != entity {
-						foodPC := closest.GetComponent("Position").(*component.PositionComponent)
-						hc.TargetX = foodPC.GetX()
-						hc.TargetY = foodPC.GetY()
-
-						// Start pathfinding from the footprint tile closest to the target.
-						fromX, fromY := pc.GetX(), pc.GetY()
-						var graph path.Graph = level.Level
-						if entity.HasComponent(rlcomponents.Size) {
-							sc := entity.GetComponent(rlcomponents.Size).(*rlcomponents.SizeComponent)
-							w, h := sc.Width, sc.Height
-							if w > 1 || h > 1 {
-								graph = &rlworld.SizedGraph{Level: level.Level, Width: w, Height: h, Entity: entity}
-								startX := fromX - w/2
-								startY := fromY - h/2
-								fromX = max(startX, min(hc.TargetX, startX+w-1))
-								fromY = max(startY, min(hc.TargetY, startY+h-1))
-							}
-						}
-
-						from := level.Level.GetTilePtr(fromX, fromY, z)
-						to := level.Level.GetTilePtr(hc.TargetX, hc.TargetY, z)
-						if from != nil && to != nil {
-							steps, _, _ := path.Path(graph, from.Idx, to.Idx)
-							hc.Path = append(hc.Path[:0], steps...)
-							if len(steps) > 1 {
-								// Derive direction from the path itself (always cardinal).
-								s0 := level.Level.GetTilePtrIndex(steps[0])
-								s1 := level.Level.GetTilePtrIndex(steps[1])
-								sx, sy, _ := s0.Coords()
-								nx, ny, _ := s1.Coords()
-								deltaX = nx - sx
-								deltaY = ny - sy
-							}
-						}
-					}
-				}
-
-				//Found nothing, wander
-				if deltaX == 0 && deltaY == 0 {
-					deltaX = getRandom(-1, 2)
-					deltaY = 0
-					if deltaX == 0 {
-						deltaY = getRandom(-1, 2)
-					}
-				}
-
-				if entityhelpers.Move(entity, level, deltaX, deltaY) {
-					var blockers []*ecs.Entity
-					rlentity.FootprintBlockers(entity, level, pc.GetX()+deltaX, pc.GetY()+deltaY, z, &blockers)
-					if len(blockers) > 0 {
-						actionCost = energy.CostAttack
-						for _, entityHit := range blockers {
-							entityhelpers.Hit(level, entity, entityHit)
-							rlentity.Eat(entity, entityHit)
-						}
-					}
-				} else if deltaX != 0 || deltaY != 0 {
-					destTile := level.Level.GetTilePtr(pc.GetX(), pc.GetY(), z)
-					if destTile != nil {
-						actionCost = rlenergy.MoveCost(destTile, energy.CostMove)
-					}
-				}
-				rlentity.Face(entity, deltaX, deltaY)
-			}
-
-			//Defensive AI
-			if entity.HasComponent("DefensiveAI") {
-				aic := entity.GetComponent("DefensiveAI").(*component.DefensiveAIComponent)
-
-				if aic.Attacked {
-					actionCost = energy.CostAttack
-					z := pc.GetZ()
-					entityHit := level.GetSolidEntityAt(aic.AttackerX, aic.AttackerY, z)
-
-					if entityHit == nil {
-						aic.Attacked = false
-					} else {
-						entityhelpers.Hit(level, entity, entityHit)
-					}
-
-					deltaX := 0
-					deltaY := 0
-					if pc.GetX() < aic.AttackerX {
-						deltaX = 1
-					}
-					if pc.GetX() > aic.AttackerX {
-						deltaX = -1
-					}
-					if pc.GetY() < aic.AttackerY {
-						deltaY = 1
-					}
-					if pc.GetY() > aic.AttackerY {
-						deltaY = -1
-					}
-
-					rlentity.Face(entity, deltaX, deltaY)
-				}
-			}
-
-			rlenergy.SetActionCost(entity, actionCost)
+	// --- Defensive AI: strike back at whoever attacked us. ---
+	if entity.HasComponent(component.DefensiveAI) {
+		aic := entity.GetComponent(component.DefensiveAI).(*component.DefensiveAIComponent)
+		if aic.Attacked {
+			act := action.AttackAction{TargetX: aic.AttackerX, TargetY: aic.AttackerY}
+			dx, dy := facingDelta(pc.GetX(), pc.GetY(), aic.AttackerX, aic.AttackerY)
+			rlentity.Face(entity, dx, dy)
+			return act.Execute(entity, level)
 		}
 	}
 
+	// --- Hostile AI: pathfind to the nearest food entity. ---
+	if entity.HasComponent(component.HostileAI) {
+		hc := entity.GetComponent(component.HostileAI).(*component.HostileAIComponent)
+		dx, dy := hostileDirection(entity, hc, pc, level)
+		rlentity.Face(entity, dx, dy)
+		err := action.MoveAction{DeltaX: dx, DeltaY: dy}.Execute(entity, level)
+		// Hostile NPCs also eat any food entities at the target tile.
+		eatFoodAt(entity, level, pc.GetX()+dx, pc.GetY()+dy, pc.GetZ())
+		return err
+	}
+
+	// --- Wander AI: random cardinal step. ---
+	if entity.HasComponent(component.WanderAI) {
+		dx, dy := randomCardinal()
+		rlentity.Face(entity, dx, dy)
+		return action.MoveAction{DeltaX: dx, DeltaY: dy}.Execute(entity, level)
+	}
+
 	return nil
+}
+
+// hostileDirection returns the (dx, dy) step toward the nearest food entity,
+// falling back to a random wander step when nothing is visible.
+func hostileDirection(entity *ecs.Entity, hc *component.HostileAIComponent,
+	pc *component.PositionComponent, level *world.Level) (int, int) {
+
+	z := pc.GetZ()
+	var nearby []*ecs.Entity
+	level.GetEntitiesAround(pc.GetX(), pc.GetY(), z, hc.SightRange, hc.SightRange, &nearby)
+
+	closest := (*ecs.Entity)(nil)
+	distance := 999999.0
+	for _, e := range nearby {
+		if e == entity || rlcombat.IsFriendly(entity, e) {
+			continue
+		}
+		if !e.HasComponent(component.Food) || e.HasComponent(rlcomponents.Dead) {
+			continue
+		}
+		foodPC := e.GetComponent(component.Position).(*component.PositionComponent)
+		from := level.Level.GetTilePtr(pc.GetX(), pc.GetY(), z)
+		to := level.Level.GetTilePtr(foodPC.GetX(), foodPC.GetY(), z)
+		if from == nil || to == nil {
+			continue
+		}
+		if d := level.Level.PathEstimate(from.Idx, to.Idx); d < distance {
+			closest = e
+			distance = d
+		}
+	}
+
+	if closest == nil {
+		return randomCardinal()
+	}
+
+	foodPC := closest.GetComponent(component.Position).(*component.PositionComponent)
+	hc.TargetX = foodPC.GetX()
+	hc.TargetY = foodPC.GetY()
+
+	fromX, fromY := pc.GetX(), pc.GetY()
+	var graph path.Graph = level.Level
+	if entity.HasComponent(rlcomponents.Size) {
+		sc := entity.GetComponent(rlcomponents.Size).(*rlcomponents.SizeComponent)
+		w, h := sc.Width, sc.Height
+		if w > 1 || h > 1 {
+			graph = &rlworld.SizedGraph{Level: level.Level, Width: w, Height: h, Entity: entity}
+			startX := fromX - w/2
+			startY := fromY - h/2
+			fromX = max(startX, min(hc.TargetX, startX+w-1))
+			fromY = max(startY, min(hc.TargetY, startY+h-1))
+		}
+	}
+
+	from := level.Level.GetTilePtr(fromX, fromY, z)
+	to := level.Level.GetTilePtr(hc.TargetX, hc.TargetY, z)
+	if from == nil || to == nil {
+		return randomCardinal()
+	}
+
+	steps, _, _ := path.Path(graph, from.Idx, to.Idx)
+	hc.Path = append(hc.Path[:0], steps...)
+	if len(steps) < 2 {
+		return randomCardinal()
+	}
+
+	s0 := level.Level.GetTilePtrIndex(steps[0])
+	s1 := level.Level.GetTilePtrIndex(steps[1])
+	sx, sy, _ := s0.Coords()
+	nx, ny, _ := s1.Coords()
+	return nx - sx, ny - sy
+}
+
+// eatFoodAt calls rlentity.Eat for each food entity at the given tile.
+func eatFoodAt(entity *ecs.Entity, level *world.Level, x, y, z int) {
+	var entities []*ecs.Entity
+	level.GetEntitiesAt(x, y, z, &entities)
+	for _, e := range entities {
+		if e.HasComponent(component.Food) {
+			rlentity.Eat(entity, e)
+		}
+	}
+}
+
+// randomCardinal returns a random non-zero cardinal direction step.
+func randomCardinal() (int, int) {
+	dx := rand.Intn(3) - 1 // -1, 0, 1
+	dy := 0
+	if dx == 0 {
+		dy = rand.Intn(3) - 1
+	}
+	return dx, dy
+}
+
+// facingDelta returns a unit step from (fx, fy) toward (tx, ty).
+func facingDelta(fx, fy, tx, ty int) (int, int) {
+	dx, dy := 0, 0
+	if fx < tx {
+		dx = 1
+	} else if fx > tx {
+		dx = -1
+	}
+	if fy < ty {
+		dy = 1
+	} else if fy > ty {
+		dy = -1
+	}
+	return dx, dy
 }
