@@ -104,3 +104,11 @@ func (sw *SimWorld) UpdateEntities() {
 		sw.systemManager.UpdateSystemsForEntity(sw.Level, entity)
 	}
 }
+
+// UpdatePlayer runs systems only on the player entity, without clearing
+// lights. Call UpdateEntities afterwards for a full world pass.
+func (sw *SimWorld) UpdatePlayer() {
+	if sw.Player != nil {
+		sw.systemManager.UpdateSystemsForEntity(sw.Level, sw.Player)
+	}
+}
