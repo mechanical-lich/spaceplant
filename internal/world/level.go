@@ -1,6 +1,7 @@
 package world
 
 import (
+	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/mechanical-lich/ml-rogue-lib/pkg/rlcomponents"
 	"github.com/mechanical-lich/ml-rogue-lib/pkg/rlworld"
 )
@@ -11,8 +12,9 @@ type Tile = rlworld.Tile
 // Level embeds rlworld.Level and adds spaceplant-specific state.
 type Level struct {
 	*rlworld.Level
-	Theme     Theme
-	NoBudding []bool // parallel to Level.Data — generation flag
+	Theme      Theme
+	NoBudding  []bool                        // parallel to Level.Data — generation flag
+	TileAnims  map[TileAnimKey][]*TileAnim   // visual-only tile overlay animations
 }
 
 // NewLevel creates a single 3D level.
@@ -23,6 +25,7 @@ func NewLevel(width, height, depth int, theme Theme) *Level {
 		Level:     base,
 		Theme:     theme,
 		NoBudding: make([]bool, total),
+		TileAnims: make(map[TileAnimKey][]*TileAnim),
 	}
 
 	// Initialize all tiles to "open" (space)
@@ -111,4 +114,38 @@ func (l *Level) SetNoBudding(x, y, z int, val bool) {
 
 func (l *Level) tileIndex(x, y, z int) int {
 	return x + y*l.Width + z*l.Width*l.Height
+}
+
+// AddTileAnim appends an animation overlay to the tile at (x, y, z).
+// Set anim.TTL = -1 for an indefinite animation that never expires on its own.
+func (l *Level) AddTileAnim(x, y, z int, anim *TileAnim) {
+	key := TileAnimKey{x, y, z}
+	l.TileAnims[key] = append(l.TileAnims[key], anim)
+}
+
+// ClearTileAnims removes all animations from the tile at (x, y, z).
+func (l *Level) ClearTileAnims(x, y, z int) {
+	delete(l.TileAnims, TileAnimKey{x, y, z})
+}
+
+// drawAndAdvanceTileAnims renders all animations for a tile and removes
+// expired ones. Called from the render loop; must not be called concurrently.
+func (l *Level) drawAndAdvanceTileAnims(dst *ebiten.Image, x, y, z int, sx, sy float64, spW, spH int) {
+	key := TileAnimKey{x, y, z}
+	anims := l.TileAnims[key]
+	if len(anims) == 0 {
+		return
+	}
+	live := anims[:0]
+	for _, a := range anims {
+		a.draw(dst, sx, sy, spW, spH)
+		if !a.advance() {
+			live = append(live, a)
+		}
+	}
+	if len(live) == 0 {
+		delete(l.TileAnims, key)
+	} else {
+		l.TileAnims[key] = live
+	}
 }

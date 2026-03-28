@@ -5,6 +5,12 @@
             "Name": "Player",
             "Faction": "crew"
         },
+        "SkillComponent": {
+            "Skills": [
+                "roundhouse_kick",
+                "sprinter"
+            ]
+        },
         "BodyInventoryComponent": {
             "StartingInventory": [
                 "laser_trimmers",

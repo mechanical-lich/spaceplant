@@ -40,6 +40,7 @@ const (
 	Attack      ecs.ComponentType = "AttackComponent"
 	Massive     ecs.ComponentType = "MassiveComponent"
 	SpLight     ecs.ComponentType = "LightComponent" // spaceplant's own light (incompatible with rlcomponents.Light)
+	Skill       ecs.ComponentType = "SkillComponent"
 	Interaction                   = rlcomponents.Interaction
 	Door                          = rlcomponents.Door
 )

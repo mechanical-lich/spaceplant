@@ -1,0 +1,47 @@
+[
+  {
+    "id": "sprinter",
+    "name": "Sprinter",
+    "description": "Move faster than normal by acting more frequently.",
+    "stat_modifiers": [
+      {
+        "stat": "speed",
+        "delta": 50
+      }
+    ]
+  },
+  {
+    "id": "heavy_footed",
+    "name": "Heavy Footed",
+    "description": "Move slower than normal.",
+    "stat_modifiers": [
+      {
+        "stat": "speed",
+        "delta": -25
+      }
+    ]
+  },
+  {
+    "id": "brawler",
+    "name": "Brawler",
+    "description": "Hardened fighter with improved armor class and strength.",
+    "stat_modifiers": [
+      {
+        "stat": "ac",
+        "delta": 2
+      },
+      {
+        "stat": "str",
+        "delta": 1
+      }
+    ]
+  },
+  {
+    "id": "roundhouse_kick",
+    "name": "Roundhouse Kick",
+    "description": "Strike all adjacent enemies in a single sweeping kick. Bound to K.",
+    "action_bindings": {
+      "K": "roundhouse_kick"
+    }
+  }
+]

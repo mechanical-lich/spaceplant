@@ -7,6 +7,7 @@ import (
 	"github.com/mechanical-lich/ml-rogue-lib/pkg/rlcomponents"
 	"github.com/mechanical-lich/mlge/ecs"
 	"github.com/mechanical-lich/spaceplant/internal/component"
+	"github.com/mechanical-lich/spaceplant/internal/skill"
 )
 
 // JSON factory for modern blueprints
@@ -68,6 +69,7 @@ func Create(name string, x int, y int) (*ecs.Entity, error) {
 			}
 		}
 
+		skill.Initialize(entity)
 		return entity, nil
 	}
 	return nil, errors.New("no blueprint found")

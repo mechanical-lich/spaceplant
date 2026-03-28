@@ -66,11 +66,12 @@ func (l *Level) Render(aX, aY, z, width, height int, blind, centered bool) *ebit
 						DrawEntity(output, entity, tX, tY, x, y, cfg.SpriteSizeW, cfg.SpriteSizeH, cfg.ColorShading)
 					}
 
+					// Draw tile animations (above entities, below fog)
+					l.drawAndAdvanceTileAnims(output, x, y, z, tX, tY, cfg.SpriteSizeW, cfg.SpriteSizeH)
+
 					// Draw fog
 					if cfg.Lighting {
 						fogColor := color.RGBA{0, 0, 0, uint8(tile.LightLevel)}
-						tX := float64(screenX) * sw
-						tY := float64(screenY) * sh
 						ebitenutil.DrawRect(output, tX, tY, sw, sh, fogColor)
 					}
 				}

@@ -3,6 +3,7 @@ package game
 import (
 	"github.com/mechanical-lich/mlge/resource"
 	"github.com/mechanical-lich/spaceplant/internal/factory"
+	"github.com/mechanical-lich/spaceplant/internal/skill"
 	"github.com/mechanical-lich/spaceplant/internal/world"
 )
 
@@ -15,6 +16,9 @@ func LoadData() error {
 	if err := world.LoadTileDefinitions("data/tile_definitions.json"); err != nil {
 		return err
 	}
+	if err := skill.Load("data/skills/skills.json"); err != nil {
+		return err
+	}
 	return LoadAssets()
 }
 
@@ -22,6 +26,9 @@ func LoadData() error {
 // Use this for terminal or headless entry points that have no Ebiten window.
 func LoadDataHeadless() error {
 	if err := factory.FactoryLoad("data/blueprints"); err != nil {
+		return err
+	}
+	if err := skill.Load("data/skills/skills.json"); err != nil {
 		return err
 	}
 	return world.LoadTileDefinitions("data/tile_definitions.json")

@@ -6,6 +6,7 @@ import (
 	"github.com/mechanical-lich/mlge/message"
 	"github.com/mechanical-lich/spaceplant/internal/action"
 	"github.com/mechanical-lich/spaceplant/internal/component"
+	"github.com/mechanical-lich/spaceplant/internal/skill"
 	"github.com/mechanical-lich/spaceplant/internal/world"
 )
 
@@ -73,6 +74,9 @@ func (s *PlayerSystem) UpdateEntity(levelInterface any, entity *ecs.Entity) erro
 		act = action.EquipAction{}
 	case "P":
 		act = action.PickupAction{}
+	default:
+		// Check if a skill provides a binding for this key.
+		act = skill.ActionForKey(entity, command)
 	}
 
 	if act == nil {
