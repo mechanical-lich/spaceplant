@@ -57,8 +57,12 @@
             }
         },
         "SolidComponent": {},
-        "HostileAIComponent": {
-            "SightRange": 10
+        "AdvancedAIComponent": {
+            "Aggressiveness": 60,
+            "Fear": 20,
+            "SightRange": 12,
+            "Randomness": 15,
+            "AvoidsFriendlyFire": true
         },
         "EnergyComponent": {
             "Speed": 100
@@ -444,7 +448,9 @@
             "SightRange": 10
         },
         "SkillComponent": {
-            "Skills": ["acid_spray"]
+            "Skills": [
+                "acid_spray"
+            ]
         },
         "EnergyComponent": {
             "Speed": 100

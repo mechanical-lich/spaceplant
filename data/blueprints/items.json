@@ -6,7 +6,7 @@
             "PassOverDescription": [
                 "A medical kit sits here.",
                 "You spot a health pack on the floor.",
-                "There's a med kit here — better pick it up."
+                "There's a med kit here \u2014 better pick it up."
             ]
         },
         "AsciiAppearanceComponent": {
@@ -16,6 +16,7 @@
             "B": 50
         },
         "AppearanceComponent": {
+            "Resource": "entities",
             "SpriteX": 288,
             "SpriteY": 0,
             "R": 200,
@@ -55,6 +56,7 @@
             "B": 255
         },
         "AppearanceComponent": {
+            "Resource": "entities",
             "SpriteX": 320,
             "SpriteY": 0,
             "R": 200,
@@ -104,6 +106,7 @@
             "B": 255
         },
         "AppearanceComponent": {
+            "Resource": "entities",
             "SpriteX": 320,
             "SpriteY": 0,
             "R": 200,
@@ -147,6 +150,7 @@
             "B": 180
         },
         "AppearanceComponent": {
+            "Resource": "entities",
             "SpriteX": 352,
             "SpriteY": 0,
             "R": 200,
@@ -189,6 +193,7 @@
             "B": 255
         },
         "AppearanceComponent": {
+            "Resource": "entities",
             "SpriteX": 352,
             "SpriteY": 0,
             "R": 200,
@@ -231,6 +236,7 @@
             "B": 0
         },
         "AppearanceComponent": {
+            "Resource": "entities",
             "SpriteX": 320,
             "SpriteY": 0,
             "R": 255,
@@ -264,6 +270,7 @@
             "B": 255
         },
         "AppearanceComponent": {
+            "Resource": "entities",
             "SpriteX": 416,
             "SpriteY": 0,
             "R": 200,

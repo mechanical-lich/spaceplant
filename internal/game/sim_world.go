@@ -39,8 +39,9 @@ type SimWorld struct {
 	Player        *ecs.Entity
 	CurrentZ      int
 	systemManager *ecs.SystemManager
-	aiSystem      *system.AISystem
-	gm            gamemaster.GameMaster
+	aiSystem         *system.AISystem
+	advancedAISystem *system.AdvancedAISystem
+	gm               gamemaster.GameMaster
 	// TickCount is incremented each time the simulation advances by one tick.
 	TickCount int
 	// TurnCount is incremented each time the player takes a turn (i.e. spends energy).
@@ -87,6 +88,8 @@ func NewSimWorld() (*SimWorld, error) {
 	sw.systemManager.AddSystem(&system.PlayerSystem{})
 	sw.aiSystem = &system.AISystem{}
 	sw.systemManager.AddSystem(sw.aiSystem)
+	sw.advancedAISystem = &system.AdvancedAISystem{}
+	sw.systemManager.AddSystem(sw.advancedAISystem)
 	sw.systemManager.AddSystem(&system.LightSystem{})
 	sw.systemManager.AddSystem(&rlsystems.DoorSystem{AppearanceType: component.Appearance})
 
@@ -150,6 +153,7 @@ func (sw *SimWorld) SpawnPlayer(data CharacterData) error {
 	defer sw.Mu.Unlock()
 	sw.Player = player
 	sw.aiSystem.Watcher = player
+	sw.advancedAISystem.Watcher = player
 	sw.Level.AddEntity(player)
 	sw.UpdateEntities()
 

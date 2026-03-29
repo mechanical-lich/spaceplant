@@ -44,6 +44,7 @@ const (
 	Class       ecs.ComponentType = "ClassComponent"
 	ItemSkills  ecs.ComponentType = "ItemSkillsComponent"
 	Background  ecs.ComponentType = "BackgroundComponent"
+	AdvancedAI  ecs.ComponentType = "AdvancedAIComponent"
 	Interaction                   = rlcomponents.Interaction
 	Door                          = rlcomponents.Door
 )

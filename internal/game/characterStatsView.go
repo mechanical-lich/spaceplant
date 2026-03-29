@@ -5,8 +5,9 @@ import (
 	"strings"
 
 	"github.com/hajimehoshi/ebiten/v2"
-	mlge_text "github.com/mechanical-lich/mlge/text"
 	"github.com/mechanical-lich/mlge/ecs"
+	"github.com/mechanical-lich/mlge/resource"
+	mlge_text "github.com/mechanical-lich/mlge/text"
 	"github.com/mechanical-lich/mlge/ui/minui"
 	"github.com/mechanical-lich/spaceplant/internal/background"
 	"github.com/mechanical-lich/spaceplant/internal/class"
@@ -35,6 +36,7 @@ type CharacterStatsView struct {
 
 	// Tab 2 — Equipment
 	equipList *minui.ListBox
+	equipImg  *minui.ImageWidget
 	equipDesc *minui.ScrollingTextArea
 	equipIDs  []string // parallel to list items (slot names)
 
@@ -45,6 +47,7 @@ type CharacterStatsView struct {
 
 	// Tab 4 — Inventory
 	invList  *minui.ListBox
+	invImg   *minui.ImageWidget
 	invDesc  *minui.ScrollingTextArea
 	invEquip *minui.Button
 	invDrop  *minui.Button
@@ -100,8 +103,15 @@ func (v *CharacterStatsView) buildEquipmentTab() {
 	v.equipList.OnSelect = func(idx int, _ string) { v.refreshEquipDesc(idx) }
 	panel.AddChild(v.equipList)
 
-	v.equipDesc = minui.NewScrollingTextArea("cs_equip_desc", csModalW-240, csModalH-80-v.tabs.TabHeight-20)
-	v.equipDesc.SetPosition(220, 10)
+	const imgSize = 64
+	const imgGap = 10
+
+	v.equipImg = minui.NewImageWidget("cs_equip_img", imgSize, imgSize)
+	v.equipImg.SetPosition(220, 10)
+	panel.AddChild(v.equipImg)
+
+	v.equipDesc = minui.NewScrollingTextArea("cs_equip_desc", csModalW-240, csModalH-80-v.tabs.TabHeight-20-imgSize-imgGap)
+	v.equipDesc.SetPosition(220, 10+imgSize+imgGap)
 	v.equipDesc.LineHeight = 14
 	panel.AddChild(v.equipDesc)
 
@@ -141,8 +151,16 @@ func (v *CharacterStatsView) buildInventoryTab() {
 	v.invList.OnSelect = func(idx int, _ string) { v.refreshInvDesc(idx) }
 	panel.AddChild(v.invList)
 
-	v.invDesc = minui.NewScrollingTextArea("cs_inv_desc", csModalW-240, panelH-60)
-	v.invDesc.SetPosition(220, 10)
+	const imgSizeW = 64
+	const imgSizeH = 96
+	const imgGap = 10
+
+	v.invImg = minui.NewImageWidget("cs_inv_img", imgSizeW, imgSizeH)
+	v.invImg.SetPosition(220, 10)
+	panel.AddChild(v.invImg)
+
+	v.invDesc = minui.NewScrollingTextArea("cs_inv_desc", csModalW-240, panelH-60-imgSizeH-imgGap)
+	v.invDesc.SetPosition(220, 10+imgSizeH+imgGap)
 	v.invDesc.LineHeight = 14
 	panel.AddChild(v.invDesc)
 
@@ -196,6 +214,7 @@ func (v *CharacterStatsView) refreshInventoryList() {
 
 func (v *CharacterStatsView) refreshInvDesc(idx int) {
 	v.invDesc.Clear()
+	v.invImg.Image = nil
 	if idx < 0 || idx >= len(v.invItems) {
 		return
 	}
@@ -207,6 +226,9 @@ func (v *CharacterStatsView) refreshInvDesc(idx int) {
 			v.invDesc.AddText(line)
 		}
 	}
+
+	// Set item sprite image
+	v.invImg.Image = itemSpriteImage(item)
 	if item.HasComponent(component.Item) {
 		ic := item.GetComponent(component.Item).(*component.ItemComponent)
 		if ic.Effect == "heal" {
@@ -374,6 +396,7 @@ func (v *CharacterStatsView) refreshEquipmentList() {
 
 func (v *CharacterStatsView) refreshEquipDesc(idx int) {
 	v.equipDesc.Clear()
+	v.equipImg.Image = nil
 	if idx < 0 || idx >= len(v.equipIDs) {
 		return
 	}
@@ -390,6 +413,9 @@ func (v *CharacterStatsView) refreshEquipDesc(idx int) {
 			v.equipDesc.AddText(line)
 		}
 	}
+
+	// Set item sprite image
+	v.equipImg.Image = itemSpriteImage(item)
 
 	// Skills granted by this item
 	if item.HasComponent(component.ItemSkills) {
@@ -487,4 +513,18 @@ func (v *CharacterStatsView) Draw(screen *ebiten.Image) {
 		return
 	}
 	v.modal.Draw(screen)
+}
+
+// -----------------------------------------------------------------------
+// Helper functions
+// -----------------------------------------------------------------------
+
+// itemSpriteImage returns the sprite image for an item, or nil if unavailable.
+func itemSpriteImage(item *ecs.Entity) *ebiten.Image {
+	if !item.HasComponent(component.Appearance) {
+		return nil
+	}
+	ac := item.GetComponent(component.Appearance).(*component.AppearanceComponent)
+	cfg := config.Global()
+	return resource.GetSubImage(ac.Resource, ac.SpriteX, ac.SpriteY, cfg.SpriteSizeW, cfg.SpriteSizeH)
 }

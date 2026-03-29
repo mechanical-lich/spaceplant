@@ -51,6 +51,7 @@ func Create(name string, x int, y int) (*ecs.Entity, error) {
 					inv.AddItem(itemEntity)
 				}
 				inv.EquipAllBest()
+
 			}
 		}
 
@@ -71,6 +72,7 @@ func Create(name string, x int, y int) (*ecs.Entity, error) {
 		}
 
 		skill.Initialize(entity)
+		skill.SyncEquippedSkills(entity)
 		class.SyncSkills(entity)
 		return entity, nil
 	}
