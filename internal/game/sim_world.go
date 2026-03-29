@@ -5,6 +5,8 @@ import (
 
 	"github.com/mechanical-lich/ml-rogue-lib/pkg/rlsystems"
 	"github.com/mechanical-lich/mlge/ecs"
+	"github.com/mechanical-lich/spaceplant/internal/background"
+	"github.com/mechanical-lich/spaceplant/internal/class"
 	"github.com/mechanical-lich/spaceplant/internal/component"
 	"github.com/mechanical-lich/spaceplant/internal/factory"
 	"github.com/mechanical-lich/spaceplant/internal/gamemaster"
@@ -16,6 +18,18 @@ import (
 
 const numLevels = 4
 
+// CharacterData holds the player's choices from the character creator.
+type CharacterData struct {
+	Name         string
+	Str          int
+	Dex          int
+	Int          int
+	Wis          int
+	ClassID      string
+	ChosenSkills []string
+	BackgroundID string
+}
+
 // SimWorld holds the authoritative server-side game state.
 // It is created once at startup and shared (via pointer) between
 // MainSimState (server) and SPClientState (graphical client, same process).
@@ -24,6 +38,7 @@ type SimWorld struct {
 	Player        *ecs.Entity
 	CurrentZ      int
 	systemManager *ecs.SystemManager
+	aiSystem      *system.AISystem
 	gm            gamemaster.GameMaster
 	// TickCount is incremented each time the simulation advances by one tick.
 	TickCount int
@@ -34,8 +49,8 @@ type SimWorld struct {
 	Mu sync.RWMutex
 }
 
-// NewSimWorld constructs and populates the game world: level generation,
-// systems, player, and initial entity placement.
+// NewSimWorld constructs and populates the game world: level generation and systems.
+// The player is NOT created here; call SpawnPlayer after character creation.
 func NewSimWorld() (*SimWorld, error) {
 	sw := &SimWorld{
 		systemManager: &ecs.SystemManager{},
@@ -69,20 +84,10 @@ func NewSimWorld() (*SimWorld, error) {
 	// Systems
 	sw.systemManager.AddSystem(system.StatusConditionSystem{})
 	sw.systemManager.AddSystem(&system.PlayerSystem{})
-	aiSystem := &system.AISystem{}
-	sw.systemManager.AddSystem(aiSystem)
+	sw.aiSystem = &system.AISystem{}
+	sw.systemManager.AddSystem(sw.aiSystem)
 	sw.systemManager.AddSystem(&system.LightSystem{})
 	sw.systemManager.AddSystem(&rlsystems.DoorSystem{AppearanceType: component.Appearance})
-
-	// Player
-	var err error
-	sw.Player, err = factory.Create("player", pX, pY)
-	if err != nil {
-		return nil, err
-	}
-	aiSystem.Watcher = sw.Player
-	sw.Player.GetComponent("Position").(*component.PositionComponent).SetPosition(pX, pY, 0)
-	sw.Level.AddEntity(sw.Player)
 
 	item, _ := factory.Create("health", pX+2, pY)
 	if item != nil {
@@ -90,10 +95,58 @@ func NewSimWorld() (*SimWorld, error) {
 		sw.Level.AddEntity(item)
 	}
 
-	// Initial entity pass so systems set up state (e.g. initiative).
+	return sw, nil
+}
+
+// SpawnPlayer creates the player entity from CharacterData and adds it to the world.
+// Must be called exactly once, after character creation is complete.
+func (sw *SimWorld) SpawnPlayer(data CharacterData) error {
+	pX, pY := 50, 50
+
+	player, err := factory.Create("player", pX, pY)
+	if err != nil {
+		return err
+	}
+
+	// Override name.
+	if player.HasComponent(component.Description) {
+		dc := player.GetComponent(component.Description).(*component.DescriptionComponent)
+		dc.Name = data.Name
+	}
+
+	// Override stats.
+	if player.HasComponent(component.Stats) {
+		sc := player.GetComponent(component.Stats).(*component.StatsComponent)
+		sc.Str = data.Str
+		sc.Dex = data.Dex
+		sc.Int = data.Int
+		sc.Wis = data.Wis
+	}
+
+	// Replace class — blueprint default is discarded.
+	player.RemoveComponent(component.Class)
+	player.AddComponent(&component.ClassComponent{
+		Classes:       []string{data.ClassID},
+		UpgradePoints: 1,
+		ChosenSkills:  data.ChosenSkills,
+	})
+
+	// Apply chosen class skills and background skills.
+	class.SyncSkills(player)
+
+	player.AddComponent(&component.BackgroundComponent{BackgroundID: data.BackgroundID})
+	background.SyncSkills(player)
+
+	player.GetComponent("Position").(*component.PositionComponent).SetPosition(pX, pY, 0)
+
+	sw.Mu.Lock()
+	defer sw.Mu.Unlock()
+	sw.Player = player
+	sw.aiSystem.Watcher = player
+	sw.Level.AddEntity(player)
 	sw.UpdateEntities()
 
-	return sw, nil
+	return nil
 }
 
 // UpdateEntities runs one full simulation pass over all level entities.
@@ -106,4 +159,3 @@ func (sw *SimWorld) UpdateEntities() {
 		sw.systemManager.UpdateSystemsForEntity(sw.Level, entity)
 	}
 }
-

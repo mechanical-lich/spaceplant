@@ -1,0 +1,18 @@
+[
+    {
+        "ID": "martial_artist",
+        "Name": "Martial Artist",
+        "Description": "A master of hand-to-hand combat.",
+        "Skills": [
+            "roundhouse_kick"
+        ]
+    },
+    {
+        "ID": "hybrid",
+        "Name": "Hybrid",
+        "Description": "A versatile fighter with a mix of skills.",
+        "Skills": [
+            "acid_spray"
+        ]
+    }
+]

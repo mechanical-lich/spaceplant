@@ -100,9 +100,8 @@
             "Energy": 0
         },
         "StatsComponent": {
-            "Str": 15,
-            "Dex": 12,
-            "Con": 15,
+            "Str": 10,
+            "Dex": 10,
             "Int": 10,
             "Wis": 10,
             "Damage": "1d4"

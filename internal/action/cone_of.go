@@ -68,9 +68,9 @@ func (a ConeOfAction) Execute(entity *ecs.Entity, level *world.Level) error {
 
 		level.AddTileAnim(tx, ty, z, &world.TileAnim{
 			Resource:   "fx",
-			SpriteX:    0,
+			SpriteX:    128,
 			SpriteY:    0,
-			FrameCount: 3,
+			FrameCount: 4,
 			FrameSpeed: 4,
 			TTL:        60,
 			LightLevel: 255,

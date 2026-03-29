@@ -462,10 +462,35 @@ func termBodyPartStyle(p component.BodyPart) (tcell.Color, bool) {
 }
 
 func itemName(e *ecs.Entity) string {
-	if e != nil && e.HasComponent("Description") {
-		return e.GetComponent("Description").(*component.DescriptionComponent).Name
+	if e == nil {
+		return "?"
+	}
+	if e.HasComponent(component.Item) {
+		if ic := e.GetComponent(component.Item).(*component.ItemComponent); ic.Name != "" {
+			return ic.Name
+		}
+	}
+	if e.HasComponent(component.Description) {
+		return e.GetComponent(component.Description).(*component.DescriptionComponent).Name
 	}
 	return "?"
+}
+
+// itemDesc returns the best display description for an item entity.
+// ItemComponent.Description takes priority over DescriptionComponent.LongDescription.
+func itemDesc(e *ecs.Entity) string {
+	if e == nil {
+		return ""
+	}
+	if e.HasComponent(component.Item) {
+		if ic := e.GetComponent(component.Item).(*component.ItemComponent); ic.Description != "" {
+			return ic.Description
+		}
+	}
+	if e.HasComponent(component.Description) {
+		return e.GetComponent(component.Description).(*component.DescriptionComponent).LongDescription
+	}
+	return ""
 }
 
 func equippedName(e *ecs.Entity) string {

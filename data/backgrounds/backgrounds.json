@@ -1,0 +1,18 @@
+[
+    {
+        "ID": "rough_life",
+        "Name": "Rough Life",
+        "Description": "Knows how to use fists to survive.",
+        "Skills": [
+            "brawler"
+        ]
+    },
+    {
+        "ID": "athlete",
+        "Name": "Athlete",
+        "Description": "Used to physical activity, has improved speed and dexterity.",
+        "Skills": [
+            "sprinter"
+        ]
+    }
+]

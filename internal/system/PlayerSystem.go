@@ -39,7 +39,7 @@ func (s *PlayerSystem) UpdateEntity(levelInterface any, entity *ecs.Entity) erro
 
 	// Non-turn-consuming commands.
 	switch command {
-	case "R":
+	case "r":
 		ec := entity.GetComponent(component.Energy).(*component.EnergyComponent)
 		if playerComponent.Rushing {
 			ec.Speed /= 2
@@ -55,24 +55,24 @@ func (s *PlayerSystem) UpdateEntity(levelInterface any, entity *ecs.Entity) erro
 
 	var act action.Action
 	switch command {
-	case "W":
+	case "w":
 		act = action.MoveAction{DeltaX: 0, DeltaY: -1}
-	case "S":
+	case "s":
 		act = action.MoveAction{DeltaX: 0, DeltaY: 1}
-	case "A":
+	case "a":
 		act = action.MoveAction{DeltaX: -1, DeltaY: 0}
-	case "D":
+	case "d":
 		act = action.MoveAction{DeltaX: 1, DeltaY: 0}
-	case "F":
+	case "f":
 		dir := playerComponent.PopCommand()
 		act = action.ShootAction{Direction: dir}
-	case "H":
+	case "h":
 		act = action.HealAction{}
 	case "Period":
 		act = action.StairsAction{}
-	case "E":
+	case "e":
 		act = action.EquipAction{}
-	case "P":
+	case "p":
 		act = action.PickupAction{}
 	default:
 		// Check if a skill provides a binding for this key.

@@ -2,6 +2,8 @@ package game
 
 import (
 	"github.com/mechanical-lich/mlge/resource"
+	"github.com/mechanical-lich/spaceplant/internal/background"
+	"github.com/mechanical-lich/spaceplant/internal/class"
 	"github.com/mechanical-lich/spaceplant/internal/factory"
 	"github.com/mechanical-lich/spaceplant/internal/skill"
 	"github.com/mechanical-lich/spaceplant/internal/world"
@@ -17,6 +19,12 @@ func LoadData() error {
 		return err
 	}
 	if err := skill.Load("data/skills/skills.json"); err != nil {
+		return err
+	}
+	if err := class.Load("data/classes/classes.json"); err != nil {
+		return err
+	}
+	if err := background.Load("data/backgrounds/backgrounds.json"); err != nil {
 		return err
 	}
 	return LoadAssets()

@@ -20,7 +20,6 @@ import (
 	"github.com/mechanical-lich/mlge/ui/minui"
 	"github.com/mechanical-lich/spaceplant/internal/component"
 	"github.com/mechanical-lich/spaceplant/internal/config"
-	"github.com/mechanical-lich/spaceplant/internal/ui"
 )
 
 const msgPanelH = 250
@@ -52,33 +51,48 @@ type hoveredTileInfo struct {
 
 // Main gui
 type GUIViewMain struct {
-	ui.GUIViewBase
-	minimap   *ebiten.Image
-	msgArea   *minui.ScrollingTextArea
-	msgSynced int // number of MessageLog entries already pushed to msgArea
-	hover     *hoveredTileInfo
+	minimapWidget *minui.ImageWidget
+	msgArea       *minui.ScrollingTextArea
+	hoverPanel    *minui.RichText
+	msgSynced     int // number of MessageLog entries already pushed to msgArea
+	hover         *hoveredTileInfo
 }
 
-func (g *GUIViewMain) initMsgArea() {
-	if g.msgArea != nil {
+func (g *GUIViewMain) initWidgets() {
+	if g.minimapWidget != nil {
 		return
 	}
 	cfg := config.Global()
-	panelX := cfg.WorldWidth + 4
-	panelW := cfg.ScreenWidth - cfg.WorldWidth - 8
-	panelY := cfg.ScreenHeight - msgPanelH - 4
-	g.msgArea = minui.NewScrollingTextArea("msglog", panelW, msgPanelH)
-	g.msgArea.SetPosition(panelX, panelY)
+	sideX := cfg.WorldWidth + 5
+	sideW := cfg.ScreenWidth - cfg.WorldWidth - 8
+
+	g.minimapWidget = minui.NewImageWidget("minimap", 150, 150)
+	g.minimapWidget.SetPosition(sideX, 16)
+
+	g.hoverPanel = minui.NewRichText("hover_panel", sideW)
+	g.hoverPanel.LineHeight = 14
+
+	g.msgArea = minui.NewScrollingTextArea("msglog", sideW, msgPanelH)
+	g.msgArea.SetPosition(sideX-1, cfg.ScreenHeight-msgPanelH-4)
 	g.msgArea.LineHeight = 15
 }
 
 func (g *GUIViewMain) Update(s any) {
-	g.initMsgArea()
+	g.initWidgets()
 	cs, ok := s.(*SPClientState)
 	if ok {
-		g.minimap = cs.GetMinimap(0, 0, 100, 100, 150, 150)
+		g.minimapWidget.Image = cs.GetMinimap(0, 0, 100, 100, 150, 150)
 		g.updateHover(cs)
 	}
+
+	if g.hover != nil {
+		cfg := config.Global()
+		wrapChars := (cfg.ScreenWidth - cfg.WorldWidth - 12) / 7
+		g.rebuildHoverSpans(wrapChars)
+	} else {
+		g.hoverPanel.Clear()
+	}
+
 	// Append any new messages (MessageLog grows monotonically).
 	for g.msgSynced < len(message.MessageLog) {
 		g.msgArea.AddText(message.MessageLog[g.msgSynced])
@@ -121,13 +135,30 @@ func (g *GUIViewMain) updateHover(cs *SPClientState) {
 	var buf []*ecs.Entity
 	cs.sim.Level.Level.GetEntitiesAt(tileX, tileY, cs.sim.CurrentZ, &buf)
 	for _, e := range buf {
-		if !e.HasComponent(component.Description) {
+		hasDesc := e.HasComponent(component.Description)
+		hasItem := e.HasComponent(component.Item)
+		if !hasDesc && !hasItem {
 			continue
 		}
-		dc := e.GetComponent(component.Description).(*component.DescriptionComponent)
+		name := ""
+		longDesc := ""
+		if hasDesc {
+			dc := e.GetComponent(component.Description).(*component.DescriptionComponent)
+			name = dc.Name
+			longDesc = dc.LongDescription
+		}
+		if hasItem {
+			ic := e.GetComponent(component.Item).(*component.ItemComponent)
+			if ic.Name != "" {
+				name = ic.Name
+			}
+			if ic.Description != "" {
+				longDesc = ic.Description
+			}
+		}
 		ei := entityHoverInfo{
-			Name:            dc.Name,
-			LongDescription: dc.LongDescription,
+			Name:            name,
+			LongDescription: longDesc,
 		}
 		if e.HasComponent(component.Door) {
 			dc2 := e.GetComponent(component.Door).(*component.DoorComponent)
@@ -161,22 +192,81 @@ func (g *GUIViewMain) updateHover(cs *SPClientState) {
 	g.hover = info
 }
 
-func (g *GUIViewMain) Draw(screen *ebiten.Image, s any) {
-	// Draw Minimap
-	if g.minimap != nil {
-		op := &ebiten.DrawImageOptions{}
-		op.GeoM.Translate(float64(config.Global().WorldWidth)+5, 16)
-		screen.DrawImage(g.minimap, op)
+func (g *GUIViewMain) rebuildHoverSpans(wrapChars int) {
+	g.hoverPanel.Clear()
+	h := g.hover
+
+	dimCol := color.RGBA{150, 150, 150, 255}
+	whiteCol := color.RGBA{255, 255, 255, 255}
+	headerCol := color.RGBA{200, 200, 100, 255}
+
+	lightPct := (255 - h.LightLevel) * 100 / 255
+	g.hoverPanel.AddSpan(minui.TextSpan{
+		Text:  fmt.Sprintf("%s  (%d,%d,%d)", h.TileName, h.X, h.Y, h.Z),
+		Color: headerCol,
+		Size:  12,
+	})
+	g.hoverPanel.AddSpan(minui.TextSpan{
+		Text:   fmt.Sprintf("light: %d%%", lightPct),
+		Color:  dimCol,
+		Size:   11,
+		Indent: 4,
+	})
+	if h.TileDescription != "" {
+		for _, line := range mlge_text.Wrap(h.TileDescription, wrapChars, 0) {
+			g.hoverPanel.AddSpan(minui.TextSpan{Text: line, Color: dimCol, Size: 11, Indent: 4})
+		}
 	}
+	g.hoverPanel.AddSpan(minui.TextSpan{Text: ""})
+
+	for _, e := range h.Entities {
+		g.hoverPanel.AddSpan(minui.TextSpan{Text: e.Name, Color: whiteCol, Size: 12})
+		if e.LongDescription != "" {
+			for _, line := range mlge_text.Wrap(e.LongDescription, wrapChars, 0) {
+				g.hoverPanel.AddSpan(minui.TextSpan{Text: line, Color: dimCol, Size: 11, Indent: 4})
+			}
+		}
+		if e.IsDoor {
+			doorState := "closed"
+			if e.DoorOpen {
+				doorState = "open"
+			}
+			lockState := "unlocked"
+			if e.DoorLocked {
+				lockState = "locked"
+			}
+			g.hoverPanel.AddSpan(minui.TextSpan{
+				Text: fmt.Sprintf("%s  %s", doorState, lockState), Color: dimCol, Size: 11, Indent: 4,
+			})
+			if e.DoorKeyName != "" {
+				g.hoverPanel.AddSpan(minui.TextSpan{
+					Text: fmt.Sprintf("requires: %s", e.DoorKeyName), Color: dimCol, Size: 11, Indent: 4,
+				})
+			}
+		}
+		for _, p := range e.BodyParts {
+			col, strike := bodyPartStyle(p)
+			g.hoverPanel.AddSpan(minui.TextSpan{
+				Text: p.Name, Color: col, Size: 11, Indent: 4, Strikethrough: strike,
+			})
+		}
+		g.hoverPanel.AddSpan(minui.TextSpan{Text: ""})
+	}
+}
+
+func (g *GUIViewMain) Draw(screen *ebiten.Image, s any) {
+	g.initWidgets()
+	g.minimapWidget.Draw(screen)
 
 	cs, _ := s.(*SPClientState)
 	if cs == nil {
 		return
 	}
 
+	cfg := config.Global()
 	mlge_text.Draw(screen,
 		fmt.Sprintf("Turn: %d  Tick: %d", cs.sim.TurnCount, cs.sim.TickCount),
-		12, config.Global().WorldWidth+5, 170, color.RGBA{200, 200, 200, 255})
+		12, cfg.WorldWidth+5, 170, color.RGBA{200, 200, 200, 255})
 
 	y := 185
 	if cs.sim.Player != nil && cs.sim.Player.HasComponent(rlcomponents.Energy) {
@@ -187,7 +277,7 @@ func (g *GUIViewMain) Draw(screen *ebiten.Image, s any) {
 		} else {
 			energyCol = color.RGBA{100, 200, 255, 255}
 		}
-		mlge_text.Draw(screen, fmt.Sprintf("Energy: %d", ec.Energy), 14, config.Global().WorldWidth+4, y, energyCol)
+		mlge_text.Draw(screen, fmt.Sprintf("Energy: %d", ec.Energy), 14, cfg.WorldWidth+4, y, energyCol)
 		y += 20
 	}
 
@@ -223,86 +313,21 @@ func (g *GUIViewMain) Draw(screen *ebiten.Image, s any) {
 					col = color.RGBA{255, 0, 0, 255}
 				}
 			}
-			mlge_text.Draw(screen, label, 14, config.Global().WorldWidth+4, y, col)
+			mlge_text.Draw(screen, label, 14, cfg.WorldWidth+4, y, col)
 			y += 16
 		}
 	}
 
 	if g.hover != nil {
-		g.drawHoverPanel(screen, y+8)
+		g.hoverPanel.SetPosition(cfg.WorldWidth+4, y+8)
+		g.hoverPanel.Draw(screen)
 	}
 
-	g.initMsgArea()
 	g.msgArea.Draw(screen)
 
-	if config.Global().ShowMouseCoords {
+	if cfg.ShowMouseCoords {
 		cX, cY := ebiten.CursorPosition()
 		mlge_text.Draw(screen, strconv.Itoa(cX)+","+strconv.Itoa(cY), 16, cX, cY, color.RGBA{255, 0, 0, 255})
-	}
-}
-
-func (g *GUIViewMain) drawHoverPanel(screen *ebiten.Image, startY int) {
-	cfg := config.Global()
-	x := cfg.WorldWidth + 4
-	wrapChars := (cfg.ScreenWidth - cfg.WorldWidth - 12) / 7
-
-	dimCol := color.RGBA{150, 150, 150, 255}
-	whiteCol := color.RGBA{255, 255, 255, 255}
-	headerCol := color.RGBA{200, 200, 100, 255}
-
-	y := startY
-	lineH := 15
-
-	h := g.hover
-	lightPct := (255 - h.LightLevel) * 100 / 255
-	mlge_text.Draw(screen, fmt.Sprintf("%s  (%d,%d,%d)", h.TileName, h.X, h.Y, h.Z), 12, x, y, headerCol)
-	y += lineH
-	mlge_text.Draw(screen, fmt.Sprintf("light: %d%%", lightPct), 11, x+4, y, dimCol)
-	y += lineH - 1
-	if h.TileDescription != "" {
-		for _, line := range mlge_text.Wrap(h.TileDescription, wrapChars, 0) {
-			mlge_text.Draw(screen, line, 11, x+4, y, dimCol)
-			y += lineH - 1
-		}
-	}
-	y += 2
-
-	for _, e := range h.Entities {
-		mlge_text.Draw(screen, e.Name, 12, x, y, whiteCol)
-		y += lineH
-		if e.LongDescription != "" {
-			for _, line := range mlge_text.Wrap(e.LongDescription, wrapChars, 0) {
-				mlge_text.Draw(screen, line, 11, x+4, y, dimCol)
-				y += lineH - 1
-			}
-		}
-		if e.IsDoor {
-			doorState := "closed"
-			if e.DoorOpen {
-				doorState = "open"
-			}
-			lockState := "unlocked"
-			if e.DoorLocked {
-				lockState = "locked"
-			}
-			mlge_text.Draw(screen, fmt.Sprintf("%s  %s", doorState, lockState), 11, x+4, y, dimCol)
-			y += lineH - 1
-			if e.DoorKeyName != "" {
-				mlge_text.Draw(screen, fmt.Sprintf("requires: %s", e.DoorKeyName), 11, x+4, y, dimCol)
-				y += lineH - 1
-			}
-		}
-		for _, p := range e.BodyParts {
-			col, strike := bodyPartStyle(p)
-			const partSize = 11
-			mlge_text.Draw(screen, p.Name, partSize, x+4, y, col)
-			if strike {
-				w, _ := mlge_text.Measure(p.Name, partSize)
-				ebitenutil.DrawRect(screen, float64(x+4), float64(y)+float64(partSize)/2, w, 1, col)
-			}
-			y += lineH - 2
-		}
-		y += 3
 	}
 }
 
@@ -323,13 +348,13 @@ func bodyPartStyle(p bodyPartHoverInfo) (color.RGBA, bool) {
 	}
 	switch {
 	case pct >= 75:
-		return color.RGBA{0, 220, 0, 255}, false   // green
+		return color.RGBA{0, 220, 0, 255}, false // green
 	case pct >= 50:
-		return color.RGBA{180, 220, 0, 255}, false  // yellow-green
+		return color.RGBA{180, 220, 0, 255}, false // yellow-green
 	case pct >= 25:
-		return color.RGBA{255, 180, 0, 255}, false  // orange
+		return color.RGBA{255, 180, 0, 255}, false // orange
 	default:
-		return color.RGBA{220, 50, 50, 255}, false  // red
+		return color.RGBA{220, 50, 50, 255}, false // red
 	}
 }
 

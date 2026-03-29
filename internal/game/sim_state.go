@@ -67,7 +67,7 @@ func NewMainSimState(sim *SimWorld) *MainSimState {
 	eventsystem.EventManager.RegisterListener(s, eventsystem.DropItem)
 
 	event.GetQueuedInstance().RegisterListener(
-		&queuedMessageListener{level: sim.Level, player: sim.Player},
+		&queuedMessageListener{sim: sim},
 		message.MessageEventType,
 	)
 

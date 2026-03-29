@@ -41,7 +41,7 @@
     "name": "Roundhouse Kick",
     "description": "Strike all adjacent enemies in a single sweeping kick. Bound to K.",
     "action_bindings": {
-      "K": "roundhouse_kick"
+      "k": "roundhouse_kick"
     }
   },
   {
@@ -49,7 +49,7 @@
     "name": "Flamethrower",
     "description": "Unleash a cone of fire in the direction you are facing. Bound to C.",
     "action_bindings": {
-      "C": "cone_of"
+      "c": "cone_of"
     },
     "action_params": {
       "depth": 3,
@@ -65,7 +65,7 @@
     "name": "Acid Spray",
     "description": "Unleash a cone of acid in the direction you are facing. Bound to C.",
     "action_bindings": {
-      "C": "cone_of"
+      "c": "cone_of"
     },
     "action_params": {
       "depth": 5,

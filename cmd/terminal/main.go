@@ -105,31 +105,31 @@ func termKeyToCommand(ev *tcell.EventKey) string {
 	case tcell.KeyEscape:
 		return "quit"
 	case tcell.KeyUp:
-		return "W"
+		return "w"
 	case tcell.KeyDown:
-		return "S"
+		return "s"
 	case tcell.KeyLeft:
-		return "A"
+		return "a"
 	case tcell.KeyRight:
-		return "D"
+		return "d"
 	}
 	switch ev.Rune() {
 	case 'w', 'W':
-		return "W"
+		return "w"
 	case 's', 'S':
-		return "S"
+		return "s"
 	case 'a', 'A':
-		return "A"
+		return "a"
 	case 'd', 'D':
-		return "D"
+		return "d"
 	case '.':
 		return "Period"
 	case 'p', 'P':
-		return "P"
+		return "p"
 	case 'e', 'E':
-		return "E"
+		return "e"
 	case 'h', 'H':
-		return "H"
+		return "h"
 	case 'q':
 		return "quit"
 	}
