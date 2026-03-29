@@ -66,9 +66,15 @@ func (a ConeOfAction) Execute(entity *ecs.Entity, level *world.Level) error {
 	for _, off := range offsets {
 		tx, ty := ox+off.X, oy+off.Y
 
+		spriteX := 128
+
+		if damageType == "acid" {
+			spriteX = 256
+		}
+
 		level.AddTileAnim(tx, ty, z, &world.TileAnim{
 			Resource:   "fx",
-			SpriteX:    128,
+			SpriteX:    spriteX,
 			SpriteY:    0,
 			FrameCount: 4,
 			FrameSpeed: 4,

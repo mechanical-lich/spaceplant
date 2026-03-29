@@ -3,6 +3,7 @@ package game
 import (
 	"math"
 
+	"github.com/mechanical-lich/ml-rogue-lib/pkg/rlcombat/rlbodycombat"
 	"github.com/mechanical-lich/ml-rogue-lib/pkg/rlcomponents"
 	"github.com/mechanical-lich/ml-rogue-lib/pkg/rlenergy"
 	"github.com/mechanical-lich/mlge/event"
@@ -13,6 +14,7 @@ import (
 	"github.com/mechanical-lich/spaceplant/internal/component"
 	"github.com/mechanical-lich/spaceplant/internal/config"
 	"github.com/mechanical-lich/spaceplant/internal/eventsystem"
+	"github.com/mechanical-lich/spaceplant/internal/game/listeners"
 	"github.com/mechanical-lich/spaceplant/internal/system"
 )
 
@@ -67,13 +69,33 @@ func NewMainSimState(sim *SimWorld) *MainSimState {
 	eventsystem.EventManager.RegisterListener(s, eventsystem.DropItem)
 
 	event.GetQueuedInstance().RegisterListener(
-		&queuedMessageListener{sim: sim},
+		&listeners.MessageListener{Sim: sim},
 		message.MessageEventType,
 	)
 
 	event.GetQueuedInstance().RegisterListener(
-		&interactionListener{sim: sim},
+		&listeners.InteractionListener{Sim: sim},
 		rlcomponents.InteractionEventType,
+	)
+
+	event.GetQueuedInstance().RegisterListener(
+		&listeners.PassoverListener{Sim: sim},
+		rlcomponents.PassoverEventType,
+	)
+
+	event.GetQueuedInstance().RegisterListener(
+		&listeners.CombatListener{Sim: sim},
+		rlbodycombat.CombatEventType,
+	)
+
+	event.GetQueuedInstance().RegisterListener(
+		&listeners.ExcuseMeListener{Sim: sim},
+		rlcomponents.ExcuseMeEventType,
+	)
+
+	event.GetQueuedInstance().RegisterListener(
+		&listeners.DeathListener{Sim: sim},
+		rlcomponents.DeathEventType,
 	)
 
 	return s

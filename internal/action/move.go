@@ -98,7 +98,7 @@ func (a MoveAction) Execute(entity *ecs.Entity, level *world.Level) error {
 				toggleDoor(entity, entityHit)
 			} else if rlcombat.IsFriendly(entity, entityHit) {
 				actionCost = energy.CostAttack
-				rlentity.CheckExcuseMe(entityHit)
+				rlentity.CheckExcuseMe(entity, entityHit)
 				entityhelpers.Hit(level, entity, entityHit)
 			} else {
 				actionCost = energy.CostAttack

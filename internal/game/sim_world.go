@@ -4,6 +4,7 @@ import (
 	"sync"
 
 	"github.com/mechanical-lich/ml-rogue-lib/pkg/rlsystems"
+	"github.com/mechanical-lich/ml-rogue-lib/pkg/rlworld"
 	"github.com/mechanical-lich/mlge/ecs"
 	"github.com/mechanical-lich/spaceplant/internal/background"
 	"github.com/mechanical-lich/spaceplant/internal/class"
@@ -97,6 +98,12 @@ func NewSimWorld() (*SimWorld, error) {
 
 	return sw, nil
 }
+
+// GetPlayer implements listeners.SimAccess.
+func (sw *SimWorld) GetPlayer() *ecs.Entity { return sw.Player }
+
+// GetRLLevel implements listeners.SimAccess.
+func (sw *SimWorld) GetRLLevel() *rlworld.Level { return sw.Level.Level }
 
 // SpawnPlayer creates the player entity from CharacterData and adds it to the world.
 // Must be called exactly once, after character creation is complete.
