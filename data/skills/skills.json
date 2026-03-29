@@ -51,6 +51,7 @@
     "action_bindings": {
       "c": "cone_of"
     },
+    "ai_type": "align_and_shoot",
     "action_params": {
       "depth": 3,
       "spread": -1,
@@ -64,6 +65,7 @@
     "id": "acid_spray",
     "name": "Acid Spray",
     "description": "Unleash a cone of acid in the direction you are facing. Bound to C.",
+    "ai_type": "align_and_shoot",
     "action_bindings": {
       "c": "cone_of"
     },

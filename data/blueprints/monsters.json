@@ -439,8 +439,12 @@
             }
         },
         "SolidComponent": {},
+        "DirectionComponent": {},
         "HostileAIComponent": {
             "SightRange": 10
+        },
+        "SkillComponent": {
+            "Skills": ["acid_spray"]
         },
         "EnergyComponent": {
             "Speed": 100

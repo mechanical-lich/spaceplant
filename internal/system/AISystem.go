@@ -1,16 +1,19 @@
 package system
 
 import (
+	"math"
 	"math/rand"
 
 	"github.com/mechanical-lich/ml-rogue-lib/pkg/path"
 	"github.com/mechanical-lich/ml-rogue-lib/pkg/rlcombat"
 	"github.com/mechanical-lich/ml-rogue-lib/pkg/rlcomponents"
 	"github.com/mechanical-lich/ml-rogue-lib/pkg/rlentity"
+	"github.com/mechanical-lich/ml-rogue-lib/pkg/rlfov"
 	"github.com/mechanical-lich/ml-rogue-lib/pkg/rlworld"
 	"github.com/mechanical-lich/mlge/ecs"
 	"github.com/mechanical-lich/spaceplant/internal/action"
 	"github.com/mechanical-lich/spaceplant/internal/component"
+	"github.com/mechanical-lich/spaceplant/internal/skill"
 	"github.com/mechanical-lich/spaceplant/internal/world"
 )
 
@@ -67,7 +70,19 @@ func (s *AISystem) UpdateEntity(levelInterface any, entity *ecs.Entity) error {
 	// --- Hostile AI: pathfind to the nearest food entity. ---
 	if entity.HasComponent(component.HostileAI) {
 		hc := entity.GetComponent(component.HostileAI).(*component.HostileAIComponent)
+
+		// Always resolve movement first so TargetX/Y stays current each tick.
+		// This also gives us the fallback (dx, dy) if we don't shoot.
 		dx, dy := hostileDirection(entity, hc, pc, level)
+
+		// If the entity has a skill with ai_type "align_and_shoot", try to fire.
+		// Only shoots when aligned, in range, and with clear LOS.
+		if def, act := skill.SkillForAIType(entity, "align_and_shoot"); def != nil {
+			if tryAlignAndShoot(entity, pc, hc, def, act, level) {
+				return nil
+			}
+		}
+
 		rlentity.Face(entity, dx, dy)
 		err := action.MoveAction{DeltaX: dx, DeltaY: dy}.Execute(entity, level)
 		// Hostile NPCs also eat any food entities at the target tile.
@@ -175,6 +190,59 @@ func randomCardinal() (int, int) {
 		dy = rand.Intn(3) - 1
 	}
 	return dx, dy
+}
+
+// tryAlignAndShoot checks whether the entity is lined up with its target and
+// within the skill's range. If so it faces the target and fires the action,
+// returning true. Returns false so the caller can fall through to movement.
+func tryAlignAndShoot(entity *ecs.Entity, pc *component.PositionComponent,
+	hc *component.HostileAIComponent, def *skill.SkillDef, act action.Action,
+	level *world.Level) bool {
+
+	ax, ay, z := pc.GetX(), pc.GetY(), pc.GetZ()
+	tx, ty := hc.TargetX, hc.TargetY
+
+	depth := def.ActionParams.Depth
+	if depth <= 0 {
+		depth = 3
+	}
+
+	dx, dy := 0, 0
+	dist := 0
+
+	switch {
+	case ax == tx && int(math.Abs(float64(ty-ay))) <= depth:
+		// Same column, target within range.
+		dist = int(math.Abs(float64(ty - ay)))
+		if ty < ay {
+			dy = -1
+		} else {
+			dy = 1
+		}
+	case ay == ty && int(math.Abs(float64(tx-ax))) <= depth:
+		// Same row, target within range.
+		dist = int(math.Abs(float64(tx - ax)))
+		if tx < ax {
+			dx = -1
+		} else {
+			dx = 1
+		}
+	default:
+		return false
+	}
+
+	if dist == 0 {
+		return false
+	}
+
+	// Confirm line of sight is clear.
+	if !rlfov.Los(level.Level, ax, ay, tx, ty, z) {
+		return false
+	}
+
+	rlentity.Face(entity, dx, dy)
+	act.Execute(entity, level) //nolint:errcheck
+	return true
 }
 
 // facingDelta returns a unit step from (fx, fy) toward (tx, ty).

@@ -20,12 +20,15 @@ type SkillDef struct {
 	ID          string         `json:"id"`
 	Name        string         `json:"name"`
 	Description string         `json:"description"`
-	StatMods []StatModifier `json:"stat_modifiers,omitempty"`
+	StatMods    []StatModifier `json:"stat_modifiers,omitempty"`
 	// ActionBindings adds new key → action mappings when this skill is active.
 	// Keys are key-name strings (e.g. "K"); values are registered action IDs.
 	ActionBindings map[string]string `json:"action_bindings,omitempty"`
 	// ActionParams holds data-driven parameters passed to the action when executed.
 	ActionParams action.ActionParams `json:"action_params,omitempty"`
+	// AIType tells the AI system how to use this skill autonomously.
+	// Supported values: "align_and_shoot" — get in range, line up, and fire.
+	AIType string `json:"ai_type,omitempty"`
 }
 
 var registry = map[string]*SkillDef{}

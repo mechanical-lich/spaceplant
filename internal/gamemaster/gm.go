@@ -17,7 +17,7 @@ const hostileMax = 20
 const crewInitial = 10
 const hostileInitial = 15
 
-var hostiles = []string{"creeper", "viner", "scythe", "scrambler"}
+var hostiles = []string{"spitter", "spitter", "creeper", "viner", "scythe", "scrambler"}
 var rareHostiles = []string{"abomination", "spitter"}
 var crew = []string{"crewmember", "officer"}
 
