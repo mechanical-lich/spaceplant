@@ -8,11 +8,14 @@ import (
 	"github.com/mechanical-lich/spaceplant/internal/action"
 )
 
-// StatModifier adjusts a named stat by a signed delta.
-// Supported stat names: "speed", "ac", "str", "dex", "int", "wis".
+// StatModifier adjusts a named stat.
+// For numeric stats (speed, ac, str, dex, int, wis, melee_attack_bonus,
+// ranged_attack_bonus) use Delta. For string-set stats (resistance, advantage)
+// use Value; Delta is ignored.
 type StatModifier struct {
 	Stat  string `json:"stat"`
-	Delta int    `json:"delta"`
+	Delta int    `json:"delta,omitempty"`
+	Value string `json:"value,omitempty"`
 }
 
 // SkillDef is the JSON-loaded definition of a skill.

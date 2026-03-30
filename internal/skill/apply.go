@@ -21,7 +21,7 @@ func Apply(entity *ecs.Entity, skillID string) {
 	}
 	sc.Skills = append(sc.Skills, skillID)
 	for _, mod := range def.StatMods {
-		applyStatDelta(entity, mod.Stat, mod.Delta)
+		applyMod(entity, mod)
 	}
 }
 
@@ -39,7 +39,7 @@ func Remove(entity *ecs.Entity, skillID string) {
 	}
 	sc.Skills = slices.Delete(sc.Skills, idx, idx+1)
 	for _, mod := range def.StatMods {
-		applyStatDelta(entity, mod.Stat, -mod.Delta)
+		removeMod(entity, mod)
 	}
 }
 
@@ -58,7 +58,7 @@ func Initialize(entity *ecs.Entity) {
 			continue
 		}
 		for _, mod := range def.StatMods {
-			applyStatDelta(entity, mod.Stat, mod.Delta)
+			applyMod(entity, mod)
 		}
 	}
 }
@@ -82,8 +82,63 @@ func getOrAddSkillComponent(entity *ecs.Entity) *component.SkillComponent {
 	return sc
 }
 
-// applyStatDelta adds delta to a named stat on the entity.
-// Supported names: "speed", "ac", "str", "dex", "int", "wis".
+// applyMod applies a single StatModifier to an entity.
+// String-valued mods (resistance, advantage) append to a slice;
+// numeric mods add their Delta to the relevant field.
+func applyMod(entity *ecs.Entity, mod StatModifier) {
+	if mod.Value != "" {
+		applyStatValue(entity, mod.Stat, mod.Value)
+	} else {
+		applyStatDelta(entity, mod.Stat, mod.Delta)
+	}
+}
+
+// removeMod reverses a single StatModifier on an entity.
+func removeMod(entity *ecs.Entity, mod StatModifier) {
+	if mod.Value != "" {
+		removeStatValue(entity, mod.Stat, mod.Value)
+	} else {
+		applyStatDelta(entity, mod.Stat, -mod.Delta)
+	}
+}
+
+// applyStatValue appends a string value to a slice-based stat field.
+func applyStatValue(entity *ecs.Entity, stat, value string) {
+	if !entity.HasComponent(component.Stats) {
+		return
+	}
+	s := entity.GetComponent(component.Stats).(*rlcomponents.StatsComponent)
+	switch stat {
+	case "resistance":
+		if !slices.Contains(s.Resistances, value) {
+			s.Resistances = append(s.Resistances, value)
+		}
+	case "advantage":
+		if !slices.Contains(s.Advantages, value) {
+			s.Advantages = append(s.Advantages, value)
+		}
+	}
+}
+
+// removeStatValue removes a string value from a slice-based stat field.
+func removeStatValue(entity *ecs.Entity, stat, value string) {
+	if !entity.HasComponent(component.Stats) {
+		return
+	}
+	s := entity.GetComponent(component.Stats).(*rlcomponents.StatsComponent)
+	switch stat {
+	case "resistance":
+		if idx := slices.Index(s.Resistances, value); idx >= 0 {
+			s.Resistances = slices.Delete(s.Resistances, idx, idx+1)
+		}
+	case "advantage":
+		if idx := slices.Index(s.Advantages, value); idx >= 0 {
+			s.Advantages = slices.Delete(s.Advantages, idx, idx+1)
+		}
+	}
+}
+
+// applyStatDelta adds delta to a named numeric stat on the entity.
 func applyStatDelta(entity *ecs.Entity, stat string, delta int) {
 	switch stat {
 	case "speed":
@@ -115,6 +170,16 @@ func applyStatDelta(entity *ecs.Entity, stat string, delta int) {
 		if entity.HasComponent(component.Stats) {
 			s := entity.GetComponent(component.Stats).(*rlcomponents.StatsComponent)
 			s.Wis += delta
+		}
+	case "melee_attack_bonus":
+		if entity.HasComponent(component.Stats) {
+			s := entity.GetComponent(component.Stats).(*rlcomponents.StatsComponent)
+			s.MeleeAttackBonus += delta
+		}
+	case "ranged_attack_bonus":
+		if entity.HasComponent(component.Stats) {
+			s := entity.GetComponent(component.Stats).(*rlcomponents.StatsComponent)
+			s.RangedAttackBonus += delta
 		}
 	}
 }

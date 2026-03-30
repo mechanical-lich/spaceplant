@@ -32,6 +32,7 @@ func init() {
 	RegisterSimple("equip", func() Action { return EquipAction{} })
 	RegisterSimple("stairs", func() Action { return StairsAction{} })
 	RegisterSimple("roundhouse_kick", func() Action { return RoundhouseKickAction{} })
+	RegisterSimple("shove", func() Action { return ShoveAction{} })
 	RegisterSkill("cone_of", func(p ActionParams) Action {
 		return ConeOfAction{Params: p}
 	})

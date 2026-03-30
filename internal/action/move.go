@@ -110,6 +110,10 @@ func (a MoveAction) Execute(entity *ecs.Entity, level *world.Level) error {
 		destTile := level.Level.GetTilePtr(pc.GetX(), pc.GetY(), z)
 		if destTile != nil {
 			actionCost = rlenergy.MoveCost(destTile, energy.CostMove)
+			// "Small" skill: ignore elevated terrain costs (e.g. maintenance tunnels).
+			if entityHasSkill(entity, "small") && actionCost > energy.CostMove {
+				actionCost = energy.CostMove
+			}
 		}
 		rlentity.CheckPassOver(entity, level.Level, pc.GetX(), pc.GetY(), z)
 	}

@@ -8,6 +8,7 @@ import (
 	mlge_text "github.com/mechanical-lich/mlge/text"
 	"github.com/mechanical-lich/mlge/ui/minui"
 	"github.com/mechanical-lich/spaceplant/internal/background"
+	"github.com/mechanical-lich/spaceplant/internal/ccconfig"
 	"github.com/mechanical-lich/spaceplant/internal/class"
 	"github.com/mechanical-lich/spaceplant/internal/config"
 	"github.com/mechanical-lich/spaceplant/internal/skill"
@@ -39,11 +40,12 @@ type CharacterCreator struct {
 	selectedClass int
 
 	// Skills tab
-	skillList     *minui.ListBox
-	skillDesc     *minui.ScrollingTextArea
-	skillPoints   *minui.Label
-	buySkillBtn   *minui.Button
-	skillIDs      []string
+	skillList        *minui.ListBox
+	skillDesc        *minui.ScrollingTextArea
+	skillPoints      *minui.Label
+	buySkillBtn      *minui.Button
+	forgetSkillBtn   *minui.Button
+	skillIDs         []string
 	chosenSkills  []string
 	upgradePoints int
 	selectedSkill int
@@ -104,6 +106,7 @@ func NewCharacterCreator() *CharacterCreator {
 	cc.modal.AddChild(startBtn)
 
 	cc.refreshClassList()
+	cc.refreshSkillList()
 	cc.refreshBgList()
 
 	return cc
@@ -228,6 +231,12 @@ func (cc *CharacterCreator) buildSkillsTab() {
 	cc.buySkillBtn.OnClick = func() { cc.buySkill() }
 	panel.AddChild(cc.buySkillBtn)
 
+	cc.forgetSkillBtn = minui.NewButton("cc_forget_skill", "Forget Skill")
+	cc.forgetSkillBtn.SetPosition(350, 285)
+	cc.forgetSkillBtn.SetSize(120, 30)
+	cc.forgetSkillBtn.OnClick = func() { cc.forgetSkill() }
+	panel.AddChild(cc.forgetSkillBtn)
+
 	cc.tabs.AddTab("skills", "Skills", panel)
 }
 
@@ -321,21 +330,20 @@ func (cc *CharacterCreator) refreshClassDesc() {
 }
 
 func (cc *CharacterCreator) refreshSkillList() {
-	if cc.selectedClass < 0 || cc.selectedClass >= len(cc.classIDs) {
-		cc.skillList.SetItems([]string{})
-		cc.skillIDs = nil
-		return
+	baseSkills := ccconfig.Get().BaseSkills
+
+	var classSkills []string
+	if cc.selectedClass >= 0 && cc.selectedClass < len(cc.classIDs) {
+		if def := class.Get(cc.classIDs[cc.selectedClass]); def != nil {
+			classSkills = def.Skills
+		}
 	}
-	def := class.Get(cc.classIDs[cc.selectedClass])
-	if def == nil {
-		cc.skillList.SetItems([]string{})
-		cc.skillIDs = nil
-		return
-	}
-	cc.skillIDs = make([]string, len(def.Skills))
-	names := make([]string, len(def.Skills))
-	for i, sID := range def.Skills {
-		cc.skillIDs[i] = sID
+
+	cc.skillIDs = make([]string, 0, len(baseSkills)+len(classSkills))
+	names := make([]string, 0, len(baseSkills)+len(classSkills))
+
+	for _, sID := range baseSkills {
+		cc.skillIDs = append(cc.skillIDs, sID)
 		name := sID
 		if sd := skill.Get(sID); sd != nil {
 			name = sd.Name
@@ -343,8 +351,21 @@ func (cc *CharacterCreator) refreshSkillList() {
 		if slices.Contains(cc.chosenSkills, sID) {
 			name = "✓ " + name
 		}
-		names[i] = name
+		names = append(names, name)
 	}
+
+	for _, sID := range classSkills {
+		cc.skillIDs = append(cc.skillIDs, sID)
+		name := sID
+		if sd := skill.Get(sID); sd != nil {
+			name = sd.Name
+		}
+		if slices.Contains(cc.chosenSkills, sID) {
+			name = "✓ " + name
+		}
+		names = append(names, name)
+	}
+
 	cc.skillList.SetItems(names)
 	if cc.selectedSkill >= len(names) {
 		cc.selectedSkill = -1
@@ -358,7 +379,8 @@ func (cc *CharacterCreator) refreshSkillDesc() {
 		cc.skillDesc.AddText("Select a skill to see its description.")
 		return
 	}
-	sd := skill.Get(cc.skillIDs[cc.selectedSkill])
+	sID := cc.skillIDs[cc.selectedSkill]
+	sd := skill.Get(sID)
 	if sd == nil {
 		return
 	}
@@ -367,7 +389,7 @@ func (cc *CharacterCreator) refreshSkillDesc() {
 	for _, line := range mlge_text.Wrap(sd.Description, 40, 0) {
 		cc.skillDesc.AddText(line)
 	}
-	if slices.Contains(cc.chosenSkills, cc.skillIDs[cc.selectedSkill]) {
+	if slices.Contains(cc.chosenSkills, sID) {
 		cc.skillDesc.AddText("")
 		cc.skillDesc.AddText("(already chosen)")
 	}
@@ -390,6 +412,22 @@ func (cc *CharacterCreator) buySkill() {
 	}
 	cc.chosenSkills = append(cc.chosenSkills, sID)
 	cc.upgradePoints--
+	cc.refreshSkillList()
+	cc.refreshSkillDesc()
+	cc.refreshSkillPoints()
+}
+
+func (cc *CharacterCreator) forgetSkill() {
+	if cc.selectedSkill < 0 || cc.selectedSkill >= len(cc.skillIDs) {
+		return
+	}
+	sID := cc.skillIDs[cc.selectedSkill]
+	idx := slices.Index(cc.chosenSkills, sID)
+	if idx < 0 {
+		return
+	}
+	cc.chosenSkills = slices.Delete(cc.chosenSkills, idx, idx+1)
+	cc.upgradePoints++
 	cc.refreshSkillList()
 	cc.refreshSkillDesc()
 	cc.refreshSkillPoints()

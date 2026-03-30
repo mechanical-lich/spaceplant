@@ -62,6 +62,99 @@
     }
   },
   {
+    "id": "thick_skin",
+    "name": "Thick Skin",
+    "description": "Years of hard living have left you with hide like leather. +2 AC.",
+    "stat_modifiers": [
+      { "stat": "ac", "delta": 2 }
+    ]
+  },
+  {
+    "id": "noncombustible",
+    "name": "Noncombustible",
+    "description": "Fire doesn't scare you. You take half damage from fire.",
+    "stat_modifiers": [
+      { "stat": "resistance", "value": "fire" }
+    ]
+  },
+  {
+    "id": "acid_proof",
+    "name": "Acid Proof",
+    "description": "Corrosive substances roll right off you. You take half damage from acid.",
+    "stat_modifiers": [
+      { "stat": "resistance", "value": "acid" }
+    ]
+  },
+  {
+    "id": "hands_only",
+    "name": "Hands Only",
+    "description": "You fight best with nothing in your hands. Unarmed attacks deal 1d10 bludgeoning and cost half the normal energy.",
+    "stat_modifiers": []
+  },
+  {
+    "id": "martial_artist",
+    "name": "Martial Artist",
+    "description": "A sweeping roundhouse kick that strikes all adjacent enemies at once. Bound to R.",
+    "action_bindings": {
+      "r": "roundhouse_kick"
+    }
+  },
+  {
+    "id": "brainy",
+    "name": "Brainy",
+    "description": "Sharp mind, sharp instincts. +1 INT and advantage on INT saving throws.",
+    "stat_modifiers": [
+      { "stat": "int", "delta": 1 },
+      { "stat": "advantage", "value": "int" }
+    ]
+  },
+  {
+    "id": "nimble",
+    "name": "Nimble",
+    "description": "You dodge with uncanny speed. Advantage on DEX saving throws.",
+    "stat_modifiers": [
+      { "stat": "advantage", "value": "dex" }
+    ]
+  },
+  {
+    "id": "eagle_eyed",
+    "name": "Eagle Eyed",
+    "description": "Nothing gets past you. Advantage on WIS saving throws.",
+    "stat_modifiers": [
+      { "stat": "advantage", "value": "wis" }
+    ]
+  },
+  {
+    "id": "small",
+    "name": "Small",
+    "description": "You were practically born in the ducts. You move through maintenance tunnels at full speed.",
+    "stat_modifiers": []
+  },
+  {
+    "id": "sharpshooter",
+    "name": "Sharpshooter",
+    "description": "You have a steady hand with ranged weapons. +1 to attack rolls with ranged weapons.",
+    "stat_modifiers": [
+      { "stat": "ranged_attack_bonus", "delta": 1 }
+    ]
+  },
+  {
+    "id": "combat_specialist",
+    "name": "Combat Specialist",
+    "description": "Rigorous melee training pays off. +1 to attack rolls with melee weapons.",
+    "stat_modifiers": [
+      { "stat": "melee_attack_bonus", "delta": 1 }
+    ]
+  },
+  {
+    "id": "shove",
+    "name": "Shove",
+    "description": "Shove the entity in front of you one tile back. Bound to V.",
+    "action_bindings": {
+      "v": "shove"
+    }
+  },
+  {
     "id": "acid_spray",
     "name": "Acid Spray",
     "description": "Unleash a cone of acid in the direction you are facing. Bound to C.",

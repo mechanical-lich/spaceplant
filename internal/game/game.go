@@ -3,6 +3,7 @@ package game
 import (
 	"github.com/mechanical-lich/mlge/resource"
 	"github.com/mechanical-lich/spaceplant/internal/background"
+	"github.com/mechanical-lich/spaceplant/internal/ccconfig"
 	"github.com/mechanical-lich/spaceplant/internal/class"
 	"github.com/mechanical-lich/spaceplant/internal/factory"
 	"github.com/mechanical-lich/spaceplant/internal/skill"
@@ -25,6 +26,9 @@ func LoadData() error {
 		return err
 	}
 	if err := background.Load("data/backgrounds/backgrounds.json"); err != nil {
+		return err
+	}
+	if err := ccconfig.Load("data/character_creator_config.json"); err != nil {
 		return err
 	}
 	return LoadAssets()
