@@ -46,12 +46,21 @@ type CharacterStatsView struct {
 	skillIDs  []string
 
 	// Tab 4 — Inventory
-	invList  *minui.ListBox
-	invImg   *minui.ImageWidget
-	invDesc  *minui.ScrollingTextArea
-	invEquip *minui.Button
-	invDrop  *minui.Button
-	invItems []*ecs.Entity
+	invList         *minui.ListBox
+	invNearbyList   *minui.ListBox
+	invImg          *minui.ImageWidget
+	invDesc         *minui.ScrollingTextArea
+	invEquip        *minui.Button
+	invDrop         *minui.Button
+	invTake         *minui.Button
+	invGive         *minui.Button
+	invNearbyLabel  *minui.Label
+	invItems            []*ecs.Entity
+	invNearbyItems      []*ecs.Entity
+	invNearbyItemSlots  []string // parallel to invNearbyItems: body-part slot name if equipped, "" if in bag
+	invNearbyEntity     *ecs.Entity
+	// which list was last clicked: "player" or "nearby"
+	invFocus string
 }
 
 func NewCharacterStatsView(player *ecs.Entity) *CharacterStatsView {
@@ -144,37 +153,90 @@ func (v *CharacterStatsView) buildInventoryTab() {
 	panel.SetPosition(0, v.tabs.TabHeight)
 	panel.SetSize(csModalW-20, panelH)
 
-	v.invList = minui.NewListBox("cs_inv_list", []string{})
-	v.invList.SetPosition(10, 10)
-	v.invList.SetSize(200, panelH-20)
-	v.invList.Layout()
-	v.invList.OnSelect = func(idx int, _ string) { v.refreshInvDesc(idx) }
-	panel.AddChild(v.invList)
+	const listW = 170
+	const midX = listW + 20 // left edge of center column
+	const midW = csModalW - 20 - listW*2 - 40
+	const nearbyX = csModalW - 20 - listW - 10
 
 	const imgSizeW = 64
 	const imgSizeH = 96
 	const imgGap = 10
+	const btnH = 28
+	btnY := panelH - btnH - 10
 
-	v.invImg = minui.NewImageWidget("cs_inv_img", imgSizeW, imgSizeH)
-	v.invImg.SetPosition(220, 10)
-	panel.AddChild(v.invImg)
+	// --- Player label + list ---
+	playerLbl := minui.NewLabel("cs_inv_player_lbl", "Your Inventory")
+	playerLbl.SetPosition(10, 10)
+	playerLbl.SetSize(listW, 18)
+	panel.AddChild(playerLbl)
 
-	v.invDesc = minui.NewScrollingTextArea("cs_inv_desc", csModalW-240, panelH-60-imgSizeH-imgGap)
-	v.invDesc.SetPosition(220, 10+imgSizeH+imgGap)
-	v.invDesc.LineHeight = 14
-	panel.AddChild(v.invDesc)
+	v.invList = minui.NewListBox("cs_inv_list", []string{})
+	v.invList.SetPosition(10, 30)
+	v.invList.SetSize(listW, btnY-34)
+	v.invList.Layout()
+	v.invList.OnSelect = func(idx int, _ string) {
+		v.invFocus = "player"
+		v.invNearbyList.SelectedIndex = -1
+		v.refreshInvDesc(idx)
+	}
+	panel.AddChild(v.invList)
 
-	v.invEquip = minui.NewButton("cs_inv_equip", "Equip / Use")
-	v.invEquip.SetPosition(220, panelH-48)
-	v.invEquip.SetSize(110, 28)
+	// Equip/Use and Drop under player list
+	v.invEquip = minui.NewButton("cs_inv_equip", "Equip/Use")
+	v.invEquip.SetPosition(10, btnY)
+	v.invEquip.SetSize(80, btnH)
 	v.invEquip.OnClick = v.onInvEquip
 	panel.AddChild(v.invEquip)
 
 	v.invDrop = minui.NewButton("cs_inv_drop", "Drop")
-	v.invDrop.SetPosition(340, panelH-48)
-	v.invDrop.SetSize(70, 28)
+	v.invDrop.SetPosition(95, btnY)
+	v.invDrop.SetSize(listW-85, btnH)
 	v.invDrop.OnClick = v.onInvDrop
 	panel.AddChild(v.invDrop)
+
+	// --- Centre: image + description ---
+	v.invImg = minui.NewImageWidget("cs_inv_img", imgSizeW, imgSizeH)
+	v.invImg.SetPosition(midX+(midW-imgSizeW)/2, 10)
+	panel.AddChild(v.invImg)
+
+	v.invDesc = minui.NewScrollingTextArea("cs_inv_desc", midW, panelH-20-imgSizeH-imgGap)
+	v.invDesc.SetPosition(midX, 10+imgSizeH+imgGap)
+	v.invDesc.LineHeight = 14
+	panel.AddChild(v.invDesc)
+
+	// Take / Give transfer buttons in the centre column
+	v.invTake = minui.NewButton("cs_inv_take", "← Take")
+	v.invTake.SetPosition(midX, btnY)
+	v.invTake.SetSize((midW/2)-2, btnH)
+	v.invTake.OnClick = v.onInvTake
+	v.invTake.SetVisible(false)
+	panel.AddChild(v.invTake)
+
+	v.invGive = minui.NewButton("cs_inv_give", "Give →")
+	v.invGive.SetPosition(midX+midW/2+2, btnY)
+	v.invGive.SetSize((midW/2)-2, btnH)
+	v.invGive.OnClick = v.onInvGive
+	v.invGive.SetVisible(false)
+	panel.AddChild(v.invGive)
+
+	// --- Nearby entity label + list ---
+	v.invNearbyLabel = minui.NewLabel("cs_inv_nearby_lbl", "")
+	v.invNearbyLabel.SetPosition(nearbyX, 10)
+	v.invNearbyLabel.SetSize(listW, 18)
+	v.invNearbyLabel.SetVisible(false)
+	panel.AddChild(v.invNearbyLabel)
+
+	v.invNearbyList = minui.NewListBox("cs_inv_nearby_list", []string{})
+	v.invNearbyList.SetPosition(nearbyX, 30)
+	v.invNearbyList.SetSize(listW, btnY-34)
+	v.invNearbyList.Layout()
+	v.invNearbyList.OnSelect = func(idx int, _ string) {
+		v.invFocus = "nearby"
+		v.invList.SelectedIndex = -1
+		v.refreshNearbyDesc(idx)
+	}
+	v.invNearbyList.SetVisible(false)
+	panel.AddChild(v.invNearbyList)
 
 	v.tabs.AddTab("inventory", "Inventory", panel)
 }
@@ -275,6 +337,110 @@ func (v *CharacterStatsView) onInvDrop() {
 	})
 	playerRemoveItem(v.player, item)
 	v.refreshInventoryList()
+}
+
+func (v *CharacterStatsView) onInvTake() {
+	idx := v.invNearbyList.SelectedIndex
+	if idx < 0 || idx >= len(v.invNearbyItems) || v.invNearbyEntity == nil {
+		return
+	}
+	item := v.invNearbyItems[idx]
+	slot := v.invNearbyItemSlots[idx]
+	if slot != "" {
+		// Unequip from the body-part slot first (moves it to the bag).
+		if v.invNearbyEntity.HasComponent(component.BodyInventory) {
+			v.invNearbyEntity.GetComponent(component.BodyInventory).(*component.BodyInventoryComponent).Unequip(slot)
+		}
+	}
+	nearbyRemoveItem(v.invNearbyEntity, item)
+	playerAddItem(v.player, item)
+	v.refreshInventoryList()
+	v.refreshNearbyList()
+}
+
+func (v *CharacterStatsView) onInvGive() {
+	idx := v.invList.SelectedIndex
+	if idx < 0 || idx >= len(v.invItems) || v.invNearbyEntity == nil {
+		return
+	}
+	item := v.invItems[idx]
+	playerRemoveItem(v.player, item)
+	nearbyAddItem(v.invNearbyEntity, item)
+	v.refreshInventoryList()
+	v.refreshNearbyList()
+}
+
+// SetNearbyEntity sets the entity whose inventory is shown in the nearby panel.
+// Pass nil to hide it.
+func (v *CharacterStatsView) SetNearbyEntity(e *ecs.Entity) {
+	v.invNearbyEntity = e
+	v.refreshNearbyList()
+}
+
+func (v *CharacterStatsView) refreshNearbyList() {
+	if v.invNearbyEntity == nil {
+		v.invNearbyItems = nil
+		v.invNearbyItemSlots = nil
+		v.invNearbyList.SetItems([]string{})
+		v.invNearbyLabel.Text = ""
+		v.invNearbyList.SetVisible(false)
+		v.invNearbyLabel.SetVisible(false)
+		v.invTake.SetVisible(false)
+		v.invGive.SetVisible(false)
+		return
+	}
+	v.invNearbyList.SetVisible(true)
+	v.invNearbyLabel.SetVisible(true)
+	v.invTake.SetVisible(true)
+	v.invGive.SetVisible(true)
+	name := "Nearby"
+	if v.invNearbyEntity.HasComponent(component.Description) {
+		name = v.invNearbyEntity.GetComponent(component.Description).(*component.DescriptionComponent).Name
+	}
+	v.invNearbyLabel.Text = name
+
+	v.invNearbyItems = nil
+	v.invNearbyItemSlots = nil
+	names := []string{}
+
+	// When dead, also show equipped items so they can be looted.
+	isDead := v.invNearbyEntity.HasComponent(component.Dead)
+	if isDead && v.invNearbyEntity.HasComponent(component.BodyInventory) {
+		inv := v.invNearbyEntity.GetComponent(component.BodyInventory).(*component.BodyInventoryComponent)
+		for slot, item := range inv.Equipped {
+			if item == nil {
+				continue
+			}
+			v.invNearbyItems = append(v.invNearbyItems, item)
+			v.invNearbyItemSlots = append(v.invNearbyItemSlots, slot)
+			names = append(names, "[eq] "+itemName(item))
+		}
+	}
+
+	for _, item := range nearbyBag(v.invNearbyEntity) {
+		v.invNearbyItems = append(v.invNearbyItems, item)
+		v.invNearbyItemSlots = append(v.invNearbyItemSlots, "")
+		names = append(names, itemName(item))
+	}
+
+	v.invNearbyList.SetItems(names)
+}
+
+func (v *CharacterStatsView) refreshNearbyDesc(idx int) {
+	v.invDesc.Clear()
+	v.invImg.Image = nil
+	if idx < 0 || idx >= len(v.invNearbyItems) {
+		return
+	}
+	item := v.invNearbyItems[idx]
+	v.invDesc.AddText(itemName(item))
+	if desc := itemDesc(item); desc != "" {
+		v.invDesc.AddText("")
+		for _, line := range mlge_text.Wrap(desc, 28, 0) {
+			v.invDesc.AddText(line)
+		}
+	}
+	v.invImg.Image = itemSpriteImage(item)
 }
 
 // -----------------------------------------------------------------------

@@ -166,6 +166,7 @@ func drawLayered(screen *ebiten.Image, entity *ecs.Entity, screenX, screenY floa
 	lac := entity.GetComponent(component.LayeredAppearance).(*component.LayeredAppearanceComponent)
 	bt := lac.BodyType
 
+	dead := entity.HasComponent("Dead")
 	drawLayer := func(texName string, index int) {
 		tex, ok := resource.Textures[texName]
 		if !ok {
@@ -174,6 +175,10 @@ func drawLayered(screen *ebiten.Image, entity *ecs.Entity, screenX, screenY floa
 		srcX := index * spW
 		srcRect := image.Rect(srcX, 0, srcX+spW, spH)
 		op := &ebiten.DrawImageOptions{}
+		if dead {
+			op.GeoM.Scale(1, -1)
+			op.GeoM.Translate(0, float64(spH))
+		}
 		op.GeoM.Translate(screenX, screenY)
 		screen.DrawImage(tex.SubImage(srcRect).(*ebiten.Image), op)
 	}

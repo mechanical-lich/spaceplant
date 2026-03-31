@@ -10,6 +10,7 @@ import (
 	"github.com/mechanical-lich/mlge/client"
 	mlgeevent "github.com/mechanical-lich/mlge/event"
 	"github.com/mechanical-lich/mlge/transport"
+	"github.com/mechanical-lich/mlge/ecs"
 	"github.com/mechanical-lich/spaceplant/internal/component"
 	"github.com/mechanical-lich/spaceplant/internal/config"
 )
@@ -118,6 +119,7 @@ func (s *SPClientState) Update(_ *transport.Snapshot) client.ClientState {
 			if shift {
 				s.statsView.Open()
 			} else {
+				s.statsView.SetNearbyEntity(s.nearbyInventoryEntity())
 				s.statsView.OpenToInventory()
 			}
 			return nil
@@ -178,6 +180,26 @@ func (s *SPClientState) Update(_ *transport.Snapshot) client.ClientState {
 		}
 	}
 
+	return nil
+}
+
+// nearbyInventoryEntity returns the first entity on the player's tile (other
+// than the player) that has an inventory, or nil if none exists.
+func (s *SPClientState) nearbyInventoryEntity() *ecs.Entity {
+	if s.sim.Player == nil {
+		return nil
+	}
+	pc := s.sim.Player.GetComponent(component.Position).(*component.PositionComponent)
+	var buf []*ecs.Entity
+	s.sim.Level.Level.GetEntitiesAt(pc.GetX(), pc.GetY(), pc.GetZ(), &buf)
+	for _, e := range buf {
+		if e == s.sim.Player {
+			continue
+		}
+		if e.HasComponent(component.BodyInventory) || e.HasComponent(component.Inventory) {
+			return e
+		}
+	}
 	return nil
 }
 
