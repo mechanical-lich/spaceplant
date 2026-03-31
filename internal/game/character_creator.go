@@ -2,10 +2,12 @@ package game
 
 import (
 	"fmt"
+	"image"
 	"slices"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	mlge_text "github.com/mechanical-lich/mlge/text"
+	"github.com/mechanical-lich/mlge/resource"
 	"github.com/mechanical-lich/mlge/ui/minui"
 	"github.com/mechanical-lich/spaceplant/internal/background"
 	"github.com/mechanical-lich/spaceplant/internal/ccconfig"
@@ -50,6 +52,15 @@ type CharacterCreator struct {
 	upgradePoints int
 	selectedSkill int
 
+	// Appearance tab
+	bodyTypeList    *minui.ListBox
+	skinList        *minui.ListBox
+	hairList        *minui.ListBox
+	appearancePreview *minui.ImageWidget
+	bodyType        string // "mid" or "slim"
+	bodyIndex       int    // 0-4
+	hairIndex       int    // -1 = none, 0-4
+
 	// Background tab
 	bgList    *minui.ListBox
 	bgDesc    *minui.ScrollingTextArea
@@ -80,6 +91,9 @@ func NewCharacterCreator() *CharacterCreator {
 		selectedClass: -1,
 		selectedSkill: -1,
 		selectedBg:    -1,
+		bodyType:      "mid",
+		bodyIndex:     0,
+		hairIndex:     0,
 	}
 
 	// Non-closable modal.
@@ -97,6 +111,7 @@ func NewCharacterCreator() *CharacterCreator {
 	cc.buildClassTab()
 	cc.buildSkillsTab()
 	cc.buildBackgroundTab()
+	cc.buildAppearanceTab()
 
 	// Start button — bottom-right of modal, within content area.
 	startBtn := minui.NewButton("cc_start", "Start")
@@ -261,6 +276,113 @@ func (cc *CharacterCreator) buildBackgroundTab() {
 	panel.AddChild(cc.bgDesc)
 
 	cc.tabs.AddTab("background", "Background", panel)
+}
+
+func (cc *CharacterCreator) buildAppearanceTab() {
+	panel := minui.NewPanel("cc_appearance_panel")
+	panel.SetPosition(0, cc.tabs.TabHeight)
+	panel.SetSize(ccModalW-20, ccModalH-110-cc.tabs.TabHeight)
+
+	bodyTypeLbl := minui.NewLabel("cc_body_type_lbl", "Body Type")
+	bodyTypeLbl.SetPosition(10, 10)
+	bodyTypeLbl.SetSize(160, 20)
+	panel.AddChild(bodyTypeLbl)
+
+	cc.bodyTypeList = minui.NewListBox("cc_body_type_list", []string{"Mid", "Slim"})
+	cc.bodyTypeList.SetPosition(10, 35)
+	cc.bodyTypeList.SetSize(160, 60)
+	cc.bodyTypeList.Layout()
+	cc.bodyTypeList.SelectedIndex = 0
+	cc.bodyTypeList.OnSelect = func(_ int, val string) {
+		if val == "Slim" {
+			cc.bodyType = "slim"
+		} else {
+			cc.bodyType = "mid"
+		}
+		cc.refreshAppearancePreview()
+	}
+	panel.AddChild(cc.bodyTypeList)
+
+	skinLbl := minui.NewLabel("cc_skin_lbl", "Skin Tone")
+	skinLbl.SetPosition(10, 110)
+	skinLbl.SetSize(160, 20)
+	panel.AddChild(skinLbl)
+
+	cc.skinList = minui.NewListBox("cc_skin_list", []string{"1", "2", "3", "4", "5"})
+	cc.skinList.SetPosition(10, 135)
+	cc.skinList.SetSize(160, 120)
+	cc.skinList.Layout()
+	cc.skinList.SelectedIndex = 0
+	cc.skinList.OnSelect = func(idx int, _ string) {
+		cc.bodyIndex = idx
+		cc.refreshAppearancePreview()
+	}
+	panel.AddChild(cc.skinList)
+
+	hairLbl := minui.NewLabel("cc_hair_lbl", "Hair Style")
+	hairLbl.SetPosition(10, 270)
+	hairLbl.SetSize(160, 20)
+	panel.AddChild(hairLbl)
+
+	cc.hairList = minui.NewListBox("cc_hair_list", []string{"Style 1", "Style 2", "Style 3", "Style 4", "Style 5", "None"})
+	cc.hairList.SetPosition(10, 295)
+	cc.hairList.SetSize(160, 130)
+	cc.hairList.Layout()
+	cc.hairList.SelectedIndex = 0
+	cc.hairList.OnSelect = func(idx int, _ string) {
+		if idx >= 5 {
+			cc.hairIndex = -1
+		} else {
+			cc.hairIndex = idx
+		}
+		cc.refreshAppearancePreview()
+	}
+	panel.AddChild(cc.hairList)
+
+	// Preview widget — right half of the panel, scaled up 4x (32x48 → 128x192).
+	const previewScale = 4
+	cfg := config.Global()
+	previewW := cfg.SpriteSizeW * previewScale
+	previewH := cfg.SpriteSizeH * previewScale
+	previewX := 220 + (ccModalW-20-220-previewW)/2
+	previewY := (ccModalH-110-cc.tabs.TabHeight-previewH)/2
+	cc.appearancePreview = minui.NewImageWidget("cc_appearance_preview", previewW, previewH)
+	cc.appearancePreview.SetPosition(previewX, previewY)
+	panel.AddChild(cc.appearancePreview)
+
+	cc.tabs.AddTab("appearance", "Appearance", panel)
+	cc.refreshAppearancePreview()
+}
+
+// refreshAppearancePreview redraws the composited character preview image.
+func (cc *CharacterCreator) refreshAppearancePreview() {
+	if cc.appearancePreview == nil {
+		return
+	}
+	cfg := config.Global()
+	spW := cfg.SpriteSizeW
+	spH := cfg.SpriteSizeH
+	bt := cc.bodyType
+
+	out := ebiten.NewImage(spW, spH)
+
+	drawLayer := func(texName string, idx int) {
+		tex, ok := resource.Textures[texName]
+		if !ok {
+			return
+		}
+		srcX := idx * spW
+		srcRect := image.Rect(srcX, 0, srcX+spW, spH)
+		op := &ebiten.DrawImageOptions{}
+		out.DrawImage(tex.SubImage(srcRect).(*ebiten.Image), op)
+	}
+
+	drawLayer(bt+"_body", cc.bodyIndex)
+	if cc.hairIndex >= 0 {
+		drawLayer(bt+"_hair", cc.hairIndex)
+	}
+
+	cc.appearancePreview.Image = out
 }
 
 // -----------------------------------------------------------------------
@@ -498,6 +620,9 @@ func (cc *CharacterCreator) submit() {
 			ClassID:      classID,
 			ChosenSkills: cc.chosenSkills,
 			BackgroundID: bgID,
+			BodyType:     cc.bodyType,
+			BodyIndex:    cc.bodyIndex,
+			HairIndex:    cc.hairIndex,
 		})
 	}
 }

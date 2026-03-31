@@ -8,12 +8,10 @@
         "BodyInventoryComponent": {
             "StartingInventory": [
                 "laser_trimmers",
-                "helmet",
-                "laser_trimmers",
-                "health",
-                "health",
-                "laser_trimmers2",
-                "helmet2"
+                "security_shirt",
+                "scrubs",
+                "scrub_shoes",
+                "scrub_cap"
             ]
         },
         "BodyComponent": {
@@ -137,6 +135,9 @@
             "B": 125,
             "Frames": 1
         },
+        "LayeredAppearanceComponent": {
+            "Randomize": true
+        },
         "AsciiAppearanceComponent": {
             "Character": "C",
             "R": 0,
@@ -196,6 +197,14 @@
                     ]
                 }
             }
+        },
+        "BodyInventoryComponent": {
+            "StartingInventory": [
+                "crew_shirt",
+                "uniform_trousers",
+                "crew_shoes",
+                "crew_hat"
+            ]
         },
         "SolidComponent": {},
         "FoodComponent": {
@@ -262,6 +271,9 @@
             "B": 125,
             "Frames": 1
         },
+        "LayeredAppearanceComponent": {
+            "Randomize": true
+        },
         "BodyComponent": {
             "Parts": {
                 "head": {
@@ -315,6 +327,15 @@
                     ]
                 }
             }
+        },
+        "BodyInventoryComponent": {
+            "StartingInventory": [
+                "laser_trimmers",
+                "officer_shirt",
+                "pressed_trousers",
+                "officer_shoes",
+                "officer_cap"
+            ]
         },
         "SolidComponent": {},
         "FoodComponent": {

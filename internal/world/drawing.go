@@ -158,6 +158,55 @@ func (l *Level) DrawTile(output *ebiten.Image, t *Tile, screenX, screenY int, se
 	}
 }
 
+// drawLayered composites the layered sprite system for entities with
+// LayeredAppearanceComponent. Layers are drawn in order: body, shirt, pants,
+// shoes, hair, headwear. Clothing layers come from equipped items that carry
+// WearableAppearanceComponent. Each layer sheet column is spW wide and spH tall.
+func drawLayered(screen *ebiten.Image, entity *ecs.Entity, screenX, screenY float64, spW, spH int) {
+	lac := entity.GetComponent(component.LayeredAppearance).(*component.LayeredAppearanceComponent)
+	bt := lac.BodyType
+
+	drawLayer := func(texName string, index int) {
+		tex, ok := resource.Textures[texName]
+		if !ok {
+			return
+		}
+		srcX := index * spW
+		srcRect := image.Rect(srcX, 0, srcX+spW, spH)
+		op := &ebiten.DrawImageOptions{}
+		op.GeoM.Translate(screenX, screenY)
+		screen.DrawImage(tex.SubImage(srcRect).(*ebiten.Image), op)
+	}
+
+	// Body (skin)
+	drawLayer(bt+"_body", lac.BodyIndex)
+
+	// Collect wearable layers from equipped items.
+	wearables := map[string]int{}
+	if entity.HasComponent(component.BodyInventory) {
+		inv := entity.GetComponent(component.BodyInventory).(*component.BodyInventoryComponent)
+		for _, item := range inv.Equipped {
+			if item != nil && item.HasComponent(component.WearableAppearance) {
+				wac := item.GetComponent(component.WearableAppearance).(*component.WearableAppearanceComponent)
+				wearables[wac.Layer] = wac.Index
+			}
+		}
+	}
+
+	// Draw in fixed layer order: shirt, pants, shoes, then hair, then headwear.
+	for _, layer := range []string{"shirt", "pants", "shoes"} {
+		if idx, ok := wearables[layer]; ok {
+			drawLayer(bt+"_"+layer, idx)
+		}
+	}
+	if lac.HairIndex >= 0 {
+		drawLayer(bt+"_hair", lac.HairIndex)
+	}
+	if idx, ok := wearables["headwear"]; ok {
+		drawLayer(bt+"_headwear", idx)
+	}
+}
+
 // DrawEntity draws a single entity at the given screen position.
 // tileWorldX/Y is the world coordinate of the tile being drawn — used to
 // select the correct sub-rect of sized entity sprites.
@@ -165,6 +214,28 @@ func DrawEntity(screen *ebiten.Image, entity *ecs.Entity, screenX, screenY float
 	if entity == nil {
 		return
 	}
+
+	// Layered sprite system takes priority over AppearanceComponent.
+	if entity.HasComponent(component.LayeredAppearance) {
+		drawLayered(screen, entity, screenX, screenY, spW, spH)
+		// Still draw FX overlay if present.
+		if entity.HasComponent("AttackComponent") {
+			attackC := entity.GetComponent("AttackComponent").(*component.AttackComponent)
+			if tileWorldX == attackC.X && tileWorldY == attackC.Y {
+				if attackC.Frame == 3 {
+					entity.RemoveComponent("AttackComponent")
+				} else {
+					xOffset := attackC.SpriteX + (attackC.Frame * spW)
+					fxOp := &ebiten.DrawImageOptions{}
+					fxOp.GeoM.Translate(screenX, screenY)
+					screen.DrawImage(resource.Textures["fx"].SubImage(image.Rect(xOffset, attackC.SpriteY, xOffset+spW, attackC.SpriteY+spH)).(*ebiten.Image), fxOp)
+					attackC.Frame++
+				}
+			}
+		}
+		return
+	}
+
 	if !entity.HasComponent("AppearanceComponent") {
 		return
 	}

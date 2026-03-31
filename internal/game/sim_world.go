@@ -29,6 +29,9 @@ type CharacterData struct {
 	ClassID      string
 	ChosenSkills []string
 	BackgroundID string
+	BodyType     string // "mid" or "slim"
+	BodyIndex    int    // 0-4 skin tone / style
+	HairIndex    int    // 0-4 hair style; -1 = no hair
 }
 
 // SimWorld holds the authoritative server-side game state.
@@ -146,6 +149,17 @@ func (sw *SimWorld) SpawnPlayer(data CharacterData) error {
 
 	player.AddComponent(&component.BackgroundComponent{BackgroundID: data.BackgroundID})
 	background.SyncSkills(player)
+
+	// Layered appearance.
+	bodyType := data.BodyType
+	if bodyType == "" {
+		bodyType = "mid"
+	}
+	player.AddComponent(&component.LayeredAppearanceComponent{
+		BodyType:  bodyType,
+		BodyIndex: data.BodyIndex,
+		HairIndex: data.HairIndex,
+	})
 
 	player.GetComponent("Position").(*component.PositionComponent).SetPosition(pX, pY, 0)
 

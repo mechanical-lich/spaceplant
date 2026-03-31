@@ -35,18 +35,20 @@ const (
 
 // Spaceplant-specific component types (not in rlcomponents).
 const (
-	Appearance  ecs.ComponentType = "AppearanceComponent"
-	Player      ecs.ComponentType = "PlayerComponent"
-	Attack      ecs.ComponentType = "AttackComponent"
-	Massive     ecs.ComponentType = "MassiveComponent"
-	SpLight     ecs.ComponentType = "LightComponent" // spaceplant's own light (incompatible with rlcomponents.Light)
-	Skill       ecs.ComponentType = "SkillComponent"
-	Class       ecs.ComponentType = "ClassComponent"
-	ItemSkills  ecs.ComponentType = "ItemSkillsComponent"
-	Background  ecs.ComponentType = "BackgroundComponent"
-	AdvancedAI  ecs.ComponentType = "AdvancedAIComponent"
-	Interaction                   = rlcomponents.Interaction
-	Door                          = rlcomponents.Door
+	Appearance        ecs.ComponentType = "AppearanceComponent"
+	Player            ecs.ComponentType = "PlayerComponent"
+	Attack            ecs.ComponentType = "AttackComponent"
+	Massive           ecs.ComponentType = "MassiveComponent"
+	SpLight           ecs.ComponentType = "LightComponent" // spaceplant's own light (incompatible with rlcomponents.Light)
+	Skill             ecs.ComponentType = "SkillComponent"
+	Class             ecs.ComponentType = "ClassComponent"
+	ItemSkills        ecs.ComponentType = "ItemSkillsComponent"
+	Background        ecs.ComponentType = "BackgroundComponent"
+	AdvancedAI        ecs.ComponentType = "AdvancedAIComponent"
+	LayeredAppearance ecs.ComponentType = "LayeredAppearanceComponent"
+	WearableAppearance ecs.ComponentType = "WearableAppearanceComponent"
+	Interaction                         = rlcomponents.Interaction
+	Door                                = rlcomponents.Door
 )
 
 // Type aliases for rlcomponents - these replace spaceplant's duplicate component structs.

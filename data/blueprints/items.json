@@ -83,55 +83,145 @@
             "Damage": "1d8"
         }
     },
-    "laser_trimmers2": {
-        "DescriptionComponent": {
-            "Name": "laser_trimmers2",
-            "Faction": "item",
-            "PassOverDescription": [
-                "Advanced laser trimmers rest here.",
-                "You notice a set of upgraded laser trimmers.",
-                "Someone left high-grade laser trimmers here."
-            ]
-        },
-        "ItemSkillsComponent": {
-            "Skills": [
-                "roundhouse_kick",
-                "flamethrower"
-            ]
-        },
-        "AsciiAppearanceComponent": {
-            "Character": ")",
-            "R": 150,
-            "G": 230,
-            "B": 255
-        },
-        "AppearanceComponent": {
-            "Resource": "entities",
-            "SpriteX": 320,
-            "SpriteY": 0,
-            "R": 200,
-            "G": 200,
-            "B": 125,
-            "Frames": 1
-        },
-        "LightComponent": {
-            "Radius": 10,
-            "Brightness": 10,
-            "R": 0,
-            "G": 0,
-            "B": 125
-        },
-        "ItemComponent": {
-            "Effect": "",
-            "Value": 2,
-            "Slot": "hand",
-            "Name": "Debug Laser Trimmers",
-            "Description": "Upgraded laser trimmers. Can be equipped in the hand slot to increase attack range to 2 and damage to 2d8. Also grants the Roundhouse Kick and Flamethrower skills when equipped."
-        },
-        "WeaponComponent": {
-            "Range": 2,
-            "Damage": "2d8"
-        }
+    "lab_coat": {
+        "DescriptionComponent": { "Name": "Lab Coat", "Faction": "item" },
+        "AppearanceComponent": { "Resource": "mid_shirt", "SpriteX": 0, "SpriteY": 0, "R": 255, "G": 255, "B": 255, "Frames": 1 },
+        "ItemComponent": { "Slot": "torso", "Name": "Lab Coat", "Description": "A standard lab coat." },
+        "ArmorComponent": { "Armor": 0 },
+        "WearableAppearanceComponent": { "Layer": "shirt", "Index": 0 }
+    },
+    "crew_shirt": {
+        "DescriptionComponent": { "Name": "Crew Shirt", "Faction": "item" },
+        "AppearanceComponent": { "Resource": "mid_shirt", "SpriteX": 32, "SpriteY": 0, "R": 255, "G": 255, "B": 255, "Frames": 1 },
+        "ItemComponent": { "Slot": "torso", "Name": "Crew Shirt", "Description": "The uniform of a standard crewmember." },
+        "ArmorComponent": { "Armor": 0 },
+        "WearableAppearanceComponent": { "Layer": "shirt", "Index": 1 }
+    },
+    "officer_shirt": {
+        "DescriptionComponent": { "Name": "Officer Shirt", "Faction": "item" },
+        "AppearanceComponent": { "Resource": "mid_shirt", "SpriteX": 64, "SpriteY": 0, "R": 255, "G": 255, "B": 255, "Frames": 1 },
+        "ItemComponent": { "Slot": "torso", "Name": "Officer Shirt", "Description": "The uniform of a higher ranking officer." },
+        "ArmorComponent": { "Armor": 0 },
+        "WearableAppearanceComponent": { "Layer": "shirt", "Index": 2 }
+    },
+    "engineer_shirt": {
+        "DescriptionComponent": { "Name": "Engineer Shirt", "Faction": "item" },
+        "AppearanceComponent": { "Resource": "mid_shirt", "SpriteX": 96, "SpriteY": 0, "R": 255, "G": 255, "B": 255, "Frames": 1 },
+        "ItemComponent": { "Slot": "torso", "Name": "Engineer Shirt", "Description": "The uniform of an engineer." },
+        "ArmorComponent": { "Armor": 1 },
+        "WearableAppearanceComponent": { "Layer": "shirt", "Index": 3 }
+    },
+    "security_shirt": {
+        "DescriptionComponent": { "Name": "Security Shirt", "Faction": "item" },
+        "AppearanceComponent": { "Resource": "mid_shirt", "SpriteX": 128, "SpriteY": 0, "R": 255, "G": 255, "B": 255, "Frames": 1 },
+        "ItemComponent": { "Slot": "torso", "Name": "Security Shirt", "Description": "The uniform of a security officer." },
+        "ArmorComponent": { "Armor": 2 },
+        "WearableAppearanceComponent": { "Layer": "shirt", "Index": 4 }
+    },
+    "scrubs": {
+        "DescriptionComponent": { "Name": "Scrubs Bottoms", "Faction": "item" },
+        "AppearanceComponent": { "Resource": "mid_pants", "SpriteX": 0, "SpriteY": 0, "R": 255, "G": 255, "B": 255, "Frames": 1 },
+        "ItemComponent": { "Slot": "legs", "Name": "Scrubs Bottoms", "Description": "Perfect for sanitary conditions. (Or lack there of)" },
+        "ArmorComponent": { "Armor": 0 },
+        "WearableAppearanceComponent": { "Layer": "pants", "Index": 0 }
+    },
+    "uniform_trousers": {
+        "DescriptionComponent": { "Name": "Uniform Trousers", "Faction": "item" },
+        "AppearanceComponent": { "Resource": "mid_pants", "SpriteX": 32, "SpriteY": 0, "R": 255, "G": 255, "B": 255, "Frames": 1 },
+        "ItemComponent": { "Slot": "legs", "Name": "Uniform Trousers", "Description": "Standard uniform trousers." },
+        "ArmorComponent": { "Armor": 0 },
+        "WearableAppearanceComponent": { "Layer": "pants", "Index": 1 }
+    },
+    "pressed_trousers": {
+        "DescriptionComponent": { "Name": "Pressed Trousers", "Faction": "item" },
+        "AppearanceComponent": { "Resource": "mid_pants", "SpriteX": 64, "SpriteY": 0, "R": 255, "G": 255, "B": 255, "Frames": 1 },
+        "ItemComponent": { "Slot": "legs", "Name": "Pressed Trousers", "Description": "Pressed trousers worn by high ranking officers." },
+        "ArmorComponent": { "Armor": 0 },
+        "WearableAppearanceComponent": { "Layer": "pants", "Index": 2 }
+    },
+    "work_trousers": {
+        "DescriptionComponent": { "Name": "Work Trousers", "Faction": "item" },
+        "AppearanceComponent": { "Resource": "mid_pants", "SpriteX": 96, "SpriteY": 0, "R": 255, "G": 255, "B": 255, "Frames": 1 },
+        "ItemComponent": { "Slot": "legs", "Name": "Work Trousers", "Description": "Thick work trousers." },
+        "ArmorComponent": { "Armor": 1 },
+        "WearableAppearanceComponent": { "Layer": "pants", "Index": 3 }
+    },
+    "security_trousers": {
+        "DescriptionComponent": { "Name": "Security Trousers", "Faction": "item" },
+        "AppearanceComponent": { "Resource": "mid_pants", "SpriteX": 128, "SpriteY": 0, "R": 255, "G": 255, "B": 255, "Frames": 1 },
+        "ItemComponent": { "Slot": "legs", "Name": "Security Trousers", "Description": "Armored security trousers." },
+        "ArmorComponent": { "Armor": 2 },
+        "WearableAppearanceComponent": { "Layer": "pants", "Index": 4 }
+    },
+    "scrub_shoes": {
+        "DescriptionComponent": { "Name": "Scrub Shoes", "Faction": "item" },
+        "AppearanceComponent": { "Resource": "mid_shoes", "SpriteX": 32, "SpriteY": 0, "R": 255, "G": 255, "B": 255, "Frames": 1 },
+        "ItemComponent": { "Slot": "feet", "Name": "Scrub Shoes", "Description": "Lab shoes" },
+        "ArmorComponent": { "Armor": 0 },
+        "WearableAppearanceComponent": { "Layer": "shoes", "Index": 0 }
+    },
+    "crew_shoes": {
+        "DescriptionComponent": { "Name": "Crew Shoes", "Faction": "item" },
+        "AppearanceComponent": { "Resource": "mid_shoes", "SpriteX": 0, "SpriteY": 0, "R": 255, "G": 255, "B": 255, "Frames": 1 },
+        "ItemComponent": { "Slot": "feet", "Name": "Crew Shoes", "Description": "Standard brown deck shoes." },
+        "ArmorComponent": { "Armor": 0 },
+        "WearableAppearanceComponent": { "Layer": "shoes", "Index": 1 }
+    },
+    "officer_shoes": {
+        "DescriptionComponent": { "Name": "Officer Shoes", "Faction": "item" },
+        "AppearanceComponent": { "Resource": "mid_shoes", "SpriteX": 64, "SpriteY": 0, "R": 255, "G": 255, "B": 255, "Frames": 1 },
+        "ItemComponent": { "Slot": "feet", "Name": "Officer Shoes", "Description": "Fancy black leather shoes." },
+        "ArmorComponent": { "Armor": 0 },
+        "WearableAppearanceComponent": { "Layer": "shoes", "Index": 2 }
+    },
+    "workboots": {
+        "DescriptionComponent": { "Name": "Work Boots", "Faction": "item" },
+        "AppearanceComponent": { "Resource": "mid_shoes", "SpriteX": 96, "SpriteY": 0, "R": 255, "G": 255, "B": 255, "Frames": 1 },
+        "ItemComponent": { "Slot": "feet", "Name": "Work Boots", "Description": "Sturdy work boots." },
+        "ArmorComponent": { "Armor": 2 },
+        "WearableAppearanceComponent": { "Layer": "shoes", "Index": 3 }
+    },
+    "security_boots": {
+        "DescriptionComponent": { "Name": "Security Boots", "Faction": "item" },
+        "AppearanceComponent": { "Resource": "mid_shoes", "SpriteX": 128, "SpriteY": 0, "R": 255, "G": 255, "B": 255, "Frames": 1 },
+        "ItemComponent": { "Slot": "feet", "Name": "Security Boots", "Description": "Protective security boots." },
+        "ArmorComponent": { "Armor": 1 },
+        "WearableAppearanceComponent": { "Layer": "shoes", "Index": 4 }
+    },
+    "scrub_cap": {
+        "DescriptionComponent": { "Name": "Scrub Cap", "Faction": "item" },
+        "AppearanceComponent": { "Resource": "mid_headwear", "SpriteX": 0, "SpriteY": 0, "R": 255, "G": 255, "B": 255, "Frames": 1 },
+        "ItemComponent": { "Slot": "head", "Name": "Scrub Cap", "Description": "A hat worn by medical personnel." },
+        "ArmorComponent": { "Armor": 0 },
+        "WearableAppearanceComponent": { "Layer": "headwear", "Index": 0 }
+    },
+    "crew_hat": {
+        "DescriptionComponent": { "Name": "Crew Hat", "Faction": "item" },
+        "AppearanceComponent": { "Resource": "mid_headwear", "SpriteX": 32, "SpriteY": 0, "R": 255, "G": 255, "B": 255, "Frames": 1 },
+        "ItemComponent": { "Slot": "head", "Name": "Crew Hat", "Description": "A wide brown hat." },
+        "ArmorComponent": { "Armor": 0 },
+        "WearableAppearanceComponent": { "Layer": "headwear", "Index": 1 }
+    },
+    "officer_cap": {
+        "DescriptionComponent": { "Name": "Officer Cap", "Faction": "item" },
+        "AppearanceComponent": { "Resource": "mid_headwear", "SpriteX": 64, "SpriteY": 0, "R": 255, "G": 255, "B": 255, "Frames": 1 },
+        "ItemComponent": { "Slot": "head", "Name": "Officer Cap", "Description": "A dark tactical cap." },
+        "ArmorComponent": { "Armor": 1 },
+        "WearableAppearanceComponent": { "Layer": "headwear", "Index": 2 }
+    },
+    "hardhat": {
+        "DescriptionComponent": { "Name": "Hardhat", "Faction": "item" },
+        "AppearanceComponent": { "Resource": "mid_headwear", "SpriteX": 96, "SpriteY": 0, "R": 255, "G": 255, "B": 255, "Frames": 1 },
+        "ItemComponent": { "Slot": "head", "Name": "Hardhat", "Description": "A hard protective hat." },
+        "ArmorComponent": { "Armor": 2 },
+        "WearableAppearanceComponent": { "Layer": "headwear", "Index": 3 }
+    },
+    "security_hat": {
+        "DescriptionComponent": { "Name": "Security Hat", "Faction": "item" },
+        "AppearanceComponent": { "Resource": "mid_headwear", "SpriteX": 128, "SpriteY": 0, "R": 255, "G": 255, "B": 255, "Frames": 1 },
+        "ItemComponent": { "Slot": "head", "Name": "Security Hat", "Description": "A green security hat." },
+        "ArmorComponent": { "Armor": 1 },
+        "WearableAppearanceComponent": { "Layer": "headwear", "Index": 4 }
     },
     "helmet": {
         "DescriptionComponent": {
@@ -150,12 +240,12 @@
             "B": 180
         },
         "AppearanceComponent": {
-            "Resource": "entities",
-            "SpriteX": 352,
+            "Resource": "mid_headwear",
+            "SpriteX": 64,
             "SpriteY": 0,
-            "R": 200,
-            "G": 200,
-            "B": 125,
+            "R": 255,
+            "G": 255,
+            "B": 255,
             "Frames": 1
         },
         "LightComponent": {
@@ -174,51 +264,10 @@
         },
         "ArmorComponent": {
             "Armor": 2
-        }
+        },
+        "WearableAppearanceComponent": { "Layer": "headwear", "Index": 2 }
     },
-    "helmet2": {
-        "DescriptionComponent": {
-            "Name": "helmet2",
-            "Faction": "item",
-            "PassOverDescription": [
-                "An advanced helmet sits here.",
-                "You notice a high-tech helmet on the floor.",
-                "A reinforced helmet has been left here."
-            ]
-        },
-        "AsciiAppearanceComponent": {
-            "Character": "[",
-            "R": 220,
-            "G": 220,
-            "B": 255
-        },
-        "AppearanceComponent": {
-            "Resource": "entities",
-            "SpriteX": 352,
-            "SpriteY": 0,
-            "R": 200,
-            "G": 200,
-            "B": 125,
-            "Frames": 1
-        },
-        "LightComponent": {
-            "Radius": 10,
-            "Brightness": 10,
-            "R": 0,
-            "G": 0,
-            "B": 125
-        },
-        "ItemComponent": {
-            "Effect": "",
-            "Value": 0,
-            "Slot": "head",
-            "Name": "Advanced Helmet",
-            "Description": "An advanced helmet. Provides 4 armor when equipped in the head slot."
-        },
-        "ArmorComponent": {
-            "Armor": 4
-        }
-    },
+   
     "flamethrower": {
         "DescriptionComponent": {
             "Name": "flamethrower",

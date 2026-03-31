@@ -2,6 +2,7 @@ package factory
 
 import (
 	"errors"
+	"math/rand/v2"
 	"strings"
 
 	"github.com/mechanical-lich/ml-rogue-lib/pkg/rlcomponents"
@@ -74,6 +75,17 @@ func Create(name string, x int, y int) (*ecs.Entity, error) {
 		skill.Initialize(entity)
 		skill.SyncEquippedSkills(entity)
 		class.SyncSkills(entity)
+
+		if entity.HasComponent(component.LayeredAppearance) {
+			lac := entity.GetComponent(component.LayeredAppearance).(*component.LayeredAppearanceComponent)
+			if lac.Randomize {
+				bodyTypes := []string{"mid", "slim"}
+				lac.BodyType = bodyTypes[rand.IntN(len(bodyTypes))]
+				lac.BodyIndex = rand.IntN(5)
+				lac.HairIndex = rand.IntN(6) - 1 // -1 = no hair, 0-4 = style
+			}
+		}
+
 		return entity, nil
 	}
 	return nil, errors.New("no blueprint found")
