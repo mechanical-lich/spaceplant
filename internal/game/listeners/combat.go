@@ -31,42 +31,68 @@ func (l *CombatListener) HandleEvent(evt mlgeevent.EventData) error {
 	}
 
 	attacker := e.AttackerName
+	if attacker == "" {
+		attacker = "Something"
+	}
 	if playerIsAttacker {
 		attacker = "You"
 	}
+
 	defender := e.DefenderName
+	if defender == "" {
+		defender = "something"
+	}
 	if playerIsDefender {
 		defender = "Player"
 	}
 
+	source := e.Source
+	if source == "" {
+		source = "fist"
+	}
+
 	var msg string
 	switch {
-	case e.SavePass:
-		part := e.BodyPart
-		if part == "" {
-			part = "body"
+	// Broken/amputated — standalone event fired separately from the damage event.
+	case (e.Broken || e.Amputated) && e.Damage == 0:
+		if e.Amputated {
+			msg = fmt.Sprintf("%s's %s was amputated!", defender, e.BodyPart)
+		} else {
+			msg = fmt.Sprintf("%s's %s was broken!", defender, e.BodyPart)
 		}
-		msg = fmt.Sprintf("%s's %s saved against %s", defender, part, e.DamageType)
+
+	// Save results.
+	case e.SavePass:
+		if e.Attacker != nil {
+			msg = fmt.Sprintf("%s saved against %s's %s", defender, attacker, source)
+		} else {
+			msg = fmt.Sprintf("%s saved against %s", defender, source)
+		}
 
 	case e.SaveFail:
-		part := e.BodyPart
-		if part == "" {
-			part = "body"
-		}
-		msg = fmt.Sprintf("%s's %s failed to save against %d (%s)", defender, part, e.Damage, e.DamageType)
-		if e.Amputated {
-			msg += fmt.Sprintf(" — %s's %s was amputated!", defender, part)
-		} else if e.Broken {
-			msg += fmt.Sprintf(" — %s's %s was broken!", defender, part)
+		if e.Attacker != nil {
+			if e.Damage > 0 {
+				msg = fmt.Sprintf("%s failed save against %s's %s and took %d %s damage!", defender, attacker, source, e.Damage, e.DamageType)
+			} else {
+				msg = fmt.Sprintf("%s failed save against %s's %s", defender, attacker, source)
+			}
+		} else {
+			if e.Damage > 0 {
+				msg = fmt.Sprintf("%s failed save and took %d %s damage!", defender, e.Damage, e.DamageType)
+			} else {
+				msg = fmt.Sprintf("%s failed save against %s", defender, source)
+			}
 		}
 
+	// Miss.
 	case e.Miss:
 		if playerIsAttacker {
-			msg = fmt.Sprintf("You missed %s", defender)
+			msg = fmt.Sprintf("You missed %s with your %s", defender, source)
 		} else {
-			msg = fmt.Sprintf("%s missed you", attacker)
+			msg = fmt.Sprintf("%s missed %s with their %s", attacker, defender, source)
 		}
 
+	// Normal hit / crit.
 	default:
 		verb := "hit"
 		if e.Crit {
@@ -76,14 +102,15 @@ func (l *CombatListener) HandleEvent(evt mlgeevent.EventData) error {
 		if part == "" {
 			part = "body"
 		}
-		msg = fmt.Sprintf("%s %s %s's %s for %d (%s)", attacker, verb, defender, part, e.Damage, e.DamageType)
-		if e.Amputated {
-			msg += fmt.Sprintf(" — %s's %s was amputated!", defender, part)
-		} else if e.Broken {
-			msg += fmt.Sprintf(" — %s's %s was broken!", defender, part)
+		if playerIsAttacker {
+			msg = fmt.Sprintf("You %s %s's %s with your %s for %d %s damage!", verb, defender, part, source, e.Damage, e.DamageType)
+		} else {
+			msg = fmt.Sprintf("%s %s %s's %s with their %s for %d %s damage!", attacker, verb, defender, part, source, e.Damage, e.DamageType)
 		}
 	}
 
-	message.AddMessage(msg)
+	if msg != "" {
+		message.AddMessage(msg)
+	}
 	return nil
 }

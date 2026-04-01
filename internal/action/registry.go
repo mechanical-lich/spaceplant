@@ -33,7 +33,9 @@ func init() {
 	RegisterSimple("stairs", func() Action { return StairsAction{} })
 	RegisterSimple("roundhouse_kick", func() Action { return RoundhouseKickAction{} })
 	RegisterSimple("shove", func() Action { return ShoveAction{} })
-	RegisterSimple("bite", func() Action { return BiteAction{} })
+	RegisterSkill("melee_special", func(p ActionParams) Action {
+		return MeleeSpecialAction{Params: p}
+	})
 	RegisterSkill("cone_of", func(p ActionParams) Action {
 		return ConeOfAction{Params: p}
 	})

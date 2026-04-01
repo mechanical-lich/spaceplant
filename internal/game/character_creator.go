@@ -441,14 +441,43 @@ func (cc *CharacterCreator) refreshClassDesc() {
 	for _, line := range mlge_text.Wrap(def.Description, 40, 0) {
 		cc.classDesc.AddText(line)
 	}
-	cc.classDesc.AddText("")
-	cc.classDesc.AddText("Skills:")
-	for _, sID := range def.Skills {
-		name := sID
-		if sd := skill.Get(sID); sd != nil {
-			name = sd.Name
+
+	if len(def.StartingSkills) > 0 {
+		cc.classDesc.AddText("")
+		cc.classDesc.AddText("Starting Skills:")
+		for _, sID := range def.StartingSkills {
+			name := sID
+			desc := ""
+			if sd := skill.Get(sID); sd != nil {
+				name = sd.Name
+				desc = sd.Description
+			}
+			cc.classDesc.AddText("  • " + name)
+			if desc != "" {
+				for _, line := range mlge_text.Wrap(desc, 38, 4) {
+					cc.classDesc.AddText(line)
+				}
+			}
 		}
-		cc.classDesc.AddText("  • " + name)
+	}
+
+	if len(def.Skills) > 0 {
+		cc.classDesc.AddText("")
+		cc.classDesc.AddText("Upgradeable Skills:")
+		for _, sID := range def.Skills {
+			name := sID
+			desc := ""
+			if sd := skill.Get(sID); sd != nil {
+				name = sd.Name
+				desc = sd.Description
+			}
+			cc.classDesc.AddText("  • " + name)
+			if desc != "" {
+				for _, line := range mlge_text.Wrap(desc, 38, 4) {
+					cc.classDesc.AddText(line)
+				}
+			}
+		}
 	}
 }
 

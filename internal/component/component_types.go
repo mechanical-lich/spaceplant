@@ -21,6 +21,8 @@ const (
 	Alerted       = rlcomponents.Alerted
 	Poisoned      = rlcomponents.Poisoned
 	Poisonous     = rlcomponents.Poisonous
+	Haste         = rlcomponents.Haste
+	Slowed        = rlcomponents.Slowed
 	Food          = rlcomponents.Food
 	Inventory     = rlcomponents.Inventory
 	Item          = rlcomponents.Item

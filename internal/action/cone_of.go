@@ -24,7 +24,7 @@ type ConeOfAction struct {
 }
 
 func (a ConeOfAction) Cost(_ *ecs.Entity, _ *world.Level) int {
-	return energy.CostAttack
+	return a.Params.Cost(energy.CostAttack)
 }
 
 func (a ConeOfAction) Available(entity *ecs.Entity, _ *world.Level) bool {
@@ -92,6 +92,6 @@ func (a ConeOfAction) Execute(entity *ecs.Entity, level *world.Level) error {
 		}
 	}
 
-	rlenergy.SetActionCost(entity, energy.CostAttack)
+	rlenergy.SetActionCost(entity, a.Params.Cost(energy.CostAttack))
 	return nil
 }

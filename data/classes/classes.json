@@ -3,16 +3,38 @@
         "ID": "martial_artist",
         "Name": "Martial Artist",
         "Description": "A master of hand-to-hand combat.",
+        "StartingSkills": [
+            "hands_only"
+        ],
         "Skills": [
-            "roundhouse_kick"
+            "roundhouse_kick",
+            "sprinter",
+            "nimble"
         ]
     },
     {
-        "ID": "hybrid",
-        "Name": "Hybrid",
-        "Description": "A versatile fighter with a mix of skills.",
+        "ID": "sharpshooter",
+        "Name": "Sharpshooter",
+        "Description": "An expert marksman with ranged weapons.",
+        "StartingSkills": [
+            "eagle_eyed"
+        ],
         "Skills": [
-            "acid_spray"
+            "sharpshooter",
+            "brainy"
+        ]
+    },
+    {
+        "ID": "combat_specialist",
+        "Name": "Combat Specialist",
+        "Description": "Trained in the art of melee combat.",
+        "StartingSkills": [
+            "brawler"
+        ],
+        "Skills": [
+            "combat_specialist",
+            "shove",
+            "hands_only"
         ]
     }
 ]

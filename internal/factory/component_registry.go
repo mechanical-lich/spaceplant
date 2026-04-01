@@ -22,6 +22,8 @@ func registerComponents() {
 	jsonFactory.RegisterComponent("FoodComponent", func() ecs.Component { return &rlcomponents.FoodComponent{} })
 	jsonFactory.RegisterComponent("PoisonousComponent", func() ecs.Component { return &rlcomponents.PoisonousComponent{} })
 	jsonFactory.RegisterComponent("PoisonedComponent", func() ecs.Component { return &rlcomponents.PoisonedComponent{} })
+	jsonFactory.RegisterComponent("HasteComponent", func() ecs.Component { return &rlcomponents.HasteComponent{} })
+	jsonFactory.RegisterComponent("SlowedComponent", func() ecs.Component { return &rlcomponents.SlowedComponent{} })
 	jsonFactory.RegisterComponent("DefensiveAIComponent", func() ecs.Component { return &rlcomponents.DefensiveAIComponent{} })
 	jsonFactory.RegisterComponent("NeverSleepComponent", func() ecs.Component { return &rlcomponents.NeverSleepComponent{} })
 	jsonFactory.RegisterComponent("NocturnalComponent", func() ecs.Component { return &rlcomponents.NocturnalComponent{} })
