@@ -36,7 +36,7 @@ func (l *CombatListener) HandleEvent(evt mlgeevent.EventData) error {
 	}
 	defender := e.DefenderName
 	if playerIsDefender {
-		defender = "you"
+		defender = "Player"
 	}
 
 	var msg string

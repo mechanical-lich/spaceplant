@@ -83,6 +83,23 @@ func (s *AISystem) UpdateEntity(levelInterface any, entity *ecs.Entity) error {
 			}
 		}
 
+		// If the entity has a melee skill, use it instead of a plain move when adjacent.
+		if _, act := skill.SkillForAIType(entity, "melee_skill"); act != nil {
+			tdx := hc.TargetX - pc.GetX()
+			tdy := hc.TargetY - pc.GetY()
+			if tdx < 0 {
+				tdx = -tdx
+			}
+			if tdy < 0 {
+				tdy = -tdy
+			}
+			if tdx <= 1 && tdy <= 1 && (tdx != 0 || tdy != 0) {
+				fdx, fdy := facingDelta(pc.GetX(), pc.GetY(), hc.TargetX, hc.TargetY)
+				rlentity.Face(entity, fdx, fdy)
+				return act.Execute(entity, level)
+			}
+		}
+
 		rlentity.Face(entity, dx, dy)
 		err := action.MoveAction{DeltaX: dx, DeltaY: dy}.Execute(entity, level)
 		// Hostile NPCs also eat any food entities at the target tile.

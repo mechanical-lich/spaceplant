@@ -45,13 +45,16 @@ func HealBodyParts(entity *ecs.Entity, amount int) {
 
 // Hit performs a melee attack using rlcombat.Hit, then adds the AttackComponent visual.
 // The FX is placed on the target's footprint tile closest to the attacker.
-func Hit(l *world.Level, entity *ecs.Entity, entityHit *ecs.Entity) {
-	if rlbodycombat.Hit(l.Level, entity, entityHit, true) {
+// Returns true if the attack landed.
+func Hit(l *world.Level, entity *ecs.Entity, entityHit *ecs.Entity) bool {
+	landed := rlbodycombat.Hit(l.Level, entity, entityHit, true)
+	if landed {
 		if entityHit != entity && !entityHit.HasComponent(component.Dead) {
 			hitX, hitY := HitTile(entity, entityHit)
 			entityHit.AddComponent(&component.AttackComponent{SpriteX: 0, SpriteY: 0, X: hitX, Y: hitY})
 		}
 	}
+	return landed
 }
 
 func SavingThrow(l *world.Level, entity *ecs.Entity, entityHit *ecs.Entity, saveType string, dc int, damageType string, damageDice string) {

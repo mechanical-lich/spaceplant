@@ -19,11 +19,12 @@ import (
 
 // Action name constants used for last-action repeat penalty.
 const (
-	advActWander = "wander"
-	advActMove   = "move"
-	advActMelee  = "melee"
-	advActShoot  = "shoot"
-	advActFlee   = "flee"
+	advActWander      = "wander"
+	advActMove        = "move"
+	advActMelee       = "melee"
+	advActMeleeSkill  = "melee_skill"
+	advActShoot       = "shoot"
+	advActFlee        = "flee"
 )
 
 // AdvancedAISystem drives entities with an AdvancedAIComponent.
@@ -209,6 +210,17 @@ func advExecuteHunt(entity *ecs.Entity, aic *component.AdvancedAIComponent,
 		}
 	}
 
+	// Melee skill (e.g. poisonous bite): prefer over plain melee when adjacent.
+	var meleeSkillAct action.Action
+	if _, act := skill.SkillForAIType(entity, "melee_skill"); act != nil {
+		if dist <= 1 {
+			if s := 85 + jitter() - penalty(advActMeleeSkill); s > best.score {
+				best = candidate{advActMeleeSkill, s}
+				meleeSkillAct = act
+			}
+		}
+	}
+
 	// Ranged skill: align and shoot.
 	var shootDX, shootDY int
 	var shootAct action.Action
@@ -237,6 +249,13 @@ func advExecuteHunt(entity *ecs.Entity, aic *component.AdvancedAIComponent,
 		rlentity.Face(entity, shootDX, shootDY)
 		shootAct.Execute(entity, level) //nolint:errcheck
 		aic.LastAction = advActShoot
+		return nil
+
+	case advActMeleeSkill:
+		fdx, fdy := facingDelta(pc.GetX(), pc.GetY(), aic.TargetX, aic.TargetY)
+		rlentity.Face(entity, fdx, fdy)
+		aic.LastAction = advActMeleeSkill
+		meleeSkillAct.Execute(entity, level) //nolint:errcheck
 		return nil
 
 	case advActMelee:

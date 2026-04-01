@@ -75,6 +75,9 @@
             "Wis": 10,
             "Damage": "1d4"
         },
+        "SkillComponent": {
+            "Skills": ["poisonous_bite"]
+        },
         "DropsComponent": {
             "NumRolls": 1,
             "Items": [

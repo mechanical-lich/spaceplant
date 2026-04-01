@@ -24,6 +24,7 @@ type CharacterData struct {
 	Name         string
 	Str          int
 	Dex          int
+	Con          int
 	Int          int
 	Wis          int
 	ClassID      string
@@ -132,6 +133,7 @@ func (sw *SimWorld) SpawnPlayer(data CharacterData) error {
 		sc := player.GetComponent(component.Stats).(*component.StatsComponent)
 		sc.Str = data.Str
 		sc.Dex = data.Dex
+		sc.Con = data.Con
 		sc.Int = data.Int
 		sc.Wis = data.Wis
 	}

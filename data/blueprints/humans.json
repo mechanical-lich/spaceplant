@@ -100,6 +100,7 @@
         "StatsComponent": {
             "Str": 10,
             "Dex": 10,
+            "Con": 10,
             "Int": 10,
             "Wis": 10,
             "Damage": "1d4"

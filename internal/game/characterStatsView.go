@@ -472,6 +472,7 @@ func (v *CharacterStatsView) refreshOverview() {
 		}{
 			{"Str", sc.Str, "str"},
 			{"Dex", sc.Dex, "dex"},
+			{"Con", sc.Con, "con"},
 			{"Int", sc.Int, "int"},
 			{"Wis", sc.Wis, "wis"},
 			{"AC", sc.AC, "ac"},

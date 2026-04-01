@@ -170,5 +170,14 @@
       "save_stat": "dex",
       "save_dc": 15
     }
+  },
+  {
+    "id": "poisonous_bite",
+    "name": "Poisonous Bite",
+    "description": "Bite the enemy directly in front of you for 1d8 damage. On a hit, they must pass a CON save (DC 13) or become poisoned for 5 turns. Bound to B.",
+    "ai_type": "melee_skill",
+    "action_bindings": {
+      "b": "bite"
+    }
   }
 ]

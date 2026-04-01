@@ -161,6 +161,11 @@ func applyStatDelta(entity *ecs.Entity, stat string, delta int) {
 			s := entity.GetComponent(component.Stats).(*rlcomponents.StatsComponent)
 			s.Dex += delta
 		}
+	case "con":
+		if entity.HasComponent(component.Stats) {
+			s := entity.GetComponent(component.Stats).(*rlcomponents.StatsComponent)
+			s.Con += delta
+		}
 	case "int":
 		if entity.HasComponent(component.Stats) {
 			s := entity.GetComponent(component.Stats).(*rlcomponents.StatsComponent)
