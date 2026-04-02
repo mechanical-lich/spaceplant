@@ -88,7 +88,12 @@ func NewSimWorld() (*SimWorld, error) {
 	sw.Level.Polish(1)
 
 	// Systems
-	sw.systemManager.AddSystem(system.StatusConditionSystem{})
+	sw.systemManager.AddSystem(&rlsystems.StatusConditionSystem{
+		ExtraStatuses: map[string]ecs.ComponentType{
+			"Haste":  component.Haste,
+			"Slowed": component.Slowed,
+		},
+	})
 	sw.systemManager.AddSystem(&system.PlayerSystem{})
 	sw.aiSystem = &system.AISystem{}
 	sw.systemManager.AddSystem(sw.aiSystem)

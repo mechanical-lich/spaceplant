@@ -7,6 +7,7 @@ import (
 	"math"
 	"slices"
 	"strconv"
+	"strings"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
@@ -35,6 +36,7 @@ type entityHoverInfo struct {
 	Name            string
 	LongDescription string
 	BodyParts       []bodyPartHoverInfo
+	StatusText      string
 	IsDoor          bool
 	DoorOpen        bool
 	DoorLocked      bool
@@ -187,6 +189,7 @@ func (g *GUIViewMain) updateHover(cs *SPClientState) {
 				})
 			}
 		}
+		ei.StatusText = entityStatusText(e)
 		info.Entities = append(info.Entities, ei)
 	}
 	g.hover = info
@@ -221,6 +224,7 @@ func (g *GUIViewMain) rebuildHoverSpans(wrapChars int) {
 
 	for _, e := range h.Entities {
 		g.hoverPanel.AddSpan(minui.TextSpan{Text: e.Name, Color: whiteCol, Size: 12})
+		g.hoverPanel.AddSpan(minui.TextSpan{Text: "Status: " + e.StatusText, Color: dimCol, Size: 11, Indent: 4})
 		if e.LongDescription != "" {
 			for _, line := range mlge_text.Wrap(e.LongDescription, wrapChars, 0) {
 				g.hoverPanel.AddSpan(minui.TextSpan{Text: line, Color: dimCol, Size: 11, Indent: 4})
@@ -318,6 +322,12 @@ func (g *GUIViewMain) Draw(screen *ebiten.Image, s any) {
 		}
 	}
 
+	if cs.sim.Player != nil {
+		statusText := entityStatusText(cs.sim.Player)
+		mlge_text.Draw(screen, "Status: "+statusText, 14, cfg.WorldWidth+4, y, color.RGBA{200, 200, 200, 255})
+		y += 18
+	}
+
 	if g.hover != nil {
 		g.hoverPanel.SetPosition(cfg.WorldWidth+4, y+8)
 		g.hoverPanel.Draw(screen)
@@ -392,6 +402,49 @@ func (cs *SPClientState) GetMinimap(sX, sY, width, height, imageWidth, imageHeig
 	ebitenutil.DrawRect(worldImage, float64(pc.GetX()*imageWidth/width), float64(pc.GetY()*imageHeight/height), 5, 5, color.RGBA{0, 0, 255, 255})
 
 	return worldImage
+}
+
+// entityStatusText returns a comma-separated list of active status conditions
+// with remaining durations, e.g. "poisoned (3), slowed (1)", or "normal".
+func entityStatusText(e *ecs.Entity) string {
+	type statusCheck struct {
+		ct   ecs.ComponentType
+		name string
+	}
+	checks := []statusCheck{
+		{rlcomponents.Poisoned, "poisoned"},
+		{rlcomponents.Burning, "burning"},
+		{rlcomponents.Haste, "hasted"},
+		{rlcomponents.Slowed, "slowed"},
+		{rlcomponents.Alerted, "alerted"},
+	}
+	var active []string
+	for _, sc := range checks {
+		if !e.HasComponent(sc.ct) {
+			continue
+		}
+		dc := e.GetComponent(sc.ct).(rlcomponents.DecayingComponent)
+		// DecayingComponent doesn't expose Duration directly, so we type-assert
+		// to each concrete type to read the remaining turns.
+		turns := 0
+		switch v := dc.(type) {
+		case *rlcomponents.PoisonedComponent:
+			turns = v.Duration
+		case *rlcomponents.BurningComponent:
+			turns = v.Duration
+		case *rlcomponents.HasteComponent:
+			turns = v.Duration
+		case *rlcomponents.SlowedComponent:
+			turns = v.Duration
+		case *rlcomponents.AlertedComponent:
+			turns = v.Duration
+		}
+		active = append(active, fmt.Sprintf("%s (%d)", sc.name, turns))
+	}
+	if len(active) == 0 {
+		return "normal"
+	}
+	return strings.Join(active, ", ")
 }
 
 // findKeyDisplayName searches level entities for a key matching keyID and
