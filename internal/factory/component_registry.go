@@ -20,8 +20,7 @@ func registerComponents() {
 	jsonFactory.RegisterComponent("WanderAIComponent", func() ecs.Component { return &rlcomponents.WanderAIComponent{} })
 	jsonFactory.RegisterComponent("HostileAIComponent", func() ecs.Component { return &rlcomponents.HostileAIComponent{} })
 	jsonFactory.RegisterComponent("FoodComponent", func() ecs.Component { return &rlcomponents.FoodComponent{} })
-	jsonFactory.RegisterComponent("PoisonousComponent", func() ecs.Component { return &rlcomponents.PoisonousComponent{} })
-	jsonFactory.RegisterComponent("PoisonedComponent", func() ecs.Component { return &rlcomponents.PoisonedComponent{} })
+	jsonFactory.RegisterComponent("DamageConditionComponent", func() ecs.Component { return &rlcomponents.DamageConditionComponent{} })
 	jsonFactory.RegisterComponent("HasteComponent", func() ecs.Component { return &rlcomponents.HasteComponent{} })
 	jsonFactory.RegisterComponent("SlowedComponent", func() ecs.Component { return &rlcomponents.SlowedComponent{} })
 	jsonFactory.RegisterComponent("DefensiveAIComponent", func() ecs.Component { return &rlcomponents.DefensiveAIComponent{} })
@@ -53,4 +52,5 @@ func registerComponents() {
 	jsonFactory.RegisterComponent("AdvancedAIComponent", func() ecs.Component { return &component.AdvancedAIComponent{} })
 	jsonFactory.RegisterComponent("LayeredAppearanceComponent", func() ecs.Component { return &component.LayeredAppearanceComponent{} })
 	jsonFactory.RegisterComponent("WearableAppearanceComponent", func() ecs.Component { return &component.WearableAppearanceComponent{} })
+	jsonFactory.RegisterComponent("ActiveConditionsComponent", func() ecs.Component { return &rlcomponents.ActiveConditionsComponent{} })
 }

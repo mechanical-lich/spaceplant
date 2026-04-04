@@ -117,14 +117,19 @@ func (a MeleeSpecialAction) Execute(entity *ecs.Entity, level *world.Level) erro
 				}
 
 				switch statusCondition {
-				case "poison":
-					if !target.HasComponent(rlcomponents.Poisoned) {
-						target.AddComponent(&rlcomponents.PoisonedComponent{Duration: statusDuration})
+				case "poison", "burning":
+					condDice := extraDamage
+					if condDice == "" {
+						condDice = "1"
 					}
-				case "burning":
-					if !target.HasComponent(rlcomponents.Burning) {
-						target.AddComponent(&rlcomponents.BurningComponent{Duration: statusDuration})
-					}
+					acc := rlcomponents.GetOrCreateActiveConditions(target)
+					acc.Add(&rlcomponents.DamageConditionComponent{
+						Name:       statusCondition,
+						Duration:   statusDuration,
+						DamageDice: condDice,
+						DamageType: statusCondition,
+					})
+				// TODO - Add more status conditions that modify stats
 				case "slowed":
 					if !target.HasComponent(rlcomponents.Slowed) {
 						target.AddComponent(&rlcomponents.SlowedComponent{Duration: statusDuration})

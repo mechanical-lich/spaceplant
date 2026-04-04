@@ -412,8 +412,6 @@ func entityStatusText(e *ecs.Entity) string {
 		name string
 	}
 	checks := []statusCheck{
-		{rlcomponents.Poisoned, "poisoned"},
-		{rlcomponents.Burning, "burning"},
 		{rlcomponents.Haste, "hasted"},
 		{rlcomponents.Slowed, "slowed"},
 		{rlcomponents.Alerted, "alerted"},
@@ -423,15 +421,8 @@ func entityStatusText(e *ecs.Entity) string {
 		if !e.HasComponent(sc.ct) {
 			continue
 		}
-		dc := e.GetComponent(sc.ct).(rlcomponents.DecayingComponent)
-		// DecayingComponent doesn't expose Duration directly, so we type-assert
-		// to each concrete type to read the remaining turns.
 		turns := 0
-		switch v := dc.(type) {
-		case *rlcomponents.PoisonedComponent:
-			turns = v.Duration
-		case *rlcomponents.BurningComponent:
-			turns = v.Duration
+		switch v := e.GetComponent(sc.ct).(type) {
 		case *rlcomponents.HasteComponent:
 			turns = v.Duration
 		case *rlcomponents.SlowedComponent:
@@ -441,6 +432,37 @@ func entityStatusText(e *ecs.Entity) string {
 		}
 		active = append(active, fmt.Sprintf("%s (%d)", sc.name, turns))
 	}
+
+	// Conditions stored in the ActiveConditionsComponent container.
+	if e.HasComponent(rlcomponents.ActiveConditions) {
+		acc := e.GetComponent(rlcomponents.ActiveConditions).(*rlcomponents.ActiveConditionsComponent)
+		for _, d := range acc.Items {
+			name := ""
+			turns := 0
+			type named interface{ GetConditionName() string }
+			if n, ok := d.(named); ok {
+				name = n.GetConditionName()
+			}
+			switch v := d.(type) {
+			case *rlcomponents.DamageConditionComponent:
+				turns = v.Duration
+				if name == "" {
+					name = "damage"
+				}
+			case *rlcomponents.StatConditionComponent:
+				turns = v.Duration
+				if name == "" {
+					name = "condition"
+				}
+			default:
+				if name == "" {
+					name = "condition"
+				}
+			}
+			active = append(active, fmt.Sprintf("%s (%d)", name, turns))
+		}
+	}
+
 	if len(active) == 0 {
 		return "normal"
 	}

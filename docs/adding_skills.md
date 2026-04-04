@@ -69,7 +69,7 @@ All fields except `id`, `name`, and `description` are optional.
 | `radius` | int | Radius for circular area effects. |
 | `verb` | string | Word used in combat messages, e.g. `"bite"`, `"stab"`. |
 | `extra_damage_on_failed_save` | string | Bonus damage dice when the target fails their save, e.g. `"3d6"`. |
-| `status_condition_on_fail_save` | string | Status applied on failed save. Supported: `"poison"`, `"burning"`, `"slowed"`, `"haste"`. |
+| `status_condition_on_fail_save` | string | Status applied on failed save. `"poison"` and `"burning"` use `DamageConditionComponent` (damage per turn from `extra_damage_on_failed_save`, type matching the condition name). `"slowed"` and `"haste"` use their typed speed-modifier components. |
 | `status_condition_duration` | int | How many turns the status condition lasts. |
 | `action_cost` | int | Overrides the default energy cost. `0` (unset) uses the action's default (`CostAttack` = 100). Set to `50` for a half-action (`CostQuick`). |
 
