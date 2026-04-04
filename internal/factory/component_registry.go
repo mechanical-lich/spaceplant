@@ -54,4 +54,5 @@ func registerComponents() {
 	jsonFactory.RegisterComponent("WearableAppearanceComponent", func() ecs.Component { return &component.WearableAppearanceComponent{} })
 	jsonFactory.RegisterComponent("ActiveConditionsComponent", func() ecs.Component { return &rlcomponents.ActiveConditionsComponent{} })
 	jsonFactory.RegisterComponent("HitLocationComponent", func() ecs.Component { return &component.HitLocationComponent{} })
+	jsonFactory.RegisterComponent("AmmoComponent", func() ecs.Component { return &component.AmmoComponent{} })
 }

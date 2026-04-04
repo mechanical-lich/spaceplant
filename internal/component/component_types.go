@@ -51,6 +51,7 @@ const (
 	LayeredAppearance  ecs.ComponentType = "LayeredAppearanceComponent"
 	WearableAppearance ecs.ComponentType = "WearableAppearanceComponent"
 	HitLocation        ecs.ComponentType = "HitLocationComponent"
+	Ammo               ecs.ComponentType = "AmmoComponent"
 	Interaction                          = rlcomponents.Interaction
 	Door                                 = rlcomponents.Door
 )

@@ -27,6 +27,7 @@ type SPClientState struct {
 	mainView         *GUIViewMain
 	classView        *ClassUpgradeView
 	statsView        *CharacterStatsView
+	reloadView       *ReloadView
 	characterCreator *CharacterCreator
 	CameraX          int
 	CameraY          int
@@ -61,6 +62,7 @@ func NewSPClientState(sim *SimWorld, t transport.ClientTransport) *SPClientState
 func (s *SPClientState) initGameViews() {
 	s.classView = NewClassUpgradeView(s.sim.Player)
 	s.statsView = NewCharacterStatsView(s.sim.Player)
+	s.reloadView = NewReloadView(s.sim.Player)
 	pc := s.sim.Player.GetComponent("Position").(*component.PositionComponent)
 	s.CameraX = pc.GetX()
 	s.CameraY = pc.GetY()
@@ -103,6 +105,10 @@ func (s *SPClientState) Update(_ *transport.Snapshot) client.ClientState {
 
 	// Close modals on Escape (innermost first).
 	if inpututil.IsKeyJustPressed(ebiten.KeyEscape) {
+		if s.reloadView.Visible {
+			s.reloadView.Visible = false
+			return nil
+		}
 		if s.statsView.Visible {
 			s.statsView.Visible = false
 			return nil
@@ -131,18 +137,23 @@ func (s *SPClientState) Update(_ *transport.Snapshot) client.ClientState {
 	s.mainView.Update(s)
 	s.classView.Update()
 	s.statsView.Update()
+	s.reloadView.Update()
 	hasTurn := s.sim.Player != nil && s.sim.Player.HasComponent("MyTurn")
 	s.sim.Mu.RUnlock()
 
 	// Block game input while any modal is open.
-	if s.classView.Visible || s.statsView.Visible {
+	if s.classView.Visible || s.statsView.Visible || s.reloadView.Visible {
 		return nil
 	}
 
 	// Send movement/action commands only when it is the player's turn.
 	if hasTurn {
-		// Rush toggle fires once on key-down.
+		// Shift+R opens the reload modal; unmodified R toggles rush.
 		if inpututil.IsKeyJustPressed(ebiten.KeyR) {
+			if shift {
+				s.reloadView.Open()
+				return nil
+			}
 			s.transport.SendCommand(&transport.Command{
 				Type:    CmdAction,
 				Payload: ActionPayload{Key: "r"},
@@ -241,4 +252,5 @@ func (s *SPClientState) Draw(screen *ebiten.Image) {
 	s.mainView.Draw(screen, s)
 	s.classView.Draw(screen)
 	s.statsView.Draw(screen)
+	s.reloadView.Draw(screen)
 }

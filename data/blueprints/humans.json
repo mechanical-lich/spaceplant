@@ -14,7 +14,9 @@
                 "scrub_cap",
                 "security_pistol",
                 "shotgun",
-                "assault_rifle"
+                "assault_rifle",
+                "5_56_rounds",
+                "12g_shells"
             ]
         },
         "BodyComponent": {

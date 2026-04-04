@@ -85,14 +85,27 @@ func (a ShootAction) Execute(entity *ecs.Entity, level *world.Level) error {
 
 	switch {
 	case a.Burst:
+		if wc.MaxMagazine > 0 && wc.Magazine <= 0 {
+			message.AddMessage("*click* Out of ammo. Press Shift+R to reload.")
+			rlenergy.SetActionCost(entity, energy.CostQuick)
+			return nil
+		}
 		execBurst(entity, level, wc, dx, dy, maxRange)
 	default:
 		// Single shot (snap or aimed).
+		if wc.MaxMagazine > 0 && wc.Magazine <= 0 {
+			message.AddMessage("*click* Out of ammo. Press Shift+R to reload.")
+			rlenergy.SetActionCost(entity, energy.CostQuick)
+			return nil
+		}
 		csBonus := 0
 		if a.Aimed {
 			csBonus += csAimedShotBonus
 		}
 		execSpread(entity, level, wc, dx, dy, maxRange, csBonus, 1.0)
+		if wc.MaxMagazine > 0 {
+			wc.Magazine--
+		}
 	}
 
 	rlenergy.SetActionCost(entity, cost)
@@ -108,8 +121,15 @@ func execBurst(entity *ecs.Entity, level *world.Level, wc *rlcomponents.WeaponCo
 		rounds = 3
 	}
 	for i := 0; i < rounds; i++ {
+		if wc.MaxMagazine > 0 && wc.Magazine <= 0 {
+			message.AddMessage("Weapon empty mid-burst.")
+			return
+		}
 		csBonus := csBurstBonus + csBurstRecoil*i
 		hit := fireLineAt(entity, level, wc, dx, dy, maxRange, csBonus, 1.0)
+		if wc.MaxMagazine > 0 {
+			wc.Magazine--
+		}
 		if !hit && i == 0 {
 			// First round missed into the void — no point continuing.
 			return
