@@ -32,27 +32,27 @@
             "Parts": {
                 "head": {
                     "Name": "head",
-                    "HP": 5,
-                    "MaxHP": 5,
+                    "HP": 12,
+                    "MaxHP": 12,
                     "KillsWhenBroken": true,
                     "KillsWhenAmputated": true
                 },
                 "Torso": {
                     "Name": "Torso",
-                    "HP": 10,
-                    "MaxHP": 10,
+                    "HP": 30,
+                    "MaxHP": 30,
                     "KillsWhenBroken": true,
                     "KillsWhenAmputated": true
                 },
                 "blade_left": {
                     "Name": "Blade Left",
-                    "HP": 4,
-                    "MaxHP": 4
+                    "HP": 15,
+                    "MaxHP": 15
                 },
                 "blade_right": {
                     "Name": "Blade Right",
-                    "HP": 4,
-                    "MaxHP": 4
+                    "HP": 15,
+                    "MaxHP": 15
                 }
             }
         },
@@ -68,15 +68,26 @@
             "Speed": 100
         },
         "StatsComponent": {
-            "Str": 12,
-            "Dex": 12,
-            "Con": 10,
-            "Int": 10,
-            "Wis": 10,
-            "Damage": "1d4"
+            "PH": 12,
+            "AG": 12,
+            "MA": 6,
+            "CL": 8,
+            "LD": 3,
+            "CS": 45,
+            "NaturalPen": 6
+        },
+        "HitLocationComponent": {
+            "Weights": {
+                "head": 10,
+                "Torso": 40,
+                "blade_left": 25,
+                "blade_right": 25
+            }
         },
         "SkillComponent": {
-            "Skills": ["poisonous_bite"]
+            "Skills": [
+                "poisonous_bite"
+            ]
         },
         "DropsComponent": {
             "NumRolls": 1,
@@ -126,30 +137,30 @@
             "Parts": {
                 "central_mass": {
                     "Name": "Central Mass",
-                    "HP": 10,
-                    "MaxHP": 10,
+                    "HP": 55,
+                    "MaxHP": 55,
                     "KillsWhenBroken": true,
                     "KillsWhenAmputated": true
                 },
                 "appendage_1": {
                     "Name": "Appendage 1",
-                    "HP": 5,
-                    "MaxHP": 5
+                    "HP": 20,
+                    "MaxHP": 20
                 },
                 "appendage_2": {
                     "Name": "Appendage 2",
-                    "HP": 5,
-                    "MaxHP": 5
+                    "HP": 20,
+                    "MaxHP": 20
                 },
                 "appendage_3": {
                     "Name": "Appendage 3",
-                    "HP": 5,
-                    "MaxHP": 5
+                    "HP": 20,
+                    "MaxHP": 20
                 },
                 "appendage_4": {
                     "Name": "Appendage 4",
-                    "HP": 5,
-                    "MaxHP": 5
+                    "HP": 20,
+                    "MaxHP": 20
                 }
             }
         },
@@ -161,12 +172,22 @@
             "Speed": 100
         },
         "StatsComponent": {
-            "Str": 15,
-            "Dex": 15,
-            "Con": 10,
-            "Int": 10,
-            "Wis": 10,
-            "Damage": "1d4"
+            "PH": 15,
+            "AG": 8,
+            "MA": 6,
+            "CL": 10,
+            "LD": 3,
+            "CS": 35,
+            "NaturalPen": 10
+        },
+        "HitLocationComponent": {
+            "Weights": {
+                "central_mass": 50,
+                "appendage_1": 13,
+                "appendage_2": 13,
+                "appendage_3": 12,
+                "appendage_4": 12
+            }
         }
     },
     "viner": {
@@ -202,32 +223,32 @@
             "Parts": {
                 "head": {
                     "Name": "Head",
-                    "HP": 5,
-                    "MaxHP": 5,
+                    "HP": 12,
+                    "MaxHP": 12,
                     "KillsWhenBroken": true,
                     "KillsWhenAmputated": true
                 },
                 "core": {
                     "Name": "Core",
-                    "HP": 10,
-                    "MaxHP": 10,
+                    "HP": 30,
+                    "MaxHP": 30,
                     "KillsWhenBroken": true,
                     "KillsWhenAmputated": true
                 },
                 "tendril_1": {
                     "Name": "Tendril 1",
-                    "HP": 3,
-                    "MaxHP": 3
+                    "HP": 10,
+                    "MaxHP": 10
                 },
                 "tendril_2": {
                     "Name": "Tendril 2",
-                    "HP": 3,
-                    "MaxHP": 3
+                    "HP": 10,
+                    "MaxHP": 10
                 },
                 "tendril_3": {
                     "Name": "Tendril 3",
-                    "HP": 3,
-                    "MaxHP": 3
+                    "HP": 10,
+                    "MaxHP": 10
                 }
             }
         },
@@ -239,12 +260,22 @@
             "Speed": 200
         },
         "StatsComponent": {
-            "Str": 14,
-            "Dex": 10,
-            "Con": 14,
-            "Int": 10,
-            "Wis": 10,
-            "Damage": "1d4"
+            "PH": 14,
+            "AG": 10,
+            "MA": 6,
+            "CL": 6,
+            "LD": 3,
+            "CS": 40,
+            "NaturalPen": 5
+        },
+        "HitLocationComponent": {
+            "Weights": {
+                "head": 10,
+                "core": 40,
+                "tendril_1": 17,
+                "tendril_2": 17,
+                "tendril_3": 16
+            }
         },
         "DropsComponent": {
             "NumRolls": 1,
@@ -263,7 +294,7 @@
             "LongDescription": "A snake like creature with a vaguely humanoid head and a long scythe like tail.",
             "PassOverDescription": [
                 "You step carefully over the scythe's blades.",
-                "The dead scythe's limbs are still sharp — you step over carefully."
+                "The dead scythe's limbs are still sharp \u2014 you step over carefully."
             ],
             "DeathAnnouncements": [
                 "The scythe creature falls, its bladed limbs clattering on the floor.",
@@ -289,22 +320,22 @@
             "Parts": {
                 "head": {
                     "Name": "Head",
-                    "HP": 5,
-                    "MaxHP": 5,
+                    "HP": 12,
+                    "MaxHP": 12,
                     "KillsWhenBroken": true,
                     "KillsWhenAmputated": true
                 },
                 "thorax": {
                     "Name": "Thorax",
-                    "HP": 10,
-                    "MaxHP": 10,
+                    "HP": 35,
+                    "MaxHP": 35,
                     "KillsWhenBroken": true,
                     "KillsWhenAmputated": true
                 },
                 "tail_blade": {
                     "Name": "Tail Blade",
-                    "HP": 5,
-                    "MaxHP": 5
+                    "HP": 18,
+                    "MaxHP": 18
                 }
             }
         },
@@ -316,12 +347,20 @@
             "Speed": 150
         },
         "StatsComponent": {
-            "Str": 12,
-            "Dex": 13,
-            "Con": 10,
-            "Int": 10,
-            "Wis": 10,
-            "Damage": "1d4"
+            "PH": 12,
+            "AG": 13,
+            "MA": 6,
+            "CL": 10,
+            "LD": 3,
+            "CS": 50,
+            "NaturalPen": 8
+        },
+        "HitLocationComponent": {
+            "Weights": {
+                "head": 10,
+                "thorax": 60,
+                "tail_blade": 30
+            }
         },
         "DropsComponent": {
             "NumRolls": 1,
@@ -366,15 +405,15 @@
             "Parts": {
                 "body": {
                     "Name": "Body",
-                    "HP": 5,
-                    "MaxHP": 5,
+                    "HP": 18,
+                    "MaxHP": 18,
                     "KillsWhenBroken": true,
                     "KillsWhenAmputated": true
                 },
                 "vine_cluster": {
                     "Name": "Vine Cluster",
-                    "HP": 3,
-                    "MaxHP": 3
+                    "HP": 10,
+                    "MaxHP": 10
                 }
             }
         },
@@ -386,12 +425,19 @@
             "Speed": 200
         },
         "StatsComponent": {
-            "Str": 10,
-            "Dex": 12,
-            "Con": 10,
-            "Int": 10,
-            "Wis": 10,
-            "Damage": "1d4"
+            "PH": 10,
+            "AG": 12,
+            "MA": 5,
+            "CL": 6,
+            "LD": 3,
+            "CS": 38,
+            "NaturalPen": 4
+        },
+        "HitLocationComponent": {
+            "Weights": {
+                "body": 70,
+                "vine_cluster": 30
+            }
         }
     },
     "spitter": {
@@ -426,21 +472,21 @@
             "Parts": {
                 "head": {
                     "Name": "Head",
-                    "HP": 7,
-                    "MaxHP": 7,
+                    "HP": 20,
+                    "MaxHP": 20,
                     "KillsWhenBroken": true,
                     "KillsWhenAmputated": true
                 },
                 "sac": {
                     "Name": "Sac",
-                    "HP": 3,
-                    "MaxHP": 3,
+                    "HP": 15,
+                    "MaxHP": 15,
                     "KillsWhenAmputated": true
                 },
                 "root_anchor": {
                     "Name": "Roots",
-                    "HP": 4,
-                    "MaxHP": 4,
+                    "HP": 18,
+                    "MaxHP": 18,
                     "KillsWhenAmputated": true
                 }
             }
@@ -459,12 +505,20 @@
             "Speed": 100
         },
         "StatsComponent": {
-            "Str": 10,
-            "Dex": 10,
-            "Con": 10,
-            "Int": 10,
-            "Wis": 10,
-            "Damage": "1d4"
+            "PH": 10,
+            "AG": 10,
+            "MA": 5,
+            "CL": 8,
+            "LD": 3,
+            "CS": 30,
+            "NaturalPen": 3
+        },
+        "HitLocationComponent": {
+            "Weights": {
+                "head": 20,
+                "sac": 40,
+                "root_anchor": 40
+            }
         }
     }
 }

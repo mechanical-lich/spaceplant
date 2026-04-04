@@ -83,8 +83,6 @@ func getOrAddSkillComponent(entity *ecs.Entity) *component.SkillComponent {
 }
 
 // applyMod applies a single StatModifier to an entity.
-// String-valued mods (resistance, advantage) append to a slice;
-// numeric mods add their Delta to the relevant field.
 func applyMod(entity *ecs.Entity, mod StatModifier) {
 	if mod.Value != "" {
 		applyStatValue(entity, mod.Stat, mod.Value)
@@ -107,15 +105,11 @@ func applyStatValue(entity *ecs.Entity, stat, value string) {
 	if !entity.HasComponent(component.Stats) {
 		return
 	}
-	s := entity.GetComponent(component.Stats).(*rlcomponents.StatsComponent)
+	s := entity.GetComponent(component.Stats).(*component.StatsComponent)
 	switch stat {
 	case "resistance":
 		if !slices.Contains(s.Resistances, value) {
 			s.Resistances = append(s.Resistances, value)
-		}
-	case "advantage":
-		if !slices.Contains(s.Advantages, value) {
-			s.Advantages = append(s.Advantages, value)
 		}
 	}
 }
@@ -125,20 +119,26 @@ func removeStatValue(entity *ecs.Entity, stat, value string) {
 	if !entity.HasComponent(component.Stats) {
 		return
 	}
-	s := entity.GetComponent(component.Stats).(*rlcomponents.StatsComponent)
+	s := entity.GetComponent(component.Stats).(*component.StatsComponent)
 	switch stat {
 	case "resistance":
 		if idx := slices.Index(s.Resistances, value); idx >= 0 {
 			s.Resistances = slices.Delete(s.Resistances, idx, idx+1)
 		}
-	case "advantage":
-		if idx := slices.Index(s.Advantages, value); idx >= 0 {
-			s.Advantages = slices.Delete(s.Advantages, idx, idx+1)
-		}
 	}
 }
 
 // applyStatDelta adds delta to a named numeric stat on the entity.
+// Supported stat names for the AAG system:
+//
+//	speed         — EnergyComponent.Speed
+//	ph            — StatsComponent.PH (Physique)
+//	ag            — StatsComponent.AG (Agility)
+//	ma            — StatsComponent.MA (Mental Ability)
+//	cl            — StatsComponent.CL (Cool)
+//	ld            — StatsComponent.LD (Leadership)
+//	cs            — StatsComponent.CS (CombatSkill)
+//	natural_sp    — StatsComponent.NaturalSP (natural stopping power)
 func applyStatDelta(entity *ecs.Entity, stat string, delta int) {
 	switch stat {
 	case "speed":
@@ -146,45 +146,37 @@ func applyStatDelta(entity *ecs.Entity, stat string, delta int) {
 			ec := entity.GetComponent(component.Energy).(*rlcomponents.EnergyComponent)
 			ec.Speed += delta
 		}
-	case "ac":
+	case "ph":
 		if entity.HasComponent(component.Stats) {
-			s := entity.GetComponent(component.Stats).(*rlcomponents.StatsComponent)
-			s.AC += delta
+			entity.GetComponent(component.Stats).(*component.StatsComponent).PH += delta
 		}
-	case "str":
+	case "ag":
 		if entity.HasComponent(component.Stats) {
-			s := entity.GetComponent(component.Stats).(*rlcomponents.StatsComponent)
-			s.Str += delta
+			entity.GetComponent(component.Stats).(*component.StatsComponent).AG += delta
 		}
-	case "dex":
+	case "ma":
 		if entity.HasComponent(component.Stats) {
-			s := entity.GetComponent(component.Stats).(*rlcomponents.StatsComponent)
-			s.Dex += delta
+			entity.GetComponent(component.Stats).(*component.StatsComponent).MA += delta
 		}
-	case "con":
+	case "cl":
 		if entity.HasComponent(component.Stats) {
-			s := entity.GetComponent(component.Stats).(*rlcomponents.StatsComponent)
-			s.Con += delta
+			entity.GetComponent(component.Stats).(*component.StatsComponent).CL += delta
 		}
-	case "int":
+	case "ld":
 		if entity.HasComponent(component.Stats) {
-			s := entity.GetComponent(component.Stats).(*rlcomponents.StatsComponent)
-			s.Int += delta
+			entity.GetComponent(component.Stats).(*component.StatsComponent).LD += delta
 		}
-	case "wis":
+	case "cs":
 		if entity.HasComponent(component.Stats) {
-			s := entity.GetComponent(component.Stats).(*rlcomponents.StatsComponent)
-			s.Wis += delta
+			entity.GetComponent(component.Stats).(*component.StatsComponent).CS += delta
 		}
-	case "melee_attack_bonus":
+	case "natural_sp":
 		if entity.HasComponent(component.Stats) {
-			s := entity.GetComponent(component.Stats).(*rlcomponents.StatsComponent)
-			s.MeleeAttackBonus += delta
+			entity.GetComponent(component.Stats).(*component.StatsComponent).NaturalSP += delta
 		}
-	case "ranged_attack_bonus":
+	case "natural_pen":
 		if entity.HasComponent(component.Stats) {
-			s := entity.GetComponent(component.Stats).(*rlcomponents.StatsComponent)
-			s.RangedAttackBonus += delta
+			entity.GetComponent(component.Stats).(*component.StatsComponent).NaturalPen += delta
 		}
 	}
 }

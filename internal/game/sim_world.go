@@ -22,11 +22,11 @@ const numLevels = 4
 // CharacterData holds the player's choices from the character creator.
 type CharacterData struct {
 	Name         string
-	Str          int
-	Dex          int
-	Con          int
-	Int          int
-	Wis          int
+	PH           int
+	AG           int
+	MA           int
+	CL           int
+	LD           int
 	ClassID      string
 	ChosenSkills []string
 	BackgroundID string
@@ -136,11 +136,11 @@ func (sw *SimWorld) SpawnPlayer(data CharacterData) error {
 	// Override stats.
 	if player.HasComponent(component.Stats) {
 		sc := player.GetComponent(component.Stats).(*component.StatsComponent)
-		sc.Str = data.Str
-		sc.Dex = data.Dex
-		sc.Con = data.Con
-		sc.Int = data.Int
-		sc.Wis = data.Wis
+		sc.PH = data.PH
+		sc.AG = data.AG
+		sc.MA = data.MA
+		sc.CL = data.CL
+		sc.LD = data.LD
 	}
 
 	// Replace class — blueprint default is discarded.

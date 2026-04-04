@@ -25,12 +25,11 @@ The file is a JSON array of skill objects. Add a new entry:
   "action_params": {
     "damage_dice": "2d6",
     "damage_type": "fire",
-    "save_stat": "dex",
-    "save_dc": 14
+    "cool_dc": 14
   },
   "ai_type": "align_and_shoot",
   "stat_modifiers": [
-    { "stat": "ac", "delta": 1 }
+    { "stat": "cs", "delta": 5 }
   ]
 }
 ```
@@ -61,15 +60,14 @@ All fields except `id`, `name`, and `description` are optional.
 |---|---|---|
 | `damage_dice` | string | Damage roll expression, e.g. `"2d6"`, `"1d8"`. |
 | `damage_type` | string | Type of damage: `"fire"`, `"acid"`, `"poison"`, `"slashing"`, etc. |
-| `save_stat` | string | Ability score for saving throw: `"str"`, `"dex"`, `"con"`, `"int"`, `"wis"`. |
-| `save_dc` | int | Difficulty class for the saving throw. |
+| `cool_dc` | int | Difficulty modifier for the Cool Check resistance roll. Higher = harder to resist. See [combat.md](combat.md) for the formula. |
 | `depth` | int | Depth in tiles for cone effects. |
 | `spread` | int | Cone width. `0` = line only. `-1` = classic widening cone (spreads by 1 per depth row). |
 | `range` | int | Max reach in tiles for targeted or line effects. |
 | `radius` | int | Radius for circular area effects. |
 | `verb` | string | Word used in combat messages, e.g. `"bite"`, `"stab"`. |
-| `extra_damage_on_failed_save` | string | Bonus damage dice when the target fails their save, e.g. `"3d6"`. |
-| `status_condition_on_fail_save` | string | Status applied on failed save. `"poison"` and `"burning"` use `DamageConditionComponent` (damage per turn from `extra_damage_on_failed_save`, type matching the condition name). `"slowed"` and `"haste"` use their typed speed-modifier components. |
+| `extra_damage_on_failed_save` | string | Bonus damage dice when the target fails their Cool Check, e.g. `"3d6"`. |
+| `status_condition_on_fail_save` | string | Status applied on failed Cool Check. `"poison"` and `"burning"` use `DamageConditionComponent` (damage per turn from `extra_damage_on_failed_save`, type matching the condition name). `"slowed"` and `"haste"` use their typed speed-modifier components. |
 | `status_condition_duration` | int | How many turns the status condition lasts. |
 | `action_cost` | int | Overrides the default energy cost. `0` (unset) uses the action's default (`CostAttack` = 100). Set to `50` for a half-action (`CostQuick`). |
 
@@ -92,21 +90,19 @@ Stat modifiers are applied when the skill is granted and reversed when it is rem
 | Stat | Effect |
 |---|---|
 | `speed` | Action frequency. Base is 100. +50 acts 50% more often. |
-| `ac` | Armor class. |
-| `str` | Strength. |
-| `dex` | Dexterity. |
-| `con` | Constitution. |
-| `int` | Intelligence. |
-| `wis` | Wisdom. |
-| `melee_attack_bonus` | Bonus added to melee to-hit rolls. |
-| `ranged_attack_bonus` | Bonus added to ranged to-hit rolls. |
+| `ph` | Physique. Increases bare-hands Penetration. |
+| `ag` | Agility. |
+| `ma` | Mental Ability. |
+| `cl` | Cool. Improves Cool Check resistance rolls. |
+| `ld` | Leadership. |
+| `cs` | CombatSkill. Directly raises percentile hit chance. |
+| `natural_sp` | Natural Stopping Power. Absorbs incoming damage regardless of armor worn. |
 
 **String-set stats** — use `value`:
 
 | Stat | Effect |
 |---|---|
 | `resistance` | Half damage from the given damage type. |
-| `advantage` | Roll twice and take the best on saves for the given ability score. |
 
 ---
 

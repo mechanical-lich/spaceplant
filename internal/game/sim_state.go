@@ -3,8 +3,8 @@ package game
 import (
 	"math"
 
-	"github.com/mechanical-lich/ml-rogue-lib/pkg/rlcombat/rlbodycombat"
 	"github.com/mechanical-lich/ml-rogue-lib/pkg/rlcomponents"
+	spcombat "github.com/mechanical-lich/spaceplant/internal/combat"
 	"github.com/mechanical-lich/ml-rogue-lib/pkg/rlenergy"
 	"github.com/mechanical-lich/mlge/event"
 	"github.com/mechanical-lich/mlge/message"
@@ -85,7 +85,7 @@ func NewMainSimState(sim *SimWorld) *MainSimState {
 
 	event.GetQueuedInstance().RegisterListener(
 		&listeners.CombatListener{Sim: sim},
-		rlbodycombat.CombatEventType,
+		spcombat.CombatEventType,
 	)
 
 	event.GetQueuedInstance().RegisterListener(

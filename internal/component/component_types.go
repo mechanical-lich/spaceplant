@@ -50,6 +50,7 @@ const (
 	AdvancedAI         ecs.ComponentType = "AdvancedAIComponent"
 	LayeredAppearance  ecs.ComponentType = "LayeredAppearanceComponent"
 	WearableAppearance ecs.ComponentType = "WearableAppearanceComponent"
+	HitLocation        ecs.ComponentType = "HitLocationComponent"
 	Interaction                          = rlcomponents.Interaction
 	Door                                 = rlcomponents.Door
 )
@@ -60,7 +61,6 @@ type (
 	Trigger                = rlcomponents.Trigger
 	DoorComponent          = rlcomponents.DoorComponent
 	PositionComponent      = rlcomponents.PositionComponent
-	StatsComponent         = rlcomponents.StatsComponent
 	MyTurnComponent        = rlcomponents.MyTurnComponent
 	DeadComponent          = rlcomponents.DeadComponent
 	DescriptionComponent   = rlcomponents.DescriptionComponent
@@ -74,8 +74,6 @@ type (
 	FoodComponent          = rlcomponents.FoodComponent
 	NeverSleepComponent    = rlcomponents.NeverSleepComponent
 	NocturnalComponent     = rlcomponents.NocturnalComponent
-	WeaponComponent        = rlcomponents.WeaponComponent
-	ArmorComponent         = rlcomponents.ArmorComponent
 	ItemComponent          = rlcomponents.ItemComponent
 	InventoryComponent     = rlcomponents.InventoryComponent
 	BodyInventoryComponent = rlcomponents.BodyInventoryComponent

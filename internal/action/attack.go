@@ -9,6 +9,16 @@ import (
 	"github.com/mechanical-lich/spaceplant/internal/world"
 )
 
+// handsOnlyPen calculates the Penetration value for an unarmed hands_only attack.
+// Scales with Physique: PH 10 → 5 Pen, PH 18 → 7 Pen.
+func handsOnlyPen(entity *ecs.Entity) int {
+	ph := 10
+	if entity.HasComponent(component.Stats) {
+		ph = entity.GetComponent(component.Stats).(*component.StatsComponent).PH
+	}
+	return 3 + ph/4
+}
+
 // AttackAction attacks the solid entity at (TargetX, TargetY) on the entity's Z level.
 type AttackAction struct {
 	TargetX, TargetY int
@@ -33,11 +43,7 @@ func (a AttackAction) Execute(entity *ecs.Entity, level *world.Level) error {
 	cost := energy.CostAttack
 	if target != nil && target != entity {
 		if entityHasSkill(entity, "hands_only") && !hasWeaponEquipped(entity) {
-			sc := entity.GetComponent(component.Stats).(*component.StatsComponent)
-			orig := sc.BasicAttackDice
-			sc.BasicAttackDice = "1d10"
-			entityhelpers.Hit(level, entity, target)
-			sc.BasicAttackDice = orig
+			entityhelpers.HitWithPen(level, entity, target, handsOnlyPen(entity))
 			cost = energy.CostQuick
 		} else {
 			entityhelpers.Hit(level, entity, target)

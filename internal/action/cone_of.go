@@ -3,11 +3,13 @@ package action
 import (
 	"github.com/mechanical-lich/ml-rogue-lib/pkg/rlcomponents"
 	"github.com/mechanical-lich/ml-rogue-lib/pkg/rlenergy"
+	spcombat "github.com/mechanical-lich/spaceplant/internal/combat"
+	"github.com/mechanical-lich/mlge/dice"
 	"github.com/mechanical-lich/mlge/ecs"
+	mlgeevent "github.com/mechanical-lich/mlge/event"
 	"github.com/mechanical-lich/spaceplant/internal/aoe"
 	"github.com/mechanical-lich/spaceplant/internal/component"
 	"github.com/mechanical-lich/spaceplant/internal/energy"
-	"github.com/mechanical-lich/spaceplant/internal/entityhelpers"
 	"github.com/mechanical-lich/spaceplant/internal/world"
 )
 
@@ -39,10 +41,6 @@ func (a ConeOfAction) Execute(entity *ecs.Entity, level *world.Level) error {
 	depth := a.Params.Depth
 	if depth <= 0 {
 		depth = 3
-	}
-	saveStat := a.Params.SaveStat
-	if saveStat == "" {
-		saveStat = "dex"
 	}
 	saveDC := a.Params.SaveDC
 	if saveDC <= 0 {
@@ -88,7 +86,46 @@ func (a ConeOfAction) Execute(entity *ecs.Entity, level *world.Level) error {
 			if e == entity || e.HasComponent(rlcomponents.Dead) {
 				continue
 			}
-			entityhelpers.SavingThrow(level, entity, e, saveStat, saveDC, damageType, damageDice)
+			passed := spcombat.CoolCheck(e, saveDC)
+			dmg, _ := dice.Roll(damageDice)
+			if passed {
+				dmg /= 2
+			}
+			if dmg > 0 {
+				if e.HasComponent(rlcomponents.Body) {
+					bc := e.GetComponent(rlcomponents.Body).(*rlcomponents.BodyComponent)
+					for name, part := range bc.Parts {
+						if !part.Amputated && part.KillsWhenBroken {
+							part.HP -= dmg
+							if part.HP <= 0 {
+								part.HP = 0
+								part.Broken = true
+								e.AddComponent(&rlcomponents.DeadComponent{})
+							}
+							bc.Parts[name] = part
+							break
+						}
+					}
+				} else if e.HasComponent(rlcomponents.Health) {
+					hc := e.GetComponent(rlcomponents.Health).(*rlcomponents.HealthComponent)
+					hc.Health -= dmg
+					if hc.Health <= 0 {
+						hc.Health = 0
+						e.AddComponent(&rlcomponents.DeadComponent{})
+					}
+				}
+			}
+			epc := e.GetComponent(rlcomponents.Position).(*rlcomponents.PositionComponent)
+			mlgeevent.GetQueuedInstance().QueueEvent(spcombat.CombatEvent{
+				X: epc.GetX(), Y: epc.GetY(), Z: epc.GetZ(),
+				Attacker:   entity,
+				Defender:   e,
+				Source:     damageType,
+				DamageType: damageType,
+				Damage:     dmg,
+				SavePass:   passed,
+				SaveFail:   !passed,
+			})
 		}
 	}
 

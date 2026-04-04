@@ -33,7 +33,7 @@ type CharacterCreator struct {
 	// Stats tab
 	statLabels    [5]*minui.Label // Str, Dex, Con, Int, Wis
 	pointsLabel   *minui.Label
-	stats         [5]int // current values for Str, Dex, Con, Int, Wis
+	stats         [5]int // current values for PH, AG, MA, CL, LD
 
 	// Class tab
 	classList    *minui.ListBox
@@ -72,14 +72,14 @@ type CharacterCreator struct {
 }
 
 const (
-	statStr = 0
-	statDex = 1
-	statCon = 2
-	statInt = 3
-	statWis = 4
+	statPH = 0
+	statAG = 1
+	statMA = 2
+	statCL = 3
+	statLD = 4
 )
 
-var statNames = [5]string{"Str", "Dex", "Con", "Int", "Wis"}
+var statNames = [5]string{"PH", "AG", "MA", "CL", "LD"}
 
 func NewCharacterCreator() *CharacterCreator {
 	cfg := config.Global()
@@ -87,7 +87,7 @@ func NewCharacterCreator() *CharacterCreator {
 	my := (cfg.ScreenHeight - ccModalH) / 2
 
 	cc := &CharacterCreator{
-		stats:         [5]int{10, 10, 10, 10, 10},
+		stats:         [5]int{10, 10, 10, 10, 8},
 		upgradePoints: 1,
 		selectedClass: -1,
 		selectedSkill: -1,
@@ -643,11 +643,11 @@ func (cc *CharacterCreator) submit() {
 	if cc.OnComplete != nil {
 		cc.OnComplete(CharacterData{
 			Name:         name,
-			Str:          cc.stats[statStr],
-			Dex:          cc.stats[statDex],
-			Con:          cc.stats[statCon],
-			Int:          cc.stats[statInt],
-			Wis:          cc.stats[statWis],
+			PH:           cc.stats[statPH],
+			AG:           cc.stats[statAG],
+			MA:           cc.stats[statMA],
+			CL:           cc.stats[statCL],
+			LD:           cc.stats[statLD],
 			ClassID:      classID,
 			ChosenSkills: cc.chosenSkills,
 			BackgroundID: bgID,

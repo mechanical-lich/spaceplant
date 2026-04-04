@@ -13,7 +13,7 @@ func registerComponents() {
 	jsonFactory.RegisterComponent("SolidComponent", func() ecs.Component { return &rlcomponents.SolidComponent{} })
 	jsonFactory.RegisterComponent("EnergyComponent", func() ecs.Component { return &rlcomponents.EnergyComponent{} })
 	jsonFactory.RegisterComponent("InventoryComponent", func() ecs.Component { return &rlcomponents.InventoryComponent{} })
-	jsonFactory.RegisterComponent("StatsComponent", func() ecs.Component { return &rlcomponents.StatsComponent{} })
+	jsonFactory.RegisterComponent("StatsComponent", func() ecs.Component { return &component.StatsComponent{} })
 	jsonFactory.RegisterComponent("InanimateComponent", func() ecs.Component { return &rlcomponents.InanimateComponent{} })
 	jsonFactory.RegisterComponent("PositionComponent", func() ecs.Component { return &rlcomponents.PositionComponent{} })
 	jsonFactory.RegisterComponent("DirectionComponent", func() ecs.Component { return &rlcomponents.DirectionComponent{} })
@@ -53,4 +53,5 @@ func registerComponents() {
 	jsonFactory.RegisterComponent("LayeredAppearanceComponent", func() ecs.Component { return &component.LayeredAppearanceComponent{} })
 	jsonFactory.RegisterComponent("WearableAppearanceComponent", func() ecs.Component { return &component.WearableAppearanceComponent{} })
 	jsonFactory.RegisterComponent("ActiveConditionsComponent", func() ecs.Component { return &rlcomponents.ActiveConditionsComponent{} })
+	jsonFactory.RegisterComponent("HitLocationComponent", func() ecs.Component { return &component.HitLocationComponent{} })
 }

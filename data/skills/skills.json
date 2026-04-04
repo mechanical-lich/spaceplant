@@ -27,11 +27,11 @@
     "description": "Hardened fighter with improved armor class and strength.",
     "stat_modifiers": [
       {
-        "stat": "ac",
+        "stat": "natural_sp",
         "delta": 2
       },
       {
-        "stat": "str",
+        "stat": "ph",
         "delta": 1
       }
     ]
@@ -57,8 +57,7 @@
       "spread": -1,
       "damage_dice": "1d8",
       "damage_type": "fire",
-      "save_stat": "dex",
-      "save_dc": 15
+      "cool_dc": 15
     }
   },
   {
@@ -66,7 +65,10 @@
     "name": "Thick Skin",
     "description": "Years of hard living have left you with hide like leather. +2 AC.",
     "stat_modifiers": [
-      { "stat": "ac", "delta": 2 }
+      {
+        "stat": "natural_sp",
+        "delta": 2
+      }
     ]
   },
   {
@@ -74,7 +76,10 @@
     "name": "Noncombustible",
     "description": "Fire doesn't scare you. You take half damage from fire.",
     "stat_modifiers": [
-      { "stat": "resistance", "value": "fire" }
+      {
+        "stat": "resistance",
+        "value": "fire"
+      }
     ]
   },
   {
@@ -82,7 +87,10 @@
     "name": "Acid Proof",
     "description": "Corrosive substances roll right off you. You take half damage from acid.",
     "stat_modifiers": [
-      { "stat": "resistance", "value": "acid" }
+      {
+        "stat": "resistance",
+        "value": "acid"
+      }
     ]
   },
   {
@@ -104,25 +112,23 @@
     "name": "Brainy",
     "description": "Sharp mind, sharp instincts. +1 INT and advantage on INT saving throws.",
     "stat_modifiers": [
-      { "stat": "int", "delta": 1 },
-      { "stat": "advantage", "value": "int" }
+      {
+        "stat": "ma",
+        "delta": 1
+      }
     ]
   },
   {
     "id": "nimble",
     "name": "Nimble",
     "description": "You dodge with uncanny speed. Advantage on DEX saving throws.",
-    "stat_modifiers": [
-      { "stat": "advantage", "value": "dex" }
-    ]
+    "stat_modifiers": []
   },
   {
     "id": "eagle_eyed",
     "name": "Eagle Eyed",
     "description": "Nothing gets past you. Advantage on WIS saving throws.",
-    "stat_modifiers": [
-      { "stat": "advantage", "value": "wis" }
-    ]
+    "stat_modifiers": []
   },
   {
     "id": "small",
@@ -135,7 +141,10 @@
     "name": "Sharpshooter",
     "description": "You have a steady hand with ranged weapons. +1 to attack rolls with ranged weapons.",
     "stat_modifiers": [
-      { "stat": "ranged_attack_bonus", "delta": 1 }
+      {
+        "stat": "cs",
+        "delta": 5
+      }
     ]
   },
   {
@@ -143,7 +152,10 @@
     "name": "Combat Specialist",
     "description": "Rigorous melee training pays off. +1 to attack rolls with melee weapons.",
     "stat_modifiers": [
-      { "stat": "melee_attack_bonus", "delta": 1 }
+      {
+        "stat": "cs",
+        "delta": 5
+      }
     ]
   },
   {
@@ -167,8 +179,7 @@
       "spread": 0,
       "damage_dice": "1d8",
       "damage_type": "acid",
-      "save_stat": "dex",
-      "save_dc": 15
+      "cool_dc": 15
     }
   },
   {
@@ -182,11 +193,10 @@
     "action_params": {
       "damage_dice": "1d8",
       "damage_type": "poison",
-      "save_stat": "con",
-      "save_dc": 13,
       "verb": "bite",
       "status_condition_on_fail_save": "poison",
-      "status_condition_duration": 5
+      "status_condition_duration": 5,
+      "cool_dc": 13
     }
   },
   {
@@ -200,11 +210,10 @@
     "action_params": {
       "damage_dice": "1d12",
       "damage_type": "bludgeoning",
-      "save_stat": "dex",
-      "save_dc": 15,
       "verb": "vinewhip",
       "status_condition_on_fail_save": "slowed",
-      "status_condition_duration": 4
+      "status_condition_duration": 4,
+      "cool_dc": 15
     }
   }
 ]

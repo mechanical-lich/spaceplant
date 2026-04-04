@@ -3,7 +3,7 @@ package listeners
 import (
 	"fmt"
 
-	"github.com/mechanical-lich/ml-rogue-lib/pkg/rlcombat/rlbodycombat"
+	spcombat "github.com/mechanical-lich/spaceplant/internal/combat"
 	mlgeevent "github.com/mechanical-lich/mlge/event"
 	"github.com/mechanical-lich/mlge/message"
 )
@@ -15,7 +15,7 @@ type CombatListener struct {
 }
 
 func (l *CombatListener) HandleEvent(evt mlgeevent.EventData) error {
-	e, ok := evt.(rlbodycombat.CombatEvent)
+	e, ok := evt.(spcombat.CombatEvent)
 	if !ok {
 		return nil
 	}

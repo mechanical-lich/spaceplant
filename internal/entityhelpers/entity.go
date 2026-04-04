@@ -1,11 +1,10 @@
 package entityhelpers
 
 import (
-	"github.com/mechanical-lich/ml-rogue-lib/pkg/rlcombat/rlbodycombat"
-
 	"github.com/mechanical-lich/ml-rogue-lib/pkg/rlcomponents"
 	"github.com/mechanical-lich/ml-rogue-lib/pkg/rlentity"
 	"github.com/mechanical-lich/mlge/ecs"
+	spcombat "github.com/mechanical-lich/spaceplant/internal/combat"
 	"github.com/mechanical-lich/spaceplant/internal/component"
 	"github.com/mechanical-lich/spaceplant/internal/world"
 )
@@ -43,11 +42,11 @@ func HealBodyParts(entity *ecs.Entity, amount int) {
 	}
 }
 
-// Hit performs a melee attack using rlcombat.Hit, then adds the AttackComponent visual.
-// The FX is placed on the target's footprint tile closest to the attacker.
+// Hit performs a melee attack using the AAG combat system, then adds the
+// AttackComponent visual on a hit.
 // Returns true if the attack landed.
 func Hit(l *world.Level, entity *ecs.Entity, entityHit *ecs.Entity) bool {
-	landed := rlbodycombat.Hit(l.Level, entity, entityHit, true)
+	landed := spcombat.Hit(l, entity, entityHit)
 	if landed {
 		if entityHit != entity && !entityHit.HasComponent(component.Dead) {
 			hitX, hitY := HitTile(entity, entityHit)
@@ -57,12 +56,28 @@ func Hit(l *world.Level, entity *ecs.Entity, entityHit *ecs.Entity) bool {
 	return landed
 }
 
-func SavingThrow(l *world.Level, entity *ecs.Entity, entityHit *ecs.Entity, saveType string, dc int, damageType string, damageDice string) {
-	if rlbodycombat.SavingThrow(entityHit, saveType, dc, damageType, damageDice) {
+// HitWithPen performs an attack with a Penetration override (e.g. for unarmed
+// special attacks). penOverride < 0 means use the weapon/bare-hands default.
+func HitWithPen(l *world.Level, entity *ecs.Entity, entityHit *ecs.Entity, pen int) bool {
+	landed := spcombat.HitWithPen(l, entity, entityHit, pen)
+	if landed {
 		if entityHit != entity && !entityHit.HasComponent(component.Dead) {
-			entityHit.AddComponent(&component.AttackComponent{SpriteX: 0, SpriteY: 0, X: 0, Y: 0})
+			hitX, hitY := HitTile(entity, entityHit)
+			entityHit.AddComponent(&component.AttackComponent{SpriteX: 0, SpriteY: 0, X: hitX, Y: hitY})
 		}
 	}
+	return landed
+}
+
+// CoolCheck runs a Cool-based resistance check on entityHit (replaces SavingThrow).
+func CoolCheck(l *world.Level, entity *ecs.Entity, entityHit *ecs.Entity, dc int) bool {
+	_ = l
+	_ = entity
+	passed := spcombat.CoolCheck(entityHit, dc)
+	if !passed && entityHit != entity && !entityHit.HasComponent(component.Dead) {
+		entityHit.AddComponent(&component.AttackComponent{SpriteX: 0, SpriteY: 0, X: 0, Y: 0})
+	}
+	return passed
 }
 
 // HitTile returns the world tile on the target's footprint closest to the attacker.
@@ -85,7 +100,7 @@ func HitTile(attacker, target *ecs.Entity) (int, int) {
 		max(startY, min(apc.GetY(), startY+th-1))
 }
 
-// move attempts to move an entity using rlentity.Move, with MassiveComponent handling.
+// Move attempts to move an entity using rlentity.Move, with MassiveComponent handling.
 func Move(entity *ecs.Entity, level *world.Level, deltaX int, deltaY int) bool {
 	pc := entity.GetComponent("Position").(*component.PositionComponent)
 	z := pc.GetZ()

@@ -470,12 +470,12 @@ func (v *CharacterStatsView) refreshOverview() {
 			val  int
 			key  string
 		}{
-			{"Str", sc.Str, "str"},
-			{"Dex", sc.Dex, "dex"},
-			{"Con", sc.Con, "con"},
-			{"Int", sc.Int, "int"},
-			{"Wis", sc.Wis, "wis"},
-			{"AC", sc.AC, "ac"},
+			{"PH", sc.PH, "ph"},
+			{"AG", sc.AG, "ag"},
+			{"MA", sc.MA, "ma"},
+			{"CL", sc.CL, "cl"},
+			{"LD", sc.LD, "ld"},
+			{"CS", sc.CS, "cs"},
 		}
 		v.overviewArea.AddText("── Stats ──────────────")
 		for _, s := range stats {

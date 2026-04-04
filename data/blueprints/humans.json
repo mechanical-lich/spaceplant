@@ -98,12 +98,15 @@
             "Energy": 0
         },
         "StatsComponent": {
-            "Str": 10,
-            "Dex": 10,
-            "Con": 10,
-            "Int": 10,
-            "Wis": 10,
-            "Damage": "1d4"
+            "PH": 10,
+            "AG": 10,
+            "MA": 10,
+            "CL": 10,
+            "LD": 8,
+            "CS": 40
+        },
+        "HitLocationComponent": {
+            "Weights": { "head": 10, "torso": 40, "right_arm": 15, "left_arm": 15, "legs": 15, "feet": 5 }
         }
     },
     "crewmember": {
@@ -229,12 +232,15 @@
             "B": 125
         },
         "StatsComponent": {
-            "Str": 10,
-            "Dex": 10,
-            "Con": 10,
-            "Int": 10,
-            "Wis": 10,
-            "Damage": "1d4"
+            "PH": 10,
+            "AG": 10,
+            "MA": 10,
+            "CL": 10,
+            "LD": 8,
+            "CS": 40
+        },
+        "HitLocationComponent": {
+            "Weights": { "head": 10, "torso": 40, "right_arm": 15, "left_arm": 15, "legs": 15, "feet": 5 }
         }
     },
     "officer": {
@@ -360,12 +366,15 @@
             "B": 125
         },
         "StatsComponent": {
-            "Str": 10,
-            "Dex": 10,
-            "Con": 10,
-            "Int": 10,
-            "Wis": 10,
-            "Damage": "1d4"
+            "PH": 10,
+            "AG": 10,
+            "MA": 10,
+            "CL": 10,
+            "LD": 8,
+            "CS": 40
+        },
+        "HitLocationComponent": {
+            "Weights": { "head": 10, "torso": 40, "right_arm": 15, "left_arm": 15, "legs": 15, "feet": 5 }
         }
     }
 }
