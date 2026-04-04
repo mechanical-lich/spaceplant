@@ -154,9 +154,20 @@ func hitCore(level *world.Level, attacker, defender *ecs.Entity, weaponOverride 
 		DamageType:   damageType,
 		Damage:       damage,
 		BodyPart:     partName,
-		Broken:       broken,
-		Amputated:    amputated,
 	})
+
+	if broken || amputated {
+		mlgeevent.GetQueuedInstance().QueueEvent(CombatEvent{
+			X: dpc.GetX(), Y: dpc.GetY(), Z: dpc.GetZ(),
+			Attacker:     attacker,
+			Defender:     defender,
+			AttackerName: attackerName,
+			DefenderName: defenderName,
+			BodyPart:     partName,
+			Broken:       broken,
+			Amputated:    amputated,
+		})
+	}
 
 	return true
 }
