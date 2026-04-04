@@ -328,6 +328,7 @@ func applyPartDamage(
 		return
 	}
 	part.HP -= damage
+	overkill := part.HP < 0
 	if part.HP <= 0 {
 		part.HP = 0
 		if !part.Broken {
@@ -337,7 +338,7 @@ func applyPartDamage(
 				killed = true
 			}
 		}
-		if !part.Amputated && part.KillsWhenAmputated {
+		if overkill && !part.Amputated && part.KillsWhenAmputated {
 			part.Amputated = true
 			amputated = true
 			killed = true
