@@ -24,7 +24,7 @@
   {
     "id": "brawler",
     "name": "Brawler",
-    "description": "Hardened fighter with improved armor class and strength.",
+    "description": "Hardened fighter with toughened hide and raw power. +2 Natural SP, +1 PH.",
     "stat_modifiers": [
       {
         "stat": "natural_sp",
@@ -63,7 +63,7 @@
   {
     "id": "thick_skin",
     "name": "Thick Skin",
-    "description": "Years of hard living have left you with hide like leather. +2 AC.",
+    "description": "Years of hard living have left you with hide like leather. +2 Natural SP.",
     "stat_modifiers": [
       {
         "stat": "natural_sp",
@@ -110,7 +110,7 @@
   {
     "id": "brainy",
     "name": "Brainy",
-    "description": "Sharp mind, sharp instincts. +1 INT and advantage on INT saving throws.",
+    "description": "Sharp mind, sharp instincts. +1 MA.",
     "stat_modifiers": [
       {
         "stat": "ma",
@@ -139,7 +139,7 @@
   {
     "id": "sharpshooter",
     "name": "Sharpshooter",
-    "description": "You have a steady hand with ranged weapons. +1 to attack rolls with ranged weapons.",
+    "description": "You have a steady hand with ranged weapons. +5 CS.",
     "stat_modifiers": [
       {
         "stat": "cs",
@@ -150,7 +150,7 @@
   {
     "id": "combat_specialist",
     "name": "Combat Specialist",
-    "description": "Rigorous melee training pays off. +1 to attack rolls with melee weapons.",
+    "description": "Rigorous melee training pays off. +5 CS.",
     "stat_modifiers": [
       {
         "stat": "cs",
@@ -185,7 +185,7 @@
   {
     "id": "poisonous_bite",
     "name": "Poisonous Bite",
-    "description": "Bite the enemy directly in front of you for 1d8 damage. On a hit, they must pass a CON save (DC 13) or become poisoned for 5 turns. Bound to B.",
+    "description": "Bite the enemy directly in front of you for 1d8 damage. On a hit, they must pass a Cool Check (DC 13) or become poisoned for 5 turns. Bound to B.",
     "ai_type": "melee_skill",
     "action_bindings": {
       "b": "melee_special"
@@ -202,7 +202,7 @@
   {
     "id": "paralyzing_vinewhip",
     "name": "Paralyzing Vinewhip",
-    "description": "Lash out with a whipping vine for 1d12 bludgeoning damage. On a hit, the target must pass a DEX save (DC 15) or become slowed for 4 turns. Bound to V.",
+    "description": "Lash out with a whipping vine for 1d12 bludgeoning damage. On a hit, the target must pass a Cool Check (DC 15) or become slowed for 4 turns. Bound to V.",
     "ai_type": "melee_skill",
     "action_bindings": {
       "v": "melee_special"

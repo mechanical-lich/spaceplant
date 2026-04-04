@@ -49,7 +49,7 @@ func (a MeleeSpecialAction) Execute(entity *ecs.Entity, level *world.Level) erro
 	if verb == "" {
 		verb = "attack"
 	}
-	coolDC := a.Params.SaveDC // SaveDC field reused as CoolDC
+	coolDC := a.Params.CoolDC
 	statusCondition := a.Params.StatusConditionOnFailSave
 	statusDuration := a.Params.StatusConditionDuration
 	if statusDuration <= 0 {

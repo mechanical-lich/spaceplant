@@ -42,9 +42,9 @@ func (a ConeOfAction) Execute(entity *ecs.Entity, level *world.Level) error {
 	if depth <= 0 {
 		depth = 3
 	}
-	saveDC := a.Params.SaveDC
-	if saveDC <= 0 {
-		saveDC = 12
+	coolDC := a.Params.CoolDC
+	if coolDC <= 0 {
+		coolDC = 12
 	}
 	damageType := a.Params.DamageType
 	if damageType == "" {
@@ -86,7 +86,7 @@ func (a ConeOfAction) Execute(entity *ecs.Entity, level *world.Level) error {
 			if e == entity || e.HasComponent(rlcomponents.Dead) {
 				continue
 			}
-			passed := spcombat.CoolCheck(e, saveDC)
+			passed := spcombat.CoolCheck(e, coolDC)
 			dmg, _ := dice.Roll(damageDice)
 			if passed {
 				dmg /= 2

@@ -10,8 +10,8 @@ type ActionParams struct {
 	DamageType string `json:"damage_type,omitempty"`
 	// SaveStat is the ability score used for the saving throw, e.g. "dex".
 	SaveStat string `json:"save_stat,omitempty"`
-	// SaveDC is the difficulty class for the saving throw.
-	SaveDC int `json:"save_dc,omitempty"`
+	// CoolDC is the difficulty class for a Cool Check the target must pass.
+	CoolDC int `json:"cool_dc,omitempty"`
 	// Range is the maximum reach in tiles for targeted or line effects.
 	Range int `json:"range,omitempty"`
 	// Radius is the radius in tiles for circular effects.

@@ -31,7 +31,7 @@ type CharacterCreator struct {
 	nameInput *minui.TextInput
 
 	// Stats tab
-	statLabels  [5]*minui.Label // Str, Dex, Con, Int, Wis
+	statLabels  [5]*minui.Label // PH, AG, MA, CL, LD
 	pointsLabel *minui.Label
 	stats       [5]int // current values for PH, AG, MA, CL, LD
 

@@ -305,7 +305,7 @@
             "Value": 2,
             "Slot": "hand",
             "Name": "Laser Trimmers",
-            "Description": "Basic laser trimmers. Can be equipped in the hand slot to increase attack range to 2 and damage to 2d8."
+            "Description": "Basic laser trimmers. Can be equipped in the hand slot. Grants 10 Penetration and +5 CS."
         },
         "WeaponComponent": {
             "Penetration": 10,

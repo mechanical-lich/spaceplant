@@ -287,8 +287,7 @@ func applyPartDamage(
 		sc := entity.GetComponent(component.Stats).(*component.StatsComponent)
 		if slices.Contains(sc.Resistances, damageType) {
 			damage /= 2
-		}
-		if slices.Contains(sc.Weaknesses, damageType) {
+		} else if slices.Contains(sc.Weaknesses, damageType) {
 			damage *= 2
 		}
 	}
