@@ -59,6 +59,9 @@ Damage = max(0, Penetration - StoppingPower)
 | Bare hands (PH 10) | ~5–6 |
 | Bare hands (PH 18) | ~8 |
 | Laser trimmers | 10 |
+| Security pistol | 15 |
+| Assault rifle | 14 |
+| Shotgun | 18 |
 
 Bare-hands Pen is calculated as `3 + PH / 4`.
 
@@ -148,7 +151,59 @@ Weapons are equipped to hand slots. The combat system checks `BodyInventoryCompo
 | `Penetration` | int | Pen value. Base damage if armor is zero. |
 | `CombatSkillModifier` | int | Bonus or penalty to the wielder's CS for this attack. |
 | `DamageType` | string | Damage type string passed to resistance checks. |
-| `AttackRange` | int | Maximum range in tiles (0 or 1 = melee only). |
+| `AttackRange` | int | Maximum range in tiles for melee weapons (0 or 1 = adjacent only). |
+| `Range` | int | Maximum range in tiles for ranged weapons. |
+| `Ranged` | bool | If true, weapon can only be used via the shoot action (F / Shift+F / G). |
+| `BurstSize` | int | Rounds fired per burst (G key). 0 or 1 means single-shot only; ≥2 enables burst fire. |
+| `SpreadAngle` | int | Extra parallel fire lines on each snap/aimed shot. 0 = single line; 1 = 3-wide; 2 = 5-wide. Spread lines deal 60% Pen. |
+
+---
+
+## Ranged Combat
+
+When a ranged weapon is equipped, pressing **F** fires a snap shot, **Shift+F** fires an aimed shot, and **G** fires a burst (if the weapon supports it). All shots travel in the direction the player is currently facing. Facing can be changed with **Shift+W/A/S/D** without spending an action.
+
+The shot traces a line tile-by-tile along the facing direction and hits the first solid non-self entity within range. Solid tiles (walls, doors) stop the shot. A brief visual tracer is drawn along the bullet path.
+
+### Range Bands
+
+The attacker's effective CS is modified by the distance to the target:
+
+| Band | Distance | CS modifier |
+|---|---|---|
+| Point blank | ≤ 1 tile | −20 |
+| Effective range | 2 to Range/2 tiles | ±0 |
+| Long range | > Range/2 tiles | −15 |
+
+### Snap Shot vs Aimed Shot vs Burst
+
+| Mode | Key | Energy cost | Notes |
+|---|---|---|---|
+| Snap shot | F | 100 | Single shot. SpreadAngle applies. |
+| Aimed shot | Shift+F | 150 | +10 CS. SpreadAngle applies. |
+| Burst fire | G | 150 | Fires `BurstSize` rounds along the same line. Requires `BurstSize ≥ 2`. |
+
+**Burst fire** rolls independently for each round. The first round gets +15 CS (burst bonus); subsequent rounds lose 5 CS each from recoil (+10, +5, …). If the first round misses into the void, the burst stops early.
+
+The full CS for a single ranged attack is:
+
+```
+EffectiveCS = CS + WeaponCombatSkillModifier + RangeBandModifier + ShotModeBonus
+```
+
+**Shot mode bonuses:**
+
+| Mode | CS bonus |
+|---|---|
+| Snap shot | 0 |
+| Aimed shot | +10 |
+| Burst round 1 | +15 |
+| Burst round 2 | +10 |
+| Burst round 3 | +5 |
+
+### Facing and Direction
+
+Moving in any direction automatically updates facing. Pressing **Shift+direction** rotates the player without moving or consuming a turn, which is useful for pre-aiming before firing.
 
 **Armor fields relevant to combat:**
 

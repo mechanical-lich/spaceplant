@@ -15,17 +15,33 @@ import (
 
 const bareHandsPenBase = 3 // base Pen for unarmed attack before PH modifier
 
-// Hit resolves a melee or ranged attack from attacker against defender using the
+// Hit resolves a melee attack from attacker against defender using the
 // Aliens Adventure Game (Phoenix Command) combat system.
 // Returns true if the attack landed.
 func Hit(level *world.Level, attacker, defender *ecs.Entity) bool {
-	return HitWithPen(level, attacker, defender, -1)
+	return hitCore(level, attacker, defender, nil, -1, 0)
 }
 
 // HitWithPen resolves an attack with an optional Pen override.
 // If penOverride >= 0 it replaces the weapon's Penetration value (used by
 // special unarmed attacks like hands_only).
 func HitWithPen(level *world.Level, attacker, defender *ecs.Entity, penOverride int) bool {
+	return hitCore(level, attacker, defender, nil, penOverride, 0)
+}
+
+// HitRanged resolves a ranged attack with a specific weapon and CS bonus/penalty.
+// weaponOverride pins which weapon is used for CS modifier, Pen, and damage type,
+// preventing non-deterministic map iteration from selecting the wrong equipped item.
+// csBonus is added on top of the weapon's CombatSkillModifier.
+func HitRanged(level *world.Level, attacker, defender *ecs.Entity, weaponOverride *rlcomponents.WeaponComponent, csBonus int) bool {
+	return hitCore(level, attacker, defender, weaponOverride, -1, csBonus)
+}
+
+// hitCore is the shared hit-resolution engine.
+// weaponOverride, when non-nil, is used in place of equippedWeapon(attacker).
+// penOverride < 0 means use the weapon / bare-hands Pen. csBonus is added to CS
+// after the weapon's CombatSkillModifier (range bands, aimed shot, etc.).
+func hitCore(level *world.Level, attacker, defender *ecs.Entity, weaponOverride *rlcomponents.WeaponComponent, penOverride, csBonus int) bool {
 	apc := attacker.GetComponent(rlcomponents.Position).(*rlcomponents.PositionComponent)
 	dpc := defender.GetComponent(rlcomponents.Position).(*rlcomponents.PositionComponent)
 
@@ -39,10 +55,14 @@ func HitWithPen(level *world.Level, attacker, defender *ecs.Entity, penOverride 
 		cs = sc.CS
 	}
 
-	weapon := equippedWeapon(attacker)
+	weapon := weaponOverride
+	if weapon == nil {
+		weapon = equippedWeapon(attacker)
+	}
 	if weapon != nil {
 		cs += weapon.CombatSkillModifier
 	}
+	cs += csBonus
 	if cs < 1 {
 		cs = 1
 	}

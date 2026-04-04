@@ -3,8 +3,8 @@ package action
 import (
 	"github.com/mechanical-lich/ml-rogue-lib/pkg/rlcombat"
 	"github.com/mechanical-lich/ml-rogue-lib/pkg/rlcomponents"
-	"github.com/mechanical-lich/ml-rogue-lib/pkg/rlentity"
 	"github.com/mechanical-lich/ml-rogue-lib/pkg/rlenergy"
+	"github.com/mechanical-lich/ml-rogue-lib/pkg/rlentity"
 	"github.com/mechanical-lich/ml-rogue-lib/pkg/rlsystems"
 	"github.com/mechanical-lich/mlge/ecs"
 	"github.com/mechanical-lich/mlge/message"
@@ -97,9 +97,9 @@ func (a MoveAction) Execute(entity *ecs.Entity, level *world.Level) error {
 				actionCost = energy.CostQuick
 				toggleDoor(entity, entityHit)
 			} else if rlcombat.IsFriendly(entity, entityHit) {
-				actionCost = energy.CostAttack
+				actionCost = energy.CostMove
+				rlentity.Swap(level.Level, entity, entityHit)
 				rlentity.CheckExcuseMe(entity, entityHit)
-				entityhelpers.Hit(level, entity, entityHit)
 			} else {
 				actionCost = energy.CostAttack
 				entityhelpers.Hit(level, entity, entityHit)
@@ -127,20 +127,27 @@ func (a MoveAction) Execute(entity *ecs.Entity, level *world.Level) error {
 // this tick (door entities are iterated before the player, so DoorSystem
 // would otherwise lag one tick behind).
 func toggleDoor(actor, doorEntity *ecs.Entity) {
+	isPlayer := actor.HasComponent(component.Player)
 	door := doorEntity.GetComponent(component.Door).(*component.DoorComponent)
 	if door.Open {
 		door.Open = false
 	} else if door.Locked {
-		message.AddMessage("The door is locked.")
+		if isPlayer {
+			message.AddMessage("The door is locked.")
+		}
 		return
 	} else if door.OwnedBy != "" {
 		if !actor.HasComponent(component.Description) {
-			message.AddMessage("Access denied.")
+			if isPlayer {
+				message.AddMessage("Access denied.")
+			}
 			return
 		}
 		desc := actor.GetComponent(component.Description).(*component.DescriptionComponent)
 		if desc.Faction != door.OwnedBy {
-			message.AddMessage("Access denied.")
+			if isPlayer {
+				message.AddMessage("Access denied.")
+			}
 			return
 		}
 		door.Open = true

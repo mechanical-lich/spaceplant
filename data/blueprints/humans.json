@@ -11,7 +11,10 @@
                 "security_shirt",
                 "scrubs",
                 "scrub_shoes",
-                "scrub_cap"
+                "scrub_cap",
+                "security_pistol",
+                "shotgun",
+                "assault_rifle"
             ]
         },
         "BodyComponent": {

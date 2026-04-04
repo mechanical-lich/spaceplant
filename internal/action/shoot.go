@@ -1,34 +1,260 @@
 package action
 
 import (
+	"github.com/mechanical-lich/ml-rogue-lib/pkg/rlcomponents"
 	"github.com/mechanical-lich/ml-rogue-lib/pkg/rlenergy"
 	"github.com/mechanical-lich/mlge/ecs"
 	"github.com/mechanical-lich/mlge/message"
+	"github.com/mechanical-lich/spaceplant/internal/component"
 	"github.com/mechanical-lich/spaceplant/internal/energy"
+	"github.com/mechanical-lich/spaceplant/internal/entityhelpers"
 	"github.com/mechanical-lich/spaceplant/internal/world"
 )
 
-// ShootAction fires in a direction. Direction is a key name string
-// (e.g. "W", "A", "S", "D").
+// ShootAction fires a ranged weapon in the direction the entity is currently facing.
+//
+//	Aimed=true  — deliberate aimed shot: higher energy cost, CS bonus (+10).
+//	Burst=true  — burst fire: one CS roll per round with increasing recoil penalty (-5 per round after first).
+//
+// Burst and Aimed are mutually exclusive; Burst takes priority if both are set.
+// SpreadAngle on the equipped weapon fires additional diagonal lines (1 = 3-wide, 2 = 5-wide).
 type ShootAction struct {
-	Direction string
+	Aimed bool
+	Burst bool
 }
 
+// Range-band CS modifiers.
+const (
+	csPointBlankPenalty = -20
+	csLongRangePenalty  = -15
+	csAimedShotBonus    = +10
+	csBurstBonus        = +15 // base bonus on first round of a burst
+	csBurstRecoil       = -5  // recoil penalty per subsequent round
+)
+
+// spreadPenMult is the Pen multiplier applied to non-centre spread lines (60%).
+const spreadPenMult = 0.6
+
 func (a ShootAction) Cost(_ *ecs.Entity, _ *world.Level) int {
+	if a.Burst {
+		return energy.CostBurst
+	}
+	if a.Aimed {
+		return energy.CostAimed
+	}
 	return energy.CostAttack
 }
 
-func (a ShootAction) Available(_ *ecs.Entity, _ *world.Level) bool {
-	// TODO: check if entity has a ranged weapon
+func (a ShootAction) Available(entity *ecs.Entity, _ *world.Level) bool {
+	wc := equippedRangedWeapon(entity)
+	if wc == nil {
+		return false
+	}
+	if a.Burst {
+		return wc.BurstSize >= 2
+	}
 	return true
 }
 
-func (a ShootAction) Execute(entity *ecs.Entity, _ *world.Level) error {
-	if a.Direction == "" {
-		message.AddMessage("Wasn't given a direction to shoot!")
-	} else {
-		message.AddMessage("Shoot in the " + a.Direction + " direction!")
+func (a ShootAction) Execute(entity *ecs.Entity, level *world.Level) error {
+	cost := energy.CostAttack
+	if a.Burst {
+		cost = energy.CostBurst
+	} else if a.Aimed {
+		cost = energy.CostAimed
 	}
-	rlenergy.SetActionCost(entity, energy.CostAttack)
+
+	wc := equippedRangedWeapon(entity)
+	if wc == nil {
+		message.AddMessage("You don't have a ranged weapon equipped.")
+		rlenergy.SetActionCost(entity, energy.CostQuick)
+		return nil
+	}
+
+	dx, dy := facingDeltas(entity)
+	if dx == 0 && dy == 0 {
+		message.AddMessage("No direction to fire.")
+		rlenergy.SetActionCost(entity, energy.CostQuick)
+		return nil
+	}
+
+	maxRange := wc.Range
+	if maxRange <= 0 {
+		maxRange = 8
+	}
+
+	switch {
+	case a.Burst:
+		execBurst(entity, level, wc, dx, dy, maxRange)
+	default:
+		// Single shot (snap or aimed).
+		csBonus := 0
+		if a.Aimed {
+			csBonus += csAimedShotBonus
+		}
+		execSpread(entity, level, wc, dx, dy, maxRange, csBonus, 1.0)
+	}
+
+	rlenergy.SetActionCost(entity, cost)
+	return nil
+}
+
+// execBurst fires wc.BurstSize rounds along the facing line.
+// Each round gets the burst CS bonus minus accumulated recoil.
+// Rounds after the first may walk to the next target if the primary is dead.
+func execBurst(entity *ecs.Entity, level *world.Level, wc *rlcomponents.WeaponComponent, dx, dy, maxRange int) {
+	rounds := wc.BurstSize
+	if rounds < 2 {
+		rounds = 3
+	}
+	for i := 0; i < rounds; i++ {
+		csBonus := csBurstBonus + csBurstRecoil*i
+		hit := fireLineAt(entity, level, wc, dx, dy, maxRange, csBonus, 1.0)
+		if !hit && i == 0 {
+			// First round missed into the void — no point continuing.
+			return
+		}
+	}
+}
+
+// execSpread fires the primary line and, if wc.SpreadAngle > 0, additional
+// diagonal spread lines. Spread lines deal reduced Pen.
+func execSpread(entity *ecs.Entity, level *world.Level, wc *rlcomponents.WeaponComponent, dx, dy, maxRange, csBonus int, penMult float64) {
+	fireLineAt(entity, level, wc, dx, dy, maxRange, csBonus, penMult)
+
+	if wc.SpreadAngle <= 0 {
+		return
+	}
+
+	// Perpendicular unit vector.
+	px, py := dy, -dx
+
+	for offset := 1; offset <= wc.SpreadAngle; offset++ {
+		// Diagonal directions formed by combining facing + perpendicular offset.
+		ldx := dx + px*offset
+		ldy := dy + py*offset
+		fireLineAt(entity, level, wc, ldx, ldy, maxRange, csBonus, spreadPenMult)
+
+		rdx := dx - px*offset
+		rdy := dy - py*offset
+		fireLineAt(entity, level, wc, rdx, rdy, maxRange, csBonus, spreadPenMult)
+	}
+}
+
+// fireLineAt walks tiles in direction (dx, dy) up to maxRange and fires at the
+// first hittable entity. penMult scales Pen (use 1.0 for normal, <1.0 for spread).
+// Returns true if a target was found (whether or not the attack landed).
+func fireLineAt(entity *ecs.Entity, level *world.Level, wc *rlcomponents.WeaponComponent, dx, dy, maxRange, csBonus int, penMult float64) bool {
+	pc := entity.GetComponent(component.Position).(*component.PositionComponent)
+	z := pc.GetZ()
+
+	var target *ecs.Entity
+	var targetDist int
+	for i := 1; i <= maxRange; i++ {
+		tx, ty := pc.GetX()+dx*i, pc.GetY()+dy*i
+		if level.IsTileSolid(tx, ty, z) {
+			// Still flash the blocking tile so the tracer visibly hits it.
+			addShotTrail(level, tx, ty, z)
+			break
+		}
+		addShotTrail(level, tx, ty, z)
+		candidate := level.Level.GetSolidEntityAt(tx, ty, z)
+		if candidate != nil && candidate != entity {
+			target = candidate
+			targetDist = i
+			break
+		}
+	}
+
+	if target == nil {
+		message.AddMessage("You fire into the void.")
+		return false
+	}
+
+	// Range-band modifier on top of caller-supplied csBonus.
+	rb := rangeBandBonus(targetDist, maxRange)
+
+	// Apply Pen multiplier by temporarily adjusting — we need to pass an
+	// effective pen to HitRanged. Build a shallow copy with scaled Pen.
+	effectiveWC := *wc
+	if penMult != 1.0 {
+		effectiveWC.Penetration = int(float64(wc.Penetration) * penMult)
+		if effectiveWC.Penetration < 1 {
+			effectiveWC.Penetration = 1
+		}
+	}
+
+	entityhelpers.HitRanged(level, entity, target, &effectiveWC, csBonus+rb)
+	return true
+}
+
+// addShotTrail places a brief flash TileAnim on a tile to show the bullet path.
+func addShotTrail(level *world.Level, x, y, z int) {
+	level.AddTileAnim(x, y, z, &world.TileAnim{
+		SpriteX:    384,
+		SpriteY:    0,
+		Resource:   "fx",
+		FrameCount: 4,
+		FrameSpeed: 1,
+		TTL:        4,
+	})
+}
+
+// rangeBandBonus returns the CS modifier for the given distance and weapon range.
+func rangeBandBonus(dist, maxRange int) int {
+	if dist <= 1 {
+		return csPointBlankPenalty
+	}
+	if dist > maxRange/2 {
+		return csLongRangePenalty
+	}
+	return 0
+}
+
+// facingDeltas returns the dx,dy based on the entity's DirectionComponent.
+// Direction values: 0=right, 1=down, 2=up, 3=left (from rlentity.Face).
+func facingDeltas(entity *ecs.Entity) (int, int) {
+	if !entity.HasComponent(component.Direction) {
+		return 0, -1 // default: up
+	}
+	dc := entity.GetComponent(component.Direction).(*component.DirectionComponent)
+	switch dc.Direction {
+	case 0:
+		return 1, 0 // right
+	case 1:
+		return 0, 1 // down
+	case 2:
+		return 0, -1 // up
+	case 3:
+		return -1, 0 // left
+	default:
+		return 0, -1
+	}
+}
+
+// equippedRangedWeapon returns the first equipped weapon with Ranged=true, or nil.
+func equippedRangedWeapon(entity *ecs.Entity) *rlcomponents.WeaponComponent {
+	if entity.HasComponent(component.BodyInventory) {
+		inv := entity.GetComponent(component.BodyInventory).(*component.BodyInventoryComponent)
+		for _, item := range inv.Equipped {
+			if item != nil && item.HasComponent(component.Weapon) {
+				wc := item.GetComponent(component.Weapon).(*rlcomponents.WeaponComponent)
+				if wc.Ranged {
+					return wc
+				}
+			}
+		}
+	}
+	if entity.HasComponent(component.Inventory) {
+		inv := entity.GetComponent(component.Inventory).(*component.InventoryComponent)
+		for _, item := range []*ecs.Entity{inv.RightHand, inv.LeftHand} {
+			if item != nil && item.HasComponent(component.Weapon) {
+				wc := item.GetComponent(component.Weapon).(*rlcomponents.WeaponComponent)
+				if wc.Ranged {
+					return wc
+				}
+			}
+		}
+	}
 	return nil
 }

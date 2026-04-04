@@ -2,6 +2,7 @@ package system
 
 import (
 	"github.com/mechanical-lich/ml-rogue-lib/pkg/rlcomponents"
+	"github.com/mechanical-lich/ml-rogue-lib/pkg/rlentity"
 	"github.com/mechanical-lich/mlge/ecs"
 	"github.com/mechanical-lich/mlge/message"
 	"github.com/mechanical-lich/spaceplant/internal/action"
@@ -51,6 +52,22 @@ func (s *PlayerSystem) UpdateEntity(levelInterface any, entity *ecs.Entity) erro
 			message.AddMessage("Rush mode on!")
 		}
 		return nil
+	case "W":
+		rlentity.Face(entity, 0, -1)
+		message.AddMessage("Facing north.")
+		return nil
+	case "S":
+		rlentity.Face(entity, 0, 1)
+		message.AddMessage("Facing south.")
+		return nil
+	case "A":
+		rlentity.Face(entity, -1, 0)
+		message.AddMessage("Facing west.")
+		return nil
+	case "D":
+		rlentity.Face(entity, 1, 0)
+		message.AddMessage("Facing east.")
+		return nil
 	}
 
 	var act action.Action
@@ -64,8 +81,11 @@ func (s *PlayerSystem) UpdateEntity(levelInterface any, entity *ecs.Entity) erro
 	case "d":
 		act = action.MoveAction{DeltaX: 1, DeltaY: 0}
 	case "f":
-		dir := playerComponent.PopCommand()
-		act = action.ShootAction{Direction: dir}
+		act = action.ShootAction{Aimed: false}
+	case "F":
+		act = action.ShootAction{Aimed: true}
+	case "g":
+		act = action.ShootAction{Burst: true}
 	case "h":
 		act = action.HealAction{}
 	case "Period":

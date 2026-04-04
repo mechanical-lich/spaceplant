@@ -39,6 +39,126 @@
             "Description": "A standard issue med kit. Restores 10 HP when used."
         }
     },
+    "assault_rifle": {
+        "DescriptionComponent": {
+            "Name": "assault_rifle",
+            "Faction": "item",
+            "PassOverDescription": [
+                "An assault rifle lies here.",
+                "You spot an assault rifle on the floor.",
+                "Someone left an assault rifle here."
+            ]
+        },
+        "AsciiAppearanceComponent": {
+            "Character": ")",
+            "R": 150,
+            "G": 150,
+            "B": 150
+        },
+        "AppearanceComponent": {
+            "Resource": "entities",
+            "SpriteX": 320,
+            "SpriteY": 0,
+            "R": 150,
+            "G": 150,
+            "B": 150,
+            "Frames": 1
+        },
+        "ItemComponent": {
+            "Value": 8,
+            "Slot": "hand",
+            "Name": "Assault Rifle",
+            "Description": "Standard assault rifle. F=snap, Shift+F=aimed, G=3-round burst."
+        },
+        "WeaponComponent": {
+            "Penetration": 14,
+            "CombatSkillModifier": 5,
+            "Range": 10,
+            "Ranged": true,
+            "BurstSize": 3,
+            "DamageType": "ballistic"
+        }
+    },
+    "shotgun": {
+        "DescriptionComponent": {
+            "Name": "shotgun",
+            "Faction": "item",
+            "PassOverDescription": [
+                "A shotgun lies here.",
+                "You spot a shotgun on the floor.",
+                "Someone left a shotgun here."
+            ]
+        },
+        "AsciiAppearanceComponent": {
+            "Character": ")",
+            "R": 180,
+            "G": 120,
+            "B": 80
+        },
+        "AppearanceComponent": {
+            "Resource": "entities",
+            "SpriteX": 320,
+            "SpriteY": 0,
+            "R": 180,
+            "G": 120,
+            "B": 80,
+            "Frames": 1
+        },
+        "ItemComponent": {
+            "Value": 6,
+            "Slot": "hand",
+            "Name": "Shotgun",
+            "Description": "Close-range spread weapon. F to fire a 3-wide spread. Devastating at short range."
+        },
+        "WeaponComponent": {
+            "Penetration": 18,
+            "CombatSkillModifier": 0,
+            "Range": 5,
+            "Ranged": true,
+            "SpreadAngle": 1,
+            "DamageType": "ballistic"
+        }
+    },
+    "security_pistol": {
+        "DescriptionComponent": {
+            "Name": "security_pistol",
+            "Faction": "item",
+            "PassOverDescription": [
+                "A security pistol lies here.",
+                "You spot a sidearm on the floor.",
+                "Someone left their service pistol here."
+            ]
+        },
+        "AsciiAppearanceComponent": {
+            "Character": ")",
+            "R": 200,
+            "G": 200,
+            "B": 100
+        },
+        "AppearanceComponent": {
+            "Resource": "entities",
+            "SpriteX": 320,
+            "SpriteY": 0,
+            "R": 200,
+            "G": 200,
+            "B": 100,
+            "Frames": 1
+        },
+        "ItemComponent": {
+            "Effect": "",
+            "Value": 5,
+            "Slot": "hand",
+            "Name": "Security Pistol",
+            "Description": "Standard-issue security sidearm. Press F then a direction to fire a snap shot; Shift+F for an aimed shot."
+        },
+        "WeaponComponent": {
+            "Penetration": 15,
+            "CombatSkillModifier": 0,
+            "Range": 8,
+            "Ranged": true,
+            "DamageType": "ballistic"
+        }
+    },
     "laser_trimmers": {
         "DescriptionComponent": {
             "Name": "laser_trimmers",
