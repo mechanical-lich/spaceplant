@@ -86,10 +86,10 @@ func HitWithPen(l *world.Level, entity *ecs.Entity, entityHit *ecs.Entity, pen i
 // CoolCheck runs a Cool-based resistance check on entityHit (replaces SavingThrow).
 func CoolCheck(l *world.Level, entity *ecs.Entity, entityHit *ecs.Entity, dc int) bool {
 	_ = l
-	_ = entity
 	passed := spcombat.CoolCheck(entityHit, dc)
 	if !passed && entityHit != entity && !entityHit.HasComponent(component.Dead) {
-		entityHit.AddComponent(&component.AttackComponent{SpriteX: 0, SpriteY: 0, X: 0, Y: 0})
+		hitX, hitY := HitTile(entity, entityHit)
+		entityHit.AddComponent(&component.AttackComponent{SpriteX: 0, SpriteY: 0, X: hitX, Y: hitY})
 	}
 	return passed
 }
