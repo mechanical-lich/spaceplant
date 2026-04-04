@@ -75,7 +75,11 @@ func hitCore(level *world.Level, attacker, defender *ecs.Entity, weaponOverride 
 	damageType := "bludgeoning"
 	if weapon != nil && weapon.DamageType != "" {
 		damageType = weapon.DamageType
-		weaponName = damageType // good enough for messages
+		if name := equippedWeaponItemName(attacker); name != "" {
+			weaponName = name
+		} else {
+			weaponName = damageType
+		}
 	}
 
 	if miss {
@@ -174,6 +178,27 @@ func CoolCheck(entity *ecs.Entity, dc int) bool {
 }
 
 // --- helpers ---
+
+// equippedWeaponItemName returns the display name of the first equipped weapon item, or "".
+func equippedWeaponItemName(entity *ecs.Entity) string {
+	if entity.HasComponent(component.BodyInventory) {
+		inv := entity.GetComponent(component.BodyInventory).(*rlcomponents.BodyInventoryComponent)
+		for _, item := range inv.Equipped {
+			if item != nil && item.HasComponent(component.Weapon) {
+				return rlentity.GetName(item)
+			}
+		}
+	}
+	if entity.HasComponent(component.Inventory) {
+		inv := entity.GetComponent(component.Inventory).(*rlcomponents.InventoryComponent)
+		for _, item := range []*ecs.Entity{inv.RightHand, inv.LeftHand} {
+			if item != nil && item.HasComponent(component.Weapon) {
+				return rlentity.GetName(item)
+			}
+		}
+	}
+	return ""
+}
 
 // equippedWeapon returns the first equipped WeaponComponent found on the entity, or nil.
 func equippedWeapon(entity *ecs.Entity) *rlcomponents.WeaponComponent {
