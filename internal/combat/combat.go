@@ -200,23 +200,29 @@ func equippedWeaponItemName(entity *ecs.Entity) string {
 	return ""
 }
 
-// equippedWeapon returns the first equipped WeaponComponent found on the entity, or nil.
+// equippedWeapon returns the first equipped melee WeaponComponent found on the entity, or nil.
+// Ranged weapons are excluded to prevent melee attacks from inheriting ranged weapon stats.
 func equippedWeapon(entity *ecs.Entity) *rlcomponents.WeaponComponent {
 	if entity.HasComponent(component.BodyInventory) {
 		inv := entity.GetComponent(component.BodyInventory).(*rlcomponents.BodyInventoryComponent)
 		for _, item := range inv.Equipped {
 			if item != nil && item.HasComponent(component.Weapon) {
-				return item.GetComponent(component.Weapon).(*rlcomponents.WeaponComponent)
+				wc := item.GetComponent(component.Weapon).(*rlcomponents.WeaponComponent)
+				if !wc.Ranged {
+					return wc
+				}
 			}
 		}
 	}
 	if entity.HasComponent(component.Inventory) {
 		inv := entity.GetComponent(component.Inventory).(*rlcomponents.InventoryComponent)
-		if inv.RightHand != nil && inv.RightHand.HasComponent(component.Weapon) {
-			return inv.RightHand.GetComponent(component.Weapon).(*rlcomponents.WeaponComponent)
-		}
-		if inv.LeftHand != nil && inv.LeftHand.HasComponent(component.Weapon) {
-			return inv.LeftHand.GetComponent(component.Weapon).(*rlcomponents.WeaponComponent)
+		for _, item := range []*ecs.Entity{inv.RightHand, inv.LeftHand} {
+			if item != nil && item.HasComponent(component.Weapon) {
+				wc := item.GetComponent(component.Weapon).(*rlcomponents.WeaponComponent)
+				if !wc.Ranged {
+					return wc
+				}
+			}
 		}
 	}
 	return nil
