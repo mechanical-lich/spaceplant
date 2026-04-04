@@ -8,9 +8,9 @@ import (
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/inpututil"
 	"github.com/mechanical-lich/mlge/client"
+	"github.com/mechanical-lich/mlge/ecs"
 	mlgeevent "github.com/mechanical-lich/mlge/event"
 	"github.com/mechanical-lich/mlge/transport"
-	"github.com/mechanical-lich/mlge/ecs"
 	"github.com/mechanical-lich/spaceplant/internal/component"
 	"github.com/mechanical-lich/spaceplant/internal/config"
 )
