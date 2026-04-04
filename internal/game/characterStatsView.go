@@ -46,19 +46,19 @@ type CharacterStatsView struct {
 	skillIDs  []string
 
 	// Tab 4 — Inventory
-	invList         *minui.ListBox
-	invNearbyList   *minui.ListBox
-	invImg          *minui.ImageWidget
-	invDesc         *minui.ScrollingTextArea
-	invEquip        *minui.Button
-	invDrop         *minui.Button
-	invTake         *minui.Button
-	invGive         *minui.Button
-	invNearbyLabel  *minui.Label
-	invItems            []*ecs.Entity
-	invNearbyItems      []*ecs.Entity
-	invNearbyItemSlots  []string // parallel to invNearbyItems: body-part slot name if equipped, "" if in bag
-	invNearbyEntity     *ecs.Entity
+	invList            *minui.ListBox
+	invNearbyList      *minui.ListBox
+	invImg             *minui.ImageWidget
+	invDesc            *minui.ScrollingTextArea
+	invEquip           *minui.Button
+	invDrop            *minui.Button
+	invTake            *minui.Button
+	invGive            *minui.Button
+	invNearbyLabel     *minui.Label
+	invItems           []*ecs.Entity
+	invNearbyItems     []*ecs.Entity
+	invNearbyItemSlots []string // parallel to invNearbyItems: body-part slot name if equipped, "" if in bag
+	invNearbyEntity    *ecs.Entity
 	// which list was last clicked: "player" or "nearby"
 	invFocus string
 }

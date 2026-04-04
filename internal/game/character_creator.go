@@ -6,8 +6,8 @@ import (
 	"slices"
 
 	"github.com/hajimehoshi/ebiten/v2"
-	mlge_text "github.com/mechanical-lich/mlge/text"
 	"github.com/mechanical-lich/mlge/resource"
+	mlge_text "github.com/mechanical-lich/mlge/text"
 	"github.com/mechanical-lich/mlge/ui/minui"
 	"github.com/mechanical-lich/spaceplant/internal/background"
 	"github.com/mechanical-lich/spaceplant/internal/ccconfig"
@@ -31,40 +31,40 @@ type CharacterCreator struct {
 	nameInput *minui.TextInput
 
 	// Stats tab
-	statLabels    [5]*minui.Label // Str, Dex, Con, Int, Wis
-	pointsLabel   *minui.Label
-	stats         [5]int // current values for PH, AG, MA, CL, LD
+	statLabels  [5]*minui.Label // Str, Dex, Con, Int, Wis
+	pointsLabel *minui.Label
+	stats       [5]int // current values for PH, AG, MA, CL, LD
 
 	// Class tab
-	classList    *minui.ListBox
-	classDesc    *minui.ScrollingTextArea
-	classIDs     []string
+	classList     *minui.ListBox
+	classDesc     *minui.ScrollingTextArea
+	classIDs      []string
 	selectedClass int
 
 	// Skills tab
-	skillList        *minui.ListBox
-	skillDesc        *minui.ScrollingTextArea
-	skillPoints      *minui.Label
-	buySkillBtn      *minui.Button
-	forgetSkillBtn   *minui.Button
-	skillIDs         []string
-	chosenSkills  []string
-	upgradePoints int
-	selectedSkill int
+	skillList      *minui.ListBox
+	skillDesc      *minui.ScrollingTextArea
+	skillPoints    *minui.Label
+	buySkillBtn    *minui.Button
+	forgetSkillBtn *minui.Button
+	skillIDs       []string
+	chosenSkills   []string
+	upgradePoints  int
+	selectedSkill  int
 
 	// Appearance tab
-	bodyTypeList    *minui.ListBox
-	skinList        *minui.ListBox
-	hairList        *minui.ListBox
+	bodyTypeList      *minui.ListBox
+	skinList          *minui.ListBox
+	hairList          *minui.ListBox
 	appearancePreview *minui.ImageWidget
-	bodyType        string // "mid" or "slim"
-	bodyIndex       int    // 0-4
-	hairIndex       int    // -1 = none, 0-4
+	bodyType          string // "mid" or "slim"
+	bodyIndex         int    // 0-4
+	hairIndex         int    // -1 = none, 0-4
 
 	// Background tab
-	bgList    *minui.ListBox
-	bgDesc    *minui.ScrollingTextArea
-	bgIDs     []string
+	bgList     *minui.ListBox
+	bgDesc     *minui.ScrollingTextArea
+	bgIDs      []string
 	selectedBg int
 
 	// OnComplete is called when the player clicks Start.
@@ -346,7 +346,7 @@ func (cc *CharacterCreator) buildAppearanceTab() {
 	previewW := cfg.SpriteSizeW * previewScale
 	previewH := cfg.SpriteSizeH * previewScale
 	previewX := 220 + (ccModalW-20-220-previewW)/2
-	previewY := (ccModalH-110-cc.tabs.TabHeight-previewH)/2
+	previewY := (ccModalH - 110 - cc.tabs.TabHeight - previewH) / 2
 	cc.appearancePreview = minui.NewImageWidget("cc_appearance_preview", previewW, previewH)
 	cc.appearancePreview.SetPosition(previewX, previewY)
 	panel.AddChild(cc.appearancePreview)

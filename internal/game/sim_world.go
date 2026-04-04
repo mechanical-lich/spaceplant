@@ -39,10 +39,10 @@ type CharacterData struct {
 // It is created once at startup and shared (via pointer) between
 // MainSimState (server) and SPClientState (graphical client, same process).
 type SimWorld struct {
-	Level         *world.Level
-	Player        *ecs.Entity
-	CurrentZ      int
-	systemManager *ecs.SystemManager
+	Level            *world.Level
+	Player           *ecs.Entity
+	CurrentZ         int
+	systemManager    *ecs.SystemManager
 	aiSystem         *system.AISystem
 	advancedAISystem *system.AdvancedAISystem
 	gm               gamemaster.GameMaster
