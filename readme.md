@@ -27,7 +27,12 @@ Terminal:
 | E | Auto-equip first equippable item |
 | P | Pick up item at current tile |
 | . | Use stairs |
-| F | Shoot (follow with a direction key) |
+| F | Snap shot: fire the equipped ranged weapon in your current facing direction |
+| Shift+F | Aimed shot: fires with +10 CS bonus (aimed precision) |
+| G | Burst fire: fires a weapon's burst if supported (first round +15 CS, subsequent rounds reduced) |
+| Move into occupied square | Basic melee attack / attempt to strike adjacent target |
+
+Note: Use `Shift+W/A/S/D` to rotate your facing without moving; this is useful for pre-aiming before firing.
 
 ### Skills (when skill is equipped)
 | Key | Skill Required | Action |

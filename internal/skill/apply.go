@@ -137,7 +137,8 @@ func removeStatValue(entity *ecs.Entity, stat, value string) {
 //	ma            — StatsComponent.MA (Mental Ability)
 //	cl            — StatsComponent.CL (Cool)
 //	ld            — StatsComponent.LD (Leadership)
-//	cs            — StatsComponent.CS (CombatSkill)
+//	cs            — StatsComponent.CS (CombatSkill, ranged)
+//	htcs          — StatsComponent.HTCS (Hand-to-Hand CombatSkill, melee)
 //	natural_sp    — StatsComponent.NaturalSP (natural stopping power)
 func applyStatDelta(entity *ecs.Entity, stat string, delta int) {
 	switch stat {
@@ -169,6 +170,10 @@ func applyStatDelta(entity *ecs.Entity, stat string, delta int) {
 	case "cs":
 		if entity.HasComponent(component.Stats) {
 			entity.GetComponent(component.Stats).(*component.StatsComponent).CS += delta
+		}
+	case "htcs":
+		if entity.HasComponent(component.Stats) {
+			entity.GetComponent(component.Stats).(*component.StatsComponent).HTCS += delta
 		}
 	case "natural_sp":
 		if entity.HasComponent(component.Stats) {
