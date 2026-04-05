@@ -257,7 +257,7 @@
             "Value": 5,
             "Slot": "hand",
             "Name": "Security Pistol",
-            "Description": "Standard-issue security sidearm. Press F then a direction to fire a snap shot; Shift+F for an aimed shot."
+            "Description": "Standard-issue security sidearm. Press F to fire in the direction you're facing; press Shift+R to reload."
         },
         "WeaponComponent": {
             "Penetration": 15,
