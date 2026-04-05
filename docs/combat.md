@@ -16,6 +16,7 @@ Every entity has a `StatsComponent` with six attributes:
 | Cool | CL | 3–18 | Composure under fire. Drives Cool Check resistance rolls. |
 | Leadership | LD | 3–18 | Command presence. |
 | CombatSkill | CS | 1–100 | Percentile hit chance. The primary combat stat. |
+| Hand-to-Hand Combat Skill | HTCS | 1–100 | Percentile hit chance used for melee attacks and parry rolls. |
 
 Typical values for reference:
 
@@ -41,6 +42,34 @@ d100 <= CombatSkill + WeaponCombatSkillModifier
 - `CombatSkill` comes from the attacker's `StatsComponent.CS`.
 - `WeaponCombatSkillModifier` comes from the equipped weapon's `CombatSkillModifier` field (can be positive or negative). It is 0 for bare-hands attacks.
 - There are no crits or fumbles — the roll is a straight percentile check.
+
+## Melee Combat
+
+Melee attacks use a separate percentile stat, `HTCS` (Hand-to-Hand Combat Skill). The effective melee to-hit is calculated as:
+
+```
+EffectiveMeleeCS = HTCS + PHBracketBonus
+```
+
+`PHBracketBonus` is a small bracketed bonus derived from the attacker's `PH` (Physique). In code this is implemented by `statMeleeBonus()` and follows Phoenix Command-style brackets (for example: PH ≥ 18 => +20, PH ≥ 16 => +15, PH ≥ 14 => +10, PH ≥ 12 => +5, PH ≥ 10 => +0, otherwise −10).
+
+Parry: after damage is calculated (Penetration minus Stopping Power), the defender gets a parry roll if the attack is melee. The defender's parry threshold is:
+
+```
+ParryThreshold = Defender.HTCS + AGBracketBonus
+```
+
+Where `AGBracketBonus` is the same bracket function described above applied to `AG` (Agility). The game rolls `1d100`; if the roll is less than or equal to `ParryThreshold` then the attack is considered parried:
+- The game halves the final damage (integer division) and marks the combat event with `Parried = true`.
+- If the final damage was already 0 (armor fully absorbed Pen), the result is a full parry (attack landed but did no damage).
+
+In short:
+- Melee offense uses `HTCS + PH bracket bonus`.
+- Melee defense/parry uses `HTCS + AG bracket bonus` and may halve or negate damage.
+
+Combat events include a `Parried` flag to indicate this outcome; UI messaging shows distinct lines for full parries (no damage) and partial blocks (damage reduced).
+
+See code locations for the exact implementation: `internal/combat/combat.go` (melee CS and parry), `internal/component/stats.go` (new `HTCS` field), and `internal/combat/event.go` (`Parried` flag).
 
 ---
 

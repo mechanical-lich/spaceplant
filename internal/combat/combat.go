@@ -49,10 +49,16 @@ func hitCore(level *world.Level, attacker, defender *ecs.Entity, weaponOverride 
 	defenderName := rlentity.GetName(defender)
 
 	// --- Determine effective CombatSkill ---
+	// Melee (weaponOverride == nil) uses HTCS + PH bracket bonus.
+	// Ranged (weaponOverride != nil) uses CS.
 	cs := 30 // fallback if no stats
 	if attacker.HasComponent(component.Stats) {
 		sc := attacker.GetComponent(component.Stats).(*component.StatsComponent)
-		cs = sc.CS
+		if weaponOverride == nil {
+			cs = sc.HTCS + statMeleeBonus(sc.PH)
+		} else {
+			cs = sc.CS
+		}
 	}
 
 	weapon := weaponOverride
@@ -126,6 +132,26 @@ func hitCore(level *world.Level, attacker, defender *ecs.Entity, weaponOverride 
 		damage = 0
 	}
 
+	// --- Parry roll (melee only) ---
+	parried := false
+	if weaponOverride == nil && damage > 0 {
+		htcs, ag := 20, 10
+		if defender.HasComponent(component.Stats) {
+			sc := defender.GetComponent(component.Stats).(*component.StatsComponent)
+			htcs = sc.HTCS
+			ag = sc.AG
+		}
+		parryThreshold := htcs + statMeleeBonus(ag)
+		if parryThreshold < 1 {
+			parryThreshold = 1
+		}
+		parryRoll, _ := dice.Roll("1d100")
+		if parryRoll <= parryThreshold {
+			damage /= 2
+			parried = true
+		}
+	}
+
 	broken, amputated, killed := false, false, false
 	if damage > 0 && partName != "" && defender.HasComponent(rlcomponents.Body) {
 		bc := defender.GetComponent(rlcomponents.Body).(*rlcomponents.BodyComponent)
@@ -154,6 +180,7 @@ func hitCore(level *world.Level, attacker, defender *ecs.Entity, weaponOverride 
 		DamageType:   damageType,
 		Damage:       damage,
 		BodyPart:     partName,
+		Parried:      parried,
 	})
 
 	if broken || amputated {
@@ -186,6 +213,25 @@ func CoolCheck(entity *ecs.Entity, dc int) bool {
 	}
 	roll, _ := dice.Roll("1d100")
 	return roll <= threshold
+}
+
+// statMeleeBonus returns a CS modifier from a stat value using Phoenix Command brackets.
+// Used for both PH (melee offense) and AG (melee defense/parry).
+func statMeleeBonus(stat int) int {
+	switch {
+	case stat >= 18:
+		return 20
+	case stat >= 16:
+		return 15
+	case stat >= 14:
+		return 10
+	case stat >= 12:
+		return 5
+	case stat >= 10:
+		return 0
+	default:
+		return -10
+	}
 }
 
 // --- helpers ---

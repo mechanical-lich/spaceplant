@@ -108,7 +108,8 @@
             "MA": 10,
             "CL": 10,
             "LD": 8,
-            "CS": 40
+            "CS": 40,
+            "HTCS": 30
         },
         "HitLocationComponent": {
             "Weights": { "head": 10, "torso": 40, "right_arm": 15, "left_arm": 15, "legs": 15, "feet": 5 }
@@ -242,7 +243,8 @@
             "MA": 10,
             "CL": 10,
             "LD": 8,
-            "CS": 40
+            "CS": 40,
+            "HTCS": 25
         },
         "HitLocationComponent": {
             "Weights": { "head": 10, "torso": 40, "right_arm": 15, "left_arm": 15, "legs": 15, "feet": 5 }
@@ -376,7 +378,8 @@
             "MA": 10,
             "CL": 10,
             "LD": 8,
-            "CS": 40
+            "CS": 40,
+            "HTCS": 35
         },
         "HitLocationComponent": {
             "Weights": { "head": 10, "torso": 40, "right_arm": 15, "left_arm": 15, "legs": 15, "feet": 5 }

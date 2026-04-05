@@ -10,7 +10,8 @@ type StatsComponent struct {
 	MA int // Mental Ability: intelligence
 	CL int // Cool: composure under fire; drives CoolCheck resistance
 	LD int // Leadership: command presence
-	CS int // CombatSkill: percentile hit chance (1-100)
+	CS   int // CombatSkill: percentile hit chance for ranged (1-100)
+	HTCS int // Hand-to-Hand Combat Skill: percentile for melee attacks and parry rolls (1-100)
 
 	NaturalSP  int // Natural stopping power (from skills like thick_skin)
 	NaturalPen int // Natural penetration bonus added to bare-hands attacks (claws, vines, etc.)

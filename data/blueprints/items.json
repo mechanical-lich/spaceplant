@@ -323,12 +323,11 @@
             "Value": 2,
             "Slot": "hand",
             "Name": "Laser Trimmers",
-            "Description": "Basic laser trimmers. Can be equipped in the hand slot. Grants 10 Penetration and +5 CS."
+            "Description": "Basic laser trimmers. Can be equipped in the hand slot. Grants 10 Penetration and +5 HTCS."
         },
         "WeaponComponent": {
             "Penetration": 10,
             "CombatSkillModifier": 5,
-            "AttackRange": 1,
             "DamageType": "slashing"
         }
     },

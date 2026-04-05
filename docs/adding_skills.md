@@ -96,6 +96,7 @@ Stat modifiers are applied when the skill is granted and reversed when it is rem
 | `cl` | Cool. Improves Cool Check resistance rolls. |
 | `ld` | Leadership. |
 | `cs` | CombatSkill. Directly raises percentile hit chance. |
+| `htcs` | Hand-to-Hand Combat Skill. Raises melee to-hit and parry chance. |
 | `natural_sp` | Natural Stopping Power. Absorbs incoming damage regardless of armor worn. |
 
 **String-set stats** — use `value`:

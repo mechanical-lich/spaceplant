@@ -94,18 +94,32 @@ func (l *CombatListener) HandleEvent(evt mlgeevent.EventData) error {
 
 	// Normal hit / crit.
 	default:
-		verb := "hit"
-		if e.Crit {
-			verb = "critically hit"
-		}
 		part := e.BodyPart
 		if part == "" {
 			part = "body"
 		}
-		if playerIsAttacker {
-			msg = fmt.Sprintf("You %s %s's %s with your %s for %d %s damage!", verb, defender, part, source, e.Damage, e.DamageType)
+		if e.Parried && e.Damage == 0 {
+			if playerIsDefender {
+				msg = fmt.Sprintf("You parried %s's %s!", attacker, source)
+			} else {
+				msg = fmt.Sprintf("%s parried %s's %s!", defender, attacker, source)
+			}
+		} else if e.Parried {
+			if playerIsDefender {
+				msg = fmt.Sprintf("You partially blocked %s's %s — took %d %s damage!", attacker, source, e.Damage, e.DamageType)
+			} else {
+				msg = fmt.Sprintf("%s partially blocked %s's %s — took %d %s damage!", defender, attacker, source, e.Damage, e.DamageType)
+			}
 		} else {
-			msg = fmt.Sprintf("%s %s %s's %s with their %s for %d %s damage!", attacker, verb, defender, part, source, e.Damage, e.DamageType)
+			verb := "hit"
+			if e.Crit {
+				verb = "critically hit"
+			}
+			if playerIsAttacker {
+				msg = fmt.Sprintf("You %s %s's %s with your %s for %d %s damage!", verb, defender, part, source, e.Damage, e.DamageType)
+			} else {
+				msg = fmt.Sprintf("%s %s %s's %s with their %s for %d %s damage!", attacker, verb, defender, part, source, e.Damage, e.DamageType)
+			}
 		}
 	}
 

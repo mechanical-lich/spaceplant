@@ -5,6 +5,4 @@ Things to pull from if I need ideas on what to work on:
 - Range modifiers — AAG applies CS modifiers based on range bands (point blank, short, medium, long). Spaceplant uses a flat CS with no range penalty.
 - Armor coverage — AAG tracks which body parts each armor piece covers. Spaceplant approximates this by keying armor items to body part slots, which is close but doesn't model partial coverage (e.g. a vest covering torso but not a wound that grazes the arm).
 - Suppression — Firing at an area (not necessarily aiming to hit) forces targets to make Cool Checks or go prone/seek cover. The shooter doesn't need to hit, just fire in the general direction.
-- Ammunition tracking — Weapons have magazine sizes and tracking which round you're on matters for burst fire.
-- Spread - I want some kind of spread where certain weapons may hit multiple tiles.
-- Burst fire — Automatic weapons can fire bursts (3-round, 10-round, full auto). Each additional round in the burst adds a flat bonus to CS but has recoil penalties on subsequent bursts. A 3-round burst might be +15 CS but a full auto spray shifts the hit location to a random spread pattern.
+- More melee weapons, hit speed/frequency per attack command, etc

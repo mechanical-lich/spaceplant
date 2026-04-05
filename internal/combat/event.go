@@ -23,6 +23,7 @@ type CombatEvent struct {
 	Broken       bool
 	Amputated    bool
 	Crit         bool
+	Parried      bool
 	SavePass     bool
 	SaveFail     bool
 }
