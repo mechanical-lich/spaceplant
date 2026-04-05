@@ -33,7 +33,7 @@ func HitWithPen(level *world.Level, attacker, defender *ecs.Entity, penOverride 
 // weaponOverride pins which weapon is used for CS modifier, Pen, and damage type,
 // preventing non-deterministic map iteration from selecting the wrong equipped item.
 // csBonus is added on top of the weapon's CombatSkillModifier.
-func HitRanged(level *world.Level, attacker, defender *ecs.Entity, weaponOverride *rlcomponents.WeaponComponent, csBonus int) bool {
+func HitRanged(level *world.Level, attacker, defender *ecs.Entity, weaponOverride *component.WeaponComponent, csBonus int) bool {
 	return hitCore(level, attacker, defender, weaponOverride, -1, csBonus)
 }
 
@@ -41,7 +41,7 @@ func HitRanged(level *world.Level, attacker, defender *ecs.Entity, weaponOverrid
 // weaponOverride, when non-nil, is used in place of equippedWeapon(attacker).
 // penOverride < 0 means use the weapon / bare-hands Pen. csBonus is added to CS
 // after the weapon's CombatSkillModifier (range bands, aimed shot, etc.).
-func hitCore(level *world.Level, attacker, defender *ecs.Entity, weaponOverride *rlcomponents.WeaponComponent, penOverride, csBonus int) bool {
+func hitCore(level *world.Level, attacker, defender *ecs.Entity, weaponOverride *component.WeaponComponent, penOverride, csBonus int) bool {
 	apc := attacker.GetComponent(rlcomponents.Position).(*rlcomponents.PositionComponent)
 	dpc := defender.GetComponent(rlcomponents.Position).(*rlcomponents.PositionComponent)
 
@@ -190,13 +190,17 @@ func CoolCheck(entity *ecs.Entity, dc int) bool {
 
 // --- helpers ---
 
-// equippedWeaponItemName returns the display name of the first equipped weapon item, or "".
+// equippedWeaponItemName returns the display name of the first equipped melee weapon item, or "".
+// Ranged weapons are excluded to match equippedWeapon's selection logic.
 func equippedWeaponItemName(entity *ecs.Entity) string {
 	if entity.HasComponent(component.BodyInventory) {
 		inv := entity.GetComponent(component.BodyInventory).(*rlcomponents.BodyInventoryComponent)
 		for _, item := range inv.Equipped {
 			if item != nil && item.HasComponent(component.Weapon) {
-				return rlentity.GetName(item)
+				wc := item.GetComponent(component.Weapon).(*component.WeaponComponent)
+				if !wc.Ranged {
+					return rlentity.GetName(item)
+				}
 			}
 		}
 	}
@@ -204,7 +208,10 @@ func equippedWeaponItemName(entity *ecs.Entity) string {
 		inv := entity.GetComponent(component.Inventory).(*rlcomponents.InventoryComponent)
 		for _, item := range []*ecs.Entity{inv.RightHand, inv.LeftHand} {
 			if item != nil && item.HasComponent(component.Weapon) {
-				return rlentity.GetName(item)
+				wc := item.GetComponent(component.Weapon).(*component.WeaponComponent)
+				if !wc.Ranged {
+					return rlentity.GetName(item)
+				}
 			}
 		}
 	}
@@ -213,12 +220,12 @@ func equippedWeaponItemName(entity *ecs.Entity) string {
 
 // equippedWeapon returns the first equipped melee WeaponComponent found on the entity, or nil.
 // Ranged weapons are excluded to prevent melee attacks from inheriting ranged weapon stats.
-func equippedWeapon(entity *ecs.Entity) *rlcomponents.WeaponComponent {
+func equippedWeapon(entity *ecs.Entity) *component.WeaponComponent {
 	if entity.HasComponent(component.BodyInventory) {
 		inv := entity.GetComponent(component.BodyInventory).(*rlcomponents.BodyInventoryComponent)
 		for _, item := range inv.Equipped {
 			if item != nil && item.HasComponent(component.Weapon) {
-				wc := item.GetComponent(component.Weapon).(*rlcomponents.WeaponComponent)
+				wc := item.GetComponent(component.Weapon).(*component.WeaponComponent)
 				if !wc.Ranged {
 					return wc
 				}
@@ -229,7 +236,7 @@ func equippedWeapon(entity *ecs.Entity) *rlcomponents.WeaponComponent {
 		inv := entity.GetComponent(component.Inventory).(*rlcomponents.InventoryComponent)
 		for _, item := range []*ecs.Entity{inv.RightHand, inv.LeftHand} {
 			if item != nil && item.HasComponent(component.Weapon) {
-				wc := item.GetComponent(component.Weapon).(*rlcomponents.WeaponComponent)
+				wc := item.GetComponent(component.Weapon).(*component.WeaponComponent)
 				if !wc.Ranged {
 					return wc
 				}

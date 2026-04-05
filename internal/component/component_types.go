@@ -25,7 +25,7 @@ const (
 	Inventory        = rlcomponents.Inventory
 	Item             = rlcomponents.Item
 	Armor            = rlcomponents.Armor
-	Weapon           = rlcomponents.Weapon
+	Weapon ecs.ComponentType = "WeaponComponent"
 	NeverSleep       = rlcomponents.NeverSleep
 	Nocturnal        = rlcomponents.Nocturnal
 	Body             = rlcomponents.Body

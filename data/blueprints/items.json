@@ -79,7 +79,13 @@
             "AmmoType": "5.56",
             "Magazine": 30,
             "MaxMagazine": 30,
-            "DamageType": "ballistic"
+            "DamageType": "ballistic",
+            "RangeBands": [
+                {"max_dist": 1, "cs_mod": -15},
+                {"max_dist": 4, "cs_mod": 5},
+                {"max_dist": 8, "cs_mod": 0},
+                {"max_dist": 10, "cs_mod": -10}
+            ]
         }
     },
     "shotgun": {
@@ -122,7 +128,12 @@
             "AmmoType": "12g",
             "Magazine": 8,
             "MaxMagazine": 8,
-            "DamageType": "ballistic"
+            "DamageType": "ballistic",
+            "RangeBands": [
+                {"max_dist": 1, "cs_mod": 20},
+                {"max_dist": 3, "cs_mod": 5},
+                {"max_dist": 5, "cs_mod": -25}
+            ]
         }
     },
     "9mm_rounds": {
@@ -263,9 +274,16 @@
             "Penetration": 15,
             "CombatSkillModifier": 0,
             "Range": 8,
-            "Ranged": true,            "AmmoType": "9mm",
+            "Ranged": true,
+            "AmmoType": "9mm",
             "Magazine": 15,
-            "MaxMagazine": 15,            "DamageType": "ballistic"
+            "MaxMagazine": 15,
+            "DamageType": "ballistic",
+            "RangeBands": [
+                {"max_dist": 1, "cs_mod": 10},
+                {"max_dist": 4, "cs_mod": 0},
+                {"max_dist": 8, "cs_mod": -20}
+            ]
         }
     },
     "laser_trimmers": {

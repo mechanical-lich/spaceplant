@@ -6,7 +6,6 @@ import (
 	"github.com/mechanical-lich/ml-rogue-lib/pkg/rlenergy"
 	"github.com/mechanical-lich/mlge/ecs"
 	"github.com/mechanical-lich/mlge/message"
-	"github.com/mechanical-lich/ml-rogue-lib/pkg/rlcomponents"
 	"github.com/mechanical-lich/spaceplant/internal/component"
 	"github.com/mechanical-lich/spaceplant/internal/energy"
 	"github.com/mechanical-lich/spaceplant/internal/world"
@@ -35,7 +34,7 @@ func (a ReloadAction) Execute(entity *ecs.Entity, _ *world.Level) error {
 		return nil
 	}
 
-	wc := a.WeaponItem.GetComponent(component.Weapon).(*rlcomponents.WeaponComponent)
+	wc := a.WeaponItem.GetComponent(component.Weapon).(*component.WeaponComponent)
 	ac := a.AmmoItem.GetComponent(component.Ammo).(*component.AmmoComponent)
 
 	if ac.AmmoType != wc.AmmoType {

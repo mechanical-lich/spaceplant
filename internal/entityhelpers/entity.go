@@ -59,7 +59,7 @@ func Hit(l *world.Level, entity *ecs.Entity, entityHit *ecs.Entity) bool {
 // HitRanged performs a ranged attack with a specific weapon and CS bonus/penalty.
 // Pass the exact weapon being fired so CS modifier, Pen, and damage type are
 // always sourced from the correct item regardless of other equipped weapons.
-func HitRanged(l *world.Level, entity *ecs.Entity, entityHit *ecs.Entity, weapon *rlcomponents.WeaponComponent, csBonus int) bool {
+func HitRanged(l *world.Level, entity *ecs.Entity, entityHit *ecs.Entity, weapon *component.WeaponComponent, csBonus int) bool {
 	landed := spcombat.HitRanged(l, entity, entityHit, weapon, csBonus)
 	if landed {
 		if entityHit != entity && !entityHit.HasComponent(component.Dead) {

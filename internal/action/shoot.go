@@ -1,7 +1,6 @@
 package action
 
 import (
-	"github.com/mechanical-lich/ml-rogue-lib/pkg/rlcomponents"
 	"github.com/mechanical-lich/ml-rogue-lib/pkg/rlenergy"
 	"github.com/mechanical-lich/mlge/ecs"
 	"github.com/mechanical-lich/mlge/message"
@@ -115,7 +114,7 @@ func (a ShootAction) Execute(entity *ecs.Entity, level *world.Level) error {
 // execBurst fires wc.BurstSize rounds along the facing line.
 // Each round gets the burst CS bonus minus accumulated recoil.
 // Rounds after the first may walk to the next target if the primary is dead.
-func execBurst(entity *ecs.Entity, level *world.Level, wc *rlcomponents.WeaponComponent, dx, dy, maxRange int) {
+func execBurst(entity *ecs.Entity, level *world.Level, wc *component.WeaponComponent, dx, dy, maxRange int) {
 	rounds := wc.BurstSize
 	if rounds < 2 {
 		rounds = 3
@@ -139,7 +138,7 @@ func execBurst(entity *ecs.Entity, level *world.Level, wc *rlcomponents.WeaponCo
 
 // execSpread fires the primary line and, if wc.SpreadAngle > 0, additional
 // diagonal spread lines. Spread lines deal reduced Pen.
-func execSpread(entity *ecs.Entity, level *world.Level, wc *rlcomponents.WeaponComponent, dx, dy, maxRange, csBonus int, penMult float64) {
+func execSpread(entity *ecs.Entity, level *world.Level, wc *component.WeaponComponent, dx, dy, maxRange, csBonus int, penMult float64) {
 	fireLineAt(entity, level, wc, dx, dy, maxRange, csBonus, penMult)
 
 	if wc.SpreadAngle <= 0 {
@@ -164,7 +163,7 @@ func execSpread(entity *ecs.Entity, level *world.Level, wc *rlcomponents.WeaponC
 // fireLineAt walks tiles in direction (dx, dy) up to maxRange and fires at the
 // first hittable entity. penMult scales Pen (use 1.0 for normal, <1.0 for spread).
 // Returns true if a target was found (whether or not the attack landed).
-func fireLineAt(entity *ecs.Entity, level *world.Level, wc *rlcomponents.WeaponComponent, dx, dy, maxRange, csBonus int, penMult float64) bool {
+func fireLineAt(entity *ecs.Entity, level *world.Level, wc *component.WeaponComponent, dx, dy, maxRange, csBonus int, penMult float64) bool {
 	pc := entity.GetComponent(component.Position).(*component.PositionComponent)
 	z := pc.GetZ()
 
@@ -192,7 +191,7 @@ func fireLineAt(entity *ecs.Entity, level *world.Level, wc *rlcomponents.WeaponC
 	}
 
 	// Range-band modifier on top of caller-supplied csBonus.
-	rb := rangeBandBonus(targetDist, maxRange)
+	rb := rangeBandBonus(targetDist, maxRange, wc)
 
 	// Apply Pen multiplier by temporarily adjusting — we need to pass an
 	// effective pen to HitRanged. Build a shallow copy with scaled Pen.
@@ -221,7 +220,12 @@ func addShotTrail(level *world.Level, x, y, z int) {
 }
 
 // rangeBandBonus returns the CS modifier for the given distance and weapon range.
-func rangeBandBonus(dist, maxRange int) int {
+// Uses the weapon's RangeBands if defined; falls back to global constants otherwise.
+func rangeBandBonus(dist, maxRange int, wc *component.WeaponComponent) int {
+	if mod, ok := wc.RangeBandCSMod(dist); ok {
+		return mod
+	}
+	// Global fallback.
 	if dist <= 1 {
 		return csPointBlankPenalty
 	}
@@ -253,12 +257,12 @@ func facingDeltas(entity *ecs.Entity) (int, int) {
 }
 
 // equippedRangedWeapon returns the first equipped weapon with Ranged=true, or nil.
-func equippedRangedWeapon(entity *ecs.Entity) *rlcomponents.WeaponComponent {
+func equippedRangedWeapon(entity *ecs.Entity) *component.WeaponComponent {
 	if entity.HasComponent(component.BodyInventory) {
 		inv := entity.GetComponent(component.BodyInventory).(*component.BodyInventoryComponent)
 		for _, item := range inv.Equipped {
 			if item != nil && item.HasComponent(component.Weapon) {
-				wc := item.GetComponent(component.Weapon).(*rlcomponents.WeaponComponent)
+				wc := item.GetComponent(component.Weapon).(*component.WeaponComponent)
 				if wc.Ranged {
 					return wc
 				}
@@ -269,7 +273,7 @@ func equippedRangedWeapon(entity *ecs.Entity) *rlcomponents.WeaponComponent {
 		inv := entity.GetComponent(component.Inventory).(*component.InventoryComponent)
 		for _, item := range []*ecs.Entity{inv.RightHand, inv.LeftHand} {
 			if item != nil && item.HasComponent(component.Weapon) {
-				wc := item.GetComponent(component.Weapon).(*rlcomponents.WeaponComponent)
+				wc := item.GetComponent(component.Weapon).(*component.WeaponComponent)
 				if wc.Ranged {
 					return wc
 				}

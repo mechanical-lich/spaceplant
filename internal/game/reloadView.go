@@ -4,7 +4,6 @@ import (
 	"fmt"
 
 	"github.com/hajimehoshi/ebiten/v2"
-	"github.com/mechanical-lich/ml-rogue-lib/pkg/rlcomponents"
 	"github.com/mechanical-lich/mlge/ecs"
 	"github.com/mechanical-lich/mlge/ui/minui"
 	"github.com/mechanical-lich/spaceplant/internal/component"
@@ -122,7 +121,7 @@ func (v *ReloadView) refreshWeaponList() {
 		if item == nil || !item.HasComponent(component.Weapon) {
 			continue
 		}
-		wc := item.GetComponent(component.Weapon).(*rlcomponents.WeaponComponent)
+		wc := item.GetComponent(component.Weapon).(*component.WeaponComponent)
 		if !wc.Ranged || wc.MaxMagazine == 0 {
 			continue
 		}
@@ -143,7 +142,7 @@ func (v *ReloadView) refreshAmmoList() {
 	idx := v.weaponList.SelectedIndex
 	var ammoType string
 	if idx >= 0 && idx < len(v.weapons) {
-		wc := v.weapons[idx].GetComponent(component.Weapon).(*rlcomponents.WeaponComponent)
+		wc := v.weapons[idx].GetComponent(component.Weapon).(*component.WeaponComponent)
 		ammoType = wc.AmmoType
 	}
 
@@ -183,7 +182,7 @@ func (v *ReloadView) doReload() {
 	weaponItem := v.weapons[wIdx]
 	ammoItem := v.ammos[aIdx]
 
-	wc := weaponItem.GetComponent(component.Weapon).(*rlcomponents.WeaponComponent)
+	wc := weaponItem.GetComponent(component.Weapon).(*component.WeaponComponent)
 	ac := ammoItem.GetComponent(component.Ammo).(*component.AmmoComponent)
 
 	if ac.AmmoType != wc.AmmoType {

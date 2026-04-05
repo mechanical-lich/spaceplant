@@ -31,7 +31,7 @@ func registerComponents() {
 	jsonFactory.RegisterComponent("DoorComponent", func() ecs.Component { return &rlcomponents.DoorComponent{} })
 	jsonFactory.RegisterComponent("ItemComponent", func() ecs.Component { return &rlcomponents.ItemComponent{} })
 	jsonFactory.RegisterComponent("ArmorComponent", func() ecs.Component { return &rlcomponents.ArmorComponent{} })
-	jsonFactory.RegisterComponent("WeaponComponent", func() ecs.Component { return &rlcomponents.WeaponComponent{} })
+	jsonFactory.RegisterComponent("WeaponComponent", func() ecs.Component { return &component.WeaponComponent{} })
 	jsonFactory.RegisterComponent("MyTurnComponent", func() ecs.Component { return &rlcomponents.MyTurnComponent{} })
 	jsonFactory.RegisterComponent("DeadComponent", func() ecs.Component { return &rlcomponents.DeadComponent{} })
 	jsonFactory.RegisterComponent("AlertedComponent", func() ecs.Component { return &rlcomponents.AlertedComponent{} })
