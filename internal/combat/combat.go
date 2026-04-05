@@ -81,8 +81,12 @@ func hitCore(level *world.Level, attacker, defender *ecs.Entity, weaponOverride 
 	damageType := "bludgeoning"
 	if weapon != nil && weapon.DamageType != "" {
 		damageType = weapon.DamageType
-		if name := equippedWeaponItemName(attacker); name != "" {
-			weaponName = name
+		if weaponOverride == nil {
+			if name := equippedWeaponItemName(attacker); name != "" {
+				weaponName = name
+			} else {
+				weaponName = damageType
+			}
 		} else {
 			weaponName = damageType
 		}

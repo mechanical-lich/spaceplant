@@ -115,10 +115,12 @@ func (a ShootAction) Execute(entity *ecs.Entity, level *world.Level) error {
 // Each round gets the burst CS bonus minus accumulated recoil.
 // Rounds after the first may walk to the next target if the primary is dead.
 func execBurst(entity *ecs.Entity, level *world.Level, wc *component.WeaponComponent, dx, dy, maxRange int) {
-	rounds := wc.BurstSize
-	if rounds < 2 {
-		rounds = 3
+	if wc.BurstSize < 2 {
+		message.AddMessage("Weapon does not support burst fire.")
+		return
 	}
+
+	rounds := wc.BurstSize
 	for i := 0; i < rounds; i++ {
 		if wc.MaxMagazine > 0 && wc.Magazine <= 0 {
 			message.AddMessage("Weapon empty mid-burst.")
