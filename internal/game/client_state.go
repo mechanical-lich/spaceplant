@@ -47,6 +47,7 @@ func NewSPClientState(sim *SimWorld, t transport.ClientTransport) *SPClientState
 		cs.characterCreator = NewCharacterCreator()
 		cs.characterCreator.OnComplete = func(data CharacterData) {
 			if err := sim.SpawnPlayer(data); err != nil {
+				fmt.Printf("Error spawning player: %v\n", err)
 				return
 			}
 			cs.initGameViews()

@@ -21,7 +21,11 @@ func init() {
 
 // FactoryLoad loads blueprints using the JSON factory only.
 func FactoryLoad(folderName string) error {
-	return jsonFactory.LoadBlueprintsFromDir(folderName)
+	if err := jsonFactory.LoadBlueprintsFromDir(folderName); err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func Create(name string, x int, y int) (*ecs.Entity, error) {
@@ -47,7 +51,7 @@ func Create(name string, x int, y int) (*ecs.Entity, error) {
 				for _, item := range inv.StartingInventory {
 					itemEntity, err := Create(item, 0, 0)
 					if err != nil {
-						return nil, err
+						return nil, errors.Join(err, errors.New("failed to create item: "+item))
 					}
 					inv.AddItem(itemEntity)
 				}
@@ -64,7 +68,7 @@ func Create(name string, x int, y int) (*ecs.Entity, error) {
 				for _, item := range inv.StartingInventory {
 					itemEntity, err := Create(item, 0, 0)
 					if err != nil {
-						return nil, err
+						return nil, errors.Join(err, errors.New("failed to create item: "+item))
 					}
 					inv.AddItem(itemEntity)
 				}
@@ -101,7 +105,7 @@ func ImportInventory(importString string, target *ecs.Entity) error {
 	for _, v := range imports {
 		entity, err := Create(v, 0, 0)
 		if err != nil {
-			return err
+			return errors.Join(err, errors.New("failed to create item: "+v))
 		}
 		inventory.AddItem(entity)
 		inventory.Equip(entity)

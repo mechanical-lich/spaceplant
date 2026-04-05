@@ -1,0 +1,83 @@
+{
+        "blue_keycard": {
+        "DescriptionComponent": {
+            "Name": "Blue Keycard",
+            "Faction": "item",
+            "PassOverDescription": [
+                "A blue keycard lies here."
+            ]
+        },
+        "AsciiAppearanceComponent": {
+            "Character": "K",
+            "R": 0,
+            "G": 0,
+            "B": 255
+        },
+        "AppearanceComponent": {
+            "Resource": "entities",
+            "SpriteX": 416,
+            "SpriteY": 0,
+            "R": 200,
+            "G": 200,
+            "B": 125,
+            "Frames": 1
+        },
+        "LightComponent": {
+            "Radius": 10,
+            "Brightness": 10,
+            "R": 0,
+            "G": 0,
+            "B": 125
+        },
+        "ItemComponent": {
+            "Effect": "key",
+            "Value": 10,
+            "Slot": "bag",
+            "Name": "Blue Keycard",
+            "Description": "A blue keycard. Can be used to unlock blue doors."
+        },
+        "KeyComponent": {
+            "KeyID": "blue_keycard"
+        }
+    },
+        "health": {
+        "DescriptionComponent": {
+            "Name": "health",
+            "Faction": "item",
+            "PassOverDescription": [
+                "A medical kit sits here.",
+                "You spot a health pack on the floor.",
+                "There's a med kit here \u2014 better pick it up."
+            ]
+        },
+        "AsciiAppearanceComponent": {
+            "Character": "!",
+            "R": 255,
+            "G": 50,
+            "B": 50
+        },
+        "AppearanceComponent": {
+            "Resource": "entities",
+            "SpriteX": 288,
+            "SpriteY": 0,
+            "R": 200,
+            "G": 200,
+            "B": 125,
+            "Frames": 1
+        },
+        "LightComponent": {
+            "Radius": 10,
+            "Brightness": 10,
+            "R": 0,
+            "G": 0,
+            "B": 125
+        },
+        "ItemComponent": {
+            "Effect": "heal",
+            "Value": 10,
+            "Slot": "bag",
+            "Name": "Med Kit",
+            "Description": "A standard issue med kit. Restores 10 HP when used."
+        }
+    }
+}

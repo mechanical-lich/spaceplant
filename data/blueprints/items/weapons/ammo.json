@@ -1,0 +1,104 @@
+{
+    "9mm_rounds": {
+        "DescriptionComponent": {
+            "Name": "9mm_rounds",
+            "Faction": "item",
+            "PassOverDescription": [
+                "A box of 9mm rounds lies here.",
+                "You spot some 9mm ammunition."
+            ]
+        },
+        "AsciiAppearanceComponent": {
+            "Character": "*",
+            "R": 220,
+            "G": 200,
+            "B": 100
+        },
+        "AppearanceComponent": {
+            "Resource": "entities",
+            "SpriteX": 416,
+            "SpriteY": 0,
+            "R": 220,
+            "G": 200,
+            "B": 100,
+            "Frames": 1
+        },
+        "ItemComponent": {
+            "Slot": "bag",
+            "Name": "9mm Rounds",
+            "Description": "A box of 9mm pistol rounds. Fits the security pistol (15 rounds)."
+        },
+        "AmmoComponent": {
+            "AmmoType": "9mm",
+            "Count": 15
+        }
+    },
+    "5_56_rounds": {
+        "DescriptionComponent": {
+            "Name": "5_56_rounds",
+            "Faction": "item",
+            "PassOverDescription": [
+                "A magazine of 5.56 rounds lies here.",
+                "You spot an assault rifle magazine."
+            ]
+        },
+        "AsciiAppearanceComponent": {
+            "Character": "*",
+            "R": 180,
+            "G": 180,
+            "B": 180
+        },
+        "AppearanceComponent": {
+            "Resource": "entities",
+            "SpriteX": 416,
+            "SpriteY": 0,
+            "R": 180,
+            "G": 180,
+            "B": 180,
+            "Frames": 1
+        },
+        "ItemComponent": {
+            "Slot": "bag",
+            "Name": "5.56 Magazine",
+            "Description": "A 30-round magazine of 5.56 NATO. Fits the assault rifle."
+        },
+        "AmmoComponent": {
+            "AmmoType": "5.56",
+            "Count": 30
+        }
+    },
+    "12g_shells": {
+        "DescriptionComponent": {
+            "Name": "12g_shells",
+            "Faction": "item",
+            "PassOverDescription": [
+                "A box of 12-gauge shells lies here.",
+                "You spot some shotgun shells."
+            ]
+        },
+        "AsciiAppearanceComponent": {
+            "Character": "*",
+            "R": 200,
+            "G": 140,
+            "B": 80
+        },
+        "AppearanceComponent": {
+            "Resource": "entities",
+            "SpriteX": 416,
+            "SpriteY": 0,
+            "R": 200,
+            "G": 140,
+            "B": 80,
+            "Frames": 1
+        },
+        "ItemComponent": {
+            "Slot": "bag",
+            "Name": "12g Shells",
+            "Description": "A tube of 8 twelve-gauge shells. Fits the shotgun."
+        },
+        "AmmoComponent": {
+            "AmmoType": "12g",
+            "Count": 8
+        }
+    }
+}
