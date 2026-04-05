@@ -63,6 +63,12 @@ func (s *SPClientState) initGameViews() {
 	s.classView = NewClassUpgradeView(s.sim.Player)
 	s.statsView = NewCharacterStatsView(s.sim.Player)
 	s.reloadView = NewReloadView(s.sim.Player)
+	s.reloadView.OnReload = func(weaponItem, ammoItem *ecs.Entity) {
+		s.transport.SendCommand(&transport.Command{
+			Type:    CmdReload,
+			Payload: ReloadPayload{WeaponItem: weaponItem, AmmoItem: ammoItem},
+		})
+	}
 	pc := s.sim.Player.GetComponent("Position").(*component.PositionComponent)
 	s.CameraX = pc.GetX()
 	s.CameraY = pc.GetY()

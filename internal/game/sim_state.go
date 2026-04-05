@@ -106,15 +106,26 @@ func (s *MainSimState) Done() bool { return s.done }
 // ProcessCommand is called once per queued client command, before Tick.
 // It pushes the key string onto the player's command queue.
 func (s *MainSimState) ProcessCommand(cmd *transport.Command) {
-	if cmd.Type != CmdAction {
-		return
-	}
-	payload, ok := cmd.Payload.(ActionPayload)
-	if !ok {
-		return
-	}
 	playerC := s.sim.Player.GetComponent("PlayerComponent").(*component.PlayerComponent)
-	playerC.PushCommand(payload.Key)
+	switch cmd.Type {
+	case CmdAction:
+		payload, ok := cmd.Payload.(ActionPayload)
+		if !ok {
+			return
+		}
+		playerC.PushCommand(payload.Key)
+	case CmdReload:
+		payload, ok := cmd.Payload.(ReloadPayload)
+		if !ok {
+			return
+		}
+		playerC.PendingReload = &component.PendingReloadData{
+			WeaponItem: payload.WeaponItem,
+			AmmoItem:   payload.AmmoItem,
+		}
+		// Push a sentinel so phaseWaitingForInput advances to phaseRunningTick.
+		playerC.PushCommand("reload")
+	}
 }
 
 // Tick advances the simulation by one server tick.

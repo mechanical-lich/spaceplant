@@ -20,8 +20,9 @@ const (
 // Left list shows equipped ranged weapons; right list shows compatible ammo in bag.
 // Clicking "Reload" loads the selected ammo into the selected weapon.
 type ReloadView struct {
-	Visible bool
-	player  *ecs.Entity
+	Visible  bool
+	OnReload func(weaponItem, ammoItem *ecs.Entity)
+	player   *ecs.Entity
 
 	modal      *minui.Modal
 	weaponList *minui.ListBox
@@ -164,7 +165,8 @@ func (v *ReloadView) refreshAmmoList() {
 	v.ammoList.SetItems(labels)
 }
 
-// doReload loads the selected ammo into the selected weapon.
+// doReload validates the selection and delegates the actual ECS mutation to OnReload,
+// which routes the reload through the sim under its write lock.
 func (v *ReloadView) doReload() {
 	wIdx := v.weaponList.SelectedIndex
 	aIdx := v.ammoList.SelectedIndex
@@ -188,31 +190,14 @@ func (v *ReloadView) doReload() {
 		v.statusLbl.Text = "Incompatible ammo type."
 		return
 	}
-
-	// Calculate how many rounds can be loaded.
-	needed := wc.MaxMagazine - wc.Magazine
-	if needed <= 0 {
+	if wc.MaxMagazine-wc.Magazine <= 0 {
 		v.statusLbl.Text = "Magazine already full."
 		return
 	}
 
-	loaded := needed
-	if ac.Count < loaded {
-		loaded = ac.Count
+	if v.OnReload != nil {
+		v.OnReload(weaponItem, ammoItem)
 	}
 
-	wc.Magazine += loaded
-	ac.Count -= loaded
-
-	// Remove ammo item if depleted.
-	if ac.Count <= 0 {
-		playerRemoveItem(v.player, ammoItem)
-	}
-
-	ic := weaponItem.GetComponent(component.Item).(*component.ItemComponent)
-	v.statusLbl.Text = fmt.Sprintf("Loaded %d rounds into %s.", loaded, ic.Name)
-
-	// Refresh both lists to reflect updated counts.
-	v.refreshWeaponList()
-	v.refreshAmmoList()
+	v.Visible = false
 }

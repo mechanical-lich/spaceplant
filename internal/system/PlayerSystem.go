@@ -36,6 +36,17 @@ func (s *PlayerSystem) UpdateEntity(levelInterface any, entity *ecs.Entity) erro
 
 	l := levelInterface.(*world.Level)
 	playerComponent := entity.GetComponent(component.Player).(*component.PlayerComponent)
+
+	// Pending reload (queued by the reload modal via CmdReload).
+	if playerComponent.PendingReload != nil {
+		reload := playerComponent.PendingReload
+		playerComponent.PendingReload = nil
+		playerComponent.PopCommand() // drain the sentinel pushed to unblock phaseWaitingForInput
+		act := action.ReloadAction{WeaponItem: reload.WeaponItem, AmmoItem: reload.AmmoItem}
+		entity.AddComponent(rlcomponents.GetTurnTaken())
+		return act.Execute(entity, l)
+	}
+
 	command := playerComponent.PopCommand()
 
 	// Non-turn-consuming commands.
