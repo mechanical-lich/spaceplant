@@ -134,7 +134,7 @@ An entity can have:
 
 These are stored as `[]string` on `StatsComponent` and are also granted by skills (see *Noncombustible*, *Acid Proof*).
 
-If an entity has both a resistance and a weakness to the same type, the resistance wins.
+If an entity has both a resistance and a weakness to the same type, the effects cancel out and damage is unchanged.
 
 ---
 

@@ -13,6 +13,6 @@ func PlayerActions() []Action {
 		PickupAction{},
 		EquipAction{},
 		StairsAction{},
-			ShootAction{},
+		ShootAction{},
 	}
 }

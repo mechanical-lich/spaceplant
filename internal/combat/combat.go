@@ -173,7 +173,7 @@ func hitCore(level *world.Level, attacker, defender *ecs.Entity, weaponOverride 
 }
 
 // CoolCheck resolves a Cool-based resistance roll against a difficulty value.
-// Returns true if the entity resists (succeeds). dc is addded difficulty (higher = harder).
+// Returns true if the entity resists (succeeds). dc is added difficulty (higher = harder).
 // Threshold = CL * 5; success if d100 <= threshold - dc.
 func CoolCheck(entity *ecs.Entity, dc int) bool {
 	cl := 10
