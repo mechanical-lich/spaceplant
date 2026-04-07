@@ -210,9 +210,22 @@ The attacker's effective CS is modified by the distance to the target:
 |---|---|---|---|
 | Snap shot | F | 100 | Single shot. SpreadAngle applies. |
 | Aimed shot | Shift+F | 150 | +10 CS. SpreadAngle applies. |
+| Targeted aimed shot | Shift+F | 200 | +10 CS. Opens a modal to choose which body part to aim at. |
 | Burst fire | G | 150 | Fires `BurstSize` rounds along the same line. Requires `BurstSize ≥ 2`. |
 
 **Burst fire** rolls independently for each round. The first round gets +15 CS (burst bonus); subsequent rounds lose 5 CS each from recoil (+10, +5, …). If the first round misses into the void, the burst stops early.
+
+#### Targeted Aimed Shot
+
+When `Shift+F` is pressed and a valid target is in the line of fire, a modal lists the target's non-amputated body parts. The player selects one (by clicking or pressing the number hotkey shown). The shot then resolves normally but with a CS-scaled chance of striking the chosen part:
+
+```
+HitChance(chosen part) = 75 + (CS − 50) / 10    [clamped to 60–90%]
+```
+
+If the bias roll fails, the hit location falls back to normal weighted random selection. If the chosen part is amputated before the shot resolves, the bias is skipped entirely. Spread-angle pellets (secondary lines) always use random hit location.
+
+If nothing is in the line of fire, a "Nothing to aim at." message is logged and no action is taken.
 
 The full CS for a single ranged attack is:
 
