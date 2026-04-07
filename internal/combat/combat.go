@@ -319,13 +319,21 @@ func pickBodyPart(entity *ecs.Entity, attacker *ecs.Entity, aimedBodyPart string
 			if attacker != nil && attacker.HasComponent(component.Stats) {
 				cs = attacker.GetComponent(component.Stats).(*component.StatsComponent).CS
 			}
-			// chance = 75 + (CS-50)/10, clamped to [60, 90]
-			chance := 75 + (cs-50)/10
+			// Deadshot raises the base from 75 to 90.
+			base := 75
+			if attacker != nil && attacker.HasComponent(component.Skill) {
+				sc := attacker.GetComponent(component.Skill).(*component.SkillComponent)
+				if sc.HasSkill("deadshot") {
+					base = 90
+				}
+			}
+			// chance = base + (CS-50)/10, clamped to [60, 95]
+			chance := base + (cs-50)/10
 			if chance < 60 {
 				chance = 60
 			}
-			if chance > 90 {
-				chance = 90
+			if chance > 95 {
+				chance = 95
 			}
 			if rand.Intn(100) < chance {
 				return aimedBodyPart

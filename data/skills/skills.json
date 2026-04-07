@@ -121,14 +121,13 @@
   {
     "id": "nimble",
     "name": "Nimble",
-    "description": "You dodge with uncanny speed. Advantage on DEX saving throws.",
-    "stat_modifiers": []
-  },
-  {
-    "id": "eagle_eyed",
-    "name": "Eagle Eyed",
-    "description": "Nothing gets past you. Advantage on WIS saving throws.",
-    "stat_modifiers": []
+    "description": "You are light on your feet. +5 AG.",
+    "stat_modifiers": [
+       {
+        "stat": "ag",
+        "delta": 5
+      }
+    ]
   },
   {
     "id": "small",
@@ -150,7 +149,18 @@
   {
     "id": "combat_specialist",
     "name": "Combat Specialist",
-    "description": "Rigorous melee training pays off. +5 CS.",
+    "description": "Rigorous melee training pays off. +5 HTCS.",
+    "stat_modifiers": [
+      {
+        "stat": "htcs",
+        "delta": 5
+      }
+    ]
+  },
+   {
+    "id": "ranged_combat_specialist",
+    "name": "Ranged Combat Specialist",
+    "description": "The time spent at the shooting range pays off. +5 CS.",
     "stat_modifiers": [
       {
         "stat": "cs",
@@ -198,6 +208,11 @@
       "status_condition_duration": 5,
       "cool_dc": 13
     }
+  },
+  {
+    "id": "deadshot",
+    "name": "Deadshot",
+    "description": "Surgical precision with a ranged weapon. Aimed shots gain an extra +10 CS, and targeted aimed shots hit the chosen body part 90% of the time."
   },
   {
     "id": "paralyzing_vinewhip",

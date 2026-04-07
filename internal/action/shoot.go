@@ -104,6 +104,12 @@ func (a ShootAction) Execute(entity *ecs.Entity, level *world.Level) error {
 		csBonus := 0
 		if a.Aimed || a.AimedBodyPart != "" {
 			csBonus += csAimedShotBonus
+			if entity.HasComponent(component.Skill) {
+				sc := entity.GetComponent(component.Skill).(*component.SkillComponent)
+				if sc.HasSkill("deadshot") {
+					csBonus += csAimedShotBonus // extra +10 for deadshot
+				}
+			}
 		}
 		execSpread(entity, level, wc, dx, dy, maxRange, csBonus, 1.0, a.AimedBodyPart)
 		if wc.MaxMagazine > 0 {

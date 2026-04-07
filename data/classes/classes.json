@@ -9,7 +9,8 @@
         "Skills": [
             "roundhouse_kick",
             "sprinter",
-            "nimble"
+            "nimble",
+            "combat_specialist"
         ]
     },
     {
@@ -17,11 +18,13 @@
         "Name": "Sharpshooter",
         "Description": "An expert marksman with ranged weapons.",
         "StartingSkills": [
-            "eagle_eyed"
+            "deadshot"
         ],
         "Skills": [
             "sharpshooter",
-            "brainy"
+            "brainy",
+            "nimble",
+            "ranged_combat_specialist"
         ]
     },
     {
@@ -33,8 +36,10 @@
         ],
         "Skills": [
             "combat_specialist",
+            "ranged_combat_specialist",
             "shove",
-            "hands_only"
+            "hands_only",
+            "sharpshooter"
         ]
     }
 ]

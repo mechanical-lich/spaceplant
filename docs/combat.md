@@ -220,8 +220,10 @@ The attacker's effective CS is modified by the distance to the target:
 When `Shift+F` is pressed and a valid target is in the line of fire, a modal lists the target's non-amputated body parts. The player selects one (by clicking or pressing the number hotkey shown). The shot then resolves normally but with a CS-scaled chance of striking the chosen part:
 
 ```
-HitChance(chosen part) = 75 + (CS − 50) / 10    [clamped to 60–90%]
+HitChance(chosen part) = base + (CS − 50) / 10    [clamped to 60–95%]
 ```
+
+`base` is **75** normally, or **90** with the **Deadshot** skill.
 
 If the bias roll fails, the hit location falls back to normal weighted random selection. If the chosen part is amputated before the shot resolves, the bias is skipped entirely. Spread-angle pellets (secondary lines) always use random hit location.
 
@@ -268,6 +270,7 @@ Moving in any direction automatically updates facing. Pressing **Shift+direction
 | Acid Proof | Resistance to acid |
 | Sharpshooter | +5 CS |
 | Combat Specialist | +5 CS |
+| Deadshot | Aimed shots gain an extra +10 CS; targeted aimed shots hit the chosen body part 90% of the time (instead of 75%) |
 | Hands Only | Unarmed attacks use a higher Pen value and cost half energy |
 
 ### Active skills with status conditions
