@@ -19,14 +19,14 @@ const bareHandsPenBase = 3 // base Pen for unarmed attack before PH modifier
 // Aliens Adventure Game (Phoenix Command) combat system.
 // Returns true if the attack landed.
 func Hit(level *world.Level, attacker, defender *ecs.Entity) bool {
-	return hitCore(level, attacker, defender, nil, -1, 0)
+	return hitCore(level, attacker, defender, nil, -1, 0, "")
 }
 
 // HitWithPen resolves an attack with an optional Pen override.
 // If penOverride >= 0 it replaces the weapon's Penetration value (used by
 // special unarmed attacks like hands_only).
 func HitWithPen(level *world.Level, attacker, defender *ecs.Entity, penOverride int) bool {
-	return hitCore(level, attacker, defender, nil, penOverride, 0)
+	return hitCore(level, attacker, defender, nil, penOverride, 0, "")
 }
 
 // HitRanged resolves a ranged attack with a specific weapon and CS bonus/penalty.
@@ -34,14 +34,20 @@ func HitWithPen(level *world.Level, attacker, defender *ecs.Entity, penOverride 
 // preventing non-deterministic map iteration from selecting the wrong equipped item.
 // csBonus is added on top of the weapon's CombatSkillModifier.
 func HitRanged(level *world.Level, attacker, defender *ecs.Entity, weaponOverride *component.WeaponComponent, csBonus int) bool {
-	return hitCore(level, attacker, defender, weaponOverride, -1, csBonus)
+	return hitCore(level, attacker, defender, weaponOverride, -1, csBonus, "")
+}
+
+// HitRangedTargeted resolves a ranged attack biased toward a specific body part.
+// On hit, the chosen body part has a CS-scaled chance (~75% at CS 50) of being struck.
+func HitRangedTargeted(level *world.Level, attacker, defender *ecs.Entity, weaponOverride *component.WeaponComponent, csBonus int, aimedBodyPart string) bool {
+	return hitCore(level, attacker, defender, weaponOverride, -1, csBonus, aimedBodyPart)
 }
 
 // hitCore is the shared hit-resolution engine.
 // weaponOverride, when non-nil, is used in place of equippedWeapon(attacker).
 // penOverride < 0 means use the weapon / bare-hands Pen. csBonus is added to CS
 // after the weapon's CombatSkillModifier (range bands, aimed shot, etc.).
-func hitCore(level *world.Level, attacker, defender *ecs.Entity, weaponOverride *component.WeaponComponent, penOverride, csBonus int) bool {
+func hitCore(level *world.Level, attacker, defender *ecs.Entity, weaponOverride *component.WeaponComponent, penOverride, csBonus int, aimedBodyPart string) bool {
 	apc := attacker.GetComponent(rlcomponents.Position).(*rlcomponents.PositionComponent)
 	dpc := defender.GetComponent(rlcomponents.Position).(*rlcomponents.PositionComponent)
 
@@ -107,7 +113,7 @@ func hitCore(level *world.Level, attacker, defender *ecs.Entity, weaponOverride 
 	}
 
 	// --- Determine hit body part ---
-	partName := pickBodyPart(defender)
+	partName := pickBodyPart(defender, attacker, aimedBodyPart)
 
 	// --- Determine Penetration ---
 	pen := penOverride
@@ -298,11 +304,34 @@ func equippedWeapon(entity *ecs.Entity) *component.WeaponComponent {
 
 // pickBodyPart selects a body part name using HitLocationComponent weights.
 // Falls back to equal-weight selection if HitLocationComponent is absent.
-func pickBodyPart(entity *ecs.Entity) string {
+// If aimedBodyPart is non-empty, the attacker's CS gives a biased chance
+// (~75% at CS 50, clamped 60–90%) of hitting the chosen part directly.
+func pickBodyPart(entity *ecs.Entity, attacker *ecs.Entity, aimedBodyPart string) string {
 	if !entity.HasComponent(rlcomponents.Body) {
 		return ""
 	}
 	bc := entity.GetComponent(rlcomponents.Body).(*rlcomponents.BodyComponent)
+
+	// If a body part was aimed at and it isn't amputated, apply CS-based bias.
+	if aimedBodyPart != "" {
+		if part, ok := bc.Parts[aimedBodyPart]; ok && !part.Amputated {
+			cs := 50
+			if attacker != nil && attacker.HasComponent(component.Stats) {
+				cs = attacker.GetComponent(component.Stats).(*component.StatsComponent).CS
+			}
+			// chance = 75 + (CS-50)/10, clamped to [60, 90]
+			chance := 75 + (cs-50)/10
+			if chance < 60 {
+				chance = 60
+			}
+			if chance > 90 {
+				chance = 90
+			}
+			if rand.Intn(100) < chance {
+				return aimedBodyPart
+			}
+		}
+	}
 
 	// Build candidate list (skip amputated parts).
 	type candidate struct {

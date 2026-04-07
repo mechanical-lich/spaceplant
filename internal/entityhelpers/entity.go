@@ -70,6 +70,18 @@ func HitRanged(l *world.Level, entity *ecs.Entity, entityHit *ecs.Entity, weapon
 	return landed
 }
 
+// HitRangedTargeted performs a ranged attack biased toward a specific body part.
+func HitRangedTargeted(l *world.Level, entity *ecs.Entity, entityHit *ecs.Entity, weapon *component.WeaponComponent, csBonus int, aimedBodyPart string) bool {
+	landed := spcombat.HitRangedTargeted(l, entity, entityHit, weapon, csBonus, aimedBodyPart)
+	if landed {
+		if entityHit != entity && !entityHit.HasComponent(component.Dead) {
+			hitX, hitY := HitTile(entity, entityHit)
+			entityHit.AddComponent(&component.AttackComponent{SpriteX: 0, SpriteY: 0, X: hitX, Y: hitY})
+		}
+	}
+	return landed
+}
+
 // HitWithPen performs an attack with a Penetration override (e.g. for unarmed
 // special attacks). penOverride < 0 means use the weapon/bare-hands default.
 func HitWithPen(l *world.Level, entity *ecs.Entity, entityHit *ecs.Entity, pen int) bool {

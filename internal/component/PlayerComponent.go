@@ -11,9 +11,10 @@ type PendingReloadData struct {
 
 // PlayerComponent - Handles websocket communications
 type PlayerComponent struct {
-	Commands      []string
-	Rushing       bool
-	PendingReload *PendingReloadData
+	Commands             []string
+	Rushing              bool
+	PendingReload        *PendingReloadData
+	PendingAimedBodyPart string // body part chosen in the targeted aimed shot modal
 }
 
 // GetType get the type

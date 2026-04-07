@@ -18,8 +18,9 @@ import (
 // Burst and Aimed are mutually exclusive; Burst takes priority if both are set.
 // SpreadAngle on the equipped weapon fires additional diagonal lines (1 = 3-wide, 2 = 5-wide).
 type ShootAction struct {
-	Aimed bool
-	Burst bool
+	Aimed         bool
+	Burst         bool
+	AimedBodyPart string // non-empty: targeted aimed shot at a specific body part
 }
 
 // Range-band CS modifiers.
@@ -37,6 +38,9 @@ const spreadPenMult = 0.6
 func (a ShootAction) Cost(_ *ecs.Entity, _ *world.Level) int {
 	if a.Burst {
 		return energy.CostBurst
+	}
+	if a.AimedBodyPart != "" {
+		return energy.CostAimedTargeted
 	}
 	if a.Aimed {
 		return energy.CostAimed
@@ -98,10 +102,10 @@ func (a ShootAction) Execute(entity *ecs.Entity, level *world.Level) error {
 			return nil
 		}
 		csBonus := 0
-		if a.Aimed {
+		if a.Aimed || a.AimedBodyPart != "" {
 			csBonus += csAimedShotBonus
 		}
-		execSpread(entity, level, wc, dx, dy, maxRange, csBonus, 1.0)
+		execSpread(entity, level, wc, dx, dy, maxRange, csBonus, 1.0, a.AimedBodyPart)
 		if wc.MaxMagazine > 0 {
 			wc.Magazine--
 		}
@@ -127,7 +131,7 @@ func execBurst(entity *ecs.Entity, level *world.Level, wc *component.WeaponCompo
 			return
 		}
 		csBonus := csBurstBonus + csBurstRecoil*i
-		hit := fireLineAt(entity, level, wc, dx, dy, maxRange, csBonus, 1.0)
+		hit := fireLineAt(entity, level, wc, dx, dy, maxRange, csBonus, 1.0, "")
 		if wc.MaxMagazine > 0 {
 			wc.Magazine--
 		}
@@ -140,8 +144,9 @@ func execBurst(entity *ecs.Entity, level *world.Level, wc *component.WeaponCompo
 
 // execSpread fires the primary line and, if wc.SpreadAngle > 0, additional
 // diagonal spread lines. Spread lines deal reduced Pen.
-func execSpread(entity *ecs.Entity, level *world.Level, wc *component.WeaponComponent, dx, dy, maxRange, csBonus int, penMult float64) {
-	fireLineAt(entity, level, wc, dx, dy, maxRange, csBonus, penMult)
+func execSpread(entity *ecs.Entity, level *world.Level, wc *component.WeaponComponent, dx, dy, maxRange, csBonus int, penMult float64, aimedBodyPart string) {
+	// Only the primary line carries the aimed body part; spread pellets are random.
+	fireLineAt(entity, level, wc, dx, dy, maxRange, csBonus, penMult, aimedBodyPart)
 
 	if wc.SpreadAngle <= 0 {
 		return
@@ -154,18 +159,18 @@ func execSpread(entity *ecs.Entity, level *world.Level, wc *component.WeaponComp
 		// Diagonal directions formed by combining facing + perpendicular offset.
 		ldx := dx + px*offset
 		ldy := dy + py*offset
-		fireLineAt(entity, level, wc, ldx, ldy, maxRange, csBonus, spreadPenMult)
+		fireLineAt(entity, level, wc, ldx, ldy, maxRange, csBonus, spreadPenMult, "")
 
 		rdx := dx - px*offset
 		rdy := dy - py*offset
-		fireLineAt(entity, level, wc, rdx, rdy, maxRange, csBonus, spreadPenMult)
+		fireLineAt(entity, level, wc, rdx, rdy, maxRange, csBonus, spreadPenMult, "")
 	}
 }
 
 // fireLineAt walks tiles in direction (dx, dy) up to maxRange and fires at the
 // first hittable entity. penMult scales Pen (use 1.0 for normal, <1.0 for spread).
 // Returns true if a target was found (whether or not the attack landed).
-func fireLineAt(entity *ecs.Entity, level *world.Level, wc *component.WeaponComponent, dx, dy, maxRange, csBonus int, penMult float64) bool {
+func fireLineAt(entity *ecs.Entity, level *world.Level, wc *component.WeaponComponent, dx, dy, maxRange, csBonus int, penMult float64, aimedBodyPart string) bool {
 	pc := entity.GetComponent(component.Position).(*component.PositionComponent)
 	z := pc.GetZ()
 
@@ -205,7 +210,11 @@ func fireLineAt(entity *ecs.Entity, level *world.Level, wc *component.WeaponComp
 		}
 	}
 
-	entityhelpers.HitRanged(level, entity, target, &effectiveWC, csBonus+rb)
+	if aimedBodyPart != "" {
+		entityhelpers.HitRangedTargeted(level, entity, target, &effectiveWC, csBonus+rb, aimedBodyPart)
+	} else {
+		entityhelpers.HitRanged(level, entity, target, &effectiveWC, csBonus+rb)
+	}
 	return true
 }
 

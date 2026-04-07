@@ -10,6 +10,7 @@ import (
 	"github.com/mechanical-lich/mlge/client"
 	"github.com/mechanical-lich/mlge/ecs"
 	mlgeevent "github.com/mechanical-lich/mlge/event"
+	"github.com/mechanical-lich/mlge/message"
 	"github.com/mechanical-lich/mlge/transport"
 	"github.com/mechanical-lich/spaceplant/internal/component"
 	"github.com/mechanical-lich/spaceplant/internal/config"
@@ -28,6 +29,7 @@ type SPClientState struct {
 	classView        *ClassUpgradeView
 	statsView        *CharacterStatsView
 	reloadView       *ReloadView
+	aimedShotView    *AimedShotView
 	characterCreator *CharacterCreator
 	CameraX          int
 	CameraY          int
@@ -68,6 +70,13 @@ func (s *SPClientState) initGameViews() {
 		s.transport.SendCommand(&transport.Command{
 			Type:    CmdReload,
 			Payload: ReloadPayload{WeaponItem: weaponItem, AmmoItem: ammoItem},
+		})
+	}
+	s.aimedShotView = NewAimedShotView()
+	s.aimedShotView.OnSelect = func(bodyPart string) {
+		s.transport.SendCommand(&transport.Command{
+			Type:    CmdAimedShot,
+			Payload: AimedShotPayload{BodyPart: bodyPart},
 		})
 	}
 	pc := s.sim.Player.GetComponent("Position").(*component.PositionComponent)
@@ -112,6 +121,10 @@ func (s *SPClientState) Update(_ *transport.Snapshot) client.ClientState {
 
 	// Close modals on Escape (innermost first).
 	if inpututil.IsKeyJustPressed(ebiten.KeyEscape) {
+		if s.aimedShotView.Visible {
+			s.aimedShotView.Visible = false
+			return nil
+		}
 		if s.reloadView.Visible {
 			s.reloadView.Visible = false
 			return nil
@@ -145,11 +158,12 @@ func (s *SPClientState) Update(_ *transport.Snapshot) client.ClientState {
 	s.classView.Update()
 	s.statsView.Update()
 	s.reloadView.Update()
+	s.aimedShotView.Update()
 	hasTurn := s.sim.Player != nil && s.sim.Player.HasComponent("MyTurn")
 	s.sim.Mu.RUnlock()
 
 	// Block game input while any modal is open.
-	if s.classView.Visible || s.statsView.Visible || s.reloadView.Visible {
+	if s.classView.Visible || s.statsView.Visible || s.reloadView.Visible || s.aimedShotView.Visible {
 		return nil
 	}
 
@@ -189,6 +203,20 @@ func (s *SPClientState) Update(_ *transport.Snapshot) client.ClientState {
 					s.pressDelay = config.Global().PressDelay
 					continue
 				}
+				// Shift+F opens the targeted aimed shot modal.
+				if keyStr == "F" {
+					s.sim.Mu.RLock()
+					target := s.rayTarget()
+					s.sim.Mu.RUnlock()
+					if target == nil {
+						message.AddMessage("Nothing to aim at.")
+						s.pressDelay = config.Global().PressDelay
+						continue
+					}
+					s.aimedShotView.Open(target)
+					s.pressDelay = config.Global().PressDelay
+					continue
+				}
 				s.transport.SendCommand(&transport.Command{
 					Type:    CmdAction,
 					Payload: ActionPayload{Key: keyStr},
@@ -215,6 +243,45 @@ func (s *SPClientState) nearbyInventoryEntity() *ecs.Entity {
 			continue
 		}
 		if e.HasComponent(component.BodyInventory) || e.HasComponent(component.Inventory) {
+			return e
+		}
+	}
+	return nil
+}
+
+// rayTarget walks the facing direction from the player and returns the first
+// solid entity encountered within weapon range, or nil if none is found.
+// Must be called with at least s.sim.Mu.RLock held.
+func (s *SPClientState) rayTarget() *ecs.Entity {
+	player := s.sim.Player
+	if player == nil {
+		return nil
+	}
+	pc := player.GetComponent(component.Position).(*component.PositionComponent)
+	x, y, z := pc.GetX(), pc.GetY(), pc.GetZ()
+
+	dx, dy := 0, -1 // default: up
+	if player.HasComponent(component.Direction) {
+		dc := player.GetComponent(component.Direction).(*component.DirectionComponent)
+		switch dc.Direction {
+		case 0:
+			dx, dy = 1, 0
+		case 1:
+			dx, dy = 0, 1
+		case 2:
+			dx, dy = 0, -1
+		case 3:
+			dx, dy = -1, 0
+		}
+	}
+
+	const maxRange = 16
+	for i := 1; i <= maxRange; i++ {
+		tx, ty := x+dx*i, y+dy*i
+		if s.sim.Level.IsTileSolid(tx, ty, z) {
+			break
+		}
+		if e := s.sim.Level.Level.GetSolidEntityAt(tx, ty, z); e != nil && e != player {
 			return e
 		}
 	}
@@ -260,4 +327,5 @@ func (s *SPClientState) Draw(screen *ebiten.Image) {
 	s.classView.Draw(screen)
 	s.statsView.Draw(screen)
 	s.reloadView.Draw(screen)
+	s.aimedShotView.Draw(screen)
 }

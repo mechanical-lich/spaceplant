@@ -5,6 +5,7 @@ const (
 	CostMove   = 100
 	CostAttack = 100
 	CostQuick  = 50  // pickup, open door, heal, equip
-	CostAimed  = 150 // aimed shot: deliberate aim, higher energy cost
-	CostBurst  = 150 // burst fire: multiple rounds, higher energy cost
+	CostAimed         = 150 // aimed shot: deliberate aim, higher energy cost
+	CostAimedTargeted = 200 // aimed shot with targeted body part
+	CostBurst         = 150 // burst fire: multiple rounds, higher energy cost
 )

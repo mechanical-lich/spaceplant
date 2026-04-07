@@ -21,3 +21,11 @@ type ReloadPayload struct {
 	WeaponItem *ecs.Entity
 	AmmoItem   *ecs.Entity
 }
+
+// CmdAimedShot is sent from the targeted aimed shot modal when the player picks a body part.
+const CmdAimedShot transport.CommandType = "sp.aimed_shot"
+
+// AimedShotPayload carries the body part name chosen by the player.
+type AimedShotPayload struct {
+	BodyPart string
+}

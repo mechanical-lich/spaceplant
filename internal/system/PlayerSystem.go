@@ -95,6 +95,11 @@ func (s *PlayerSystem) UpdateEntity(levelInterface any, entity *ecs.Entity) erro
 		act = action.ShootAction{Aimed: false}
 	case "F":
 		act = action.ShootAction{Aimed: true}
+	case "aimed_shot":
+		pc := entity.GetComponent("PlayerComponent").(*component.PlayerComponent)
+		bodyPart := pc.PendingAimedBodyPart
+		pc.PendingAimedBodyPart = ""
+		act = action.ShootAction{Aimed: true, AimedBodyPart: bodyPart}
 	case "g":
 		act = action.ShootAction{Burst: true}
 	case "h":

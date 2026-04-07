@@ -125,6 +125,13 @@ func (s *MainSimState) ProcessCommand(cmd *transport.Command) {
 		}
 		// Push a sentinel so phaseWaitingForInput advances to phaseRunningTick.
 		playerC.PushCommand("reload")
+	case CmdAimedShot:
+		payload, ok := cmd.Payload.(AimedShotPayload)
+		if !ok {
+			return
+		}
+		playerC.PendingAimedBodyPart = payload.BodyPart
+		playerC.PushCommand("aimed_shot")
 	}
 }
 
