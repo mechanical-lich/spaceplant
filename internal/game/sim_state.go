@@ -132,6 +132,24 @@ func (s *MainSimState) ProcessCommand(cmd *transport.Command) {
 		}
 		playerC.PendingAimedBodyPart = payload.BodyPart
 		playerC.PushCommand("aimed_shot")
+	case CmdPickupItem:
+		payload, ok := cmd.Payload.(PickupItemPayload)
+		if !ok {
+			return
+		}
+		playerC.PendingPickup = &component.PendingItemActionData{
+			Item: payload.Item, TileX: payload.TileX, TileY: payload.TileY, TileZ: payload.TileZ,
+		}
+		playerC.PushCommand("pickup_item")
+	case CmdEquipItem:
+		payload, ok := cmd.Payload.(EquipItemPayload)
+		if !ok {
+			return
+		}
+		playerC.PendingEquip = &component.PendingItemActionData{
+			Item: payload.Item, TileX: payload.TileX, TileY: payload.TileY, TileZ: payload.TileZ,
+		}
+		playerC.PushCommand("equip_item")
 	}
 }
 

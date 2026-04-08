@@ -29,3 +29,22 @@ const CmdAimedShot transport.CommandType = "sp.aimed_shot"
 type AimedShotPayload struct {
 	BodyPart string
 }
+
+// CmdPickupItem is sent when the player confirms a pickup from the nearby loot modal.
+const CmdPickupItem transport.CommandType = "sp.pickup_item"
+
+// PickupItemPayload carries the specific item entity and the tile it is on.
+type PickupItemPayload struct {
+	Item *ecs.Entity
+	TileX, TileY, TileZ int
+}
+
+// CmdEquipItem is sent when the player confirms an equip from the nearby loot modal.
+// The item is picked up and immediately equipped.
+const CmdEquipItem transport.CommandType = "sp.equip_item"
+
+// EquipItemPayload carries the specific item entity and the tile it is on.
+type EquipItemPayload struct {
+	Item *ecs.Entity
+	TileX, TileY, TileZ int
+}

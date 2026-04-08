@@ -2,8 +2,8 @@
 
 ## Picking Up and Equipping
 
-- Walk over an item and press **P** to pick it up into your bag.
-- Press **E** to equip an item that's on the ground beneath you.
+- Press **P** to open the nearby items modal. It shows all items on your tile and the 8 adjacent tiles. Select one with the number keys or by clicking, then choose **Pick Up** or **Equip**.
+- Press **E** to equip an item already in your bag.
 - Open your **inventory (I)** to manage what's in your bag and what's equipped.
 
 Items go into specific body slots (head, torso, legs, feet, hand). You can only equip one item per slot.

@@ -33,8 +33,8 @@ Holding **Shift** while pressing a movement key rotates you to face that directi
 
 | Key | Action |
 |---|---|
-| E | Equip the item under you |
-| P | Pick up the item under you |
+| E | Equip an item from your bag |
+| P | Open nearby items — pick up or equip items within 1 tile |
 | I | Open inventory |
 | Shift+I | Open character overview |
 | Shift+R | Open the reload modal |

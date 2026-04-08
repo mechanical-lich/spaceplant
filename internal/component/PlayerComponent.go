@@ -9,12 +9,20 @@ type PendingReloadData struct {
 	AmmoItem   *ecs.Entity
 }
 
+// PendingItemActionData holds a specific item and its tile, queued from the loot modal.
+type PendingItemActionData struct {
+	Item          *ecs.Entity
+	TileX, TileY, TileZ int
+}
+
 // PlayerComponent - Handles websocket communications
 type PlayerComponent struct {
 	Commands             []string
 	Rushing              bool
 	PendingReload        *PendingReloadData
 	PendingAimedBodyPart string // body part chosen in the targeted aimed shot modal
+	PendingPickup        *PendingItemActionData
+	PendingEquip         *PendingItemActionData
 }
 
 // GetType get the type

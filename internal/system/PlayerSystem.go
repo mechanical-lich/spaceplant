@@ -110,6 +110,20 @@ func (s *PlayerSystem) UpdateEntity(levelInterface any, entity *ecs.Entity) erro
 		act = action.EquipAction{}
 	case "p":
 		act = action.PickupAction{}
+	case "pickup_item":
+		pc := entity.GetComponent("PlayerComponent").(*component.PlayerComponent)
+		d := pc.PendingPickup
+		pc.PendingPickup = nil
+		if d != nil {
+			act = action.PickupItemAction{Item: d.Item, TileX: d.TileX, TileY: d.TileY, TileZ: d.TileZ}
+		}
+	case "equip_item":
+		pc := entity.GetComponent("PlayerComponent").(*component.PlayerComponent)
+		d := pc.PendingEquip
+		pc.PendingEquip = nil
+		if d != nil {
+			act = action.EquipItemAction{Item: d.Item, TileX: d.TileX, TileY: d.TileY, TileZ: d.TileZ}
+		}
 	default:
 		// Check if a skill provides a binding for this key.
 		act = skill.ActionForKey(entity, command)

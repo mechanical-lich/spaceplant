@@ -30,6 +30,7 @@ type SPClientState struct {
 	statsView        *CharacterStatsView
 	reloadView       *ReloadView
 	aimedShotView    *AimedShotView
+	nearbyLootView   *NearbyLootView
 	characterCreator *CharacterCreator
 	CameraX          int
 	CameraY          int
@@ -79,6 +80,19 @@ func (s *SPClientState) initGameViews() {
 			Payload: AimedShotPayload{BodyPart: bodyPart},
 		})
 	}
+	s.nearbyLootView = NewNearbyLootView()
+	s.nearbyLootView.OnPickup = func(item *ecs.Entity, tx, ty, tz int) {
+		s.transport.SendCommand(&transport.Command{
+			Type:    CmdPickupItem,
+			Payload: PickupItemPayload{Item: item, TileX: tx, TileY: ty, TileZ: tz},
+		})
+	}
+	s.nearbyLootView.OnEquip = func(item *ecs.Entity, tx, ty, tz int) {
+		s.transport.SendCommand(&transport.Command{
+			Type:    CmdEquipItem,
+			Payload: EquipItemPayload{Item: item, TileX: tx, TileY: ty, TileZ: tz},
+		})
+	}
 	pc := s.sim.Player.GetComponent("Position").(*component.PositionComponent)
 	s.CameraX = pc.GetX()
 	s.CameraY = pc.GetY()
@@ -121,6 +135,10 @@ func (s *SPClientState) Update(_ *transport.Snapshot) client.ClientState {
 
 	// Close modals on Escape (innermost first).
 	if inpututil.IsKeyJustPressed(ebiten.KeyEscape) {
+		if s.nearbyLootView.Visible {
+			s.nearbyLootView.Visible = false
+			return nil
+		}
 		if s.aimedShotView.Visible {
 			s.aimedShotView.Visible = false
 			return nil
@@ -159,11 +177,12 @@ func (s *SPClientState) Update(_ *transport.Snapshot) client.ClientState {
 	s.statsView.Update()
 	s.reloadView.Update()
 	s.aimedShotView.Update()
+	s.nearbyLootView.Update()
 	hasTurn := s.sim.Player != nil && s.sim.Player.HasComponent("MyTurn")
 	s.sim.Mu.RUnlock()
 
 	// Block game input while any modal is open.
-	if s.classView.Visible || s.statsView.Visible || s.reloadView.Visible || s.aimedShotView.Visible {
+	if s.classView.Visible || s.statsView.Visible || s.reloadView.Visible || s.aimedShotView.Visible || s.nearbyLootView.Visible {
 		return nil
 	}
 
@@ -202,6 +221,20 @@ func (s *SPClientState) Update(_ *transport.Snapshot) client.ClientState {
 					s.classView.Open()
 					s.pressDelay = config.Global().PressDelay
 					continue
+				}
+				// P opens the nearby loot modal (pick up or equip from within).
+				if keyStr == "p" {
+					s.sim.Mu.RLock()
+					hasNearby := s.hasNearbyItems()
+					s.sim.Mu.RUnlock()
+					if hasNearby {
+						s.sim.Mu.RLock()
+						s.nearbyLootView.Open(s.sim.Player, s.sim.Level)
+						s.sim.Mu.RUnlock()
+						s.pressDelay = config.Global().PressDelay
+						continue
+					}
+					// No nearby items — fall through to send the key as usual.
 				}
 				// Shift+F opens the targeted aimed shot modal.
 				if keyStr == "F" {
@@ -247,6 +280,29 @@ func (s *SPClientState) nearbyInventoryEntity() *ecs.Entity {
 		}
 	}
 	return nil
+}
+
+// hasNearbyItems reports whether any item entities exist on the player's tile
+// or any of the 8 adjacent tiles. Must be called with at least RLock held.
+func (s *SPClientState) hasNearbyItems() bool {
+	player := s.sim.Player
+	if player == nil {
+		return false
+	}
+	pc := player.GetComponent(component.Position).(*component.PositionComponent)
+	px, py, pz := pc.GetX(), pc.GetY(), pc.GetZ()
+	for dy := -1; dy <= 1; dy++ {
+		for dx := -1; dx <= 1; dx++ {
+			var buf []*ecs.Entity
+			s.sim.Level.Level.GetEntitiesAt(px+dx, py+dy, pz, &buf)
+			for _, e := range buf {
+				if e != player && e.HasComponent(component.Item) {
+					return true
+				}
+			}
+		}
+	}
+	return false
 }
 
 // rayTarget walks the facing direction from the player and returns the first
@@ -328,4 +384,5 @@ func (s *SPClientState) Draw(screen *ebiten.Image) {
 	s.statsView.Draw(screen)
 	s.reloadView.Draw(screen)
 	s.aimedShotView.Draw(screen)
+	s.nearbyLootView.Draw(screen)
 }
