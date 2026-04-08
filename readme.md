@@ -10,6 +10,11 @@ Graphical:
 Terminal:
 `go run cmd/terminal/main.go`
 
+## Documentation
+
+- [Player Guide](docs/player/README.md) — controls, combat, classes, skills, and items
+- [Developer](docs/developer/)
+
 ## Controls
 
 ### Movement
