@@ -192,6 +192,13 @@ func fireLineAt(entity *ecs.Entity, level *world.Level, wc *component.WeaponComp
 		addShotTrail(level, tx, ty, z)
 		candidate := level.Level.GetSolidEntityAt(tx, ty, z)
 		if candidate != nil && candidate != entity {
+			// Open doors don't block shots.
+			if candidate.HasComponent(component.Door) {
+				dc := candidate.GetComponent(component.Door).(*component.DoorComponent)
+				if dc.Open {
+					continue
+				}
+			}
 			target = candidate
 			targetDist = i
 			break
@@ -271,6 +278,33 @@ func facingDeltas(entity *ecs.Entity) (int, int) {
 	default:
 		return 0, -1
 	}
+}
+
+// equippedMeleeWeapon returns the first equipped weapon with Ranged=false, or nil.
+func equippedMeleeWeapon(entity *ecs.Entity) *component.WeaponComponent {
+	if entity.HasComponent(component.BodyInventory) {
+		inv := entity.GetComponent(component.BodyInventory).(*component.BodyInventoryComponent)
+		for _, item := range inv.Equipped {
+			if item != nil && item.HasComponent(component.Weapon) {
+				wc := item.GetComponent(component.Weapon).(*component.WeaponComponent)
+				if !wc.Ranged {
+					return wc
+				}
+			}
+		}
+	}
+	if entity.HasComponent(component.Inventory) {
+		inv := entity.GetComponent(component.Inventory).(*component.InventoryComponent)
+		for _, item := range []*ecs.Entity{inv.RightHand, inv.LeftHand} {
+			if item != nil && item.HasComponent(component.Weapon) {
+				wc := item.GetComponent(component.Weapon).(*component.WeaponComponent)
+				if !wc.Ranged {
+					return wc
+				}
+			}
+		}
+	}
+	return nil
 }
 
 // equippedRangedWeapon returns the first equipped weapon with Ranged=true, or nil.

@@ -8,7 +8,7 @@ type StatsComponent struct {
 	PH int // Physique: physical power, used for bare-hands penetration
 	AG int // Agility: speed and coordination
 	MA int // Mental Ability: intelligence
-	CL int // Cool: composure under fire; drives CoolCheck resistance
+	CL int // Cool: composure under fire; drives ResistCheck resistance
 	LD int // Leadership: command presence
 	CS   int // CombatSkill: percentile hit chance for ranged (1-100)
 	HTCS int // Hand-to-Hand Combat Skill: percentile for melee attacks and parry rolls (1-100)

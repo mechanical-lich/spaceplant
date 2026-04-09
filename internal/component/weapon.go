@@ -36,6 +36,19 @@ type WeaponComponent struct {
 	AmmoType    string `json:"AmmoType"`
 	Magazine    int    `json:"Magazine"`
 	MaxMagazine int    `json:"MaxMagazine"`
+	// ActionCost overrides the default melee attack energy cost when set (> 0).
+	// Lower values allow faster attacks (and thus more hits per turn at equal energy).
+	ActionCost int `json:"ActionCost,omitempty"`
+	// OnHitCondition is a status condition applied to the target on a successful hit
+	// if they fail a resistance check. Supported values: "slowed", "poison", "burning".
+	OnHitCondition string `json:"OnHitCondition,omitempty"`
+	// OnHitDuration is the number of turns the on-hit condition lasts.
+	OnHitDuration int `json:"OnHitDuration,omitempty"`
+	// OnHitResistDC is the difficulty class for the target's resistance check.
+	OnHitResistDC int `json:"OnHitResistDC,omitempty"`
+	// OnHitCheckStat is the stat used for the resistance check (e.g. "ph", "cl").
+	// Defaults to "cl" when unset.
+	OnHitCheckStat string `json:"OnHitCheckStat,omitempty"`
 	// Projectile sprite (used for visual FX, not combat).
 	ProjectileX        int    `json:"ProjectileX"`
 	ProjectileY        int    `json:"ProjectileY"`

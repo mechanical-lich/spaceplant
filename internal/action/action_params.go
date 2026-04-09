@@ -10,8 +10,11 @@ type ActionParams struct {
 	DamageType string `json:"damage_type,omitempty"`
 	// SaveStat is the ability score used for the saving throw, e.g. "dex".
 	SaveStat string `json:"save_stat,omitempty"`
-	// CoolDC is the difficulty class for a Cool Check the target must pass.
-	CoolDC int `json:"cool_dc,omitempty"`
+	// ResistDC is the difficulty class for the resistance check the target must pass.
+	ResistDC int `json:"resist_dc,omitempty"`
+	// CheckStat is the stat used for the resistance check (e.g. "cl", "ph", "ag").
+	// Defaults to "cl" (Cool) when unset.
+	CheckStat string `json:"check_stat,omitempty"`
 	// Range is the maximum reach in tiles for targeted or line effects.
 	Range int `json:"range,omitempty"`
 	// Radius is the radius in tiles for circular effects.

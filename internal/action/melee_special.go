@@ -13,7 +13,7 @@ import (
 )
 
 // MeleeSpecialAction performs a melee attack against the entity directly in
-// front of the actor. On a successful hit (and when CoolDC > 0) the target
+// front of the actor. On a successful hit (and when ResistDC > 0) the target
 // must pass a Cool Check or suffer a status condition as configured via ActionParams.
 type MeleeSpecialAction struct {
 	Params ActionParams
@@ -49,7 +49,7 @@ func (a MeleeSpecialAction) Execute(entity *ecs.Entity, level *world.Level) erro
 	if verb == "" {
 		verb = "attack"
 	}
-	coolDC := a.Params.CoolDC
+	coolDC := a.Params.ResistDC
 	statusCondition := a.Params.StatusConditionOnFailSave
 	statusDuration := a.Params.StatusConditionDuration
 	if statusDuration <= 0 {
@@ -60,7 +60,7 @@ func (a MeleeSpecialAction) Execute(entity *ecs.Entity, level *world.Level) erro
 
 	if landed && !target.HasComponent(component.Dead) && coolDC > 0 {
 		tpc := target.GetComponent(rlcomponents.Position).(*rlcomponents.PositionComponent)
-		passed := combat.CoolCheck(target, coolDC)
+		passed := combat.ResistCheck(target, coolDC, a.Params.CheckStat)
 
 		if !passed {
 			switch statusCondition {

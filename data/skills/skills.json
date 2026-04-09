@@ -57,7 +57,7 @@
       "spread": -1,
       "damage_dice": "1d8",
       "damage_type": "fire",
-      "cool_dc": 15
+      "resist_dc": 15
     }
   },
   {
@@ -189,7 +189,7 @@
       "spread": 0,
       "damage_dice": "1d8",
       "damage_type": "acid",
-      "cool_dc": 15
+      "resist_dc": 15
     }
   },
   {
@@ -206,7 +206,8 @@
       "verb": "bite",
       "status_condition_on_fail_save": "poison",
       "status_condition_duration": 5,
-      "cool_dc": 13
+      "resist_dc": 13,
+      "check_stat": "ph"
     }
   },
   {
@@ -228,7 +229,8 @@
       "verb": "vinewhip",
       "status_condition_on_fail_save": "slowed",
       "status_condition_duration": 4,
-      "cool_dc": 15
+      "resist_dc": 15,
+      "check_stat": "ph"
     }
   }
 ]

@@ -35,10 +35,11 @@ type CharacterStatsView struct {
 	overviewArea *minui.ScrollingTextArea
 
 	// Tab 2 — Equipment
-	equipList *minui.ListBox
-	equipImg  *minui.ImageWidget
-	equipDesc *minui.ScrollingTextArea
-	equipIDs  []string // parallel to list items (slot names)
+	equipList      *minui.ListBox
+	equipImg       *minui.ImageWidget
+	equipDesc      *minui.ScrollingTextArea
+	equipUnequipBtn *minui.Button
+	equipIDs       []string // parallel to list items (slot names)
 
 	// Tab 3 — Skills
 	skillList *minui.ListBox
@@ -101,16 +102,27 @@ func (v *CharacterStatsView) buildOverviewTab() {
 }
 
 func (v *CharacterStatsView) buildEquipmentTab() {
+	panelH := csModalH - 80 - v.tabs.TabHeight
 	panel := minui.NewPanel("cs_equip_panel")
 	panel.SetPosition(0, v.tabs.TabHeight)
-	panel.SetSize(csModalW-20, csModalH-80-v.tabs.TabHeight)
+	panel.SetSize(csModalW-20, panelH)
+
+	const btnH = 28
+	const btnGap = 8
+	listH := panelH - 20 - btnH - btnGap
 
 	v.equipList = minui.NewListBox("cs_equip_list", []string{})
 	v.equipList.SetPosition(10, 10)
-	v.equipList.SetSize(200, csModalH-80-v.tabs.TabHeight-20)
+	v.equipList.SetSize(200, listH)
 	v.equipList.Layout()
 	v.equipList.OnSelect = func(idx int, _ string) { v.refreshEquipDesc(idx) }
 	panel.AddChild(v.equipList)
+
+	v.equipUnequipBtn = minui.NewButton("cs_equip_unequip", "Unequip")
+	v.equipUnequipBtn.SetPosition(10, 10+listH+btnGap)
+	v.equipUnequipBtn.SetSize(200, btnH)
+	v.equipUnequipBtn.OnClick = func() { v.onEquipUnequip() }
+	panel.AddChild(v.equipUnequipBtn)
 
 	const imgSize = 64
 	const imgGap = 10
@@ -119,7 +131,7 @@ func (v *CharacterStatsView) buildEquipmentTab() {
 	v.equipImg.SetPosition(220, 10)
 	panel.AddChild(v.equipImg)
 
-	v.equipDesc = minui.NewScrollingTextArea("cs_equip_desc", csModalW-240, csModalH-80-v.tabs.TabHeight-20-imgSize-imgGap)
+	v.equipDesc = minui.NewScrollingTextArea("cs_equip_desc", csModalW-240, panelH-20-imgSize-imgGap)
 	v.equipDesc.SetPosition(220, 10+imgSize+imgGap)
 	v.equipDesc.LineHeight = 14
 	panel.AddChild(v.equipDesc)
@@ -543,6 +555,22 @@ func (v *CharacterStatsView) collectStatMods(statKey string) string {
 		}
 	}
 	return strings.Join(parts, ", ")
+}
+
+func (v *CharacterStatsView) onEquipUnequip() {
+	idx := v.equipList.SelectedIndex
+	if idx < 0 || idx >= len(v.equipIDs) {
+		return
+	}
+	slot := v.equipIDs[idx]
+	if v.player.HasComponent(component.BodyInventory) {
+		v.player.GetComponent(component.BodyInventory).(*component.BodyInventoryComponent).Unequip(slot)
+		skill.SyncEquippedSkills(v.player)
+	} else if v.player.HasComponent(component.Inventory) {
+		inv := v.player.GetComponent(component.Inventory).(*component.InventoryComponent)
+		inv.Unequip(component.ItemSlot(slot))
+	}
+	v.refreshEquipmentList()
 }
 
 func (v *CharacterStatsView) refreshEquipmentList() {

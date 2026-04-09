@@ -338,6 +338,12 @@ func (s *SPClientState) rayTarget() *ecs.Entity {
 			break
 		}
 		if e := s.sim.Level.Level.GetSolidEntityAt(tx, ty, z); e != nil && e != player {
+			if e.HasComponent(component.Door) {
+				dc := e.GetComponent(component.Door).(*component.DoorComponent)
+				if dc.Open {
+					continue
+				}
+			}
 			return e
 		}
 	}

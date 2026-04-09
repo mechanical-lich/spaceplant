@@ -190,6 +190,200 @@
             "DamageType": "slashing"
         }
     },
+    "combat_knife": {
+        "DescriptionComponent": {
+            "Name": "combat_knife",
+            "Faction": "item",
+            "PassOverDescription": [
+                "A combat knife lies here.",
+                "You spot a combat knife on the floor.",
+                "Someone dropped a combat knife."
+            ]
+        },
+        "AsciiAppearanceComponent": {
+            "Character": ")",
+            "R": 200,
+            "G": 200,
+            "B": 200
+        },
+        "AppearanceComponent": {
+            "Resource": "entities",
+            "SpriteX": 320,
+            "SpriteY": 0,
+            "R": 200,
+            "G": 200,
+            "B": 125,
+            "Frames": 1
+        },
+        "ItemComponent": {
+            "Value": 3,
+            "Slot": "hand",
+            "Name": "Combat Knife",
+            "Description": "A fast, light blade. Low damage but strikes quickly — you can get in more hits per turn."
+        },
+        "WeaponComponent": {
+            "Penetration": 8,
+            "CombatSkillModifier": 5,
+            "DamageType": "slashing",
+            "ActionCost": 60
+        }
+    },
+    "wrench": {
+        "DescriptionComponent": {
+            "Name": "wrench",
+            "Faction": "item",
+            "PassOverDescription": [
+                "A heavy wrench lies here.",
+                "You spot a wrench on the floor.",
+                "Someone left a wrench here."
+            ]
+        },
+        "AsciiAppearanceComponent": {
+            "Character": ")",
+            "R": 160,
+            "G": 160,
+            "B": 160
+        },
+        "AppearanceComponent": {
+            "Resource": "entities",
+            "SpriteX": 320,
+            "SpriteY": 0,
+            "R": 160,
+            "G": 160,
+            "B": 160,
+            "Frames": 1
+        },
+        "ItemComponent": {
+            "Value": 2,
+            "Slot": "hand",
+            "Name": "Wrench",
+            "Description": "A solid maintenance wrench. Decent damage, slightly faster than swinging barehanded."
+        },
+        "WeaponComponent": {
+            "Penetration": 12,
+            "CombatSkillModifier": 0,
+            "DamageType": "bludgeoning",
+            "ActionCost": 80
+        }
+    },
+    "crowbar": {
+        "DescriptionComponent": {
+            "Name": "crowbar",
+            "Faction": "item",
+            "PassOverDescription": [
+                "A crowbar lies here.",
+                "You spot a crowbar on the floor.",
+                "Someone left a crowbar here."
+            ]
+        },
+        "AsciiAppearanceComponent": {
+            "Character": ")",
+            "R": 120,
+            "G": 120,
+            "B": 140
+        },
+        "AppearanceComponent": {
+            "Resource": "entities",
+            "SpriteX": 320,
+            "SpriteY": 0,
+            "R": 120,
+            "G": 120,
+            "B": 140,
+            "Frames": 1
+        },
+        "ItemComponent": {
+            "Value": 3,
+            "Slot": "hand",
+            "Name": "Crowbar",
+            "Description": "A reliable all-purpose tool. Good stopping power for a standard-speed swing."
+        },
+        "WeaponComponent": {
+            "Penetration": 15,
+            "CombatSkillModifier": 0,
+            "DamageType": "bludgeoning",
+            "ActionCost": 100
+        }
+    },
+    "fire_axe": {
+        "DescriptionComponent": {
+            "Name": "fire_axe",
+            "Faction": "item",
+            "PassOverDescription": [
+                "A fire axe lies here.",
+                "You spot a fire axe mounted on the wall.",
+                "Someone pulled a fire axe from its bracket."
+            ]
+        },
+        "AsciiAppearanceComponent": {
+            "Character": ")",
+            "R": 220,
+            "G": 60,
+            "B": 60
+        },
+        "AppearanceComponent": {
+            "Resource": "entities",
+            "SpriteX": 320,
+            "SpriteY": 0,
+            "R": 220,
+            "G": 60,
+            "B": 60,
+            "Frames": 1
+        },
+        "ItemComponent": {
+            "Value": 5,
+            "Slot": "hand",
+            "Name": "Fire Axe",
+            "Description": "Slow but devastating. Each swing hits hard — worth it if you can land it."
+        },
+        "WeaponComponent": {
+            "Penetration": 20,
+            "CombatSkillModifier": -5,
+            "DamageType": "slashing",
+            "ActionCost": 130
+        }
+    },
+    "stun_baton": {
+        "DescriptionComponent": {
+            "Name": "stun_baton",
+            "Faction": "item",
+            "PassOverDescription": [
+                "A stun baton lies here.",
+                "You spot a stun baton on the floor.",
+                "Someone dropped a stun baton."
+            ]
+        },
+        "AsciiAppearanceComponent": {
+            "Character": ")",
+            "R": 100,
+            "G": 180,
+            "B": 255
+        },
+        "AppearanceComponent": {
+            "Resource": "entities",
+            "SpriteX": 320,
+            "SpriteY": 0,
+            "R": 100,
+            "G": 180,
+            "B": 255,
+            "Frames": 1
+        },
+        "ItemComponent": {
+            "Value": 4,
+            "Slot": "hand",
+            "Name": "Stun Baton",
+            "Description": "A fast electric baton. Low damage, but on a hit the target must resist (PH) or be slowed."
+        },
+        "WeaponComponent": {
+            "Penetration": 6,
+            "CombatSkillModifier": 5,
+            "DamageType": "electric",
+            "ActionCost": 70,
+            "OnHitCondition": "slowed",
+            "OnHitDuration": 3,
+            "OnHitResistDC": 12,
+            "OnHitCheckStat": "ph"
+        }
+    },
     "flamethrower": {
         "DescriptionComponent": {
             "Name": "flamethrower",

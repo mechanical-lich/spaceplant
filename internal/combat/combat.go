@@ -209,15 +209,26 @@ func hitCore(level *world.Level, attacker, defender *ecs.Entity, weaponOverride 
 	return true
 }
 
-// CoolCheck resolves a Cool-based resistance roll against a difficulty value.
-// Returns true if the entity resists (succeeds). dc is added difficulty (higher = harder).
-// Threshold = CL * 5; success if d100 <= threshold - dc.
-func CoolCheck(entity *ecs.Entity, dc int) bool {
-	cl := 10
+// ResistCheck rolls a resistance check against the given stat (e.g. "cl", "ph", "ag").
+// An empty or unrecognised stat defaults to CL (Cool). Returns true if the target passes.
+func ResistCheck(entity *ecs.Entity, dc int, stat string) bool {
+	statVal := 10
 	if entity.HasComponent(component.Stats) {
-		cl = entity.GetComponent(component.Stats).(*component.StatsComponent).CL
+		sc := entity.GetComponent(component.Stats).(*component.StatsComponent)
+		switch stat {
+		case "ph":
+			statVal = sc.PH
+		case "ag":
+			statVal = sc.AG
+		case "ma":
+			statVal = sc.MA
+		case "ld":
+			statVal = sc.LD
+		default: // "cl" or unset
+			statVal = sc.CL
+		}
 	}
-	threshold := cl*5 - dc
+	threshold := statVal*5 - dc
 	if threshold < 1 {
 		threshold = 1
 	}

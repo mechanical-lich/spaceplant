@@ -102,7 +102,14 @@ func (a MoveAction) Execute(entity *ecs.Entity, level *world.Level) error {
 				rlentity.CheckExcuseMe(entity, entityHit)
 			} else {
 				actionCost = energy.CostAttack
-				entityhelpers.Hit(level, entity, entityHit)
+				wc := equippedMeleeWeapon(entity)
+				if wc != nil && wc.ActionCost > 0 {
+					actionCost = wc.ActionCost
+				}
+				landed := entityhelpers.Hit(level, entity, entityHit)
+				if landed && wc != nil && wc.OnHitCondition != "" && !entityHit.HasComponent(component.Dead) {
+					applyOnHitCondition(entityHit, wc)
+				}
 			}
 		}
 	} else if a.DeltaX != 0 || a.DeltaY != 0 {
