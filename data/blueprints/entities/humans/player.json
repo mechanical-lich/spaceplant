@@ -26,6 +26,7 @@
                     "HP": 30,
                     "MaxHP": 30,
                     "KillsWhenBroken": true,
+                    "WoundRole": "head",
                     "CompatibleItemSlots": [
                         "head"
                     ]
@@ -35,6 +36,7 @@
                     "HP": 50,
                     "MaxHP": 50,
                     "KillsWhenBroken": true,
+                    "WoundRole": "torso",
                     "CompatibleItemSlots": [
                         "torso"
                     ]
@@ -43,6 +45,7 @@
                     "Name": "right_arm",
                     "HP": 25,
                     "MaxHP": 25,
+                    "WoundRole": "arm",
                     "CompatibleItemSlots": [
                         "hand"
                     ]
@@ -51,6 +54,7 @@
                     "Name": "left_arm",
                     "HP": 25,
                     "MaxHP": 25,
+                    "WoundRole": "arm",
                     "CompatibleItemSlots": [
                         "hand"
                     ]
@@ -59,6 +63,7 @@
                     "Name": "legs",
                     "HP": 30,
                     "MaxHP": 30,
+                    "WoundRole": "leg",
                     "CompatibleItemSlots": [
                         "legs"
                     ]
@@ -67,6 +72,7 @@
                     "Name": "feet",
                     "HP": 20,
                     "MaxHP": 20,
+                    "WoundRole": "leg",
                     "CompatibleItemSlots": [
                         "feet"
                     ]

@@ -91,6 +91,9 @@ func (l *CombatListener) HandleEvent(evt mlgeevent.EventData) error {
 		} else {
 			msg = fmt.Sprintf("%s missed %s with their %s", attacker, defender, source)
 		}
+		if playerIsAttacker && e.WoundPenalty > 0 {
+			msg += fmt.Sprintf(" (wounded: -%d)", e.WoundPenalty)
+		}
 
 	// Normal hit / crit.
 	default:
@@ -119,6 +122,9 @@ func (l *CombatListener) HandleEvent(evt mlgeevent.EventData) error {
 				msg = fmt.Sprintf("You %s %s's %s with your %s for %d %s damage!", verb, defender, part, source, e.Damage, e.DamageType)
 			} else {
 				msg = fmt.Sprintf("%s %s %s's %s with their %s for %d %s damage!", attacker, verb, defender, part, source, e.Damage, e.DamageType)
+			}
+			if playerIsAttacker && e.WoundPenalty > 0 {
+				msg += fmt.Sprintf(" (wounded: -%d)", e.WoundPenalty)
 			}
 		}
 	}

@@ -19,12 +19,12 @@ import (
 
 // Action name constants used for last-action repeat penalty.
 const (
-	advActWander      = "wander"
-	advActMove        = "move"
-	advActMelee       = "melee"
-	advActMeleeSkill  = "melee_skill"
-	advActShoot       = "shoot"
-	advActFlee        = "flee"
+	advActWander     = "wander"
+	advActMove       = "move"
+	advActMelee      = "melee"
+	advActMeleeSkill = "melee_skill"
+	advActShoot      = "shoot"
+	advActFlee       = "flee"
 )
 
 // AdvancedAISystem drives entities with an AdvancedAIComponent.

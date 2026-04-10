@@ -126,6 +126,45 @@ func HitTile(attacker, target *ecs.Entity) (int, int) {
 		max(startY, min(apc.GetY(), startY+th-1))
 }
 
+// LegWounded returns true if the entity has any leg-role body part below 50% HP.
+// Used to double movement action cost.
+func LegWounded(entity *ecs.Entity) bool {
+	if !entity.HasComponent(rlcomponents.Body) {
+		return false
+	}
+	bc := entity.GetComponent(rlcomponents.Body).(*rlcomponents.BodyComponent)
+	for _, part := range bc.Parts {
+		if part.Amputated || part.Broken || part.MaxHP <= 0 {
+			continue
+		}
+		if part.WoundRole == "leg" && part.HP*100/part.MaxHP < 50 {
+			return true
+		}
+	}
+	return false
+}
+
+// LegPenaltyCost returns the extra action cost to add due to broken or amputated leg parts.
+// Each broken leg adds half the base move cost; each amputated leg adds the full base move cost.
+func LegPenaltyCost(entity *ecs.Entity, baseCost int) int {
+	if !entity.HasComponent(rlcomponents.Body) {
+		return 0
+	}
+	bc := entity.GetComponent(rlcomponents.Body).(*rlcomponents.BodyComponent)
+	extra := 0
+	for _, part := range bc.Parts {
+		if part.WoundRole != "leg" {
+			continue
+		}
+		if part.Amputated {
+			extra += baseCost
+		} else if part.Broken {
+			extra += baseCost / 2
+		}
+	}
+	return extra
+}
+
 // Move attempts to move an entity using rlentity.Move, with MassiveComponent handling.
 func Move(entity *ecs.Entity, level *world.Level, deltaX int, deltaY int) bool {
 	pc := entity.GetComponent("Position").(*component.PositionComponent)

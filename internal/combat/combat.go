@@ -75,6 +75,11 @@ func hitCore(level *world.Level, attacker, defender *ecs.Entity, weaponOverride 
 		cs += weapon.CombatSkillModifier
 	}
 	cs += csBonus
+
+	// --- Wound penalty ---
+	woundPenalty := woundAttackPenalty(attacker)
+	cs -= woundPenalty
+
 	if cs < 1 {
 		cs = 1
 	}
@@ -108,6 +113,7 @@ func hitCore(level *world.Level, attacker, defender *ecs.Entity, weaponOverride 
 			Source:       weaponName,
 			DamageType:   damageType,
 			Miss:         true,
+			WoundPenalty: woundPenalty,
 		})
 		return false
 	}
@@ -191,6 +197,7 @@ func hitCore(level *world.Level, attacker, defender *ecs.Entity, weaponOverride 
 		Damage:       damage,
 		BodyPart:     partName,
 		Parried:      parried,
+		WoundPenalty: woundPenalty,
 	})
 
 	if broken || amputated {
@@ -234,6 +241,46 @@ func ResistCheck(entity *ecs.Entity, dc int, stat string) bool {
 	}
 	roll, _ := dice.Roll("1d100")
 	return roll <= threshold
+}
+
+// woundAttackPenalty returns the penalty imposed on an attacker's CS or HTCS by their own wounds.
+// It finds the most damaged arm/head/torso part (by HP ratio) and returns a penalty:
+//
+//	> 75% HP remaining: 0
+//	50–75%:            -5
+//	25–50%:            -15
+//	< 25%:             -25
+func woundAttackPenalty(attacker *ecs.Entity) int {
+	if !attacker.HasComponent(rlcomponents.Body) {
+		return 0
+	}
+	bc := attacker.GetComponent(rlcomponents.Body).(*rlcomponents.BodyComponent)
+	worst := 0
+	for _, part := range bc.Parts {
+		if part.Amputated || part.Broken || part.MaxHP <= 0 {
+			continue
+		}
+		role := part.WoundRole
+		if role != "arm" && role != "head" && role != "torso" {
+			continue
+		}
+		ratio := part.HP * 100 / part.MaxHP
+		var pen int
+		switch {
+		case ratio < 25:
+			pen = 25
+		case ratio < 50:
+			pen = 15
+		case ratio < 75:
+			pen = 5
+		default:
+			pen = 0
+		}
+		if pen > worst {
+			worst = pen
+		}
+	}
+	return worst
 }
 
 // statMeleeBonus returns a CS modifier from a stat value using Phoenix Command brackets.

@@ -26,6 +26,7 @@ type CombatEvent struct {
 	Parried      bool
 	SavePass     bool
 	SaveFail     bool
+	WoundPenalty int // CS penalty applied to this attack due to attacker wounds (> 0 means penalised)
 }
 
 func (e CombatEvent) GetType() mlgeevent.EventType { return CombatEventType }

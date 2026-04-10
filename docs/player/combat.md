@@ -56,9 +56,12 @@ If Penetration doesn't exceed Stopping Power, the hit deals no damage.
 
 | Outcome | Effect |
 |---|---|
-| Part HP reaches 0 | Part is **broken** — may cause additional penalties |
+| Part HP reduced | Wound penalties to accuracy or movement apply immediately |
+| Part HP reaches 0 | Part is **broken** — see [Injuries & Penalties](injuries.md) |
 | Amputated part | Cannot be targeted; removed from hit location pool |
 | Vital part broken | May be **lethal** (depends on the entity) |
+
+See [Injuries & Penalties](injuries.md) for the full breakdown of wound severity tiers and movement costs.
 
 ## Stats That Affect Combat
 

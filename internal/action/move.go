@@ -123,6 +123,10 @@ func (a MoveAction) Execute(entity *ecs.Entity, level *world.Level) error {
 			}
 		}
 		rlentity.CheckPassOver(entity, level.Level, pc.GetX(), pc.GetY(), z)
+		if entityhelpers.LegWounded(entity) {
+			actionCost *= 2
+		}
+		actionCost += entityhelpers.LegPenaltyCost(entity, energy.CostMove)
 	}
 
 	rlenergy.SetActionCost(entity, actionCost)

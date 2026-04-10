@@ -9,3 +9,4 @@ Welcome to Spaceplant. The ship is overrun. Good luck.
 - [Classes & Character Creation](classes.md) — classes, backgrounds, and stats
 - [Skills](skills.md) — full skill list and what each one does
 - [Items & Equipment](items.md) — weapons, armor, and how to use them
+- [Injuries & Penalties](injuries.md) — wound effects, movement penalties, and healing

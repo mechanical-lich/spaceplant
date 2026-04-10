@@ -97,7 +97,7 @@ func (g *GUIViewMain) Update(s any) {
 
 	// Append any new messages (MessageLog grows monotonically).
 	for g.msgSynced < len(message.MessageLog) {
-		g.msgArea.AddText(message.MessageLog[g.msgSynced])
+		g.msgArea.AddText("> " + message.MessageLog[g.msgSynced])
 		g.msgSynced++
 	}
 	g.msgArea.Update()

@@ -35,24 +35,28 @@
                     "HP": 12,
                     "MaxHP": 12,
                     "KillsWhenBroken": true,
-                    "KillsWhenAmputated": true
+                    "KillsWhenAmputated": true,
+                    "WoundRole": "head"
                 },
                 "Torso": {
                     "Name": "Torso",
                     "HP": 30,
                     "MaxHP": 30,
                     "KillsWhenBroken": true,
-                    "KillsWhenAmputated": true
+                    "KillsWhenAmputated": true,
+                    "WoundRole": "torso"
                 },
                 "blade_left": {
                     "Name": "Blade Left",
                     "HP": 15,
-                    "MaxHP": 15
+                    "MaxHP": 15,
+                    "WoundRole": "arm"
                 },
                 "blade_right": {
                     "Name": "Blade Right",
                     "HP": 15,
-                    "MaxHP": 15
+                    "MaxHP": 15,
+                    "WoundRole": "arm"
                 }
             }
         },
@@ -141,27 +145,32 @@
                     "HP": 55,
                     "MaxHP": 55,
                     "KillsWhenBroken": true,
-                    "KillsWhenAmputated": true
+                    "KillsWhenAmputated": true,
+                    "WoundRole": "torso"
                 },
                 "appendage_1": {
                     "Name": "Appendage 1",
                     "HP": 20,
-                    "MaxHP": 20
+                    "MaxHP": 20,
+                    "WoundRole": "arm"
                 },
                 "appendage_2": {
                     "Name": "Appendage 2",
                     "HP": 20,
-                    "MaxHP": 20
+                    "MaxHP": 20,
+                    "WoundRole": "arm"
                 },
                 "appendage_3": {
                     "Name": "Appendage 3",
                     "HP": 20,
-                    "MaxHP": 20
+                    "MaxHP": 20,
+                    "WoundRole": "arm"
                 },
                 "appendage_4": {
                     "Name": "Appendage 4",
                     "HP": 20,
-                    "MaxHP": 20
+                    "MaxHP": 20,
+                    "WoundRole": "arm"
                 }
             }
         },
@@ -228,29 +237,34 @@
                     "HP": 12,
                     "MaxHP": 12,
                     "KillsWhenBroken": true,
-                    "KillsWhenAmputated": true
+                    "KillsWhenAmputated": true,
+                    "WoundRole": "head"
                 },
                 "core": {
                     "Name": "Core",
                     "HP": 30,
                     "MaxHP": 30,
                     "KillsWhenBroken": true,
-                    "KillsWhenAmputated": true
+                    "KillsWhenAmputated": true,
+                    "WoundRole": "torso"
                 },
                 "tendril_1": {
                     "Name": "Tendril 1",
                     "HP": 10,
-                    "MaxHP": 10
+                    "MaxHP": 10,
+                    "WoundRole": "arm"
                 },
                 "tendril_2": {
                     "Name": "Tendril 2",
                     "HP": 10,
-                    "MaxHP": 10
+                    "MaxHP": 10,
+                    "WoundRole": "arm"
                 },
                 "tendril_3": {
                     "Name": "Tendril 3",
                     "HP": 10,
-                    "MaxHP": 10
+                    "MaxHP": 10,
+                    "WoundRole": "arm"
                 }
             }
         },
@@ -326,19 +340,22 @@
                     "HP": 12,
                     "MaxHP": 12,
                     "KillsWhenBroken": true,
-                    "KillsWhenAmputated": true
+                    "KillsWhenAmputated": true,
+                    "WoundRole": "head"
                 },
                 "thorax": {
                     "Name": "Thorax",
                     "HP": 35,
                     "MaxHP": 35,
                     "KillsWhenBroken": true,
-                    "KillsWhenAmputated": true
+                    "KillsWhenAmputated": true,
+                    "WoundRole": "torso"
                 },
                 "tail_blade": {
                     "Name": "Tail Blade",
                     "HP": 18,
-                    "MaxHP": 18
+                    "MaxHP": 18,
+                    "WoundRole": "arm"
                 }
             }
         },
@@ -412,12 +429,14 @@
                     "HP": 18,
                     "MaxHP": 18,
                     "KillsWhenBroken": true,
-                    "KillsWhenAmputated": true
+                    "KillsWhenAmputated": true,
+                    "WoundRole": "torso"
                 },
                 "vine_cluster": {
                     "Name": "Vine Cluster",
                     "HP": 10,
-                    "MaxHP": 10
+                    "MaxHP": 10,
+                    "WoundRole": "arm"
                 }
             }
         },
@@ -480,19 +499,22 @@
                     "HP": 20,
                     "MaxHP": 20,
                     "KillsWhenBroken": true,
-                    "KillsWhenAmputated": true
+                    "KillsWhenAmputated": true,
+                    "WoundRole": "head"
                 },
                 "sac": {
                     "Name": "Sac",
                     "HP": 15,
                     "MaxHP": 15,
-                    "KillsWhenAmputated": true
+                    "KillsWhenAmputated": true,
+                    "WoundRole": "torso"
                 },
                 "root_anchor": {
                     "Name": "Roots",
                     "HP": 18,
                     "MaxHP": 18,
-                    "KillsWhenAmputated": true
+                    "KillsWhenAmputated": true,
+                    "WoundRole": "leg"
                 }
             }
         },

@@ -45,6 +45,7 @@
                     "HP": 3,
                     "MaxHP": 3,
                     "KillsWhenBroken": true,
+                    "WoundRole": "head",
                     "CompatibleItemSlots": [
                         "head"
                     ]
@@ -54,6 +55,7 @@
                     "HP": 5,
                     "MaxHP": 5,
                     "KillsWhenBroken": true,
+                    "WoundRole": "torso",
                     "CompatibleItemSlots": [
                         "torso"
                     ]
@@ -62,6 +64,7 @@
                     "Name": "right_arm",
                     "HP": 3,
                     "MaxHP": 3,
+                    "WoundRole": "arm",
                     "CompatibleItemSlots": [
                         "hand"
                     ]
@@ -70,6 +73,7 @@
                     "Name": "left_arm",
                     "HP": 3,
                     "MaxHP": 3,
+                    "WoundRole": "arm",
                     "CompatibleItemSlots": [
                         "hand"
                     ]
@@ -78,6 +82,7 @@
                     "Name": "legs",
                     "HP": 3,
                     "MaxHP": 3,
+                    "WoundRole": "leg",
                     "CompatibleItemSlots": [
                         "legs"
                     ]
@@ -86,6 +91,7 @@
                     "Name": "feet",
                     "HP": 2,
                     "MaxHP": 2,
+                    "WoundRole": "leg",
                     "CompatibleItemSlots": [
                         "feet"
                     ]
@@ -179,6 +185,7 @@
                     "HP": 3,
                     "MaxHP": 3,
                     "KillsWhenBroken": true,
+                    "WoundRole": "head",
                     "CompatibleItemSlots": [
                         "head"
                     ]
@@ -188,6 +195,7 @@
                     "HP": 5,
                     "MaxHP": 5,
                     "KillsWhenBroken": true,
+                    "WoundRole": "torso",
                     "CompatibleItemSlots": [
                         "torso"
                     ]
@@ -196,6 +204,7 @@
                     "Name": "right_arm",
                     "HP": 3,
                     "MaxHP": 3,
+                    "WoundRole": "arm",
                     "CompatibleItemSlots": [
                         "hand"
                     ]
@@ -204,6 +213,7 @@
                     "Name": "left_arm",
                     "HP": 3,
                     "MaxHP": 3,
+                    "WoundRole": "arm",
                     "CompatibleItemSlots": [
                         "hand"
                     ]
@@ -212,6 +222,7 @@
                     "Name": "legs",
                     "HP": 3,
                     "MaxHP": 3,
+                    "WoundRole": "leg",
                     "CompatibleItemSlots": [
                         "legs"
                     ]
@@ -220,6 +231,7 @@
                     "Name": "feet",
                     "HP": 2,
                     "MaxHP": 2,
+                    "WoundRole": "leg",
                     "CompatibleItemSlots": [
                         "feet"
                     ]
