@@ -10,6 +10,7 @@ import (
 	"github.com/mechanical-lich/ml-rogue-lib/pkg/rltermclient"
 	"github.com/mechanical-lich/ml-rogue-lib/pkg/rltermgui"
 	"github.com/mechanical-lich/mlge/ecs"
+	"github.com/mechanical-lich/mlge/message"
 	"github.com/mechanical-lich/mlge/simulation"
 	"github.com/mechanical-lich/mlge/transport"
 	"github.com/mechanical-lich/spaceplant/internal/component"
@@ -43,7 +44,6 @@ func main() {
 		codec,
 	)
 	server.SetState(game.NewMainSimState(sim))
-	go server.Run()
 
 	asciiWorld := rlasciiclient.NewAsciiWorld()
 	tc, err := rltermclient.New(cliT, codec)
@@ -53,19 +53,81 @@ func main() {
 	}
 	defer tc.Fini()
 
-	// Keep the AsciiWorld in sync with the terminal client's World.
+	go func() {
+		defer func() {
+			if r := recover(); r != nil {
+				tc.Fini()
+				panic(r)
+			}
+		}()
+		server.Run()
+	}()
+
 	tc.World = asciiWorld
 
-	// GUI: static HUD + inventory popup + look mode.
+	// Modal views — created once; modals are nil until player spawns.
+	termCC := game.NewTermCharacterCreator()
+	hud := game.NewTermHUD(sim)
 	inv := game.NewTermInventoryView(sim)
 	look := game.NewTermLookView(sim)
+
+	var reload *game.TermReloadView
+	var aimedShot *game.TermAimedShotView
+	var loot *game.TermLootView
+	var classView *game.TermClassView
+
+	termCC.OnComplete = func(data game.CharacterData) {
+		if err := sim.SpawnPlayer(data); err != nil {
+			message.AddMessage("Error spawning player: " + err.Error())
+			return
+		}
+		reload = game.NewTermReloadView(sim.Player)
+		reload.OnReload = func(weaponItem, ammoItem *ecs.Entity) {
+			cliT.SendCommand(&transport.Command{
+				Type:    game.CmdReload,
+				Payload: game.ReloadPayload{WeaponItem: weaponItem, AmmoItem: ammoItem},
+			})
+		}
+		tc.GUI.Add(reload)
+
+		aimedShot = game.NewTermAimedShotView()
+		aimedShot.OnSelect = func(bodyPart string) {
+			cliT.SendCommand(&transport.Command{
+				Type:    game.CmdAimedShot,
+				Payload: game.AimedShotPayload{BodyPart: bodyPart},
+			})
+		}
+		tc.GUI.Add(aimedShot)
+
+		loot = game.NewTermLootView()
+		loot.OnPickup = func(item *ecs.Entity, tx, ty, tz int) {
+			cliT.SendCommand(&transport.Command{
+				Type:    game.CmdPickupItem,
+				Payload: game.PickupItemPayload{Item: item, TileX: tx, TileY: ty, TileZ: tz},
+			})
+		}
+		loot.OnEquip = func(item *ecs.Entity, tx, ty, tz int) {
+			cliT.SendCommand(&transport.Command{
+				Type:    game.CmdEquipItem,
+				Payload: game.EquipItemPayload{Item: item, TileX: tx, TileY: ty, TileZ: tz},
+			})
+		}
+		tc.GUI.Add(loot)
+
+		classView = game.NewTermClassView(sim.Player)
+		tc.GUI.Add(classView)
+	}
+
 	tc.GUI = &rltermgui.GUI{}
-	tc.GUI.Add(game.NewTermHUD(sim))
+	tc.GUI.Add(termCC) // character creator first — draws over everything while active
+	tc.GUI.Add(hud)
 	tc.GUI.Add(inv)
 	tc.GUI.Add(look)
 
-	// Follow the player: center camera on player position each tick.
 	tc.OnTick = func(snap *transport.Snapshot) {
+		if termCC.Active() {
+			return
+		}
 		if sim.Player != nil {
 			pc := sim.Player.GetComponent("Position").(*component.PositionComponent)
 			tc.CameraZ = pc.GetZ()
@@ -75,13 +137,53 @@ func main() {
 		}
 	}
 
-	// Map key events to server commands.
 	tc.OnInput = func(ev *tcell.EventKey) *transport.Command {
-		// Toggle inventory (GUI is hidden, so this event was not consumed).
+		// Character creator and other GUI views handled by GUI.HandleKey above OnInput.
+		// (tc internals call GUI.HandleKey before OnInput, so this is just game input.)
+
+		// Inventory toggle.
 		if ev.Rune() == 'i' || ev.Rune() == 'I' {
 			inv.Toggle()
 			return nil
 		}
+
+		// Class upgrade modal.
+		if ev.Rune() == 'C' {
+			if classView != nil {
+				classView.Open()
+			}
+			return nil
+		}
+
+		// Nearby loot.
+		if ev.Rune() == 'p' || ev.Rune() == 'P' {
+			if loot != nil && game.TermHasNearbyItems(sim.Player, sim.Level) {
+				loot.Open(sim.Player, sim.Level)
+				return nil
+			}
+		}
+
+		// Shift+R → reload modal.
+		if ev.Rune() == 'R' {
+			if reload != nil {
+				reload.Open()
+			}
+			return nil
+		}
+
+		// Shift+F → aimed shot modal.
+		if ev.Rune() == 'F' {
+			if aimedShot != nil {
+				target := game.TermRayTarget(sim.Player, sim.Level)
+				if target != nil {
+					aimedShot.Open(target)
+				} else {
+					message.AddMessage("Nothing to aim at.")
+				}
+			}
+			return nil
+		}
+
 		key := termKeyToCommand(ev)
 		if key == "" {
 			return nil
@@ -124,12 +226,18 @@ func termKeyToCommand(ev *tcell.EventKey) string {
 		return "d"
 	case '.':
 		return "Period"
-	case 'p', 'P':
+	case 'p':
 		return "p"
 	case 'e', 'E':
 		return "e"
 	case 'h', 'H':
 		return "h"
+	case 'r':
+		return "r" // rush toggle
+	case 'g', 'G':
+		return "g" // burst fire
+	case 'f':
+		return "f" // snap shot
 	case 'q':
 		return "quit"
 	}

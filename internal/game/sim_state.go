@@ -106,6 +106,9 @@ func (s *MainSimState) Done() bool { return s.done }
 // ProcessCommand is called once per queued client command, before Tick.
 // It pushes the key string onto the player's command queue.
 func (s *MainSimState) ProcessCommand(cmd *transport.Command) {
+	if s.sim.Player == nil {
+		return
+	}
 	playerC := s.sim.Player.GetComponent("PlayerComponent").(*component.PlayerComponent)
 	switch cmd.Type {
 	case CmdAction:

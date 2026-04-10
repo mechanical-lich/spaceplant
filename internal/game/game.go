@@ -43,6 +43,15 @@ func LoadDataHeadless() error {
 	if err := skill.Load("data/skills/skills.json"); err != nil {
 		return err
 	}
+	if err := class.Load("data/classes/classes.json"); err != nil {
+		return err
+	}
+	if err := background.Load("data/backgrounds/backgrounds.json"); err != nil {
+		return err
+	}
+	if err := ccconfig.Load("data/character_creator_config.json"); err != nil {
+		return err
+	}
 	return world.LoadTileDefinitions("data/tile_definitions.json")
 }
 
