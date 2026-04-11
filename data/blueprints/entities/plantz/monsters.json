@@ -21,8 +21,9 @@
             "B": 50
         },
         "AppearanceComponent": {
-            "SpriteX": 96,
+            "SpriteX": 0,
             "SpriteY": 0,
+            "Resource": "plantz",
             "R": 0,
             "G": 255,
             "B": 0,
@@ -91,7 +92,8 @@
         },
         "SkillComponent": {
             "Skills": [
-                "poisonous_bite"
+                "poisonous_bite",
+                "plant_food"
             ]
         },
         "DropsComponent": {
@@ -175,6 +177,11 @@
             }
         },
         "SolidComponent": {},
+        "SkillComponent": {
+            "Skills": [
+                "plant_food"
+            ]
+        },
         "HostileAIComponent": {
             "SightRange": 20
         },
@@ -223,8 +230,9 @@
             "B": 50
         },
         "AppearanceComponent": {
-            "SpriteX": 160,
+            "SpriteX": 64,
             "SpriteY": 0,
+            "Resource": "plantz",
             "R": 0,
             "G": 255,
             "B": 0,
@@ -269,6 +277,11 @@
             }
         },
         "SolidComponent": {},
+        "SkillComponent": {
+            "Skills": [
+                "plant_food"
+            ]
+        },
         "HostileAIComponent": {
             "SightRange": 10
         },
@@ -326,8 +339,9 @@
             "B": 50
         },
         "AppearanceComponent": {
-            "SpriteX": 192,
+            "SpriteX": 96,
             "SpriteY": 0,
+            "Resource": "plantz",
             "R": 0,
             "G": 255,
             "B": 0,
@@ -360,6 +374,11 @@
             }
         },
         "SolidComponent": {},
+        "SkillComponent": {
+            "Skills": [
+                "plant_food"
+            ]
+        },
         "HostileAIComponent": {
             "SightRange": 10
         },
@@ -415,8 +434,9 @@
             "B": 80
         },
         "AppearanceComponent": {
-            "SpriteX": 224,
+            "SpriteX": 128,
             "SpriteY": 0,
+            "Resource": "plantz",
             "R": 0,
             "G": 255,
             "B": 0,
@@ -441,6 +461,11 @@
             }
         },
         "SolidComponent": {},
+        "SkillComponent": {
+            "Skills": [
+                "plant_food"
+            ]
+        },
         "HostileAIComponent": {
             "SightRange": 10
         },
@@ -464,6 +489,88 @@
             }
         }
     },
+    "spreader": {
+        "DescriptionComponent": {
+            "Name": "Spreader",
+            "Faction": "plantz",
+            "LongDescription": "A slow shambling plant creature that leaves creeping overgrowth in its wake.",
+            "PassOverDescription": [
+                "You step through a tangle of overgrown vines.",
+                "The spreader's remains are already being reclaimed by the growth."
+            ],
+            "DeathAnnouncements": [
+                "The spreader collapses, its vines going still.",
+                "A spreader withers and falls.",
+                "The spreader lets out a wet gurgle and dies."
+            ]
+        },
+        "AsciiAppearanceComponent": {
+            "Character": "g",
+            "R": 50,
+            "G": 180,
+            "B": 50
+        },
+        "AppearanceComponent": {
+            "SpriteX": 192,
+            "SpriteY": 0,
+            "Resource": "plantz",
+            "R": 0,
+            "G": 255,
+            "B": 0,
+            "Frames": 1
+        },
+        "BodyComponent": {
+            "Parts": {
+                "body": {
+                    "Name": "Body",
+                    "HP": 25,
+                    "MaxHP": 25,
+                    "KillsWhenBroken": true,
+                    "KillsWhenAmputated": true,
+                    "WoundRole": "torso"
+                },
+                "root_mass": {
+                    "Name": "Root Mass",
+                    "HP": 15,
+                    "MaxHP": 15,
+                    "WoundRole": "leg"
+                }
+            }
+        },
+        "SolidComponent": {},
+        "AdvancedAIComponent": {
+            "Aggressiveness": 10,
+            "Fear": 5,
+            "SightRange": 6,
+            "Randomness": 20,
+            "AvoidsFriendlyFire": false
+        },
+        "EnergyComponent": {
+            "Speed": 75
+        },
+        "StatsComponent": {
+            "PH": 8,
+            "AG": 6,
+            "MA": 4,
+            "CL": 5,
+            "LD": 2,
+            "CS": 20,
+            "HTCS": 15,
+            "NaturalPen": 2
+        },
+        "HitLocationComponent": {
+            "Weights": {
+                "body": 65,
+                "root_mass": 35
+            }
+        },
+        "SkillComponent": {
+            "Skills": [
+                "spread_overgrowth",
+                "heavy_footed"
+            ]
+        }
+    },
     "spitter": {
         "DescriptionComponent": {
             "Name": "Spitter",
@@ -485,8 +592,9 @@
             "B": 50
         },
         "AppearanceComponent": {
-            "SpriteX": 256,
+            "SpriteX": 160,
             "SpriteY": 0,
+            "Resource": "plantz",
             "R": 0,
             "G": 255,
             "B": 0,
@@ -525,7 +633,8 @@
         },
         "SkillComponent": {
             "Skills": [
-                "acid_spray"
+                "acid_spray",
+                "plant_food"
             ]
         },
         "EnergyComponent": {

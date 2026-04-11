@@ -1,6 +1,8 @@
 package action
 
 import (
+	"math/rand"
+
 	"github.com/mechanical-lich/ml-rogue-lib/pkg/rlcombat"
 	"github.com/mechanical-lich/ml-rogue-lib/pkg/rlcomponents"
 	"github.com/mechanical-lich/ml-rogue-lib/pkg/rlenergy"
@@ -120,6 +122,10 @@ func (a MoveAction) Execute(entity *ecs.Entity, level *world.Level) error {
 			// "Small" skill: ignore elevated terrain costs (e.g. maintenance tunnels).
 			if entityHasSkill(entity, "small") && actionCost > energy.CostMove {
 				actionCost = energy.CostMove
+			}
+			// "Trail overgrowth" skill: 10% chance to mark the destination tile overgrown.
+			if !destTile.Overgrown && !destTile.IsAir() && entityHasSkill(entity, "trail_overgrowth") && rand.Intn(100) < 10 {
+				destTile.Overgrown = true
 			}
 		}
 		rlentity.CheckPassOver(entity, level.Level, pc.GetX(), pc.GetY(), z)

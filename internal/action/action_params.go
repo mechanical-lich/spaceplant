@@ -38,6 +38,9 @@ type ActionParams struct {
 	// ActionCost overrides the default energy cost of the action.
 	// When 0 (unset) the action uses its default cost (typically CostAttack = 100).
 	ActionCost int `json:"action_cost,omitempty"`
+	// SpreadChance is the percentage chance (0-100) that overgrowth spreads to
+	// each eligible neighbor tile when SpreadOvergrowthAction fires.
+	SpreadChance int `json:"spread_chance,omitempty"`
 }
 
 // Cost returns ActionCost if set, otherwise the provided default.

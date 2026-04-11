@@ -65,6 +65,18 @@ These skills grant a key-bound special attack.
 
 ---
 
+## Overgrowth Skills
+
+Skills related to the spreading of organic overgrowth.
+
+| Skill | Key | Effect |
+|---|---|---|
+| Spread Overgrowth | G | Spread overgrowth to tiles within radius 4. Each eligible neighbor has a 40% chance to become overgrown. Crosses Z-levels through stairs. Costs 400 energy. |
+| Trail Overgrowth | — | Passive. Each tile you move onto has a 10% chance of becoming overgrown. |
+| Plant Food | — | Passive. While standing on an overgrown tile, gain 25% more energy per turn. |
+
+---
+
 ## Other Skills
 
 | Skill | Effect |

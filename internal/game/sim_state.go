@@ -6,6 +6,7 @@ import (
 	"github.com/mechanical-lich/ml-rogue-lib/pkg/rlcomponents"
 	spcombat "github.com/mechanical-lich/spaceplant/internal/combat"
 	"github.com/mechanical-lich/ml-rogue-lib/pkg/rlenergy"
+	"github.com/mechanical-lich/mlge/ecs"
 	"github.com/mechanical-lich/mlge/event"
 	"github.com/mechanical-lich/mlge/message"
 	"github.com/mechanical-lich/mlge/simulation"
@@ -15,7 +16,9 @@ import (
 	"github.com/mechanical-lich/spaceplant/internal/config"
 	"github.com/mechanical-lich/spaceplant/internal/eventsystem"
 	"github.com/mechanical-lich/spaceplant/internal/game/listeners"
+	"github.com/mechanical-lich/spaceplant/internal/skill"
 	"github.com/mechanical-lich/spaceplant/internal/system"
+	"github.com/mechanical-lich/spaceplant/internal/world"
 )
 
 // compile-time assertion
@@ -170,6 +173,7 @@ func (s *MainSimState) Tick(_ any) simulation.SimulationState {
 		s.sim.TurnCount++
 		s.sim.TickCount = 0
 		playerGotTurn, _ := rlenergy.AdvanceEnergy(s.sim.Level.Entities, s.sim.Player)
+		applyPlantFoodBonus(s.sim.Level.Entities, s.sim.Level)
 		if playerGotTurn {
 			s.phase = phaseWaitingForInput
 		} else {
@@ -305,6 +309,26 @@ func (s *MainSimState) anyVisibleNPCActed() bool {
 		}
 	}
 	return false
+}
+
+// applyPlantFoodBonus grants a 25% speed bonus to any entity with the
+// "plant_food" skill that is currently standing on an overgrown tile.
+func applyPlantFoodBonus(entities []*ecs.Entity, level *world.Level) {
+	for _, entity := range entities {
+		if !skill.HasSkill(entity, "plant_food") {
+			continue
+		}
+		if !entity.HasComponent(rlcomponents.Energy) || !entity.HasComponent(component.Position) {
+			continue
+		}
+		pc := entity.GetComponent(component.Position).(*component.PositionComponent)
+		t := level.GetTilePtr(pc.GetX(), pc.GetY(), pc.GetZ())
+		if t == nil || !t.Overgrown {
+			continue
+		}
+		ec := entity.GetComponent(rlcomponents.Energy).(*rlcomponents.EnergyComponent)
+		ec.Energy += ec.Speed / 4
+	}
 }
 
 // advanceAnimations steps every entity's sprite animation cycle.

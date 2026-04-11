@@ -39,4 +39,7 @@ func init() {
 	RegisterSkill("cone_of", func(p ActionParams) Action {
 		return ConeOfAction{Params: p}
 	})
+	RegisterSkill("spread_overgrowth", func(p ActionParams) Action {
+		return SpreadOvergrowthAction{Params: p}
+	})
 }

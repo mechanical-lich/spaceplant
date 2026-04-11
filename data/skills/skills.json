@@ -216,6 +216,30 @@
     "description": "Surgical precision with a ranged weapon. Aimed shots gain an extra +10 CS, and targeted aimed shots hit the chosen body part 90% of the time."
   },
   {
+    "id": "plant_food",
+    "name": "Plant Food",
+    "description": "When standing on an overgrown tile, you regenerate 25% more energy per turn."
+  },
+  {
+    "id": "trail_overgrowth",
+    "name": "Trail Overgrowth",
+    "description": "Each step you take has a 10% chance of leaving overgrowth on the tile behind you."
+  },
+  {
+    "id": "spread_overgrowth",
+    "name": "Spread Overgrowth",
+    "description": "Spread creeping overgrowth to tiles around you.",
+    "ai_type": "spread_overgrowth",
+    "action_bindings": {
+      "g": "spread_overgrowth"
+    },
+    "action_params": {
+      "radius": 4,
+      "spread_chance": 40,
+      "action_cost": 400
+    }
+  },
+  {
     "id": "paralyzing_vinewhip",
     "name": "Paralyzing Vinewhip",
     "description": "Lash out with a whipping vine for 1d12 bludgeoning damage. On a hit, the target must pass a Cool Check (DC 15) or become slowed for 4 turns. Bound to V.",

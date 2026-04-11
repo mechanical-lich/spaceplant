@@ -19,12 +19,13 @@ import (
 
 // Action name constants used for last-action repeat penalty.
 const (
-	advActWander     = "wander"
-	advActMove       = "move"
-	advActMelee      = "melee"
-	advActMeleeSkill = "melee_skill"
-	advActShoot      = "shoot"
-	advActFlee       = "flee"
+	advActWander          = "wander"
+	advActMove            = "move"
+	advActMelee           = "melee"
+	advActMeleeSkill      = "melee_skill"
+	advActShoot           = "shoot"
+	advActFlee            = "flee"
+	advActSpreadOvergrowth = "spread_overgrowth"
 )
 
 // AdvancedAISystem drives entities with an AdvancedAIComponent.
@@ -90,6 +91,21 @@ func (s *AdvancedAISystem) UpdateEntity(levelInterface any, entity *ecs.Entity) 
 		return advExecuteHunt(entity, aic, pc, dist, level)
 
 	default: // idle
+		// If the entity has a spread_overgrowth skill, alternate between spreading
+		// and wandering. The repeat penalty naturally encourages alternation.
+		if _, act := skill.SkillForAIType(entity, advActSpreadOvergrowth); act != nil {
+			spreadScore := 55
+			wanderScore := 45
+			if aic.LastAction == advActSpreadOvergrowth {
+				spreadScore -= 30
+			} else if aic.LastAction == advActWander {
+				wanderScore -= 30
+			}
+			if spreadScore >= wanderScore {
+				aic.LastAction = advActSpreadOvergrowth
+				return act.Execute(entity, level)
+			}
+		}
 		dx, dy := randomCardinal()
 		rlentity.Face(entity, dx, dy)
 		aic.LastAction = advActWander

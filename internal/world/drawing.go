@@ -141,8 +141,16 @@ func (l *Level) DrawTile(output *ebiten.Image, t *Tile, screenX, screenY int, se
 
 	// Resolve sprite coordinates from tile definition
 	variant := l.Level.ResolveVariant(t)
-	sX := variant.SpriteX * spW
-	output.DrawImage(resource.Textures["map"].SubImage(image.Rect(sX, variant.SpriteY, sX+spW, variant.SpriteY+spH)).(*ebiten.Image), op)
+	if t.Overgrown {
+		// The overgrown sheet has two sub-variants per original tile column.
+		// Pick sub-variant deterministically from the tile index so it's stable across frames.
+		subVariant := t.Idx % 2
+		sX := (variant.SpriteX*2 + subVariant) * spW
+		output.DrawImage(resource.Textures["map-overgrown"].SubImage(image.Rect(sX, variant.SpriteY, sX+spW, variant.SpriteY+spH)).(*ebiten.Image), op)
+	} else {
+		sX := variant.SpriteX * spW
+		output.DrawImage(resource.Textures["map"].SubImage(image.Rect(sX, variant.SpriteY, sX+spW, variant.SpriteY+spH)).(*ebiten.Image), op)
+	}
 
 	tx, ty, _ := t.Coords()
 	tileSeen := l.GetSeen(tx, ty, z)
