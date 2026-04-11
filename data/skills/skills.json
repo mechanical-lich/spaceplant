@@ -216,6 +216,11 @@
     "description": "Surgical precision with a ranged weapon. Aimed shots gain an extra +10 CS, and targeted aimed shots hit the chosen body part 90% of the time."
   },
   {
+    "id": "immobile",
+    "name": "Immobile",
+    "description": "This entity cannot move."
+  },
+  {
     "id": "plant_food",
     "name": "Plant Food",
     "description": "When standing on an overgrown tile, you regenerate 25% more energy per turn."

@@ -30,6 +30,9 @@ func (a MoveAction) Available(entity *ecs.Entity, level *world.Level) bool {
 	if a.DeltaX == 0 && a.DeltaY == 0 {
 		return false
 	}
+	if entityHasSkill(entity, "immobile") {
+		return false
+	}
 	pc := entity.GetComponent(component.Position).(*component.PositionComponent)
 	tx := pc.GetX() + a.DeltaX
 	ty := pc.GetY() + a.DeltaY
@@ -53,6 +56,11 @@ func (a MoveAction) Available(entity *ecs.Entity, level *world.Level) bool {
 }
 
 func (a MoveAction) Execute(entity *ecs.Entity, level *world.Level) error {
+	if entityHasSkill(entity, "immobile") {
+		rlenergy.SetActionCost(entity, energy.CostMove)
+		return nil
+	}
+
 	pc := entity.GetComponent("Position").(*component.PositionComponent)
 	dc := entity.GetComponent("Direction").(*component.DirectionComponent)
 	z := pc.GetZ()

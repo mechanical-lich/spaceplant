@@ -463,7 +463,8 @@
         "SolidComponent": {},
         "SkillComponent": {
             "Skills": [
-                "plant_food"
+                "plant_food",
+                "trail_overgrowth"
             ]
         },
         "HostileAIComponent": {
@@ -568,6 +569,88 @@
             "Skills": [
                 "spread_overgrowth",
                 "heavy_footed"
+            ]
+        }
+    },
+    "ingrained_spreader": {
+        "DescriptionComponent": {
+            "Name": "Ingrained Spreader",
+            "Faction": "plantz",
+            "LongDescription": "An immobile shambling plant creature that continuously spreads creeping overgrowth around itself.",
+            "PassOverDescription": [
+                "You step through a tangle of overgrown vines.",
+                "The ingrained spreader's remains are already being reclaimed by the growth."
+            ],
+            "DeathAnnouncements": [
+                "The ingrained spreader collapses, its vines going still.",
+                "An ingrained spreader withers and falls.",
+                "The ingrained spreader lets out a wet gurgle and dies."
+            ]
+        },
+        "AsciiAppearanceComponent": {
+            "Character": "g",
+            "R": 50,
+            "G": 180,
+            "B": 50
+        },
+        "AppearanceComponent": {
+            "SpriteX": 224,
+            "SpriteY": 0,
+            "Resource": "plantz",
+            "R": 0,
+            "G": 255,
+            "B": 0,
+            "Frames": 1
+        },
+        "BodyComponent": {
+            "Parts": {
+                "body": {
+                    "Name": "Body",
+                    "HP": 25,
+                    "MaxHP": 25,
+                    "KillsWhenBroken": true,
+                    "KillsWhenAmputated": true,
+                    "WoundRole": "torso"
+                },
+                "root_mass": {
+                    "Name": "Root Mass",
+                    "HP": 15,
+                    "MaxHP": 15,
+                    "WoundRole": "leg"
+                }
+            }
+        },
+        "SolidComponent": {},
+        "AdvancedAIComponent": {
+            "Aggressiveness": 10,
+            "Fear": 5,
+            "SightRange": 6,
+            "Randomness": 20,
+            "AvoidsFriendlyFire": false
+        },
+        "EnergyComponent": {
+            "Speed": 75
+        },
+        "StatsComponent": {
+            "PH": 8,
+            "AG": 6,
+            "MA": 4,
+            "CL": 5,
+            "LD": 2,
+            "CS": 20,
+            "HTCS": 15,
+            "NaturalPen": 2
+        },
+        "HitLocationComponent": {
+            "Weights": {
+                "body": 65,
+                "root_mass": 35
+            }
+        },
+        "SkillComponent": {
+            "Skills": [
+                "spread_overgrowth",
+                "immobile"
             ]
         }
     },
