@@ -41,11 +41,10 @@ func (a SpreadOvergrowthAction) Execute(entity *ecs.Entity, level *world.Level) 
 
 	// Always seed the entity's current tile.
 	if t := level.GetTilePtr(ox, oy, oz); t != nil && !t.IsAir() {
-		t.Overgrown = true
+		level.SetOvergrown(ox, oy, oz, true)
 	}
 
-	// Collect all overgrown tiles within the radius on the current Z-level.
-	// We also check adjacent Z-levels reachable from within the radius.
+	// Collect all overgrown tiles within the radius, including adjacent Z-levels.
 	type coord struct{ x, y, z int }
 	var sources []coord
 
@@ -56,8 +55,7 @@ func (a SpreadOvergrowthAction) Execute(entity *ecs.Entity, level *world.Level) 
 				continue
 			}
 			for _, dz := range []int{-1, 0, 1} {
-				t := level.GetTilePtr(ox+dx, oy+dy, oz+dz)
-				if t != nil && t.Overgrown {
+				if level.IsOvergrown(ox+dx, oy+dy, oz+dz) {
 					sources = append(sources, coord{ox + dx, oy + dy, oz + dz})
 				}
 			}
@@ -77,8 +75,8 @@ func (a SpreadOvergrowthAction) Execute(entity *ecs.Entity, level *world.Level) 
 			if rand.Intn(100) >= spreadChance {
 				continue
 			}
-			if t := level.GetTilePtr(nx, ny, src.z); t != nil && !t.Overgrown && !t.IsAir() {
-				t.Overgrown = true
+			if t := level.GetTilePtr(nx, ny, src.z); t != nil && !level.IsOvergrown(nx, ny, src.z) && !t.IsAir() {
+				level.SetOvergrown(nx, ny, src.z, true)
 			}
 		}
 
@@ -90,15 +88,15 @@ func (a SpreadOvergrowthAction) Execute(entity *ecs.Entity, level *world.Level) 
 		def := rlworld.TileDefinitions[srcTile.Type]
 		if def.StairsUp {
 			if rand.Intn(100) < spreadChance {
-				if t := level.GetTilePtr(src.x, src.y, src.z+1); t != nil && !t.Overgrown && !t.IsAir() {
-					t.Overgrown = true
+				if t := level.GetTilePtr(src.x, src.y, src.z+1); t != nil && !level.IsOvergrown(src.x, src.y, src.z+1) && !t.IsAir() {
+					level.SetOvergrown(src.x, src.y, src.z+1, true)
 				}
 			}
 		}
 		if def.StairsDown {
 			if rand.Intn(100) < spreadChance {
-				if t := level.GetTilePtr(src.x, src.y, src.z-1); t != nil && !t.Overgrown && !t.IsAir() {
-					t.Overgrown = true
+				if t := level.GetTilePtr(src.x, src.y, src.z-1); t != nil && !level.IsOvergrown(src.x, src.y, src.z-1) && !t.IsAir() {
+					level.SetOvergrown(src.x, src.y, src.z-1, true)
 				}
 			}
 		}

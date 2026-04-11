@@ -322,8 +322,7 @@ func applyPlantFoodBonus(entities []*ecs.Entity, level *world.Level) {
 			continue
 		}
 		pc := entity.GetComponent(component.Position).(*component.PositionComponent)
-		t := level.GetTilePtr(pc.GetX(), pc.GetY(), pc.GetZ())
-		if t == nil || !t.Overgrown {
+		if !level.IsOvergrown(pc.GetX(), pc.GetY(), pc.GetZ()) {
 			continue
 		}
 		ec := entity.GetComponent(rlcomponents.Energy).(*rlcomponents.EnergyComponent)

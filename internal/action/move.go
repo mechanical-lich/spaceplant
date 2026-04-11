@@ -124,8 +124,8 @@ func (a MoveAction) Execute(entity *ecs.Entity, level *world.Level) error {
 				actionCost = energy.CostMove
 			}
 			// "Trail overgrowth" skill: 10% chance to mark the destination tile overgrown.
-			if !destTile.Overgrown && !destTile.IsAir() && entityHasSkill(entity, "trail_overgrowth") && rand.Intn(100) < 10 {
-				destTile.Overgrown = true
+			if !destTile.IsAir() && !level.IsOvergrown(pc.GetX(), pc.GetY(), z) && entityHasSkill(entity, "trail_overgrowth") && rand.Intn(100) < 10 {
+				level.SetOvergrown(pc.GetX(), pc.GetY(), z, true)
 			}
 		}
 		rlentity.CheckPassOver(entity, level.Level, pc.GetX(), pc.GetY(), z)

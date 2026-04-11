@@ -14,6 +14,7 @@ type Level struct {
 	*rlworld.Level
 	Theme     Theme
 	NoBudding []bool                      // parallel to Level.Data — generation flag
+	Overgrown []bool                      // parallel to Level.Data — overgrowth state
 	TileAnims map[TileAnimKey][]*TileAnim // visual-only tile overlay animations
 }
 
@@ -25,6 +26,7 @@ func NewLevel(width, height, depth int, theme Theme) *Level {
 		Level:     base,
 		Theme:     theme,
 		NoBudding: make([]bool, total),
+		Overgrown: make([]bool, total),
 		TileAnims: make(map[TileAnimKey][]*TileAnim),
 	}
 
@@ -94,6 +96,22 @@ func (l *Level) TileNeighbors(x, y, z int, nType int) bool {
 		}
 	}
 	return false
+}
+
+// IsOvergrown returns whether the tile at (x, y, z) is overgrown.
+func (l *Level) IsOvergrown(x, y, z int) bool {
+	if !l.Level.InBounds(x, y, z) {
+		return false
+	}
+	return l.Overgrown[l.tileIndex(x, y, z)]
+}
+
+// SetOvergrown sets the overgrowth state for the tile at (x, y, z).
+func (l *Level) SetOvergrown(x, y, z int, val bool) {
+	if !l.Level.InBounds(x, y, z) {
+		return
+	}
+	l.Overgrown[l.tileIndex(x, y, z)] = val
 }
 
 // GetNoBudding returns the NoBudding flag for a tile.
