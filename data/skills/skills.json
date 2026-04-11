@@ -244,6 +244,20 @@
       "action_cost": 400
     }
   },
+    {
+    "id": "massive_spread_overgrowth",
+    "name": "Massive Spread Overgrowth",
+    "description": "Spread creeping overgrowth to tiles around you.",
+    "ai_type": "spread_overgrowth",
+    "action_bindings": {
+      "g": "spread_overgrowth"
+    },
+    "action_params": {
+      "radius": 10,
+      "spread_chance": 40,
+      "action_cost": 400
+    }
+  },
   {
     "id": "paralyzing_vinewhip",
     "name": "Paralyzing Vinewhip",
