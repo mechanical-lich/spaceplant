@@ -109,12 +109,6 @@ func NewSimWorld() (*SimWorld, error) {
 		sw.Level.AddEntity(item)
 	}
 
-	spreader, _ := factory.Create("massive_spreader", pX+4, pY)
-	if spreader != nil {
-		spreader.GetComponent("Position").(*component.PositionComponent).SetPosition(pX+4, pY, 0)
-		sw.Level.AddEntity(spreader)
-	}
-
 	return sw, nil
 }
 

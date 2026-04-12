@@ -14,18 +14,22 @@ jobs:
             goos: linux
             goarch: amd64
             suffix: ""
+            name: ubuntu
           - os: windows-latest
             goos: windows
             goarch: amd64
             suffix: ".exe"
+            name: windows
           - os: macos-latest
             goos: darwin
             goarch: amd64
             suffix: ""
+            name: macos
           - os: macos-latest
             goos: darwin
             goarch: arm64
             suffix: ""
+            name: macos
 
     runs-on: ${{ matrix.os }}
 
@@ -57,12 +61,13 @@ jobs:
       - name: Stage release archive
         shell: bash
         run: |
-          ARCHIVE=spaceplant-${{ matrix.goos }}-${{ matrix.goarch }}
+          ARCHIVE=spaceplant-${{ matrix.name }}-${{ matrix.goarch }}
           mkdir -p staging/$ARCHIVE
           cp dist/spaceplant${{ matrix.suffix }} staging/$ARCHIVE/
           cp dist/spaceplant-terminal${{ matrix.suffix }} staging/$ARCHIVE/
           cp -r data staging/$ARCHIVE/
           cp -r assets staging/$ARCHIVE/
+          rm -rf staging/$ARCHIVE/assets/art
 
       - name: Zip (Unix)
         if: matrix.os != 'windows-latest'

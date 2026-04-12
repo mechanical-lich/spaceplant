@@ -17,8 +17,8 @@ const hostileMax = 20
 const crewInitial = 10
 const hostileInitial = 15
 
-var hostiles = []string{"creeper"} //, "viner", "scythe", "scrambler"}
-var rareHostiles = []string{"abomination", "spitter"}
+var hostiles = []string{"creeper", "viner", "scythe", "scrambler", "spitter"}
+var rareHostiles = []string{"abomination", "spreader", "ingrained_spreader", "massive_spreader"}
 var crew = []string{"crewmember", "officer"}
 
 type GameMaster struct {
