@@ -14,8 +14,8 @@
             "B": 255
         },
         "AppearanceComponent": {
-            "Resource": "entities",
-            "SpriteX": 416,
+            "Resource": "keys",
+            "SpriteX": 0,
             "SpriteY": 0,
             "R": 200,
             "G": 200,
@@ -57,8 +57,8 @@
             "B": 50
         },
         "AppearanceComponent": {
-            "Resource": "entities",
-            "SpriteX": 288,
+            "Resource": "items",
+            "SpriteX": 0,
             "SpriteY": 0,
             "R": 200,
             "G": 200,

@@ -1,7 +1,7 @@
 {
     "crewmember": {
         "DescriptionComponent": {
-            "Name": "Crewmen",
+            "Name": "<CrewName> (Crewmember)",
             "Faction": "crew",
             "LongDescription": "A crewmember of the ship.",
             "PassOverDescription": [
@@ -20,14 +20,6 @@
                 "Move it, move it!",
                 "Pardon me."
             ]
-        },
-        "AppearanceComponent": {
-            "SpriteX": 64,
-            "SpriteY": 0,
-            "R": 200,
-            "G": 200,
-            "B": 125,
-            "Frames": 1
         },
         "LayeredAppearanceComponent": {
             "Randomize": true
@@ -142,7 +134,7 @@
     },
     "officer": {
         "DescriptionComponent": {
-            "Name": "Officer",
+            "Name": "<CrewName> (Officer)",
             "Faction": "crew",
             "LongDescription": "A ranking officer of the ship.",
             "PassOverDescription": [
@@ -166,14 +158,6 @@
             "R": 200,
             "G": 200,
             "B": 100
-        },
-        "AppearanceComponent": {
-            "SpriteX": 32,
-            "SpriteY": 0,
-            "R": 200,
-            "G": 200,
-            "B": 125,
-            "Frames": 1
         },
         "LayeredAppearanceComponent": {
             "Randomize": true

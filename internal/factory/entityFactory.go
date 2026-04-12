@@ -9,6 +9,7 @@ import (
 	"github.com/mechanical-lich/mlge/ecs"
 	"github.com/mechanical-lich/spaceplant/internal/class"
 	"github.com/mechanical-lich/spaceplant/internal/component"
+	"github.com/mechanical-lich/spaceplant/internal/lore"
 	"github.com/mechanical-lich/spaceplant/internal/skill"
 )
 
@@ -32,6 +33,11 @@ func Create(name string, x int, y int) (*ecs.Entity, error) {
 	// Prefer JSON factory blueprints if available
 	if jsonFactory.BlueprintExists(name) {
 		entity, err := jsonFactory.CreateWithCallback(name, func(comp ecs.Component) error {
+			if dc, ok := comp.(*component.DescriptionComponent); ok {
+				if strings.Contains(dc.Name, "<CrewName>") {
+					dc.Name = strings.ReplaceAll(dc.Name, "<CrewName>", lore.RandomName("crew"))
+				}
+			}
 			return nil
 		})
 		if err != nil {

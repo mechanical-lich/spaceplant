@@ -168,11 +168,12 @@ func createKeyEntity(l *world.Level, x, y, z int, keyID string) {
 		PassOverDescription: []string{"A keycard lies here."},
 	})
 	e.AddComponent(&component.AppearanceComponent{
-		SpriteX: 416,
-		SpriteY: 0,
-		R:       200,
-		G:       200,
-		B:       125,
+		SpriteX:  0,
+		SpriteY:  0,
+		Resource: "keys",
+		R:        200,
+		G:        200,
+		B:        125,
 	})
 	l.Level.AddEntity(e)
 }

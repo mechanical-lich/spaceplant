@@ -13,6 +13,7 @@ import (
 	"github.com/mechanical-lich/spaceplant/internal/ccconfig"
 	"github.com/mechanical-lich/spaceplant/internal/class"
 	"github.com/mechanical-lich/spaceplant/internal/config"
+	"github.com/mechanical-lich/spaceplant/internal/lore"
 	"github.com/mechanical-lich/spaceplant/internal/skill"
 )
 
@@ -147,6 +148,14 @@ func (cc *CharacterCreator) buildNameTab() {
 	cc.nameInput.SetPosition(20, 60)
 	cc.nameInput.SetSize(300, 30)
 	panel.AddChild(cc.nameInput)
+
+	randomBtn := minui.NewButton("cc_random_name", "Random")
+	randomBtn.SetPosition(330, 60)
+	randomBtn.SetSize(80, 30)
+	randomBtn.OnClick = func() {
+		cc.nameInput.Text = lore.RandomName("crew")
+	}
+	panel.AddChild(randomBtn)
 
 	cc.tabs.AddTab("name", "Name", panel)
 }
@@ -326,13 +335,13 @@ func (cc *CharacterCreator) buildAppearanceTab() {
 	hairLbl.SetSize(160, 20)
 	panel.AddChild(hairLbl)
 
-	cc.hairList = minui.NewListBox("cc_hair_list", []string{"Style 1", "Style 2", "Style 3", "Style 4", "Style 5", "None"})
+	cc.hairList = minui.NewListBox("cc_hair_list", []string{"Style 1", "Style 2", "Style 3", "Style 4", "Style 5", "Style 6", "Style 7", "Style 8", "Style 9", "Style 10", "None"})
 	cc.hairList.SetPosition(10, 295)
 	cc.hairList.SetSize(160, 130)
 	cc.hairList.Layout()
 	cc.hairList.SelectedIndex = 0
 	cc.hairList.OnSelect = func(idx int, _ string) {
-		if idx >= 5 {
+		if idx >= 10 {
 			cc.hairIndex = -1
 		} else {
 			cc.hairIndex = idx
@@ -631,7 +640,7 @@ func (cc *CharacterCreator) refreshBgDesc() {
 func (cc *CharacterCreator) submit() {
 	name := cc.nameInput.Text
 	if name == "" {
-		name = "Unnamed"
+		name = lore.RandomName("crew")
 	}
 	classID := ""
 	if cc.selectedClass >= 0 && cc.selectedClass < len(cc.classIDs) {

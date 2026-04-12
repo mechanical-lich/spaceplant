@@ -15,8 +15,8 @@
             "B": 100
         },
         "AppearanceComponent": {
-            "Resource": "entities",
-            "SpriteX": 416,
+            "Resource": "ammo",
+            "SpriteX": 0,
             "SpriteY": 0,
             "R": 220,
             "G": 200,
@@ -49,8 +49,8 @@
             "B": 180
         },
         "AppearanceComponent": {
-            "Resource": "entities",
-            "SpriteX": 416,
+            "Resource": "ammo",
+            "SpriteX": 0,
             "SpriteY": 0,
             "R": 180,
             "G": 180,
@@ -83,8 +83,8 @@
             "B": 80
         },
         "AppearanceComponent": {
-            "Resource": "entities",
-            "SpriteX": 416,
+            "Resource": "ammo",
+            "SpriteX": 0,
             "SpriteY": 0,
             "R": 200,
             "G": 140,
