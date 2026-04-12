@@ -30,4 +30,4 @@ require (
 )
 
 // replace github.com/mechanical-lich/mlge => ../mlge
-replace github.com/mechanical-lich/ml-rogue-lib => ../ml-rogue-lib
+//replace github.com/mechanical-lich/ml-rogue-lib => ../ml-rogue-lib
