@@ -72,20 +72,20 @@ jobs:
       - name: Zip (Unix)
         if: matrix.os != 'windows-latest'
         run: |
-          ARCHIVE=spaceplant-${{ matrix.goos }}-${{ matrix.goarch }}
+          ARCHIVE=spaceplant-${{ matrix.name }}-${{ matrix.goarch }}
           cd staging && zip -r ../$ARCHIVE.zip $ARCHIVE/
 
       - name: Zip (Windows)
         if: matrix.os == 'windows-latest'
         shell: pwsh
         run: |
-          $archive = "spaceplant-${{ matrix.goos }}-${{ matrix.goarch }}"
+          $archive = "spaceplant-${{ matrix.name }}-${{ matrix.goarch }}"
           Compress-Archive -Path "staging/$archive" -DestinationPath "$archive.zip"
 
       - uses: actions/upload-artifact@v4
         with:
-          name: spaceplant-${{ matrix.goos }}-${{ matrix.goarch }}
-          path: spaceplant-${{ matrix.goos }}-${{ matrix.goarch }}.zip
+          name: spaceplant-${{ matrix.name }}-${{ matrix.goarch }}
+          path: spaceplant-${{ matrix.name }}-${{ matrix.goarch }}.zip
 
   release:
     needs: build
