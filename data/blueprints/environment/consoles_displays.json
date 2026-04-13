@@ -1,0 +1,97 @@
+{
+    "console_bank": {
+        "DescriptionComponent": { "Name": "Console Bank" },
+        "AsciiAppearanceComponent": { "Character": "C", "R": 0, "G": 180, "B": 200 },
+        "SolidComponent": {},
+        "InanimateComponent": {}
+    },
+    "tactical_display": {
+        "DescriptionComponent": { "Name": "Tactical Display" },
+        "AsciiAppearanceComponent": { "Character": "D", "R": 0, "G": 200, "B": 180 },
+        "SolidComponent": {},
+        "InanimateComponent": {}
+    },
+    "navigation_console": {
+        "DescriptionComponent": { "Name": "Navigation Console" },
+        "AsciiAppearanceComponent": { "Character": "N", "R": 0, "G": 200, "B": 220 },
+        "SolidComponent": {},
+        "InanimateComponent": {}
+    },
+    "comm_array": {
+        "DescriptionComponent": { "Name": "Comm Array" },
+        "AsciiAppearanceComponent": { "Character": "A", "R": 50, "G": 200, "B": 180 },
+        "SolidComponent": {},
+        "InanimateComponent": {}
+    },
+    "captains_chair": {
+        "DescriptionComponent": { "Name": "Captain's Chair" },
+        "AsciiAppearanceComponent": { "Character": "H", "R": 80, "G": 80, "B": 180 },
+        "SolidComponent": {},
+        "InanimateComponent": {}
+    },
+    "map_table": {
+        "DescriptionComponent": { "Name": "Map Table" },
+        "AsciiAppearanceComponent": { "Character": "-", "R": 80, "G": 130, "B": 200 },
+        "SolidComponent": {},
+        "InanimateComponent": {}
+    },
+    "holo_display": {
+        "DescriptionComponent": { "Name": "Holo-Display" },
+        "AsciiAppearanceComponent": { "Character": "H", "R": 100, "G": 220, "B": 255 },
+        "SolidComponent": {},
+        "InanimateComponent": {}
+    },
+    "control_panel": {
+        "DescriptionComponent": { "Name": "Control Panel" },
+        "AsciiAppearanceComponent": { "Character": "P", "R": 0, "G": 200, "B": 200 },
+        "SolidComponent": {},
+        "InanimateComponent": {}
+    },
+    "docking_monitor": {
+        "DescriptionComponent": { "Name": "Docking Monitor" },
+        "AsciiAppearanceComponent": { "Character": "D", "R": 0, "G": 180, "B": 180 },
+        "SolidComponent": {},
+        "InanimateComponent": {}
+    },
+    "signal_processor": {
+        "DescriptionComponent": { "Name": "Signal Processor" },
+        "AsciiAppearanceComponent": { "Character": "S", "R": 50, "G": 180, "B": 180 },
+        "SolidComponent": {},
+        "InanimateComponent": {}
+    },
+    "antenna_rack": {
+        "DescriptionComponent": { "Name": "Antenna Rack" },
+        "AsciiAppearanceComponent": { "Character": "Y", "R": 150, "G": 180, "B": 180 },
+        "SolidComponent": {},
+        "InanimateComponent": {}
+    },
+    "status_light": {
+        "DescriptionComponent": { "Name": "Status Light" },
+        "AsciiAppearanceComponent": { "Character": "*", "R": 50, "G": 220, "B": 50 },
+        "InanimateComponent": {}
+    },
+    "junction_box": {
+        "DescriptionComponent": { "Name": "Junction Box" },
+        "AsciiAppearanceComponent": { "Character": "J", "R": 200, "G": 160, "B": 50 },
+        "SolidComponent": {},
+        "InanimateComponent": {}
+    },
+    "operator_console": {
+        "DescriptionComponent": { "Name": "Operator Console" },
+        "AsciiAppearanceComponent": { "Character": "C", "R": 0, "G": 160, "B": 200 },
+        "SolidComponent": {},
+        "InanimateComponent": {}
+    },
+    "environmental_panel": {
+        "DescriptionComponent": { "Name": "Environmental Control Panel" },
+        "AsciiAppearanceComponent": { "Character": "E", "R": 50, "G": 200, "B": 150 },
+        "SolidComponent": {},
+        "InanimateComponent": {}
+    },
+    "monitoring_wall": {
+        "DescriptionComponent": { "Name": "Monitoring Wall" },
+        "AsciiAppearanceComponent": { "Character": "W", "R": 0, "G": 160, "B": 180 },
+        "SolidComponent": {},
+        "InanimateComponent": {}
+    }
+}

@@ -109,6 +109,12 @@ func NewSimWorld() (*SimWorld, error) {
 		sw.Level.AddEntity(item)
 	}
 
+	crate, _ := factory.Create("crate", pX+3, pY)
+	if crate != nil {
+		crate.GetComponent("Position").(*component.PositionComponent).SetPosition(pX+3, pY, 0)
+		sw.Level.AddEntity(crate)
+	}
+
 	return sw, nil
 }
 

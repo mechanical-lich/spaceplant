@@ -262,23 +262,48 @@ func (s *SPClientState) Update(_ *transport.Snapshot) client.ClientState {
 	return nil
 }
 
-// nearbyInventoryEntity returns the first entity on the player's tile (other
-// than the player) that has an inventory, or nil if none exists.
+// nearbyInventoryEntity returns the best inventory-bearing entity to show in
+// the nearby panel:
+//   - Dead entities (corpses) must be on the player's exact tile — the player
+//     can only stand on them once they're dead, which acts as a loot gate.
+//   - Inanimate containers (lockers, crates, etc.) are found within 1 tile so
+//     the player doesn't have to stand inside them.
 func (s *SPClientState) nearbyInventoryEntity() *ecs.Entity {
 	if s.sim.Player == nil {
 		return nil
 	}
 	pc := s.sim.Player.GetComponent(component.Position).(*component.PositionComponent)
+	px, py, pz := pc.GetX(), pc.GetY(), pc.GetZ()
+
+	hasInv := func(e *ecs.Entity) bool {
+		return e.HasComponent(component.BodyInventory) || e.HasComponent(component.Inventory)
+	}
+
+	// First pass: same tile only — picks up dead entities (and same-tile containers).
 	var buf []*ecs.Entity
-	s.sim.Level.Level.GetEntitiesAt(pc.GetX(), pc.GetY(), pc.GetZ(), &buf)
+	s.sim.Level.Level.GetEntitiesAt(px, py, pz, &buf)
 	for _, e := range buf {
-		if e == s.sim.Player {
-			continue
-		}
-		if e.HasComponent(component.BodyInventory) || e.HasComponent(component.Inventory) {
+		if e != s.sim.Player && hasInv(e) {
 			return e
 		}
 	}
+
+	// Second pass: adjacent tiles — inanimate containers only (not live creatures).
+	for dy := -1; dy <= 1; dy++ {
+		for dx := -1; dx <= 1; dx++ {
+			if dx == 0 && dy == 0 {
+				continue
+			}
+			buf = buf[:0]
+			s.sim.Level.Level.GetEntitiesAt(px+dx, py+dy, pz, &buf)
+			for _, e := range buf {
+				if e != s.sim.Player && hasInv(e) && e.HasComponent(component.Inanimate) {
+					return e
+				}
+			}
+		}
+	}
+
 	return nil
 }
 

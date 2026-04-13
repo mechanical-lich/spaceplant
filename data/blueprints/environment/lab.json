@@ -1,0 +1,91 @@
+{
+    "lab_bench": {
+        "DescriptionComponent": { "Name": "Lab Bench" },
+        "AsciiAppearanceComponent": { "Character": "_", "R": 200, "G": 220, "B": 200 },
+        "SolidComponent": {},
+        "InanimateComponent": {}
+    },
+    "specimen_tank": {
+        "DescriptionComponent": { "Name": "Specimen Tank" },
+        "AsciiAppearanceComponent": { "Character": "O", "R": 100, "G": 200, "B": 150 },
+        "SolidComponent": {},
+        "InanimateComponent": {}
+    },
+    "fume_hood": {
+        "DescriptionComponent": { "Name": "Fume Hood" },
+        "AsciiAppearanceComponent": { "Character": "H", "R": 200, "G": 200, "B": 100 },
+        "SolidComponent": {},
+        "InanimateComponent": {}
+    },
+    "centrifuge": {
+        "DescriptionComponent": { "Name": "Centrifuge" },
+        "AsciiAppearanceComponent": { "Character": "o", "R": 200, "G": 220, "B": 200 },
+        "SolidComponent": {},
+        "InanimateComponent": {}
+    },
+    "microscope": {
+        "DescriptionComponent": { "Name": "Microscope" },
+        "AsciiAppearanceComponent": { "Character": "m", "R": 180, "G": 200, "B": 180 },
+        "InanimateComponent": {}
+    },
+    "server_rack": {
+        "DescriptionComponent": { "Name": "Server Rack" },
+        "AsciiAppearanceComponent": { "Character": "#", "R": 50, "G": 180, "B": 100 },
+        "SolidComponent": {},
+        "InanimateComponent": {}
+    },
+    "grow_rack": {
+        "DescriptionComponent": { "Name": "Grow Rack" },
+        "AsciiAppearanceComponent": { "Character": "#", "R": 50, "G": 200, "B": 50 },
+        "SolidComponent": {},
+        "InanimateComponent": {}
+    },
+    "containment_cabinet": {
+        "DescriptionComponent": { "Name": "Containment Cabinet" },
+        "AsciiAppearanceComponent": { "Character": "[", "R": 200, "G": 100, "B": 50 },
+        "SolidComponent": {},
+        "InanimateComponent": {}
+    },
+    "sample_rack": {
+        "DescriptionComponent": { "Name": "Sample Rack" },
+        "AsciiAppearanceComponent": { "Character": "=", "R": 180, "G": 200, "B": 180 },
+        "SolidComponent": {},
+        "InanimateComponent": {}
+    },
+    "3d_printer": {
+        "DescriptionComponent": { "Name": "3D Printer" },
+        "AsciiAppearanceComponent": { "Character": "P", "R": 180, "G": 180, "B": 220 },
+        "SolidComponent": {},
+        "InanimateComponent": {}
+    },
+    "telescope_mount": {
+        "DescriptionComponent": { "Name": "Telescope Mount" },
+        "AsciiAppearanceComponent": { "Character": "T", "R": 100, "G": 100, "B": 200 },
+        "SolidComponent": {},
+        "InanimateComponent": {}
+    },
+    "reagent_cabinet": {
+        "DescriptionComponent": { "Name": "Reagent Cabinet" },
+        "AsciiAppearanceComponent": { "Character": "[", "R": 200, "G": 180, "B": 100 },
+        "SolidComponent": {},
+        "InanimateComponent": {}
+    },
+    "incubator": {
+        "DescriptionComponent": { "Name": "Incubator" },
+        "AsciiAppearanceComponent": { "Character": "I", "R": 150, "G": 220, "B": 180 },
+        "SolidComponent": {},
+        "InanimateComponent": {}
+    },
+    "nutrient_tank": {
+        "DescriptionComponent": { "Name": "Nutrient Tank" },
+        "AsciiAppearanceComponent": { "Character": "O", "R": 80, "G": 180, "B": 100 },
+        "SolidComponent": {},
+        "InanimateComponent": {}
+    },
+    "analysis_instrument": {
+        "DescriptionComponent": { "Name": "Analysis Instrument" },
+        "AsciiAppearanceComponent": { "Character": "a", "R": 180, "G": 200, "B": 220 },
+        "SolidComponent": {},
+        "InanimateComponent": {}
+    }
+}

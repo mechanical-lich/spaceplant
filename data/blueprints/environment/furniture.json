@@ -1,0 +1,117 @@
+{
+    "bunk_bed": {
+        "DescriptionComponent": { "Name": "Bunk Bed" },
+        "AsciiAppearanceComponent": { "Character": "=", "R": 150, "G": 100, "B": 70 },
+        "SolidComponent": {},
+        "InanimateComponent": {}
+    },
+    "single_bed": {
+        "DescriptionComponent": { "Name": "Bed" },
+        "AsciiAppearanceComponent": { "Character": "=", "R": 160, "G": 110, "B": 80 },
+        "SolidComponent": {},
+        "InanimateComponent": {}
+    },
+    "desk": {
+        "DescriptionComponent": { "Name": "Desk" },
+        "AsciiAppearanceComponent": { "Character": "-", "R": 140, "G": 110, "B": 80 },
+        "SolidComponent": {},
+        "InanimateComponent": {}
+    },
+    "locker": {
+        "DescriptionComponent": { "Name": "Locker" },
+        "AsciiAppearanceComponent": { "Character": "[", "R": 120, "G": 120, "B": 150 },
+        "SolidComponent": {},
+        "InanimateComponent": {}
+    },
+    "wardrobe": {
+        "DescriptionComponent": { "Name": "Wardrobe" },
+        "AsciiAppearanceComponent": { "Character": "[", "R": 130, "G": 90, "B": 60 },
+        "SolidComponent": {},
+        "InanimateComponent": {}
+    },
+    "couch": {
+        "DescriptionComponent": { "Name": "Couch" },
+        "AsciiAppearanceComponent": { "Character": "~", "R": 100, "G": 80, "B": 130 },
+        "SolidComponent": {},
+        "InanimateComponent": {}
+    },
+    "table": {
+        "DescriptionComponent": { "Name": "Table" },
+        "AsciiAppearanceComponent": { "Character": "-", "R": 140, "G": 110, "B": 80 },
+        "SolidComponent": {},
+        "InanimateComponent": {}
+    },
+    "bench": {
+        "DescriptionComponent": { "Name": "Bench" },
+        "AsciiAppearanceComponent": { "Character": "_", "R": 130, "G": 100, "B": 70 },
+        "InanimateComponent": {}
+    },
+    "chair": {
+        "DescriptionComponent": { "Name": "Chair" },
+        "AsciiAppearanceComponent": { "Character": "h", "R": 130, "G": 100, "B": 70 },
+        "InanimateComponent": {}
+    },
+    "bookshelf": {
+        "DescriptionComponent": { "Name": "Bookshelf" },
+        "AsciiAppearanceComponent": { "Character": "#", "R": 130, "G": 90, "B": 60 },
+        "SolidComponent": {},
+        "InanimateComponent": {}
+    },
+    "storage_unit": {
+        "DescriptionComponent": { "Name": "Storage Unit" },
+        "AsciiAppearanceComponent": { "Character": "[", "R": 120, "G": 120, "B": 140 },
+        "SolidComponent": {},
+        "InanimateComponent": {}
+    },
+    "folding_table": {
+        "DescriptionComponent": { "Name": "Folding Table" },
+        "AsciiAppearanceComponent": { "Character": "-", "R": 150, "G": 150, "B": 160 },
+        "SolidComponent": {},
+        "InanimateComponent": {}
+    },
+    "kitchenette": {
+        "DescriptionComponent": { "Name": "Kitchenette" },
+        "AsciiAppearanceComponent": { "Character": "K", "R": 180, "G": 160, "B": 120 },
+        "SolidComponent": {},
+        "InanimateComponent": {}
+    },
+    "privacy_curtain": {
+        "DescriptionComponent": { "Name": "Privacy Curtain" },
+        "AsciiAppearanceComponent": { "Character": "|", "R": 160, "G": 160, "B": 180 },
+        "InanimateComponent": {}
+    },
+    "porthole": {
+        "DescriptionComponent": { "Name": "Porthole" },
+        "AsciiAppearanceComponent": { "Character": "O", "R": 100, "G": 160, "B": 220 },
+        "SolidComponent": {},
+        "InanimateComponent": {}
+    },
+    "bar_stool": {
+        "DescriptionComponent": { "Name": "Bar Stool" },
+        "AsciiAppearanceComponent": { "Character": "i", "R": 130, "G": 100, "B": 70 },
+        "InanimateComponent": {}
+    },
+    "bar_counter": {
+        "DescriptionComponent": { "Name": "Bar Counter" },
+        "AsciiAppearanceComponent": { "Character": "-", "R": 100, "G": 70, "B": 50 },
+        "SolidComponent": {},
+        "InanimateComponent": {}
+    },
+    "serving_line": {
+        "DescriptionComponent": { "Name": "Serving Line" },
+        "AsciiAppearanceComponent": { "Character": "=", "R": 180, "G": 170, "B": 150 },
+        "SolidComponent": {},
+        "InanimateComponent": {}
+    },
+    "planter": {
+        "DescriptionComponent": { "Name": "Planter" },
+        "AsciiAppearanceComponent": { "Character": "v", "R": 60, "G": 160, "B": 60 },
+        "InanimateComponent": {}
+    },
+    "sleeping_cot": {
+        "DescriptionComponent": { "Name": "Sleeping Cot" },
+        "AsciiAppearanceComponent": { "Character": "=", "R": 180, "G": 160, "B": 140 },
+        "SolidComponent": {},
+        "InanimateComponent": {}
+    }
+}

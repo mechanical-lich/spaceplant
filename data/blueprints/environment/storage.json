@@ -1,0 +1,93 @@
+{
+    "crate": {
+        "DescriptionComponent": { "Name": "Crate" },
+        "AsciiAppearanceComponent": { "Character": "#", "R": 180, "G": 150, "B": 80 },
+        "SolidComponent": {},
+        "InanimateComponent": {},
+        "InventoryComponent": {}
+    },
+    "pallet": {
+        "DescriptionComponent": { "Name": "Pallet" },
+        "AsciiAppearanceComponent": { "Character": "_", "R": 170, "G": 140, "B": 90 },
+        "InanimateComponent": {}
+    },
+    "shelving": {
+        "DescriptionComponent": { "Name": "Shelving" },
+        "AsciiAppearanceComponent": { "Character": "=", "R": 160, "G": 140, "B": 100 },
+        "SolidComponent": {},
+        "InanimateComponent": {},
+        "InventoryComponent": {}
+    },
+    "parts_bin": {
+        "DescriptionComponent": { "Name": "Parts Bin" },
+        "AsciiAppearanceComponent": { "Character": "[", "R": 160, "G": 130, "B": 80 },
+        "InanimateComponent": {},
+        "InventoryComponent": {}
+    },
+    "cargo_net": {
+        "DescriptionComponent": { "Name": "Cargo Net" },
+        "AsciiAppearanceComponent": { "Character": "~", "R": 120, "G": 110, "B": 70 },
+        "InanimateComponent": {}
+    },
+    "secure_locker": {
+        "DescriptionComponent": { "Name": "Secure Locker" },
+        "AsciiAppearanceComponent": { "Character": "[", "R": 150, "G": 150, "B": 190 },
+        "SolidComponent": {},
+        "InanimateComponent": {},
+        "InventoryComponent": {}
+    },
+    "safe": {
+        "DescriptionComponent": { "Name": "Safe" },
+        "AsciiAppearanceComponent": { "Character": "$", "R": 180, "G": 180, "B": 210 },
+        "SolidComponent": {},
+        "InanimateComponent": {},
+        "InventoryComponent": {}
+    },
+    "vault_door": {
+        "DescriptionComponent": { "Name": "Vault Door" },
+        "AsciiAppearanceComponent": { "Character": "V", "R": 180, "G": 180, "B": 210 },
+        "SolidComponent": {},
+        "InanimateComponent": {}
+    },
+    "sorting_bin": {
+        "DescriptionComponent": { "Name": "Sorting Bin" },
+        "AsciiAppearanceComponent": { "Character": "[", "R": 160, "G": 130, "B": 80 },
+        "InanimateComponent": {},
+        "InventoryComponent": {}
+    },
+    "tool_rack": {
+        "DescriptionComponent": { "Name": "Tool Rack" },
+        "AsciiAppearanceComponent": { "Character": "t", "R": 160, "G": 120, "B": 60 },
+        "SolidComponent": {},
+        "InanimateComponent": {},
+        "InventoryComponent": {}
+    },
+    "weapons_locker": {
+        "DescriptionComponent": { "Name": "Weapons Locker" },
+        "AsciiAppearanceComponent": { "Character": "[", "R": 180, "G": 80, "B": 80 },
+        "SolidComponent": {},
+        "InanimateComponent": {},
+        "InventoryComponent": {}
+    },
+    "evidence_locker": {
+        "DescriptionComponent": { "Name": "Evidence Locker" },
+        "AsciiAppearanceComponent": { "Character": "[", "R": 160, "G": 160, "B": 200 },
+        "SolidComponent": {},
+        "InanimateComponent": {},
+        "InventoryComponent": {}
+    },
+    "spare_parts_shelf": {
+        "DescriptionComponent": { "Name": "Spare Parts Shelf" },
+        "AsciiAppearanceComponent": { "Character": "=", "R": 150, "G": 130, "B": 90 },
+        "SolidComponent": {},
+        "InanimateComponent": {},
+        "InventoryComponent": {}
+    },
+    "pallet_rack": {
+        "DescriptionComponent": { "Name": "Pallet Rack" },
+        "AsciiAppearanceComponent": { "Character": "#", "R": 170, "G": 140, "B": 80 },
+        "SolidComponent": {},
+        "InanimateComponent": {},
+        "InventoryComponent": {}
+    }
+}

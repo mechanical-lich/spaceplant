@@ -1,0 +1,115 @@
+{
+    "reactor_core": {
+        "DescriptionComponent": { "Name": "Reactor Core" },
+        "AsciiAppearanceComponent": { "Character": "@", "R": 255, "G": 100, "B": 50 },
+        "SolidComponent": {},
+        "InanimateComponent": {}
+    },
+    "workbench": {
+        "DescriptionComponent": { "Name": "Workbench" },
+        "AsciiAppearanceComponent": { "Character": "_", "R": 160, "G": 130, "B": 80 },
+        "SolidComponent": {},
+        "InanimateComponent": {}
+    },
+    "welding_rig": {
+        "DescriptionComponent": { "Name": "Welding Rig" },
+        "AsciiAppearanceComponent": { "Character": "W", "R": 255, "G": 180, "B": 50 },
+        "SolidComponent": {},
+        "InanimateComponent": {}
+    },
+    "hoist": {
+        "DescriptionComponent": { "Name": "Hoist" },
+        "AsciiAppearanceComponent": { "Character": "^", "R": 180, "G": 160, "B": 100 },
+        "InanimateComponent": {}
+    },
+    "conveyor_belt": {
+        "DescriptionComponent": { "Name": "Conveyor Belt" },
+        "AsciiAppearanceComponent": { "Character": "=", "R": 160, "G": 140, "B": 80 },
+        "InanimateComponent": {}
+    },
+    "crane": {
+        "DescriptionComponent": { "Name": "Crane" },
+        "AsciiAppearanceComponent": { "Character": "C", "R": 255, "G": 180, "B": 50 },
+        "SolidComponent": {},
+        "InanimateComponent": {}
+    },
+    "airlock_controls": {
+        "DescriptionComponent": { "Name": "Airlock Controls" },
+        "AsciiAppearanceComponent": { "Character": "A", "R": 50, "G": 200, "B": 200 },
+        "SolidComponent": {},
+        "InanimateComponent": {}
+    },
+    "coolant_pipe": {
+        "DescriptionComponent": { "Name": "Coolant Pipe" },
+        "AsciiAppearanceComponent": { "Character": "-", "R": 100, "G": 180, "B": 255 },
+        "InanimateComponent": {}
+    },
+    "catwalk": {
+        "DescriptionComponent": { "Name": "Catwalk" },
+        "AsciiAppearanceComponent": { "Character": "=", "R": 160, "G": 160, "B": 170 },
+        "InanimateComponent": {}
+    },
+    "suit_rack": {
+        "DescriptionComponent": { "Name": "EVA Suit Rack" },
+        "AsciiAppearanceComponent": { "Character": "[", "R": 200, "G": 200, "B": 220 },
+        "SolidComponent": {},
+        "InanimateComponent": {}
+    },
+    "pressure_gauge": {
+        "DescriptionComponent": { "Name": "Pressure Gauge" },
+        "AsciiAppearanceComponent": { "Character": "o", "R": 200, "G": 180, "B": 100 },
+        "InanimateComponent": {}
+    },
+    "fuel_tank": {
+        "DescriptionComponent": { "Name": "Fuel Tank" },
+        "AsciiAppearanceComponent": { "Character": "O", "R": 200, "G": 100, "B": 50 },
+        "SolidComponent": {},
+        "InanimateComponent": {}
+    },
+    "filtration_tank": {
+        "DescriptionComponent": { "Name": "Filtration Tank" },
+        "AsciiAppearanceComponent": { "Character": "O", "R": 100, "G": 180, "B": 200 },
+        "SolidComponent": {},
+        "InanimateComponent": {}
+    },
+    "tool_cart": {
+        "DescriptionComponent": { "Name": "Tool Cart" },
+        "AsciiAppearanceComponent": { "Character": "c", "R": 160, "G": 140, "B": 80 },
+        "InanimateComponent": {}
+    },
+    "charging_station": {
+        "DescriptionComponent": { "Name": "Charging Station" },
+        "AsciiAppearanceComponent": { "Character": "+", "R": 50, "G": 200, "B": 50 },
+        "SolidComponent": {},
+        "InanimateComponent": {}
+    },
+    "turret_mount": {
+        "DescriptionComponent": { "Name": "Turret Mount" },
+        "AsciiAppearanceComponent": { "Character": "^", "R": 200, "G": 50, "B": 50 },
+        "SolidComponent": {},
+        "InanimateComponent": {}
+    },
+    "diagnostic_panel": {
+        "DescriptionComponent": { "Name": "Diagnostic Panel" },
+        "AsciiAppearanceComponent": { "Character": "P", "R": 50, "G": 180, "B": 180 },
+        "SolidComponent": {},
+        "InanimateComponent": {}
+    },
+    "radiation_shielding": {
+        "DescriptionComponent": { "Name": "Radiation Shielding" },
+        "AsciiAppearanceComponent": { "Character": "#", "R": 200, "G": 200, "B": 100 },
+        "SolidComponent": {},
+        "InanimateComponent": {}
+    },
+    "containment_vessel": {
+        "DescriptionComponent": { "Name": "Containment Vessel" },
+        "AsciiAppearanceComponent": { "Character": "O", "R": 255, "G": 150, "B": 50 },
+        "SolidComponent": {},
+        "InanimateComponent": {}
+    },
+    "maintenance_platform": {
+        "DescriptionComponent": { "Name": "Maintenance Platform" },
+        "AsciiAppearanceComponent": { "Character": "=", "R": 150, "G": 150, "B": 160 },
+        "InanimateComponent": {}
+    }
+}

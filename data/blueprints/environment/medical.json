@@ -1,0 +1,85 @@
+{
+    "exam_bed": {
+        "DescriptionComponent": { "Name": "Exam Bed" },
+        "AsciiAppearanceComponent": { "Character": "=", "R": 200, "G": 220, "B": 255 },
+        "SolidComponent": {},
+        "InanimateComponent": {}
+    },
+    "operating_table": {
+        "DescriptionComponent": { "Name": "Operating Table" },
+        "AsciiAppearanceComponent": { "Character": "=", "R": 220, "G": 220, "B": 255 },
+        "SolidComponent": {},
+        "InanimateComponent": {}
+    },
+    "surgical_light": {
+        "DescriptionComponent": { "Name": "Surgical Light" },
+        "AsciiAppearanceComponent": { "Character": "*", "R": 255, "G": 255, "B": 200 },
+        "InanimateComponent": {}
+    },
+    "vitals_monitor": {
+        "DescriptionComponent": { "Name": "Vitals Monitor" },
+        "AsciiAppearanceComponent": { "Character": "M", "R": 0, "G": 200, "B": 200 },
+        "SolidComponent": {},
+        "InanimateComponent": {}
+    },
+    "cryo_pod": {
+        "DescriptionComponent": { "Name": "Cryo Pod" },
+        "AsciiAppearanceComponent": { "Character": "O", "R": 180, "G": 220, "B": 255 },
+        "SolidComponent": {},
+        "InanimateComponent": {}
+    },
+    "life_support_rig": {
+        "DescriptionComponent": { "Name": "Life Support Rig" },
+        "AsciiAppearanceComponent": { "Character": "+", "R": 200, "G": 50, "B": 50 },
+        "SolidComponent": {},
+        "InanimateComponent": {}
+    },
+    "decontamination_shower": {
+        "DescriptionComponent": { "Name": "Decontamination Shower" },
+        "AsciiAppearanceComponent": { "Character": "|", "R": 100, "G": 200, "B": 255 },
+        "SolidComponent": {},
+        "InanimateComponent": {}
+    },
+    "drug_cabinet": {
+        "DescriptionComponent": { "Name": "Drug Cabinet" },
+        "AsciiAppearanceComponent": { "Character": "[", "R": 200, "G": 220, "B": 255 },
+        "SolidComponent": {},
+        "InanimateComponent": {}
+    },
+    "diagnostic_console": {
+        "DescriptionComponent": { "Name": "Diagnostic Console" },
+        "AsciiAppearanceComponent": { "Character": "D", "R": 50, "G": 180, "B": 220 },
+        "SolidComponent": {},
+        "InanimateComponent": {}
+    },
+    "specimen_freezer": {
+        "DescriptionComponent": { "Name": "Specimen Freezer" },
+        "AsciiAppearanceComponent": { "Character": "[", "R": 180, "G": 220, "B": 255 },
+        "SolidComponent": {},
+        "InanimateComponent": {}
+    },
+    "sterilization_unit": {
+        "DescriptionComponent": { "Name": "Sterilization Unit" },
+        "AsciiAppearanceComponent": { "Character": "S", "R": 200, "G": 220, "B": 255 },
+        "SolidComponent": {},
+        "InanimateComponent": {}
+    },
+    "anesthesia_console": {
+        "DescriptionComponent": { "Name": "Anesthesia Console" },
+        "AsciiAppearanceComponent": { "Character": "A", "R": 50, "G": 160, "B": 200 },
+        "SolidComponent": {},
+        "InanimateComponent": {}
+    },
+    "morgue_slab": {
+        "DescriptionComponent": { "Name": "Morgue Slab" },
+        "AsciiAppearanceComponent": { "Character": "=", "R": 140, "G": 150, "B": 170 },
+        "SolidComponent": {},
+        "InanimateComponent": {}
+    },
+    "ppe_station": {
+        "DescriptionComponent": { "Name": "PPE Station" },
+        "AsciiAppearanceComponent": { "Character": "P", "R": 220, "G": 200, "B": 100 },
+        "SolidComponent": {},
+        "InanimateComponent": {}
+    }
+}
