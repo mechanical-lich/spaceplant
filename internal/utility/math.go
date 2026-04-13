@@ -39,6 +39,10 @@ func Distance(x1 int, y1 int, x2 int, y2 int) int {
 	return d
 }
 
+func Shuffle(s []string) {
+	rand.Shuffle(len(s), func(i, j int) { s[i], s[j] = s[j], s[i] })
+}
+
 func Sgn(a int) int {
 	switch {
 	case a < 0:

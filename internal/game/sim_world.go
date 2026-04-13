@@ -13,11 +13,10 @@ import (
 	"github.com/mechanical-lich/spaceplant/internal/gamemaster"
 	"github.com/mechanical-lich/spaceplant/internal/generation"
 	"github.com/mechanical-lich/spaceplant/internal/system"
-	"github.com/mechanical-lich/spaceplant/internal/utility"
 	"github.com/mechanical-lich/spaceplant/internal/world"
 )
 
-const numLevels = 4
+const numLevels = 6 // must match len(generation.FloorStack)
 
 // CharacterData holds the player's choices from the character creator.
 type CharacterData struct {
@@ -40,9 +39,10 @@ type CharacterData struct {
 // It is created once at startup and shared (via pointer) between
 // MainSimState (server) and SPClientState (graphical client, same process).
 type SimWorld struct {
-	Level            *world.Level
-	Player           *ecs.Entity
-	CurrentZ         int
+	Level        *world.Level
+	Player       *ecs.Entity
+	CurrentZ     int
+	FloorResults []generation.FloorResult
 	systemManager    *ecs.SystemManager
 	aiSystem         *system.AISystem
 	advancedAISystem *system.AdvancedAISystem
@@ -68,25 +68,12 @@ func NewSimWorld() (*SimWorld, error) {
 	pY := 50
 	sw.Level = world.NewLevel(100, 100, numLevels, world.NewDefaultTheme())
 
+	sw.FloorResults = generation.GenerateFloors(sw.Level, pX, pY)
+
 	for z := 0; z < numLevels; z++ {
-		switch utility.GetRandom(0, 3) {
-		case 0:
-			generation.GenerateStation(sw.Level, z, 100, 100)
-		case 1:
-			generation.GenerateRoundStation(sw.Level, z)
-		case 2:
-			generation.GenerateRectangleStation(sw.Level, z)
-		}
-		sw.Level.Polish(z)
 		sw.gm.Init(sw.Level, z)
 		sw.gm.PlaceLockedProgression(sw.Level, pX, pY, z, z+1)
 	}
-
-	// Temp stair gen
-	sw.Level.SetTileTypeAt(pX, pY, 0, world.TypeStairsUp)
-	sw.Level.Polish(0)
-	sw.Level.SetTileTypeAt(pX, pY, 1, world.TypeStairsDown)
-	sw.Level.Polish(1)
 
 	// Systems
 	sw.systemManager.AddSystem(&rlsystems.StatusConditionSystem{

@@ -268,6 +268,14 @@ func (g *GUIViewMain) Draw(screen *ebiten.Image, s any) {
 	}
 
 	cfg := config.Global()
+	z := cs.sim.CurrentZ
+	themeName := "Unknown"
+	if z >= 0 && z < len(cs.sim.FloorResults) {
+		themeName = cs.sim.FloorResults[z].Theme.Name
+	}
+	mlge_text.Draw(screen,
+		fmt.Sprintf("Floor %d: %s", z, themeName),
+		12, cfg.WorldWidth+5, 156, color.RGBA{150, 220, 255, 255})
 	mlge_text.Draw(screen,
 		fmt.Sprintf("Turn: %d  Tick: %d", cs.sim.TurnCount, cs.sim.TickCount),
 		12, cfg.WorldWidth+5, 170, color.RGBA{200, 200, 200, 255})

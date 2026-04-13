@@ -263,7 +263,8 @@ func CarveMaintenanceTunnel(l *world.Level, z, x1, y1, x2, y2, floor int) bool {
 	return true
 }
 
-func BudRooms(l *world.Level, z, width, height, numRooms int) {
+func BudRooms(l *world.Level, z, width, height, numRooms int) []Room {
+	var rooms []Room
 	for i := 0; i < numRooms; i++ {
 		done := false
 		tries := 0
@@ -290,6 +291,7 @@ func BudRooms(l *world.Level, z, width, height, numRooms int) {
 							if !RoomIntersects(l, z, rX-rWidth/2, rY-rHeight-1, rWidth, rHeight) {
 								CarveRoom(l, rX-rWidth/2, rY-rHeight+1, z, rWidth, rHeight, world.TypeWall, world.TypeFloor, true, false)
 								spawnDoor(l, rX, rY, z)
+								rooms = append(rooms, Room{X: rX - rWidth/2, Y: rY - rHeight + 1, Width: rWidth, Height: rHeight})
 								done = true
 							}
 						}
@@ -301,6 +303,7 @@ func BudRooms(l *world.Level, z, width, height, numRooms int) {
 							if !RoomIntersects(l, z, rX-rWidth/2, rY+1, rWidth, rHeight) {
 								CarveRoom(l, rX-rWidth/2, rY, z, rWidth, rHeight, world.TypeWall, world.TypeFloor, true, false)
 								spawnDoor(l, rX, rY, z)
+								rooms = append(rooms, Room{X: rX - rWidth/2, Y: rY, Width: rWidth, Height: rHeight})
 								done = true
 							}
 						}
@@ -312,6 +315,7 @@ func BudRooms(l *world.Level, z, width, height, numRooms int) {
 							if !RoomIntersects(l, z, rX-rWidth, rY-rHeight/2, rWidth, rHeight) {
 								CarveRoom(l, rX-rWidth+1, rY-rHeight/2, z, rWidth, rHeight, world.TypeWall, world.TypeFloor, true, false)
 								spawnDoor(l, rX, rY, z)
+								rooms = append(rooms, Room{X: rX - rWidth + 1, Y: rY - rHeight/2, Width: rWidth, Height: rHeight})
 								done = true
 							}
 						}
@@ -323,6 +327,7 @@ func BudRooms(l *world.Level, z, width, height, numRooms int) {
 							if !RoomIntersects(l, z, rX+1, rY-rHeight/2, rWidth, rHeight) {
 								CarveRoom(l, rX, rY-rHeight/2, z, rWidth, rHeight, world.TypeWall, world.TypeFloor, true, false)
 								spawnDoor(l, rX, rY, z)
+								rooms = append(rooms, Room{X: rX, Y: rY - rHeight/2, Width: rWidth, Height: rHeight})
 								done = true
 							}
 						}
@@ -331,6 +336,7 @@ func BudRooms(l *world.Level, z, width, height, numRooms int) {
 			}
 		}
 	}
+	return rooms
 }
 
 func BudRoom(l *world.Level, z, x1, y1, x2, y2, width, height int) bool {
