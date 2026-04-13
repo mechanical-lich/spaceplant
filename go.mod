@@ -5,7 +5,7 @@ go 1.25.0
 require (
 	github.com/gdamore/tcell/v2 v2.13.8
 	github.com/hajimehoshi/ebiten/v2 v2.9.9
-	github.com/mechanical-lich/ml-rogue-lib v1.9.3
+	github.com/mechanical-lich/ml-rogue-lib v1.9.4
 	github.com/mechanical-lich/mlge v1.5.3
 )
 
@@ -30,4 +30,4 @@ require (
 )
 
 // replace github.com/mechanical-lich/mlge => ../mlge
-//replace github.com/mechanical-lich/ml-rogue-lib => ../ml-rogue-lib
+// replace github.com/mechanical-lich/ml-rogue-lib => ../ml-rogue-lib

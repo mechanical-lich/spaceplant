@@ -18,7 +18,7 @@
         },
         "AppearanceComponent": {
             "Resource": "weapons",
-            "SpriteX": 0,
+            "SpriteX": 128,
             "SpriteY": 0,
             "R": 150,
             "G": 150,
@@ -67,7 +67,7 @@
         },
         "AppearanceComponent": {
             "Resource": "weapons",
-            "SpriteX": 0,
+            "SpriteX": 96,
             "SpriteY": 0,
             "R": 180,
             "G": 120,
@@ -115,7 +115,7 @@
         },
         "AppearanceComponent": {
             "Resource": "weapons",
-            "SpriteX": 0,
+            "SpriteX": 64,
             "SpriteY": 0,
             "R": 200,
             "G": 200,
@@ -208,7 +208,7 @@
         },
         "AppearanceComponent": {
             "Resource": "weapons",
-            "SpriteX": 0,
+            "SpriteX": 160,
             "SpriteY": 0,
             "R": 200,
             "G": 200,
@@ -246,7 +246,7 @@
         },
         "AppearanceComponent": {
             "Resource": "weapons",
-            "SpriteX": 0,
+            "SpriteX": 192,
             "SpriteY": 0,
             "R": 160,
             "G": 160,
@@ -284,7 +284,7 @@
         },
         "AppearanceComponent": {
             "Resource": "weapons",
-            "SpriteX": 0,
+            "SpriteX": 224,
             "SpriteY": 0,
             "R": 120,
             "G": 120,
@@ -322,7 +322,7 @@
         },
         "AppearanceComponent": {
             "Resource": "weapons",
-            "SpriteX": 0,
+            "SpriteX": 288,
             "SpriteY": 0,
             "R": 220,
             "G": 60,
@@ -360,7 +360,7 @@
         },
         "AppearanceComponent": {
             "Resource": "weapons",
-            "SpriteX": 0,
+            "SpriteX": 320,
             "SpriteY": 0,
             "R": 100,
             "G": 180,
@@ -402,7 +402,7 @@
         },
         "AppearanceComponent": {
             "Resource": "weapons",
-            "SpriteX": 0,
+            "SpriteX": 32,
             "SpriteY": 0,
             "R": 255,
             "G": 120,

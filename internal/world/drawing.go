@@ -11,6 +11,7 @@ import (
 	"github.com/mechanical-lich/ml-rogue-lib/pkg/rlworld"
 	"github.com/mechanical-lich/mlge/ecs"
 	"github.com/mechanical-lich/mlge/resource"
+	mlge_text "github.com/mechanical-lich/mlge/text"
 	"github.com/mechanical-lich/spaceplant/internal/component"
 	"github.com/mechanical-lich/spaceplant/internal/config"
 )
@@ -142,15 +143,20 @@ func (l *Level) DrawTile(output *ebiten.Image, t *Tile, screenX, screenY int, se
 	// Resolve sprite coordinates from tile definition
 	variant := l.Level.ResolveVariant(t)
 	tx, ty, _ := t.Coords()
+	def := rlworld.TileDefinitions[t.Type]
+	texName := def.Resource
+	if texName == "" {
+		texName = "map"
+	}
 	if l.IsOvergrown(tx, ty, z) {
 		// The overgrown sheet has two sub-variants per original tile column.
 		// Pick sub-variant deterministically from the tile index so it's stable across frames.
 		subVariant := t.Idx % 2
 		sX := (variant.SpriteX*2 + subVariant) * spW
-		output.DrawImage(resource.Textures["map-overgrown"].SubImage(image.Rect(sX, variant.SpriteY, sX+spW, variant.SpriteY+spH)).(*ebiten.Image), op)
+		output.DrawImage(resource.Textures[texName+"-overgrown"].SubImage(image.Rect(sX, variant.SpriteY, sX+spW, variant.SpriteY+spH)).(*ebiten.Image), op)
 	} else {
 		sX := variant.SpriteX * spW
-		output.DrawImage(resource.Textures["map"].SubImage(image.Rect(sX, variant.SpriteY, sX+spW, variant.SpriteY+spH)).(*ebiten.Image), op)
+		output.DrawImage(resource.Textures[texName].SubImage(image.Rect(sX, variant.SpriteY, sX+spW, variant.SpriteY+spH)).(*ebiten.Image), op)
 	}
 
 	tileSeen := l.GetSeen(tx, ty, z)
@@ -250,6 +256,14 @@ func DrawEntity(screen *ebiten.Image, entity *ecs.Entity, screenX, screenY float
 	}
 
 	if !entity.HasComponent("AppearanceComponent") {
+		if entity.HasComponent(rlcomponents.AsciiAppearance) {
+			ac := entity.GetComponent(rlcomponents.AsciiAppearance).(*rlcomponents.AsciiAppearanceComponent)
+			fontSize := float64(min(spW, spH)) * 0.75
+			w, h := mlge_text.Measure(ac.Character, fontSize)
+			x := screenX + (float64(spW)-w)/2
+			y := screenY + (float64(spH)-h)/2
+			mlge_text.Draw(screen, ac.Character, fontSize, int(x), int(y), color.RGBA{ac.R, ac.G, ac.B, 255})
+		}
 		return
 	}
 	ac := entity.GetComponent("AppearanceComponent").(*component.AppearanceComponent)
