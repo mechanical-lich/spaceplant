@@ -66,6 +66,7 @@ jobs:
           cp dist/spaceplant${{ matrix.suffix }} staging/$ARCHIVE/
           cp dist/spaceplant-terminal${{ matrix.suffix }} staging/$ARCHIVE/
           cp -r data staging/$ARCHIVE/
+          cp data/config.release.json staging/$ARCHIVE/data/config.json
           cp -r assets staging/$ARCHIVE/
           rm -rf staging/$ARCHIVE/assets/art
 

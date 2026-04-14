@@ -45,7 +45,7 @@ func GenerateRoundStation(l *world.Level, z int) {
 	CarveRoom(l, x-hWidth/2, y+r-1, z, hWidth, hHeight, world.TypeWall, world.TypeFloor, true, false)
 
 	// Rooms and tunnels
-	BudRooms(l, z, l.Width, l.Height, 100)
+	PlaceRooms(l, z, 100)
 	CarveMaintenanceTunnels(l, z, l.Width, l.Height, 30)
 
 	// Doors last — after all carving so no subsequent CarveRoom overwrites the floor tile
@@ -113,7 +113,7 @@ func GenerateRectangleStation(l *world.Level, z int) {
 	CarveMaintenanceTunnel(l, z, l.Width-roomWidth/2-hallwayWidth/2, l.Height/2, x+r-1, y, world.TypeMaintenanceTunnelFloor)
 
 	l.Polish(z)
-	BudRooms(l, z, l.Width, l.Height, 50)
+	PlaceRooms(l, z, 50)
 
 	l.Polish(z)
 	CarveMaintenanceTunnels(l, z, l.Width, l.Height, 30)
@@ -160,7 +160,7 @@ func GenerateStation(l *world.Level, z, width, height int) {
 		CarveRoom(l, x2+1, y2+1, z, tWidth2-2, tHeight2-2, world.TypeFloor, world.TypeFloor, false, false)
 	}
 
-	BudRooms(l, z, width, height, 50)
+	PlaceRooms(l, z, 50)
 
 	// Polish so we can pathfind
 	l.Polish(z)
@@ -221,6 +221,23 @@ func CarveMaintenanceTunnels(l *world.Level, z, width, height, numTunnels int) {
 				continue
 			}
 
+			// Reject paths that pass through existing rooms — tunnels must only
+			// travel through open (void) space between structures.
+			throughRoom := false
+			for i, stepID := range steps {
+				if i == 0 || i == len(steps)-1 {
+					continue // endpoints are boundary wall tiles, always ok
+				}
+				t := l.Level.GetTilePtrIndex(stepID)
+				if t.Type != world.TypeOpen {
+					throughRoom = true
+					break
+				}
+			}
+			if throughRoom {
+				continue
+			}
+
 			for _, stepID := range steps {
 				t := l.Level.GetTilePtrIndex(stepID)
 				tx, ty, _ := t.Coords()
@@ -251,6 +268,17 @@ func CarveMaintenanceTunnel(l *world.Level, z, x1, y1, x2, y2, floor int) bool {
 		return false
 	}
 
+	// Reject paths that pass through existing rooms.
+	for i, stepID := range steps {
+		if i == 0 || i == len(steps)-1 {
+			continue
+		}
+		t := l.Level.GetTilePtrIndex(stepID)
+		if t.Type != world.TypeOpen {
+			return false
+		}
+	}
+
 	for _, stepID := range steps {
 		t := l.Level.GetTilePtrIndex(stepID)
 		tx, ty, _ := t.Coords()
@@ -263,84 +291,91 @@ func CarveMaintenanceTunnel(l *world.Level, z, x1, y1, x2, y2, floor int) bool {
 	return true
 }
 
-func BudRooms(l *world.Level, z, width, height, numRooms int) []Room {
-	var rooms []Room
-	for i := 0; i < numRooms; i++ {
-		done := false
-		tries := 0
-		for tries < 99999 && !done {
-			tries++
-			rX := utility.GetRandom(0, width)
-			rY := utility.GetRandom(0, height)
+// findNearestFloor returns the coordinates of the nearest TypeFloor tile to (cx,cy)
+// by expanding outward up to maxDist tiles (Manhattan-distance BFS).
+func absInt(x int) int {
+	if x < 0 {
+		return -x
+	}
+	return x
+}
 
-			rHeight := utility.GetRandom(4, 10)
-			rWidth := utility.GetRandom(4, 10)
-
-			if rX > 0 && rX < l.Width && rY > 0 && rY < l.Height {
-				t := l.Level.GetTilePtr(rX, rY, z)
-				if t == nil {
+func findNearestFloor(l *world.Level, cx, cy, z, maxDist int) (int, int, bool) {
+	for d := 0; d <= maxDist; d++ {
+		for dx := -d; dx <= d; dx++ {
+			for _, dy := range []int{d - absInt(dx), -(d - absInt(dx))} {
+				x, y := cx+dx, cy+dy
+				if x < 0 || x >= l.Width || y < 0 || y >= l.Height {
 					continue
 				}
-				if l.GetNoBudding(rX, rY, z) {
-					continue
+				if l.GetTileType(x, y, z) == world.TypeFloor {
+					return x, y, true
 				}
-				if t.Type == world.TypeWall {
-					//Up
-					if l.GetTileType(rX, rY-2, z) == world.TypeOpen {
-						if l.GetTileType(rX+1, rY, z) == world.TypeWall && l.GetTileType(rX-1, rY, z) == world.TypeWall {
-							if !RoomIntersects(l, z, rX-rWidth/2, rY-rHeight-1, rWidth, rHeight) {
-								CarveRoom(l, rX-rWidth/2, rY-rHeight+1, z, rWidth, rHeight, world.TypeWall, world.TypeFloor, true, false)
-								spawnDoor(l, rX, rY, z)
-								rooms = append(rooms, Room{X: rX - rWidth/2, Y: rY - rHeight + 1, Width: rWidth, Height: rHeight})
-								done = true
-							}
-						}
-					}
-
-					//Down
-					if l.GetTileType(rX, rY+2, z) == world.TypeOpen {
-						if l.GetTileType(rX+1, rY, z) == world.TypeWall && l.GetTileType(rX-1, rY, z) == world.TypeWall {
-							if !RoomIntersects(l, z, rX-rWidth/2, rY+1, rWidth, rHeight) {
-								CarveRoom(l, rX-rWidth/2, rY, z, rWidth, rHeight, world.TypeWall, world.TypeFloor, true, false)
-								spawnDoor(l, rX, rY, z)
-								rooms = append(rooms, Room{X: rX - rWidth/2, Y: rY, Width: rWidth, Height: rHeight})
-								done = true
-							}
-						}
-					}
-
-					//Left
-					if l.GetTileType(rX-2, rY, z) == world.TypeOpen {
-						if l.GetTileType(rX, rY+1, z) == world.TypeWall && l.GetTileType(rX, rY-1, z) == world.TypeWall {
-							if !RoomIntersects(l, z, rX-rWidth, rY-rHeight/2, rWidth, rHeight) {
-								CarveRoom(l, rX-rWidth+1, rY-rHeight/2, z, rWidth, rHeight, world.TypeWall, world.TypeFloor, true, false)
-								spawnDoor(l, rX, rY, z)
-								rooms = append(rooms, Room{X: rX - rWidth + 1, Y: rY - rHeight/2, Width: rWidth, Height: rHeight})
-								done = true
-							}
-						}
-					}
-
-					//Right
-					if l.GetTileType(rX+2, rY, z) == world.TypeOpen {
-						if l.GetTileType(rX, rY+1, z) == world.TypeWall && l.GetTileType(rX, rY-1, z) == world.TypeWall {
-							if !RoomIntersects(l, z, rX+1, rY-rHeight/2, rWidth, rHeight) {
-								CarveRoom(l, rX, rY-rHeight/2, z, rWidth, rHeight, world.TypeWall, world.TypeFloor, true, false)
-								spawnDoor(l, rX, rY, z)
-								rooms = append(rooms, Room{X: rX, Y: rY - rHeight/2, Width: rWidth, Height: rHeight})
-								done = true
-							}
-						}
-					}
+				if dy == 0 {
+					break // avoid visiting (cx+dx, cy+0) twice
 				}
 			}
 		}
 	}
-	return rooms
+	return 0, 0, false
 }
 
-func BudRoom(l *world.Level, z, x1, y1, x2, y2, width, height int) bool {
-	return true
+// ConnectDisconnectedRegions finds floor tiles unreachable from (startX, startY)
+// and carves maintenance tunnels to connect them. Returns the number of tunnels carved.
+func ConnectDisconnectedRegions(l *world.Level, startX, startY, z int) int {
+	// Find a valid floor start — walk outward if the given point isn't floor.
+	sx, sy, ok := findNearestFloor(l, startX, startY, z, 20)
+	if !ok {
+		return 0
+	}
+
+	tunnels := 0
+	for iter := 0; iter < 20; iter++ {
+		reachable := FloodFillReachable(l, sx, sy, z, nil)
+		reachSet := make(map[[2]int]bool, len(reachable))
+		for _, c := range reachable {
+			reachSet[c] = true
+		}
+
+		// Collect one tile per isolated floor region.
+		var isolated [][2]int
+		for y := 0; y < l.Height; y++ {
+			for x := 0; x < l.Width; x++ {
+				tt := l.GetTileType(x, y, z)
+				if tt != world.TypeFloor && tt != world.TypeMaintenanceTunnelFloor {
+					continue
+				}
+				if !reachSet[[2]int{x, y}] {
+					isolated = append(isolated, [2]int{x, y})
+					break // one representative per scan is enough; re-flood after each tunnel
+				}
+			}
+			if len(isolated) > 0 {
+				break
+			}
+		}
+
+		if len(isolated) == 0 {
+			break
+		}
+
+		target := isolated[0]
+
+		// Find the nearest reachable tile to the target.
+		bestDist := 1<<31 - 1
+		var bestR [2]int
+		for _, r := range reachable {
+			d := absInt(r[0]-target[0]) + absInt(r[1]-target[1])
+			if d < bestDist {
+				bestDist = d
+				bestR = r
+			}
+		}
+
+		CarveMaintenanceTunnel(l, z, bestR[0], bestR[1], target[0], target[1], world.TypeMaintenanceTunnelFloor)
+		tunnels++
+	}
+	return tunnels
 }
 
 func RoomIntersects(l *world.Level, z, x, y, width, height int) bool {

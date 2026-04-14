@@ -6,3 +6,4 @@ A collection of docs, guides, etc to remind me how things work and to help other
 - [Adding Actions](adding_actions.md)
 - [Adding Skills](adding_skills.md)
 - [Combat Guide](combat.md)
+- [Floor Generators](floor_generators.md)

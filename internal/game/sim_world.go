@@ -68,7 +68,7 @@ func NewSimWorld() (*SimWorld, error) {
 	pY := 50
 	sw.Level = world.NewLevel(100, 100, numLevels, world.NewDefaultTheme())
 
-	sw.FloorResults = generation.GenerateFloors(sw.Level, pX, pY)
+	sw.FloorResults = generation.GenerateFloors(sw.Level)
 
 	for z := 0; z < numLevels; z++ {
 		sw.gm.Init(sw.Level, z)
@@ -114,7 +114,7 @@ func (sw *SimWorld) GetRLLevel() *rlworld.Level { return sw.Level.Level }
 // SpawnPlayer creates the player entity from CharacterData and adds it to the world.
 // Must be called exactly once, after character creation is complete.
 func (sw *SimWorld) SpawnPlayer(data CharacterData) error {
-	pX, pY := 50, 50
+	pX, pY := sw.FloorResults[0].StairX, sw.FloorResults[0].StairY
 
 	player, err := factory.Create("player", pX, pY)
 	if err != nil {

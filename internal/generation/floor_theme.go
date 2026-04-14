@@ -22,10 +22,11 @@ type RoomWeight struct {
 // its macro layout, which room types to populate, and how many
 // budded rooms to attempt.
 type FloorTheme struct {
-	Name        string
-	Layout      string
-	BudCount    int       // how many rooms BudRooms will attempt
-	RoomWeights []RoomWeight
+	Name                string
+	Layout              string
+	BudCount            int // max rooms PlaceRooms will attempt
+	SecondaryStairCount int // how many secondary stair pairs connect this floor to the one above
+	RoomWeights         []RoomWeight
 }
 
 // pickRoomTag selects a room tag from the theme's weighted table.
@@ -50,9 +51,10 @@ func (t *FloorTheme) pickRoomTag() string {
 // --- Theme definitions ---
 
 var ThemeEngineering = FloorTheme{
-	Name:     "Engineering & Systems",
-	Layout:   LayoutIndustrialRing,
-	BudCount: 60,
+	Name:                "Engineering & Systems",
+	Layout:              LayoutIndustrialRing,
+	BudCount:            60,
+	SecondaryStairCount: 4, // heavy service access between decks
 	RoomWeights: []RoomWeight{
 		{"reactor_core", 5},
 		{"engineering_workshop", 15},
@@ -67,9 +69,10 @@ var ThemeEngineering = FloorTheme{
 }
 
 var ThemeLogistics = FloorTheme{
-	Name:     "Logistics & Industry",
-	Layout:   LayoutOpenBays,
-	BudCount: 40,
+	Name:                "Logistics & Industry",
+	Layout:              LayoutOpenBays,
+	BudCount:            0,
+	SecondaryStairCount: 3, // cargo routes need multiple vertical connections
 	RoomWeights: []RoomWeight{
 		{"manufacturing_hangar", 10},
 		{"robotics_bay", 10},
@@ -82,9 +85,10 @@ var ThemeLogistics = FloorTheme{
 }
 
 var ThemeHabitation = FloorTheme{
-	Name:     "Habitation",
-	Layout:   LayoutGrid,
-	BudCount: 100,
+	Name:                "Habitation",
+	Layout:              LayoutGrid,
+	BudCount:            100,
+	SecondaryStairCount: 2, // residents mostly use the main column
 	RoomWeights: []RoomWeight{
 		{"crew_quarters", 35},
 		{"officers_suite", 15},
@@ -97,9 +101,10 @@ var ThemeHabitation = FloorTheme{
 }
 
 var ThemeCommerceSocial = FloorTheme{
-	Name:     "Commerce & Social",
-	Layout:   LayoutGrid,
-	BudCount: 80,
+	Name:                "Commerce & Social",
+	Layout:              LayoutGrid,
+	BudCount:            80,
+	SecondaryStairCount: 2, // some back-access for staff and deliveries
 	RoomWeights: []RoomWeight{
 		{"mess_hall", 20},
 		{"bar_cantina", 15},
@@ -114,9 +119,10 @@ var ThemeCommerceSocial = FloorTheme{
 }
 
 var ThemeScience = FloorTheme{
-	Name:     "Science & Research",
-	Layout:   LayoutRingSpokes,
-	BudCount: 60,
+	Name:                "Science & Research",
+	Layout:              LayoutRingSpokes,
+	BudCount:            60,
+	SecondaryStairCount: 1, // controlled access, one secondary route
 	RoomWeights: []RoomWeight{
 		{"general_lab", 20},
 		{"biolab", 12},
@@ -131,9 +137,10 @@ var ThemeScience = FloorTheme{
 }
 
 var ThemeCommand = FloorTheme{
-	Name:     "Operations & Command",
-	Layout:   LayoutRingSpokes,
-	BudCount: 50,
+	Name:                "Operations & Command",
+	Layout:              LayoutRingSpokes,
+	BudCount:            50,
+	SecondaryStairCount: 0, // command deck — main column only, no back routes
 	RoomWeights: []RoomWeight{
 		{"bridge", 8},
 		{"mission_control", 12},

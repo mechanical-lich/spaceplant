@@ -15,7 +15,7 @@
     "renderPathfindingSteps": false,
     "profileCPU": false,
     "profileMemory": false,
-    "dumpGenerationASCII": true,
+    "dumpGenerationASCII": false,
     "pressDelay": 6,
     "npcTurnDelayTicks": 2
 }

@@ -8,19 +8,67 @@ import (
 // generateFloor dispatches to the correct layout generator for the given theme
 // and returns all rooms that were carved, each tagged with a room type.
 func generateFloor(l *world.Level, z int, theme *FloorTheme) []Room {
+	var rooms []Room
 	switch theme.Layout {
 	case LayoutRingSpokes:
-		return generateRingSpokes(l, z, theme)
+		rooms = generateRingSpokes(l, z, theme)
 	case LayoutGrid:
-		return generateGrid(l, z, theme)
+		rooms = generateGrid(l, z, theme)
 	case LayoutIndustrialRing:
-		return generateIndustrialRing(l, z, theme)
+		rooms = generateIndustrialRing(l, z, theme)
 	case LayoutOpenBays:
-		return generateOpenBays(l, z, theme)
+		rooms = generateOpenBays(l, z, theme)
 	case LayoutRectangle:
-		return generateRectangle(l, z, theme)
+		rooms = generateRectangle(l, z, theme)
 	default:
-		return generateGrid(l, z, theme)
+		rooms = generateGrid(l, z, theme)
+	}
+	guaranteeCenter(l, z)
+	return rooms
+}
+
+// guaranteeCenter ensures the center tile is floor and connected to the rest of
+// the level. If the center is already floor (most layouts center on 50,50),
+// nothing extra is carved. If it's isolated, a 3-wide walled hallway is carved
+// toward the nearest floor tile in each cardinal direction until one connects.
+func guaranteeCenter(l *world.Level, z int) {
+	cx := l.Width / 2
+	cy := l.Height / 2
+
+	// If already floor, nothing to do.
+	if l.GetTileType(cx, cy, z) == world.TypeFloor {
+		return
+	}
+
+	l.SetTileTypeAt(cx, cy, z, world.TypeFloor)
+
+	// Find nearest floor in each direction and carve a 3-wide hallway to it.
+	dirs := [4][2]int{{1, 0}, {-1, 0}, {0, 1}, {0, -1}}
+	for _, d := range dirs {
+		for dist := 1; dist < l.Width; dist++ {
+			nx, ny := cx+d[0]*dist, cy+d[1]*dist
+			if nx < 0 || nx >= l.Width || ny < 0 || ny >= l.Height {
+				break
+			}
+			tt := l.GetTileType(nx, ny, z)
+			if tt == world.TypeFloor || tt == world.TypeMaintenanceTunnelFloor {
+				// Carve a proper 3-wide walled hallway from center to this tile.
+				if d[0] != 0 { // horizontal
+					x1, x2 := cx, nx
+					if x1 > x2 {
+						x1, x2 = x2, x1
+					}
+					CarveRoom(l, x1, cy-1, z, x2-x1+1, 3, world.TypeWall, world.TypeFloor, false, false)
+				} else { // vertical
+					y1, y2 := cy, ny
+					if y1 > y2 {
+						y1, y2 = y2, y1
+					}
+					CarveRoom(l, cx-1, y1, z, 3, y2-y1+1, world.TypeWall, world.TypeFloor, false, false)
+				}
+				return
+			}
+		}
 	}
 }
 
@@ -69,9 +117,10 @@ func generateRingSpokes(l *world.Level, z int, theme *FloorTheme) []Room {
 	spawnDoor(l, cx-r+1, cy, z)
 
 	// Bud rooms off the arms
-	rooms := BudRooms(l, z, l.Width, l.Height, theme.BudCount)
+	rooms := PlaceRooms(l, z, theme.BudCount)
 	CarveMaintenanceTunnels(l, z, l.Width, l.Height, 15)
 	flushDoors(l)
+	ConnectDisconnectedRegions(l, cx, cy, z)
 
 	return tagRooms(rooms, theme)
 }
@@ -111,11 +160,12 @@ func generateGrid(l *world.Level, z int, theme *FloorTheme) []Room {
 	CarveRoom(l, x1+1, y1+1, z, hW-2, hH-2, world.TypeFloor, world.TypeFloor, false, false)
 	CarveRoom(l, x2+1, y2+1, z, hW2-2, hH2-2, world.TypeFloor, world.TypeFloor, false, false)
 
-	rooms := BudRooms(l, z, l.Width, l.Height, theme.BudCount)
+	rooms := PlaceRooms(l, z, theme.BudCount)
 	l.Polish(z)
 	CarveMaintenanceTunnels(l, z, l.Width, l.Height, 10)
 	flushDoors(l)
 	l.Polish(z)
+	ConnectDisconnectedRegions(l, cx, cy, z)
 
 	return tagRooms(rooms, theme)
 }
@@ -151,11 +201,12 @@ func generateIndustrialRing(l *world.Level, z int, theme *FloorTheme) []Room {
 	spawnDoor(l, cx-innerR+1, cy, z)
 	spawnDoor(l, cx+innerR-1, cy, z)
 
-	rooms := BudRooms(l, z, l.Width, l.Height, theme.BudCount)
+	rooms := PlaceRooms(l, z, theme.BudCount)
 	l.Polish(z)
 	CarveMaintenanceTunnels(l, z, l.Width, l.Height, 30)
 	flushDoors(l)
 	l.Polish(z)
+	ConnectDisconnectedRegions(l, cx, cy, z)
 
 	return tagRooms(rooms, theme)
 }
@@ -165,23 +216,29 @@ func generateIndustrialRing(l *world.Level, z int, theme *FloorTheme) []Room {
 func generateOpenBays(l *world.Level, z int, theme *FloorTheme) []Room {
 	var explicitRooms []Room
 
-	// 3–5 large bays placed around the level
-	numBays := utility.GetRandom(3, 6)
+	// 2–4 corner/edge bays + always a center bay (guarantees floor at 50,50).
+	numCornerBays := utility.GetRandom(2, 5)
 	bayW := l.Width / 4
 	bayH := l.Height / 4
 
-	positions := [][2]int{
+	cornerPositions := [][2]int{
 		{l.Width/8, l.Height/8},
 		{l.Width - l.Width/8 - bayW, l.Height/8},
 		{l.Width/8, l.Height - l.Height/8 - bayH},
 		{l.Width - l.Width/8 - bayW, l.Height - l.Height/8 - bayH},
-		{l.Width/2 - bayW/2, l.Height/2 - bayH/2},
 	}
 
-	for i := 0; i < numBays && i < len(positions); i++ {
+	// Center bay always placed first so (Width/2, Height/2) is always floor.
+	cw := utility.GetRandom(bayW-4, bayW+4)
+	ch := utility.GetRandom(bayH-4, bayH+4)
+	cx, cy := l.Width/2-cw/2, l.Height/2-ch/2
+	CarveRoom(l, cx, cy, z, cw, ch, world.TypeWall, world.TypeFloor, false, false)
+	explicitRooms = append(explicitRooms, Room{X: cx, Y: cy, Width: cw, Height: ch})
+
+	for i := 0; i < numCornerBays && i < len(cornerPositions); i++ {
 		w := utility.GetRandom(bayW-4, bayW+4)
 		h := utility.GetRandom(bayH-4, bayH+4)
-		x, y := positions[i][0], positions[i][1]
+		x, y := cornerPositions[i][0], cornerPositions[i][1]
 		CarveRoom(l, x, y, z, w, h, world.TypeWall, world.TypeFloor, false, false)
 		explicitRooms = append(explicitRooms, Room{X: x, Y: y, Width: w, Height: h})
 	}
@@ -204,19 +261,28 @@ func generateOpenBays(l *world.Level, z int, theme *FloorTheme) []Room {
 		CarveRoom(l, b.X+b.Width/2-2, y1, z, 5, y2-y1, world.TypeWall, world.TypeFloor, false, false)
 	}
 
+	// Re-carve bay interiors as pure floor so corridor wall tiles that crossed
+	// into bay interiors don't leave wall fragments behind.
+	for _, r := range explicitRooms {
+		if r.Width > 2 && r.Height > 2 {
+			CarveRoom(l, r.X+1, r.Y+1, z, r.Width-2, r.Height-2, world.TypeFloor, world.TypeFloor, false, false)
+		}
+	}
+
 	// Tag the explicit bays
 	for i := range explicitRooms {
 		explicitRooms[i].Tag = theme.pickRoomTag()
 	}
 
 	// A few small budded utility rooms off the corridors
-	budded := BudRooms(l, z, l.Width, l.Height, theme.BudCount)
+	budded := PlaceRooms(l, z, theme.BudCount)
 	tagRooms(budded, theme)
 
 	l.Polish(z)
 	CarveMaintenanceTunnels(l, z, l.Width, l.Height, 20)
 	flushDoors(l)
 	l.Polish(z)
+	ConnectDisconnectedRegions(l, l.Width/2, l.Height/2, z)
 
 	return append(explicitRooms, budded...)
 }
@@ -265,13 +331,14 @@ func generateRectangle(l *world.Level, z int, theme *FloorTheme) []Room {
 		explicitRooms[i].Tag = theme.pickRoomTag()
 	}
 
-	budded := BudRooms(l, z, l.Width, l.Height, theme.BudCount)
+	budded := PlaceRooms(l, z, theme.BudCount)
 	tagRooms(budded, theme)
 
 	l.Polish(z)
 	CarveMaintenanceTunnels(l, z, l.Width, l.Height, 20)
 	flushDoors(l)
 	l.Polish(z)
+	ConnectDisconnectedRegions(l, l.Width/2, l.Height/2, z)
 
 	return append(explicitRooms, budded...)
 }

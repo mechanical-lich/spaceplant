@@ -6,3 +6,4 @@ vendor/
 # but do not ignore the `game/` directory
 !/game/
 terminal
+gen_debug.txt
