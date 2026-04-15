@@ -1,5 +1,5 @@
 {
-        "blue_keycard": {
+    "blue_keycard": {
         "DescriptionComponent": {
             "Name": "Blue Keycard",
             "Faction": "item",
@@ -20,7 +20,10 @@
             "R": 200,
             "G": 200,
             "B": 125,
-            "Frames": 1
+            "Frames": 1,
+            "SpriteWidth": 32,
+            "SpriteHeight": 48,
+            "SpriteOffsetY": -16
         },
         "LightComponent": {
             "Radius": 10,
@@ -40,7 +43,7 @@
             "KeyID": "blue_keycard"
         }
     },
-        "health": {
+    "health": {
         "DescriptionComponent": {
             "Name": "health",
             "Faction": "item",
@@ -63,7 +66,10 @@
             "R": 200,
             "G": 200,
             "B": 125,
-            "Frames": 1
+            "Frames": 1,
+            "SpriteWidth": 32,
+            "SpriteHeight": 48,
+            "SpriteOffsetY": -16
         },
         "LightComponent": {
             "Radius": 10,

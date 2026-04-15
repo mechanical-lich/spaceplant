@@ -18,6 +18,9 @@
     "description": "A solid wall.",
     "solid": true,
     "autoTile": 0,
+    "resource": "walls",
+    "spriteHeight": 48,
+    "spriteOffsetY": -16,
     "variants": [
       {
         "variant": 0,
@@ -135,6 +138,9 @@
     "description": "A wall in the maintenance tunnel.",
     "solid": true,
     "autoTile": 0,
+    "resource": "walls",
+    "spriteHeight": 48,
+    "spriteOffsetY": -16,
     "variants": [
       {
         "variant": 0,

@@ -8,8 +8,8 @@ import (
 
 // Config holds all configuration settings for spaceplant.
 type Config struct {
-	SpriteSizeW            int     `json:"spriteSizeW"`            // Sprite width on the sprite sheet
-	SpriteSizeH            int     `json:"spriteSizeH"`            // Sprite height on the sprite sheet
+	TileSizeW              int     `json:"tileSizeW"`              // Sprite width on the sprite sheet
+	TileSizeH              int     `json:"tileSizeH"`              // Sprite height on the sprite sheet
 	WorldWidth             int     `json:"worldWidth"`             // Draw width for the world portion of the screen
 	WorldHeight            int     `json:"worldHeight"`            // Draw height for the world portion of the screen
 	ScreenWidth            int     `json:"screenWidth"`            // Total window width

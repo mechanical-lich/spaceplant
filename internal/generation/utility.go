@@ -45,7 +45,7 @@ func GenerateRoundStation(l *world.Level, z int) {
 	CarveRoom(l, x-hWidth/2, y+r-1, z, hWidth, hHeight, world.TypeWall, world.TypeFloor, true, false)
 
 	// Rooms and tunnels
-	PlaceRooms(l, z, 100)
+	PlaceRooms(l, z, 100, nil)
 	CarveMaintenanceTunnels(l, z, l.Width, l.Height, 30)
 
 	// Doors last — after all carving so no subsequent CarveRoom overwrites the floor tile
@@ -113,7 +113,7 @@ func GenerateRectangleStation(l *world.Level, z int) {
 	CarveMaintenanceTunnel(l, z, l.Width-roomWidth/2-hallwayWidth/2, l.Height/2, x+r-1, y, world.TypeMaintenanceTunnelFloor)
 
 	l.Polish(z)
-	PlaceRooms(l, z, 50)
+	PlaceRooms(l, z, 50, nil)
 
 	l.Polish(z)
 	CarveMaintenanceTunnels(l, z, l.Width, l.Height, 30)
@@ -160,7 +160,7 @@ func GenerateStation(l *world.Level, z, width, height int) {
 		CarveRoom(l, x2+1, y2+1, z, tWidth2-2, tHeight2-2, world.TypeFloor, world.TypeFloor, false, false)
 	}
 
-	PlaceRooms(l, z, 50)
+	PlaceRooms(l, z, 50, nil)
 
 	// Polish so we can pathfind
 	l.Polish(z)

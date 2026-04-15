@@ -1,5 +1,5 @@
 {
-     "lab_coat": {
+    "lab_coat": {
         "DescriptionComponent": {
             "Name": "Lab Coat",
             "Faction": "item"
@@ -11,7 +11,10 @@
             "R": 255,
             "G": 255,
             "B": 255,
-            "Frames": 1
+            "Frames": 1,
+            "SpriteWidth": 32,
+            "SpriteHeight": 48,
+            "SpriteOffsetY": -16
         },
         "ItemComponent": {
             "Slot": "torso",
@@ -38,7 +41,10 @@
             "R": 255,
             "G": 255,
             "B": 255,
-            "Frames": 1
+            "Frames": 1,
+            "SpriteWidth": 32,
+            "SpriteHeight": 48,
+            "SpriteOffsetY": -16
         },
         "ItemComponent": {
             "Slot": "torso",
@@ -65,7 +71,10 @@
             "R": 255,
             "G": 255,
             "B": 255,
-            "Frames": 1
+            "Frames": 1,
+            "SpriteWidth": 32,
+            "SpriteHeight": 48,
+            "SpriteOffsetY": -16
         },
         "ItemComponent": {
             "Slot": "torso",
@@ -92,7 +101,10 @@
             "R": 255,
             "G": 255,
             "B": 255,
-            "Frames": 1
+            "Frames": 1,
+            "SpriteWidth": 32,
+            "SpriteHeight": 48,
+            "SpriteOffsetY": -16
         },
         "ItemComponent": {
             "Slot": "torso",
@@ -119,7 +131,10 @@
             "R": 255,
             "G": 255,
             "B": 255,
-            "Frames": 1
+            "Frames": 1,
+            "SpriteWidth": 32,
+            "SpriteHeight": 48,
+            "SpriteOffsetY": -16
         },
         "ItemComponent": {
             "Slot": "torso",
@@ -146,7 +161,10 @@
             "R": 255,
             "G": 255,
             "B": 255,
-            "Frames": 1
+            "Frames": 1,
+            "SpriteWidth": 32,
+            "SpriteHeight": 48,
+            "SpriteOffsetY": -16
         },
         "ItemComponent": {
             "Slot": "legs",
@@ -173,7 +191,10 @@
             "R": 255,
             "G": 255,
             "B": 255,
-            "Frames": 1
+            "Frames": 1,
+            "SpriteWidth": 32,
+            "SpriteHeight": 48,
+            "SpriteOffsetY": -16
         },
         "ItemComponent": {
             "Slot": "legs",
@@ -200,7 +221,10 @@
             "R": 255,
             "G": 255,
             "B": 255,
-            "Frames": 1
+            "Frames": 1,
+            "SpriteWidth": 32,
+            "SpriteHeight": 48,
+            "SpriteOffsetY": -16
         },
         "ItemComponent": {
             "Slot": "legs",
@@ -227,7 +251,10 @@
             "R": 255,
             "G": 255,
             "B": 255,
-            "Frames": 1
+            "Frames": 1,
+            "SpriteWidth": 32,
+            "SpriteHeight": 48,
+            "SpriteOffsetY": -16
         },
         "ItemComponent": {
             "Slot": "legs",
@@ -254,7 +281,10 @@
             "R": 255,
             "G": 255,
             "B": 255,
-            "Frames": 1
+            "Frames": 1,
+            "SpriteWidth": 32,
+            "SpriteHeight": 48,
+            "SpriteOffsetY": -16
         },
         "ItemComponent": {
             "Slot": "legs",
@@ -281,7 +311,10 @@
             "R": 255,
             "G": 255,
             "B": 255,
-            "Frames": 1
+            "Frames": 1,
+            "SpriteWidth": 32,
+            "SpriteHeight": 48,
+            "SpriteOffsetY": -16
         },
         "ItemComponent": {
             "Slot": "feet",
@@ -308,7 +341,10 @@
             "R": 255,
             "G": 255,
             "B": 255,
-            "Frames": 1
+            "Frames": 1,
+            "SpriteWidth": 32,
+            "SpriteHeight": 48,
+            "SpriteOffsetY": -16
         },
         "ItemComponent": {
             "Slot": "feet",
@@ -335,7 +371,10 @@
             "R": 255,
             "G": 255,
             "B": 255,
-            "Frames": 1
+            "Frames": 1,
+            "SpriteWidth": 32,
+            "SpriteHeight": 48,
+            "SpriteOffsetY": -16
         },
         "ItemComponent": {
             "Slot": "feet",
@@ -362,7 +401,10 @@
             "R": 255,
             "G": 255,
             "B": 255,
-            "Frames": 1
+            "Frames": 1,
+            "SpriteWidth": 32,
+            "SpriteHeight": 48,
+            "SpriteOffsetY": -16
         },
         "ItemComponent": {
             "Slot": "feet",
@@ -389,7 +431,10 @@
             "R": 255,
             "G": 255,
             "B": 255,
-            "Frames": 1
+            "Frames": 1,
+            "SpriteWidth": 32,
+            "SpriteHeight": 48,
+            "SpriteOffsetY": -16
         },
         "ItemComponent": {
             "Slot": "feet",
@@ -416,7 +461,10 @@
             "R": 255,
             "G": 255,
             "B": 255,
-            "Frames": 1
+            "Frames": 1,
+            "SpriteWidth": 32,
+            "SpriteHeight": 48,
+            "SpriteOffsetY": -16
         },
         "ItemComponent": {
             "Slot": "head",
@@ -443,7 +491,10 @@
             "R": 255,
             "G": 255,
             "B": 255,
-            "Frames": 1
+            "Frames": 1,
+            "SpriteWidth": 32,
+            "SpriteHeight": 48,
+            "SpriteOffsetY": -16
         },
         "ItemComponent": {
             "Slot": "head",
@@ -470,7 +521,10 @@
             "R": 255,
             "G": 255,
             "B": 255,
-            "Frames": 1
+            "Frames": 1,
+            "SpriteWidth": 32,
+            "SpriteHeight": 48,
+            "SpriteOffsetY": -16
         },
         "ItemComponent": {
             "Slot": "head",
@@ -497,7 +551,10 @@
             "R": 255,
             "G": 255,
             "B": 255,
-            "Frames": 1
+            "Frames": 1,
+            "SpriteWidth": 32,
+            "SpriteHeight": 48,
+            "SpriteOffsetY": -16
         },
         "ItemComponent": {
             "Slot": "head",
@@ -524,7 +581,10 @@
             "R": 255,
             "G": 255,
             "B": 255,
-            "Frames": 1
+            "Frames": 1,
+            "SpriteWidth": 32,
+            "SpriteHeight": 48,
+            "SpriteOffsetY": -16
         },
         "ItemComponent": {
             "Slot": "head",
@@ -562,7 +622,10 @@
             "R": 255,
             "G": 255,
             "B": 255,
-            "Frames": 1
+            "Frames": 1,
+            "SpriteWidth": 32,
+            "SpriteHeight": 48,
+            "SpriteOffsetY": -16
         },
         "LightComponent": {
             "Radius": 10,

@@ -8,6 +8,7 @@ import (
 type Room struct {
 	X, Y, Width, Height int
 	Tag                 string // semantic label assigned by the floor theme, e.g. "crew_quarters"
+	DoorDir             [2]int // direction from hallway into room (dx,dy from bud candidate); zero = no bud door
 }
 
 func CarveRoom(m *world.Level, x, y, z, width, height, wallType, floorType int, noOverwrite bool, noBudding bool) {

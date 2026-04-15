@@ -23,7 +23,10 @@ type candidate struct {
 //
 // The door tile is always the shared boundary wall between the hallway and the
 // new room. After flushDoors, both sides of the door will be TypeFloor.
-func PlaceRooms(l *world.Level, z, maxRooms int) []Room {
+//
+// Each room is tagged immediately (via theme.pickRoomTag) so its preferred size
+// can be looked up before carving.
+func PlaceRooms(l *world.Level, z, maxRooms int, theme *FloorTheme) []Room {
 	// --- Candidate collection ---
 	var candidates []candidate
 
@@ -88,8 +91,13 @@ func PlaceRooms(l *world.Level, z, maxRooms int) []Room {
 			break
 		}
 
-		rW := utility.GetRandom(5, 11)
-		rH := utility.GetRandom(4, 9)
+		var tag string
+		if theme != nil {
+			tag = theme.pickRoomTag()
+		}
+		sz := RoomSizeFor(tag)
+		rW := utility.GetRandom(sz.MinW, sz.MaxW+1)
+		rH := utility.GetRandom(sz.MinH, sz.MaxH+1)
 
 		// Compute room origin so the door tile (c.wx, c.wy) sits on the room border.
 		var rx, ry int
@@ -132,7 +140,7 @@ func PlaceRooms(l *world.Level, z, maxRooms int) []Room {
 
 		CarveRoom(l, rx, ry, z, rW, rH, world.TypeWall, world.TypeFloor, true, false)
 		spawnDoor(l, c.wx, c.wy, z)
-		rooms = append(rooms, Room{X: rx, Y: ry, Width: rW, Height: rH})
+		rooms = append(rooms, Room{X: rx, Y: ry, Width: rW, Height: rH, Tag: tag, DoorDir: [2]int{c.dx, c.dy}})
 		placed++
 	}
 

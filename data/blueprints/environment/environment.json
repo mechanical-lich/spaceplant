@@ -14,11 +14,14 @@
         "AppearanceComponent": {
             "SpriteX": 0,
             "SpriteY": 0,
+            "SpriteWidth": 32,
+            "SpriteHeight": 48,
             "Resource": "environment",
             "R": 0,
             "G": 200,
             "B": 200,
-            "Frames": 1
+            "Frames": 1,
+            "SpriteOffsetY": -16
         },
         "SolidComponent": {},
         "InanimateComponent": {},

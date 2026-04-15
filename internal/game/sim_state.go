@@ -4,13 +4,13 @@ import (
 	"math"
 
 	"github.com/mechanical-lich/ml-rogue-lib/pkg/rlcomponents"
-	spcombat "github.com/mechanical-lich/spaceplant/internal/combat"
 	"github.com/mechanical-lich/ml-rogue-lib/pkg/rlenergy"
 	"github.com/mechanical-lich/mlge/ecs"
 	"github.com/mechanical-lich/mlge/event"
 	"github.com/mechanical-lich/mlge/message"
 	"github.com/mechanical-lich/mlge/simulation"
 	"github.com/mechanical-lich/mlge/transport"
+	spcombat "github.com/mechanical-lich/spaceplant/internal/combat"
 
 	"github.com/mechanical-lich/spaceplant/internal/component"
 	"github.com/mechanical-lich/spaceplant/internal/config"
@@ -281,8 +281,8 @@ func (s *MainSimState) anyVisibleNPCActed() bool {
 	if scale < 1 {
 		scale = 1
 	}
-	halfW := int(math.Ceil(float64(cfg.WorldWidth)/(float64(cfg.SpriteSizeW)*scale))) / 2
-	halfH := int(math.Ceil(float64(cfg.WorldHeight)/(float64(cfg.SpriteSizeH)*scale))) / 2
+	halfW := int(math.Ceil(float64(cfg.WorldWidth)/(float64(cfg.TileSizeW)*scale))) / 2
+	halfH := int(math.Ceil(float64(cfg.WorldHeight)/(float64(cfg.TileSizeH)*scale))) / 2
 
 	for _, entity := range s.sim.Level.Entities {
 		if entity == s.sim.Player {

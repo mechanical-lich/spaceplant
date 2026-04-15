@@ -48,6 +48,7 @@ type hoveredTileInfo struct {
 	TileDescription string
 	X, Y, Z         int
 	LightLevel      int
+	RoomTag         string
 	Entities        []entityHoverInfo
 }
 
@@ -114,12 +115,12 @@ func (g *GUIViewMain) updateHover(cs *SPClientState) {
 	if scale < 1 {
 		scale = 1
 	}
-	tilesW := int(math.Ceil(float64(cfg.WorldWidth) / (float64(cfg.SpriteSizeW) * scale)))
-	tilesH := int(math.Ceil(float64(cfg.WorldHeight) / (float64(cfg.SpriteSizeH) * scale)))
+	tilesW := int(math.Ceil(float64(cfg.WorldWidth) / (float64(cfg.TileSizeW) * scale)))
+	tilesH := int(math.Ceil(float64(cfg.WorldHeight) / (float64(cfg.TileSizeH) * scale)))
 	left := cs.CameraX - tilesW/2
 	up := cs.CameraY - tilesH/2
-	tileX := left + int(float64(mx)/scale)/cfg.SpriteSizeW
-	tileY := up + int(float64(my)/scale)/cfg.SpriteSizeH
+	tileX := left + int(float64(mx)/scale)/cfg.TileSizeW
+	tileY := up + int(float64(my)/scale)/cfg.TileSizeH
 
 	tile := cs.sim.Level.Level.GetTilePtr(tileX, tileY, cs.sim.CurrentZ)
 	if tile == nil {
@@ -134,6 +135,17 @@ func (g *GUIViewMain) updateHover(cs *SPClientState) {
 		Z:               cs.sim.CurrentZ,
 		LightLevel:      tile.LightLevel,
 	}
+	z := cs.sim.CurrentZ
+	if z >= 0 && z < len(cs.sim.FloorResults) {
+		for _, room := range cs.sim.FloorResults[z].Rooms {
+			if tileX >= room.X && tileX < room.X+room.Width &&
+				tileY >= room.Y && tileY < room.Y+room.Height {
+				info.RoomTag = room.Tag
+				break
+			}
+		}
+	}
+
 	var buf []*ecs.Entity
 	cs.sim.Level.Level.GetEntitiesAt(tileX, tileY, cs.sim.CurrentZ, &buf)
 	for _, e := range buf {
@@ -219,6 +231,14 @@ func (g *GUIViewMain) rebuildHoverSpans(wrapChars int) {
 		for _, line := range mlge_text.Wrap(h.TileDescription, wrapChars, 0) {
 			g.hoverPanel.AddSpan(minui.TextSpan{Text: line, Color: dimCol, Size: 11, Indent: 4})
 		}
+	}
+	if h.RoomTag != "" {
+		g.hoverPanel.AddSpan(minui.TextSpan{
+			Text:   h.RoomTag,
+			Color:  color.RGBA{120, 180, 220, 255},
+			Size:   11,
+			Indent: 4,
+		})
 	}
 	g.hoverPanel.AddSpan(minui.TextSpan{Text: ""})
 
@@ -391,7 +411,7 @@ func (cs *SPClientState) GetMinimap(sX, sY, width, height, imageWidth, imageHeig
 			op := &ebiten.DrawImageOptions{}
 			op.GeoM.Translate(tX, tY)
 
-			sw, sh := config.Global().SpriteSizeW, config.Global().SpriteSizeH
+			sw, sh := config.Global().TileSizeW, config.Global().TileSizeH
 			if tile == nil {
 				sX := 19 * sw
 				worldImage.DrawImage(resource.Textures["map"].SubImage(image.Rect(sX, 0, sX+sw, sh)).(*ebiten.Image), op)

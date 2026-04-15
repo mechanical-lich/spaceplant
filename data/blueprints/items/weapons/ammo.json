@@ -21,7 +21,10 @@
             "R": 220,
             "G": 200,
             "B": 100,
-            "Frames": 1
+            "Frames": 1,
+            "SpriteWidth": 32,
+            "SpriteHeight": 48,
+            "SpriteOffsetY": -16
         },
         "ItemComponent": {
             "Slot": "bag",
@@ -55,7 +58,10 @@
             "R": 180,
             "G": 180,
             "B": 180,
-            "Frames": 1
+            "Frames": 1,
+            "SpriteWidth": 32,
+            "SpriteHeight": 48,
+            "SpriteOffsetY": -16
         },
         "ItemComponent": {
             "Slot": "bag",
@@ -89,7 +95,10 @@
             "R": 200,
             "G": 140,
             "B": 80,
-            "Frames": 1
+            "Frames": 1,
+            "SpriteWidth": 32,
+            "SpriteHeight": 48,
+            "SpriteOffsetY": -16
         },
         "ItemComponent": {
             "Slot": "bag",

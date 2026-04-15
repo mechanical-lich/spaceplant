@@ -19,10 +19,10 @@ import (
 // Render renders the level viewport centered on (aX, aY) at Z-layer z.
 func (l *Level) Render(aX, aY, z, width, height int, blind, centered bool) *ebiten.Image {
 	cfg := config.Global()
-	sw := float64(cfg.SpriteSizeW)
-	sh := float64(cfg.SpriteSizeH)
+	sw := float64(cfg.TileSizeW)
+	sh := float64(cfg.TileSizeH)
 
-	output := ebiten.NewImage(width*cfg.SpriteSizeW, height*cfg.SpriteSizeH)
+	output := ebiten.NewImage(width*cfg.TileSizeW, height*cfg.TileSizeH)
 	left := aX - width/2
 	right := aX + width/2
 	up := aY - height/2
@@ -55,7 +55,7 @@ func (l *Level) Render(aX, aY, z, width, height int, blind, centered bool) *ebit
 					seen = rlfov.Los(l.Level, aX, aY, x, y, z)
 				}
 
-				l.DrawTile(output, tile, screenX, screenY, seen, z, cfg.SpriteSizeW, cfg.SpriteSizeH, cfg.ColorShading)
+				l.DrawTile(output, tile, screenX, screenY, seen, z, cfg.TileSizeW, cfg.TileSizeH, cfg.ColorShading)
 
 				if seen {
 					// Draw entities on this tile
@@ -64,11 +64,11 @@ func (l *Level) Render(aX, aY, z, width, height int, blind, centered bool) *ebit
 					tX := float64(screenX) * sw
 					tY := float64(screenY) * sh
 					for _, entity := range entBuf {
-						DrawEntity(output, entity, tX, tY, x, y, cfg.SpriteSizeW, cfg.SpriteSizeH, cfg.ColorShading)
+						DrawEntity(output, entity, tX, tY, x, y, cfg.TileSizeW, cfg.TileSizeH, cfg.ColorShading)
 					}
 
 					// Draw tile animations (above entities, below fog)
-					l.drawAndAdvanceTileAnims(output, x, y, z, tX, tY, cfg.SpriteSizeW, cfg.SpriteSizeH)
+					l.drawAndAdvanceTileAnims(output, x, y, z, tX, tY, cfg.TileSizeW, cfg.TileSizeH)
 
 					// Draw fog
 					if cfg.Lighting {
@@ -148,15 +148,29 @@ func (l *Level) DrawTile(output *ebiten.Image, t *Tile, screenX, screenY int, se
 	if texName == "" {
 		texName = "map"
 	}
+
+	// Use definition-level sprite dimensions/offset if specified; fall back to tile size.
+	sprW, sprH := spW, spH
+	if def.SpriteWidth > 0 {
+		sprW = def.SpriteWidth
+	}
+	if def.SpriteHeight > 0 {
+		sprH = def.SpriteHeight
+	}
+	if def.SpriteOffsetX != 0 || def.SpriteOffsetY != 0 {
+		op.GeoM.Reset()
+		op.GeoM.Translate(tX+float64(def.SpriteOffsetX), tY+float64(def.SpriteOffsetY))
+	}
+
 	if l.IsOvergrown(tx, ty, z) {
 		// The overgrown sheet has two sub-variants per original tile column.
 		// Pick sub-variant deterministically from the tile index so it's stable across frames.
 		subVariant := t.Idx % 2
 		sX := (variant.SpriteX*2 + subVariant) * spW
-		output.DrawImage(resource.Textures[texName+"-overgrown"].SubImage(image.Rect(sX, variant.SpriteY, sX+spW, variant.SpriteY+spH)).(*ebiten.Image), op)
+		output.DrawImage(resource.Textures[texName+"-overgrown"].SubImage(image.Rect(sX, variant.SpriteY, sX+sprW, variant.SpriteY+sprH)).(*ebiten.Image), op)
 	} else {
 		sX := variant.SpriteX * spW
-		output.DrawImage(resource.Textures[texName].SubImage(image.Rect(sX, variant.SpriteY, sX+spW, variant.SpriteY+spH)).(*ebiten.Image), op)
+		output.DrawImage(resource.Textures[texName].SubImage(image.Rect(sX, variant.SpriteY, sX+sprW, variant.SpriteY+sprH)).(*ebiten.Image), op)
 	}
 
 	tileSeen := l.GetSeen(tx, ty, z)
@@ -180,6 +194,11 @@ func drawLayered(screen *ebiten.Image, entity *ecs.Entity, screenX, screenY floa
 	lac := entity.GetComponent(component.LayeredAppearance).(*component.LayeredAppearanceComponent)
 	bt := lac.BodyType
 
+	// Layered sprites are 32x48 drawn on 32x32 tiles — shift up 16px so the
+	// sprite's feet land on the tile rather than overflowing below it.
+	const spriteH = 48
+	offsetY := float64(spH-spriteH)
+
 	dead := entity.HasComponent("Dead")
 	drawLayer := func(texName string, index int) {
 		tex, ok := resource.Textures[texName]
@@ -187,13 +206,13 @@ func drawLayered(screen *ebiten.Image, entity *ecs.Entity, screenX, screenY floa
 			return
 		}
 		srcX := index * spW
-		srcRect := image.Rect(srcX, 0, srcX+spW, spH)
+		srcRect := image.Rect(srcX, 0, srcX+spW, spriteH)
 		op := &ebiten.DrawImageOptions{}
 		if dead {
 			op.GeoM.Scale(1, -1)
-			op.GeoM.Translate(0, float64(spH))
+			op.GeoM.Translate(0, float64(spriteH))
 		}
-		op.GeoM.Translate(screenX, screenY)
+		op.GeoM.Translate(screenX, screenY+offsetY)
 		screen.DrawImage(tex.SubImage(srcRect).(*ebiten.Image), op)
 	}
 
@@ -286,13 +305,15 @@ func DrawEntity(screen *ebiten.Image, entity *ecs.Entity, screenX, screenY float
 		subY = tileWorldY - startY
 	}
 
-	// Compute source rect on the sprite sheet.
-	// For sized entities each animation frame spans entityW*SpriteWidth pixels.
-	sw, sh := spW, spH
-	frameX := ac.SpriteX + (entityW * sw * ac.CurrentFrame)
-	srcX := frameX + subX*sw
-	srcY := ac.SpriteY + subY*sh
-	srcRect := image.Rect(srcX, srcY, srcX+sw, srcY+sh)
+	// Per-tile slice of the sprite. For single entities this equals SpriteWidth/Height.
+	// For multi-tile entities (e.g. 2×2 with a 64×96 sprite) each tile draws its
+	// own SpriteWidth/entityW × SpriteHeight/entityH portion.
+	tileW := ac.SpriteWidth / entityW
+	tileH := ac.SpriteHeight / entityH
+	frameX := ac.SpriteX + (ac.SpriteWidth * ac.CurrentFrame)
+	srcX := frameX + subX*tileW
+	srcY := ac.SpriteY + subY*tileH
+	srcRect := image.Rect(srcX, srcY, srcX+tileW, srcY+tileH)
 
 	op := &ebiten.DrawImageOptions{}
 
@@ -300,14 +321,14 @@ func DrawEntity(screen *ebiten.Image, entity *ecs.Entity, screenX, screenY float
 	// appears upside-down as a unit rather than each tile flipping in place.
 	if entity.HasComponent("Dead") {
 		subY = (entityH - 1) - subY
-		srcY = ac.SpriteY + subY*sh
-		srcRect = image.Rect(srcX, srcY, srcX+sw, srcY+sh)
+		srcY = ac.SpriteY + subY*tileH
+		srcRect = image.Rect(srcX, srcY, srcX+tileW, srcY+tileH)
 		op.GeoM.Scale(1, -1)
-		op.GeoM.Translate(0, float64(sh))
+		op.GeoM.Translate(0, float64(tileH))
 	}
 
-	// Position
-	op.GeoM.Translate(screenX, screenY)
+	// Position — apply per-sprite pixel offset on top of tile position
+	op.GeoM.Translate(screenX+float64(ac.SpriteOffsetX), screenY+float64(ac.SpriteOffsetY))
 	// Color
 	if colorShading {
 		op.ColorM.ScaleWithColor(color.RGBA{ac.R, ac.G, ac.B, 255})
@@ -326,10 +347,10 @@ func DrawEntity(screen *ebiten.Image, entity *ecs.Entity, screenX, screenY float
 			if attackC.Frame == 3 {
 				entity.RemoveComponent("AttackComponent")
 			} else {
-				xOffset := attackC.SpriteX + (attackC.Frame * sw)
+				xOffset := attackC.SpriteX + (attackC.Frame * spW)
 				fxOp := &ebiten.DrawImageOptions{}
 				fxOp.GeoM.Translate(screenX, screenY)
-				screen.DrawImage(resource.Textures["fx"].SubImage(image.Rect(xOffset, attackC.SpriteY, xOffset+sw, attackC.SpriteY+sh)).(*ebiten.Image), fxOp)
+				screen.DrawImage(resource.Textures["fx"].SubImage(image.Rect(xOffset, attackC.SpriteY, xOffset+spW, attackC.SpriteY+spH)).(*ebiten.Image), fxOp)
 				attackC.Frame++
 			}
 		}

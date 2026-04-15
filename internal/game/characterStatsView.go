@@ -35,11 +35,11 @@ type CharacterStatsView struct {
 	overviewArea *minui.ScrollingTextArea
 
 	// Tab 2 — Equipment
-	equipList      *minui.ListBox
-	equipImg       *minui.ImageWidget
-	equipDesc      *minui.ScrollingTextArea
+	equipList       *minui.ListBox
+	equipImg        *minui.ImageWidget
+	equipDesc       *minui.ScrollingTextArea
 	equipUnequipBtn *minui.Button
-	equipIDs       []string // parallel to list items (slot names)
+	equipIDs        []string // parallel to list items (slot names)
 
 	// Tab 3 — Skills
 	skillList *minui.ListBox
@@ -721,5 +721,5 @@ func itemSpriteImage(item *ecs.Entity) *ebiten.Image {
 	}
 	ac := item.GetComponent(component.Appearance).(*component.AppearanceComponent)
 	cfg := config.Global()
-	return resource.GetSubImage(ac.Resource, ac.SpriteX, ac.SpriteY, cfg.SpriteSizeW, cfg.SpriteSizeH)
+	return resource.GetSubImage(ac.Resource, ac.SpriteX, ac.SpriteY, cfg.TileSizeW, cfg.TileSizeH)
 }

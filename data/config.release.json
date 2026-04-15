@@ -1,6 +1,6 @@
 {
-    "spriteSizeW": 32,
-    "spriteSizeH": 48,
+    "tileSizeW": 32,
+    "tileSizeH": 48,
     "worldWidth": 864,
     "worldHeight": 816,
     "screenWidth": 1200,

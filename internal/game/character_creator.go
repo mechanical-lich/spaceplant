@@ -353,8 +353,8 @@ func (cc *CharacterCreator) buildAppearanceTab() {
 	// Preview widget — right half of the panel, scaled up 4x (32x48 → 128x192).
 	const previewScale = 4
 	cfg := config.Global()
-	previewW := cfg.SpriteSizeW * previewScale
-	previewH := cfg.SpriteSizeH * previewScale
+	previewW := cfg.TileSizeW * previewScale
+	previewH := cfg.TileSizeH * previewScale
 	previewX := 220 + (ccModalW-20-220-previewW)/2
 	previewY := (ccModalH - 110 - cc.tabs.TabHeight - previewH) / 2
 	cc.appearancePreview = minui.NewImageWidget("cc_appearance_preview", previewW, previewH)
@@ -371,8 +371,8 @@ func (cc *CharacterCreator) refreshAppearancePreview() {
 		return
 	}
 	cfg := config.Global()
-	spW := cfg.SpriteSizeW
-	spH := cfg.SpriteSizeH
+	spW := cfg.TileSizeW
+	spH := cfg.TileSizeH
 	bt := cc.bodyType
 
 	out := ebiten.NewImage(spW, spH)

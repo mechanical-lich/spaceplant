@@ -72,15 +72,6 @@ func guaranteeCenter(l *world.Level, z int) {
 	}
 }
 
-// tagRooms assigns a theme-weighted tag to each room in the slice.
-func tagRooms(rooms []Room, theme *FloorTheme) []Room {
-	for i := range rooms {
-		if rooms[i].Tag == "" {
-			rooms[i].Tag = theme.pickRoomTag()
-		}
-	}
-	return rooms
-}
 
 // generateRingSpokes: circle hub + 4 hallway arms, rooms budded off the arms.
 // Good for Command and Science — feels deliberate and spoke-like.
@@ -117,12 +108,12 @@ func generateRingSpokes(l *world.Level, z int, theme *FloorTheme) []Room {
 	spawnDoor(l, cx-r+1, cy, z)
 
 	// Bud rooms off the arms
-	rooms := PlaceRooms(l, z, theme.BudCount)
+	rooms := PlaceRooms(l, z, theme.BudCount, theme)
 	CarveMaintenanceTunnels(l, z, l.Width, l.Height, 15)
 	flushDoors(l)
 	ConnectDisconnectedRegions(l, cx, cy, z)
 
-	return tagRooms(rooms, theme)
+	return rooms
 }
 
 // generateGrid: cross/grid halls with many small budded rooms.
@@ -160,14 +151,14 @@ func generateGrid(l *world.Level, z int, theme *FloorTheme) []Room {
 	CarveRoom(l, x1+1, y1+1, z, hW-2, hH-2, world.TypeFloor, world.TypeFloor, false, false)
 	CarveRoom(l, x2+1, y2+1, z, hW2-2, hH2-2, world.TypeFloor, world.TypeFloor, false, false)
 
-	rooms := PlaceRooms(l, z, theme.BudCount)
+	rooms := PlaceRooms(l, z, theme.BudCount, theme)
 	l.Polish(z)
 	CarveMaintenanceTunnels(l, z, l.Width, l.Height, 10)
 	flushDoors(l)
 	l.Polish(z)
 	ConnectDisconnectedRegions(l, cx, cy, z)
 
-	return tagRooms(rooms, theme)
+	return rooms
 }
 
 // generateIndustrialRing: outer ring + inner ring with maintenance tunnel web.
@@ -201,14 +192,14 @@ func generateIndustrialRing(l *world.Level, z int, theme *FloorTheme) []Room {
 	spawnDoor(l, cx-innerR+1, cy, z)
 	spawnDoor(l, cx+innerR-1, cy, z)
 
-	rooms := PlaceRooms(l, z, theme.BudCount)
+	rooms := PlaceRooms(l, z, theme.BudCount, theme)
 	l.Polish(z)
 	CarveMaintenanceTunnels(l, z, l.Width, l.Height, 30)
 	flushDoors(l)
 	l.Polish(z)
 	ConnectDisconnectedRegions(l, cx, cy, z)
 
-	return tagRooms(rooms, theme)
+	return rooms
 }
 
 // generateOpenBays: a small number of large rooms, minimal budding.
@@ -275,8 +266,7 @@ func generateOpenBays(l *world.Level, z int, theme *FloorTheme) []Room {
 	}
 
 	// A few small budded utility rooms off the corridors
-	budded := PlaceRooms(l, z, theme.BudCount)
-	tagRooms(budded, theme)
+	budded := PlaceRooms(l, z, theme.BudCount, theme)
 
 	l.Polish(z)
 	CarveMaintenanceTunnels(l, z, l.Width, l.Height, 20)
@@ -331,8 +321,7 @@ func generateRectangle(l *world.Level, z int, theme *FloorTheme) []Room {
 		explicitRooms[i].Tag = theme.pickRoomTag()
 	}
 
-	budded := PlaceRooms(l, z, theme.BudCount)
-	tagRooms(budded, theme)
+	budded := PlaceRooms(l, z, theme.BudCount, theme)
 
 	l.Polish(z)
 	CarveMaintenanceTunnels(l, z, l.Width, l.Height, 20)

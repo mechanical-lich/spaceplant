@@ -1,5 +1,4 @@
 {
-
     "assault_rifle": {
         "DescriptionComponent": {
             "Name": "assault_rifle",
@@ -23,7 +22,10 @@
             "R": 150,
             "G": 150,
             "B": 150,
-            "Frames": 1
+            "Frames": 1,
+            "SpriteWidth": 32,
+            "SpriteHeight": 48,
+            "SpriteOffsetY": -16
         },
         "ItemComponent": {
             "Value": 8,
@@ -42,10 +44,22 @@
             "MaxMagazine": 30,
             "DamageType": "ballistic",
             "RangeBands": [
-                {"max_dist": 1, "cs_mod": -15},
-                {"max_dist": 4, "cs_mod": 5},
-                {"max_dist": 8, "cs_mod": 0},
-                {"max_dist": 10, "cs_mod": -10}
+                {
+                    "max_dist": 1,
+                    "cs_mod": -15
+                },
+                {
+                    "max_dist": 4,
+                    "cs_mod": 5
+                },
+                {
+                    "max_dist": 8,
+                    "cs_mod": 0
+                },
+                {
+                    "max_dist": 10,
+                    "cs_mod": -10
+                }
             ]
         }
     },
@@ -72,7 +86,10 @@
             "R": 180,
             "G": 120,
             "B": 80,
-            "Frames": 1
+            "Frames": 1,
+            "SpriteWidth": 32,
+            "SpriteHeight": 48,
+            "SpriteOffsetY": -16
         },
         "ItemComponent": {
             "Value": 6,
@@ -91,9 +108,18 @@
             "MaxMagazine": 8,
             "DamageType": "ballistic",
             "RangeBands": [
-                {"max_dist": 1, "cs_mod": 20},
-                {"max_dist": 3, "cs_mod": 5},
-                {"max_dist": 5, "cs_mod": -25}
+                {
+                    "max_dist": 1,
+                    "cs_mod": 20
+                },
+                {
+                    "max_dist": 3,
+                    "cs_mod": 5
+                },
+                {
+                    "max_dist": 5,
+                    "cs_mod": -25
+                }
             ]
         }
     },
@@ -120,7 +146,10 @@
             "R": 200,
             "G": 200,
             "B": 100,
-            "Frames": 1
+            "Frames": 1,
+            "SpriteWidth": 32,
+            "SpriteHeight": 48,
+            "SpriteOffsetY": -16
         },
         "ItemComponent": {
             "Effect": "",
@@ -139,9 +168,18 @@
             "MaxMagazine": 15,
             "DamageType": "ballistic",
             "RangeBands": [
-                {"max_dist": 1, "cs_mod": 10},
-                {"max_dist": 4, "cs_mod": 0},
-                {"max_dist": 8, "cs_mod": -20}
+                {
+                    "max_dist": 1,
+                    "cs_mod": 10
+                },
+                {
+                    "max_dist": 4,
+                    "cs_mod": 0
+                },
+                {
+                    "max_dist": 8,
+                    "cs_mod": -20
+                }
             ]
         }
     },
@@ -168,7 +206,10 @@
             "R": 200,
             "G": 200,
             "B": 125,
-            "Frames": 1
+            "Frames": 1,
+            "SpriteWidth": 32,
+            "SpriteHeight": 48,
+            "SpriteOffsetY": -16
         },
         "LightComponent": {
             "Radius": 10,
@@ -213,13 +254,16 @@
             "R": 200,
             "G": 200,
             "B": 125,
-            "Frames": 1
+            "Frames": 1,
+            "SpriteWidth": 32,
+            "SpriteHeight": 48,
+            "SpriteOffsetY": -16
         },
         "ItemComponent": {
             "Value": 3,
             "Slot": "hand",
             "Name": "Combat Knife",
-            "Description": "A fast, light blade. Low damage but strikes quickly — you can get in more hits per turn."
+            "Description": "A fast, light blade. Low damage but strikes quickly \u2014 you can get in more hits per turn."
         },
         "WeaponComponent": {
             "Penetration": 8,
@@ -251,7 +295,10 @@
             "R": 160,
             "G": 160,
             "B": 160,
-            "Frames": 1
+            "Frames": 1,
+            "SpriteWidth": 32,
+            "SpriteHeight": 48,
+            "SpriteOffsetY": -16
         },
         "ItemComponent": {
             "Value": 2,
@@ -289,7 +336,10 @@
             "R": 120,
             "G": 120,
             "B": 140,
-            "Frames": 1
+            "Frames": 1,
+            "SpriteWidth": 32,
+            "SpriteHeight": 48,
+            "SpriteOffsetY": -16
         },
         "ItemComponent": {
             "Value": 3,
@@ -327,13 +377,16 @@
             "R": 220,
             "G": 60,
             "B": 60,
-            "Frames": 1
+            "Frames": 1,
+            "SpriteWidth": 32,
+            "SpriteHeight": 48,
+            "SpriteOffsetY": -16
         },
         "ItemComponent": {
             "Value": 5,
             "Slot": "hand",
             "Name": "Fire Axe",
-            "Description": "Slow but devastating. Each swing hits hard — worth it if you can land it."
+            "Description": "Slow but devastating. Each swing hits hard \u2014 worth it if you can land it."
         },
         "WeaponComponent": {
             "Penetration": 20,
@@ -365,7 +418,10 @@
             "R": 100,
             "G": 180,
             "B": 255,
-            "Frames": 1
+            "Frames": 1,
+            "SpriteWidth": 32,
+            "SpriteHeight": 48,
+            "SpriteOffsetY": -16
         },
         "ItemComponent": {
             "Value": 4,
@@ -407,7 +463,10 @@
             "R": 255,
             "G": 120,
             "B": 0,
-            "Frames": 1
+            "Frames": 1,
+            "SpriteWidth": 32,
+            "SpriteHeight": 48,
+            "SpriteOffsetY": -16
         },
         "ItemComponent": {
             "Slot": "hand",

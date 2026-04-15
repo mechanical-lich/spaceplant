@@ -1,6 +1,7 @@
 package generation
 
 import (
+	"github.com/mechanical-lich/mlge/ecs"
 	"github.com/mechanical-lich/spaceplant/internal/component"
 	"github.com/mechanical-lich/spaceplant/internal/factory"
 	"github.com/mechanical-lich/spaceplant/internal/utility"
@@ -79,18 +80,19 @@ var roomFurniture = map[string][]string{
 // It is called after GenerateFloors returns FloorResults.
 func PopulateRooms(l *world.Level, results []FloorResult) {
 	for _, fr := range results {
-		for _, room := range fr.Rooms {
+		for i, room := range fr.Rooms {
 			if room.Tag == "" {
 				continue
 			}
-			populateRoom(l, fr.Z, room)
+			populateRoom(l, fr.Z, room, fr.PlacementHints[i])
 		}
 	}
 }
 
 // populateRoom places a random selection of furniture from the tag's list
 // into the interior tiles of the room (avoiding walls).
-func populateRoom(l *world.Level, z int, room Room) {
+// hints constrains where specific blueprints are placed; nil hints = fully random.
+func populateRoom(l *world.Level, z int, room Room, hints []PlacementHint) {
 	blueprints, ok := roomFurniture[room.Tag]
 	if !ok || len(blueprints) == 0 {
 		return
@@ -117,6 +119,12 @@ func populateRoom(l *world.Level, z int, room Room) {
 	}
 	numItems := utility.GetRandom(1, maxItems+1)
 
+	// Build a blueprint→region lookup from hints.
+	hintMap := make(map[string]PlacementRegion, len(hints))
+	for _, h := range hints {
+		hintMap[h.Blueprint] = h.Region
+	}
+
 	// Shuffle blueprints so we don't always pick the same ones.
 	shuffled := make([]string, len(blueprints))
 	copy(shuffled, blueprints)
@@ -127,15 +135,26 @@ func populateRoom(l *world.Level, z int, room Room) {
 		if placed >= numItems {
 			break
 		}
-		// Pick a random interior tile.
-		tx := utility.GetRandom(x1, x2+1)
-		ty := utility.GetRandom(y1, y2+1)
+
+		region := RegionAnywhere
+		if r, ok := hintMap[bp]; ok {
+			region = r
+		}
+
+		tx, ty := pickPositionInRegion(x1, y1, x2, y2, region)
+		if tx < 0 {
+			tx = utility.GetRandom(x1, x2+1)
+			ty = utility.GetRandom(y1, y2+1)
+		}
 
 		tile := l.Level.GetTilePtr(tx, ty, z)
 		if tile == nil || tile.IsSolid() {
 			continue
 		}
 		if l.Level.GetEntityAt(tx, ty, z) != nil {
+			continue
+		}
+		if adjacentToDoor(l, tx, ty, z) {
 			continue
 		}
 
@@ -148,4 +167,56 @@ func populateRoom(l *world.Level, z int, room Room) {
 		l.Level.AddEntity(e)
 		placed++
 	}
+}
+
+// pickPositionInRegion returns a random position within the given region of the interior
+// bounds [x1,x2] x [y1,y2]. Returns (-1,-1) if the region is degenerate.
+func pickPositionInRegion(x1, y1, x2, y2 int, region PlacementRegion) (int, int) {
+	var rx1, ry1, rx2, ry2 int
+	switch region {
+	case RegionNorthWall:
+		rx1, ry1, rx2, ry2 = x1, y1, x2, y1
+	case RegionSouthWall:
+		rx1, ry1, rx2, ry2 = x1, y2, x2, y2
+	case RegionWestWall:
+		rx1, ry1, rx2, ry2 = x1, y1, x1, y2
+	case RegionEastWall:
+		rx1, ry1, rx2, ry2 = x2, y1, x2, y2
+	case RegionCenter:
+		iw := x2 - x1 + 1
+		ih := y2 - y1 + 1
+		rx1 = x1 + iw/3
+		rx2 = x1 + 2*iw/3
+		ry1 = y1 + ih/3
+		ry2 = y1 + 2*ih/3
+		if rx2 < rx1 {
+			rx2 = rx1
+		}
+		if ry2 < ry1 {
+			ry2 = ry1
+		}
+	default: // RegionAnywhere
+		rx1, ry1, rx2, ry2 = x1, y1, x2, y2
+	}
+	if rx2 < rx1 || ry2 < ry1 {
+		return -1, -1
+	}
+	return utility.GetRandom(rx1, rx2+1), utility.GetRandom(ry1, ry2+1)
+}
+
+// adjacentToDoor returns true if any of the four cardinal neighbors of (tx,ty,z)
+// has a door entity, keeping a 1-tile clearance in front of every door.
+func adjacentToDoor(l *world.Level, tx, ty, z int) bool {
+	cardinals := [4][2]int{{0, -1}, {0, 1}, {-1, 0}, {1, 0}}
+	var buf []*ecs.Entity
+	for _, d := range cardinals {
+		buf = buf[:0]
+		l.Level.GetEntitiesAt(tx+d[0], ty+d[1], z, &buf)
+		for _, e := range buf {
+			if e.HasComponent(component.Door) {
+				return true
+			}
+		}
+	}
+	return false
 }

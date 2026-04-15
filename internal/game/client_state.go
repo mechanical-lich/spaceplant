@@ -397,8 +397,8 @@ func (s *SPClientState) Draw(screen *ebiten.Image) {
 		s.CameraX = pc.GetX()
 		s.CameraY = pc.GetY()
 	}
-	tilesW := int(math.Ceil(float64(cfg.WorldWidth) / (float64(cfg.SpriteSizeW) * scale)))
-	tilesH := int(math.Ceil(float64(cfg.WorldHeight) / (float64(cfg.SpriteSizeH) * scale)))
+	tilesW := int(math.Ceil(float64(cfg.WorldWidth) / (float64(cfg.TileSizeW) * scale)))
+	tilesH := int(math.Ceil(float64(cfg.WorldHeight) / (float64(cfg.TileSizeH) * scale)))
 	levelImage := s.sim.Level.Render(
 		s.CameraX, s.CameraY, s.sim.CurrentZ,
 		tilesW, tilesH,

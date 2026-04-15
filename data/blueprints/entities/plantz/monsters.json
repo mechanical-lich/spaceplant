@@ -23,11 +23,14 @@
         "AppearanceComponent": {
             "SpriteX": 0,
             "SpriteY": 0,
+            "SpriteWidth": 32,
+            "SpriteHeight": 48,
             "Resource": "plantz",
             "R": 0,
             "G": 255,
             "B": 0,
-            "Frames": 1
+            "Frames": 1,
+            "SpriteOffsetY": -16
         },
         "BodyComponent": {
             "Parts": {
@@ -134,11 +137,14 @@
         "AppearanceComponent": {
             "SpriteX": 0,
             "SpriteY": 0,
+            "SpriteWidth": 64,
+            "SpriteHeight": 96,
             "Resource": "large_entities",
             "R": 0,
             "G": 255,
             "B": 0,
-            "Frames": 1
+            "Frames": 1,
+            "SpriteOffsetY": -16
         },
         "BodyComponent": {
             "Parts": {
@@ -232,11 +238,14 @@
         "AppearanceComponent": {
             "SpriteX": 64,
             "SpriteY": 0,
+            "SpriteWidth": 32,
+            "SpriteHeight": 48,
             "Resource": "plantz",
             "R": 0,
             "G": 255,
             "B": 0,
-            "Frames": 1
+            "Frames": 1,
+            "SpriteOffsetY": -16
         },
         "BodyComponent": {
             "Parts": {
@@ -341,11 +350,14 @@
         "AppearanceComponent": {
             "SpriteX": 96,
             "SpriteY": 0,
+            "SpriteWidth": 32,
+            "SpriteHeight": 48,
             "Resource": "plantz",
             "R": 0,
             "G": 255,
             "B": 0,
-            "Frames": 1
+            "Frames": 1,
+            "SpriteOffsetY": -16
         },
         "BodyComponent": {
             "Parts": {
@@ -436,11 +448,14 @@
         "AppearanceComponent": {
             "SpriteX": 128,
             "SpriteY": 0,
+            "SpriteWidth": 32,
+            "SpriteHeight": 48,
             "Resource": "plantz",
             "R": 0,
             "G": 255,
             "B": 0,
-            "Frames": 1
+            "Frames": 1,
+            "SpriteOffsetY": -16
         },
         "BodyComponent": {
             "Parts": {
@@ -514,11 +529,14 @@
         "AppearanceComponent": {
             "SpriteX": 192,
             "SpriteY": 0,
+            "SpriteWidth": 32,
+            "SpriteHeight": 48,
             "Resource": "plantz",
             "R": 0,
             "G": 255,
             "B": 0,
-            "Frames": 1
+            "Frames": 1,
+            "SpriteOffsetY": -16
         },
         "BodyComponent": {
             "Parts": {
@@ -596,11 +614,14 @@
         "AppearanceComponent": {
             "SpriteX": 224,
             "SpriteY": 0,
+            "SpriteWidth": 32,
+            "SpriteHeight": 48,
             "Resource": "plantz",
             "R": 0,
             "G": 255,
             "B": 0,
-            "Frames": 1
+            "Frames": 1,
+            "SpriteOffsetY": -16
         },
         "BodyComponent": {
             "Parts": {
@@ -678,11 +699,14 @@
         "AppearanceComponent": {
             "SpriteX": 64,
             "SpriteY": 0,
+            "SpriteWidth": 64,
+            "SpriteHeight": 96,
             "Resource": "large_entities",
             "R": 0,
             "G": 255,
             "B": 0,
-            "Frames": 1
+            "Frames": 1,
+            "SpriteOffsetY": -16
         },
         "BodyComponent": {
             "Parts": {
@@ -763,11 +787,14 @@
         "AppearanceComponent": {
             "SpriteX": 160,
             "SpriteY": 0,
+            "SpriteWidth": 32,
+            "SpriteHeight": 48,
             "Resource": "plantz",
             "R": 0,
             "G": 255,
             "B": 0,
-            "Frames": 1
+            "Frames": 1,
+            "SpriteOffsetY": -16
         },
         "BodyComponent": {
             "Parts": {

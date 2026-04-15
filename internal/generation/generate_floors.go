@@ -7,11 +7,12 @@ import (
 
 // FloorResult holds the generated rooms for one floor after generation and population.
 type FloorResult struct {
-	Z           int
-	Theme       *FloorTheme
-	Rooms       []Room
-	StairX      int // actual X position of the stair tile on this floor
-	StairY      int // actual Y position of the stair tile on this floor
+	Z              int
+	Theme          *FloorTheme
+	Rooms          []Room
+	StairX         int // actual X position of the stair tile on this floor
+	StairY         int // actual Y position of the stair tile on this floor
+	PlacementHints map[int][]PlacementHint // room index → hints from room generators
 }
 
 // GenerateFloors generates all floors of the station using the FloorStack theme list.
@@ -29,10 +30,14 @@ func GenerateFloors(l *world.Level) []FloorResult {
 		rooms := generateFloor(l, z, theme)
 		l.Polish(z)
 
+		hints := ApplyRoomGenerators(l, z, rooms)
+		l.Polish(z)
+
 		results[z] = FloorResult{
-			Z:     z,
-			Theme: theme,
-			Rooms: rooms,
+			Z:              z,
+			Theme:          theme,
+			Rooms:          rooms,
+			PlacementHints: hints,
 		}
 	}
 
