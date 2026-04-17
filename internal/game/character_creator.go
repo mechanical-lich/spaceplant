@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"image"
 	"slices"
+	"strings"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/mechanical-lich/mlge/resource"
@@ -452,6 +453,22 @@ func (cc *CharacterCreator) refreshClassDesc() {
 		cc.classDesc.AddText(line)
 	}
 
+	if len(def.StatMods) > 0 {
+		cc.classDesc.AddText("")
+		cc.classDesc.AddText("Stat Bonuses:")
+		for _, mod := range def.StatMods {
+			cc.classDesc.AddText(fmt.Sprintf("  • +%d %s", mod.Delta, strings.ToUpper(mod.Stat)))
+		}
+	}
+
+	if len(def.StartingItems) > 0 {
+		cc.classDesc.AddText("")
+		cc.classDesc.AddText("Starting Equipment:")
+		for _, id := range def.StartingItems {
+			cc.classDesc.AddText("  • " + prettyBlueprintName(id))
+		}
+	}
+
 	if len(def.StartingSkills) > 0 {
 		cc.classDesc.AddText("")
 		cc.classDesc.AddText("Starting Skills:")
@@ -680,4 +697,15 @@ func (cc *CharacterCreator) Update() {
 
 func (cc *CharacterCreator) Draw(screen *ebiten.Image) {
 	cc.modal.Draw(screen)
+}
+
+// prettyBlueprintName converts a blueprint ID like "laser_cutter" to "Laser Cutter".
+func prettyBlueprintName(id string) string {
+	words := strings.Split(id, "_")
+	for i, w := range words {
+		if len(w) > 0 {
+			words[i] = strings.ToUpper(w[:1]) + w[1:]
+		}
+	}
+	return strings.Join(words, " ")
 }

@@ -3,6 +3,7 @@ package game
 import (
 	"sync"
 
+	"github.com/mechanical-lich/ml-rogue-lib/pkg/rlcomponents"
 	"github.com/mechanical-lich/ml-rogue-lib/pkg/rlsystems"
 	"github.com/mechanical-lich/ml-rogue-lib/pkg/rlworld"
 	"github.com/mechanical-lich/mlge/ecs"
@@ -12,6 +13,7 @@ import (
 	"github.com/mechanical-lich/spaceplant/internal/factory"
 	"github.com/mechanical-lich/spaceplant/internal/gamemaster"
 	"github.com/mechanical-lich/spaceplant/internal/generation"
+	"github.com/mechanical-lich/spaceplant/internal/skill"
 	"github.com/mechanical-lich/spaceplant/internal/system"
 	"github.com/mechanical-lich/spaceplant/internal/world"
 )
@@ -149,6 +151,9 @@ func (sw *SimWorld) SpawnPlayer(data CharacterData) error {
 	// Apply chosen class skills and background skills.
 	class.SyncSkills(player)
 
+	// Apply class stat bonuses on top of the player's chosen stats.
+	class.ApplyStatMods(player)
+
 	player.AddComponent(&component.BackgroundComponent{BackgroundID: data.BackgroundID})
 	background.SyncSkills(player)
 
@@ -162,6 +167,28 @@ func (sw *SimWorld) SpawnPlayer(data CharacterData) error {
 		BodyIndex: data.BodyIndex,
 		HairIndex: data.HairIndex,
 	})
+
+	// Give starting items from the class definition.
+	if def := class.Get(data.ClassID); def != nil && len(def.StartingItems) > 0 {
+		if player.HasComponent(component.BodyInventory) && player.HasComponent(component.Body) {
+			inv := player.GetComponent(component.BodyInventory).(*rlcomponents.BodyInventoryComponent)
+			bc := player.GetComponent(component.Body).(*rlcomponents.BodyComponent)
+			for _, blueprintID := range def.StartingItems {
+				item, err := factory.Create(blueprintID, 0, 0)
+				if err != nil {
+					continue
+				}
+				inv.AddItem(item)
+			}
+			inv.EquipAllBest(bc)
+			skill.SyncEquippedSkills(player)
+		}
+	}
+
+	// Reveal the entire starting floor for the Navigator's Stellar Cartography skill.
+	if skill.HasSkill(player, "completed_minimap") {
+		sw.Level.RevealFloor(0)
+	}
 
 	player.GetComponent("Position").(*component.PositionComponent).SetPosition(pX, pY, 0)
 

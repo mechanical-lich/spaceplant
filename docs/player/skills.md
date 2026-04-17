@@ -77,6 +77,18 @@ Skills related to the spreading of organic overgrowth.
 
 ---
 
+## Class Passive Skills
+
+These skills are granted automatically by specific classes and act as flags for game mechanics.
+
+| Skill | Granted By | Effect |
+|---|---|---|
+| Stellar Cartography | Navigator | Starts the game with the entire floor revealed on the minimap |
+| Officer Clearance | Officer | Grants access to most secured doors aboard the ship |
+| Systems Expert | Engineer | Improves ability to diagnose and repair broken ship systems and computers |
+
+---
+
 ## Other Skills
 
 | Skill | Effect |

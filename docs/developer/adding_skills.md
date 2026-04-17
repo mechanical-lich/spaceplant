@@ -134,7 +134,47 @@ Stat modifiers are applied when the skill is granted and reversed when it is rem
 }
 ```
 
-**Via class definition** — add the skill ID to the class's skill list in `data/classes/`.
+**Via class definition** — add the skill ID to a class's `StartingSkills` (granted automatically) or `Skills` (available to purchase) list in `data/classes/classes.json`.
+
+---
+
+## Adding a Class
+
+Classes are defined in `data/classes/classes.json`. Each entry supports:
+
+| Field | Type | Description |
+|---|---|---|
+| `ID` | string | Unique identifier used in code and saves. |
+| `Name` | string | Display name. |
+| `Description` | string | Shown in the character creator. |
+| `StatMods` | array | Direct stat bonuses applied at spawn, independent of skills. Use `{ "stat": "ma", "delta": 5 }`. Same stat keys as skill stat modifiers. |
+| `StartingItems` | array | Blueprint IDs to spawn and equip when the game starts. Processed in order; `EquipAllBest` runs after all items are added. |
+| `StartingSkills` | array | Skill IDs granted automatically when the class is assigned. |
+| `Skills` | array | Skill IDs the player can purchase via upgrade points. |
+
+Example:
+
+```json
+{
+    "ID": "scientist",
+    "Name": "Scientist",
+    "Description": "A researcher trained in advanced sciences.",
+    "StatMods": [
+        { "stat": "ma", "delta": 5 }
+    ],
+    "StartingItems": [
+        "laser_trimmers",
+        "lab_coat",
+        "scrubs"
+    ],
+    "StartingSkills": [],
+    "Skills": ["brainy", "nimble", "thick_skin"]
+}
+```
+
+**StatMods vs skill stat modifiers:** `StatMods` on a class are applied once at spawn directly to the `StatsComponent`. They are not reversible at runtime and do not require a skill entry. Use them for the class's core identity bonuses. Use skill `stat_modifiers` when the bonus needs to be tied to a specific skill (so it can be removed if the skill is taken away).
+
+**Minimap reveal:** If a class grants the `completed_minimap` skill via `StartingSkills`, `SpawnPlayer` will automatically call `RevealFloor(0)` to pre-populate the minimap.
 
 ---
 

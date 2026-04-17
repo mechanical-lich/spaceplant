@@ -149,6 +149,42 @@
             "Index": 4
         }
     },
+    "combat_armor": {
+        "DescriptionComponent": {
+            "Name": "Combat Armor",
+            "Faction": "item"
+        },
+        "AsciiAppearanceComponent": {
+            "Character": "[",
+            "R": 160,
+            "G": 160,
+            "B": 160
+        },
+        "AppearanceComponent": {
+            "Resource": "mid_shirt",
+            "SpriteX": 160,
+            "SpriteY": 0,
+            "R": 200,
+            "G": 200,
+            "B": 220,
+            "Frames": 1,
+            "SpriteWidth": 32,
+            "SpriteHeight": 48,
+            "SpriteOffsetY": -16
+        },
+        "ItemComponent": {
+            "Slot": "torso",
+            "Name": "Combat Armor",
+            "Description": "Heavy-duty armored vest. Significantly more stopping power than standard uniform."
+        },
+        "ArmorComponent": {
+            "StoppingPower": 12
+        },
+        "WearableAppearanceComponent": {
+            "Layer": "shirt",
+            "Index": 5
+        }
+    },
     "scrubs": {
         "DescriptionComponent": {
             "Name": "Scrubs Bottoms",

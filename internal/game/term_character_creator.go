@@ -260,15 +260,36 @@ func (cc *TermCharacterCreator) Draw(s tcell.Screen) {
 			cl := cc.classes[cc.classCursor]
 			rltermgui.DrawText(s, descX, 3, cl.Name, title)
 			rltermgui.DrawText(s, descX, 4, cl.Description, normal)
+			row := 6
+			if len(cl.StatMods) > 0 {
+				rltermgui.DrawText(s, descX, row, "Stats:", dim)
+				row++
+				for _, mod := range cl.StatMods {
+					rltermgui.DrawText(s, descX+2, row, fmt.Sprintf("+%d %s", mod.Delta, strings.ToUpper(mod.Stat)), normal)
+					row++
+				}
+				row++
+			}
+			if len(cl.StartingItems) > 0 {
+				rltermgui.DrawText(s, descX, row, "Equipment:", dim)
+				row++
+				for _, id := range cl.StartingItems {
+					rltermgui.DrawText(s, descX+2, row, prettyBlueprintName(id), normal)
+					row++
+				}
+				row++
+			}
 			if len(cl.StartingSkills) > 0 {
-				rltermgui.DrawText(s, descX, 6, "Starting skills:", dim)
-				for j, sk := range cl.StartingSkills {
+				rltermgui.DrawText(s, descX, row, "Starting skills:", dim)
+				row++
+				for _, sk := range cl.StartingSkills {
 					def := skill.Get(sk)
 					name := sk
 					if def != nil {
 						name = def.Name
 					}
-					rltermgui.DrawText(s, descX+2, 7+j, name, normal)
+					rltermgui.DrawText(s, descX+2, row, name, normal)
+					row++
 				}
 			}
 		}

@@ -5,14 +5,18 @@ import (
 	"fmt"
 	"os"
 	"sort"
+
+	"github.com/mechanical-lich/spaceplant/internal/skill"
 )
 
 type ClassDef struct {
 	ID             string
 	Name           string
 	Description    string
-	StartingSkills []string // granted automatically when the class is assigned
-	Skills         []string // available to purchase via upgrade points
+	StatMods       []skill.StatModifier `json:"StatMods,omitempty"`    // applied directly to stats at spawn
+	StartingSkills []string                                              // granted automatically when the class is assigned
+	StartingItems  []string             `json:"StartingItems,omitempty"` // blueprint IDs to spawn and equip at game start
+	Skills         []string                                              // available to purchase via upgrade points
 }
 
 var registry = map[string]*ClassDef{}

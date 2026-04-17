@@ -41,5 +41,130 @@
             "hands_only",
             "sharpshooter"
         ]
+    },
+    {
+        "ID": "scientist",
+        "Name": "Scientist",
+        "Description": "A researcher trained in advanced sciences. Sharp mind, steady hands.",
+        "StatMods": [
+            { "stat": "ma", "delta": 5 }
+        ],
+        "StartingItems": [
+            "laser_trimmers",
+            "lab_coat",
+            "scrubs",
+            "scrub_shoes",
+            "scrub_cap"
+        ],
+        "Skills": [
+            "brainy",
+            "nimble",
+            "thick_skin",
+            "noncombustible",
+            "acid_proof"
+        ]
+    },
+    {
+        "ID": "navigator",
+        "Name": "Navigator",
+        "Description": "Expert at reading star charts and getting everyone home in one piece.",
+        "StatMods": [
+            { "stat": "ma", "delta": 2 },
+            { "stat": "cl", "delta": 2 }
+        ],
+        "StartingSkills": [
+            "completed_minimap"
+        ],
+        "StartingItems": [
+            "standard_pistol",
+            "9mm_rounds",
+            "crew_shirt",
+            "uniform_trousers",
+            "crew_shoes",
+            "crew_hat"
+        ],
+        "Skills": [
+            "brainy",
+            "nimble",
+            "sprinter",
+            "sharpshooter"
+        ]
+    },
+    {
+        "ID": "officer",
+        "Name": "Officer",
+        "Description": "A commanding presence with authority to match. Doors open for them — sometimes literally.",
+        "StatMods": [
+            { "stat": "ld", "delta": 3 },
+            { "stat": "ph", "delta": 2 }
+        ],
+        "StartingSkills": [
+            "officer_access"
+        ],
+        "StartingItems": [
+            "security_pistol",
+            "9mm_rounds",
+            "officer_shirt",
+            "pressed_trousers",
+            "officer_shoes",
+            "officer_cap"
+        ],
+        "Skills": [
+            "brainy",
+            "brawler",
+            "thick_skin",
+            "shove",
+            "sharpshooter"
+        ]
+    },
+    {
+        "ID": "security",
+        "Name": "Security",
+        "Description": "Trained to handle threats with force. When things go wrong, they're the last line of defense.",
+        "StatMods": [
+            { "stat": "ph", "delta": 2 },
+            { "stat": "cs", "delta": 2 },
+            { "stat": "htcs", "delta": 2 }
+        ],
+        "StartingItems": [
+            "combat_knife",
+            "combat_armor",
+            "security_trousers",
+            "security_boots",
+            "security_hat"
+        ],
+        "Skills": [
+            "brawler",
+            "combat_specialist",
+            "sharpshooter",
+            "thick_skin",
+            "shove",
+            "ranged_combat_specialist"
+        ]
+    },
+    {
+        "ID": "engineer",
+        "Name": "Engineer",
+        "Description": "The ship runs because they make it run. Can spot a broken system from a mile away.",
+        "StatMods": [
+            { "stat": "ma", "delta": 3 },
+            { "stat": "ag", "delta": 1 }
+        ],
+        "StartingSkills": [
+            "computer_repair_expert"
+        ],
+        "StartingItems": [
+            "laser_cutter",
+            "engineer_shirt",
+            "work_trousers",
+            "workboots",
+            "hardhat"
+        ],
+        "Skills": [
+            "brainy",
+            "nimble",
+            "thick_skin",
+            "sprinter"
+        ]
     }
 ]

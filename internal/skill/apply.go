@@ -128,6 +128,12 @@ func removeStatValue(entity *ecs.Entity, stat, value string) {
 	}
 }
 
+// ApplyStatDelta adds delta to a named numeric stat on the entity.
+// Exported so packages like class can apply stat modifiers without duplicating the switch.
+func ApplyStatDelta(entity *ecs.Entity, stat string, delta int) {
+	applyStatDelta(entity, stat, delta)
+}
+
 // applyStatDelta adds delta to a named numeric stat on the entity.
 // Supported stat names for the AAG system:
 //

@@ -5,20 +5,7 @@
             "Name": "Player",
             "Faction": "crew"
         },
-        "BodyInventoryComponent": {
-            "StartingInventory": [
-                "laser_trimmers",
-                "security_shirt",
-                "scrubs",
-                "scrub_shoes",
-                "scrub_cap",
-                "security_pistol",
-                "shotgun",
-                "assault_rifle",
-                "5_56_rounds",
-                "12g_shells"
-            ]
-        },
+        "BodyInventoryComponent": {},
         "BodyComponent": {
             "Parts": {
                 "head": {

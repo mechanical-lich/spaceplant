@@ -440,6 +440,106 @@
             "OnHitCheckStat": "ph"
         }
     },
+    "standard_pistol": {
+        "DescriptionComponent": {
+            "Name": "standard_pistol",
+            "Faction": "item",
+            "PassOverDescription": [
+                "A standard pistol lies here.",
+                "You spot a pistol on the floor.",
+                "Someone left a pistol here."
+            ]
+        },
+        "AsciiAppearanceComponent": {
+            "Character": ")",
+            "R": 180,
+            "G": 180,
+            "B": 180
+        },
+        "AppearanceComponent": {
+            "Resource": "weapons",
+            "SpriteX": 64,
+            "SpriteY": 0,
+            "R": 180,
+            "G": 180,
+            "B": 180,
+            "Frames": 1,
+            "SpriteWidth": 32,
+            "SpriteHeight": 48,
+            "SpriteOffsetY": -16
+        },
+        "ItemComponent": {
+            "Value": 3,
+            "Slot": "hand",
+            "Name": "Standard Pistol",
+            "Description": "A basic sidearm. Reliable but unimpressive. Press F to fire; Shift+R to reload."
+        },
+        "WeaponComponent": {
+            "Penetration": 12,
+            "CombatSkillModifier": 0,
+            "Range": 6,
+            "Ranged": true,
+            "AmmoType": "9mm",
+            "Magazine": 12,
+            "MaxMagazine": 12,
+            "DamageType": "ballistic",
+            "RangeBands": [
+                {
+                    "max_dist": 1,
+                    "cs_mod": 10
+                },
+                {
+                    "max_dist": 4,
+                    "cs_mod": 0
+                },
+                {
+                    "max_dist": 6,
+                    "cs_mod": -20
+                }
+            ]
+        }
+    },
+    "laser_cutter": {
+        "DescriptionComponent": {
+            "Name": "laser_cutter",
+            "Faction": "item",
+            "PassOverDescription": [
+                "A laser cutter lies here.",
+                "You spot a laser cutter on the floor.",
+                "Someone left a laser cutter here."
+            ]
+        },
+        "AsciiAppearanceComponent": {
+            "Character": ")",
+            "R": 80,
+            "G": 220,
+            "B": 255
+        },
+        "AppearanceComponent": {
+            "Resource": "weapons",
+            "SpriteX": 0,
+            "SpriteY": 0,
+            "R": 80,
+            "G": 220,
+            "B": 255,
+            "Frames": 1,
+            "SpriteWidth": 32,
+            "SpriteHeight": 48,
+            "SpriteOffsetY": -16
+        },
+        "ItemComponent": {
+            "Value": 4,
+            "Slot": "hand",
+            "Name": "Laser Cutter",
+            "Description": "An engineer's precision cutting tool. High penetration against materials — and anything else in the way."
+        },
+        "WeaponComponent": {
+            "Penetration": 16,
+            "CombatSkillModifier": 0,
+            "DamageType": "energy",
+            "ActionCost": 90
+        }
+    },
     "flamethrower": {
         "DescriptionComponent": {
             "Name": "flamethrower",

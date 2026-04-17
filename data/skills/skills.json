@@ -216,6 +216,21 @@
     "description": "Surgical precision with a ranged weapon. Aimed shots gain an extra +10 CS, and targeted aimed shots hit the chosen body part 90% of the time."
   },
   {
+    "id": "completed_minimap",
+    "name": "Stellar Cartography",
+    "description": "Extensive navigation training means you always know the layout of a vessel before you board. Starts with a fully revealed minimap."
+  },
+  {
+    "id": "officer_access",
+    "name": "Officer Clearance",
+    "description": "Your rank grants access to most secured doors aboard the ship. Officers rarely find a door they can't open."
+  },
+  {
+    "id": "computer_repair_expert",
+    "name": "Systems Expert",
+    "description": "Years of fieldwork have made you adept at diagnosing and repairing malfunctioning ship systems and computers."
+  },
+  {
     "id": "immobile",
     "name": "Immobile",
     "description": "This entity cannot move."

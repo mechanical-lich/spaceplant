@@ -60,6 +60,15 @@ func NewLevel(width, height, depth int, theme Theme) *Level {
 	return l
 }
 
+// RevealFloor marks every tile on floor z as seen, fully populating the minimap.
+func (l *Level) RevealFloor(z int) {
+	for x := 0; x < l.Width; x++ {
+		for y := 0; y < l.Height; y++ {
+			l.SetSeen(x, y, z, true)
+		}
+	}
+}
+
 // IsTileSolid checks whether a tile is solid at the given coords.
 func (l *Level) IsTileSolid(x, y, z int) bool {
 	t := l.Level.GetTilePtr(x, y, z)
