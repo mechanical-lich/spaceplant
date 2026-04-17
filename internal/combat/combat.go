@@ -55,15 +55,15 @@ func hitCore(level *world.Level, attacker, defender *ecs.Entity, weaponOverride 
 	defenderName := rlentity.GetName(defender)
 
 	// --- Determine effective CombatSkill ---
-	// Melee (weaponOverride == nil) uses HTCS + PH bracket bonus.
-	// Ranged (weaponOverride != nil) uses CS.
+	// Effective CS = 20 (base) + stat/2 + training skill.
+	// Melee uses HTCS training + PH/2. Ranged uses CS training + AG/2.
 	cs := 30 // fallback if no stats
 	if attacker.HasComponent(component.Stats) {
 		sc := attacker.GetComponent(component.Stats).(*component.StatsComponent)
 		if weaponOverride == nil {
-			cs = sc.HTCS + statMeleeBonus(sc.PH)
+			cs = 20 + sc.PH/2 + sc.HTCS
 		} else {
-			cs = sc.CS
+			cs = 20 + sc.AG/2 + sc.CS
 		}
 	}
 
@@ -157,7 +157,7 @@ func hitCore(level *world.Level, attacker, defender *ecs.Entity, weaponOverride 
 			htcs = sc.HTCS
 			ag = sc.AG
 		}
-		parryThreshold := htcs + statMeleeBonus(ag)
+		parryThreshold := 20 + ag/2 + htcs
 		if parryThreshold < 1 {
 			parryThreshold = 1
 		}
@@ -283,24 +283,6 @@ func woundAttackPenalty(attacker *ecs.Entity) int {
 	return worst
 }
 
-// statMeleeBonus returns a CS modifier from a stat value using Phoenix Command brackets.
-// Used for both PH (melee offense) and AG (melee defense/parry).
-func statMeleeBonus(stat int) int {
-	switch {
-	case stat >= 18:
-		return 20
-	case stat >= 16:
-		return 15
-	case stat >= 14:
-		return 10
-	case stat >= 12:
-		return 5
-	case stat >= 10:
-		return 0
-	default:
-		return -10
-	}
-}
 
 // --- helpers ---
 

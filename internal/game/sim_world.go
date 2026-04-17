@@ -29,6 +29,7 @@ type CharacterData struct {
 	CL           int
 	LD           int
 	HTCS         int
+	CS           int
 	ClassID      string
 	ChosenSkills []string
 	BackgroundID string
@@ -138,6 +139,7 @@ func (sw *SimWorld) SpawnPlayer(data CharacterData) error {
 		sc.CL = data.CL
 		sc.LD = data.LD
 		sc.HTCS = data.HTCS
+		sc.CS = data.CS
 	}
 
 	// Replace class — blueprint default is discarded.

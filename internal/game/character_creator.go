@@ -33,9 +33,9 @@ type CharacterCreator struct {
 	nameInput *minui.TextInput
 
 	// Stats tab
-	statLabels  [6]*minui.Label // PH, AG, MA, CL, LD, HTCS
+	statLabels  [7]*minui.Label // PH, AG, MA, CL, LD, HTCS, CS
 	pointsLabel *minui.Label
-	stats       [6]int // current values for PH, AG, MA, CL, LD, HTCS
+	stats       [7]int // current values for PH, AG, MA, CL, LD, HTCS, CS
 
 	// Class tab
 	classList     *minui.ListBox
@@ -80,9 +80,10 @@ const (
 	statCL   = 3
 	statLD   = 4
 	statHTCS = 5
+	statCS   = 6
 )
 
-var statNames = [6]string{"PH", "AG", "MA", "CL", "LD", "HTCS"}
+var statNames = [7]string{"PH", "AG", "MA", "CL", "LD", "HTCS", "CS"}
 
 func NewCharacterCreator() *CharacterCreator {
 	cfg := config.Global()
@@ -90,7 +91,7 @@ func NewCharacterCreator() *CharacterCreator {
 	my := (cfg.ScreenHeight - ccModalH) / 2
 
 	cc := &CharacterCreator{
-		stats:         [6]int{10, 10, 10, 10, 8, 30},
+		stats:         [7]int{10, 10, 10, 10, 8, 10, 20},
 		upgradePoints: 1,
 		selectedClass: -1,
 		selectedSkill: -1,
@@ -171,7 +172,7 @@ func (cc *CharacterCreator) buildStatsTab() {
 	cc.pointsLabel.SetSize(300, 24)
 	panel.AddChild(cc.pointsLabel)
 
-	for i := 0; i < 6; i++ {
+	for i := 0; i < 7; i++ {
 		idx := i
 		y := 50 + i*50
 
@@ -676,6 +677,7 @@ func (cc *CharacterCreator) submit() {
 			CL:           cc.stats[statCL],
 			LD:           cc.stats[statLD],
 			HTCS:         cc.stats[statHTCS],
+			CS:           cc.stats[statCS],
 			ClassID:      classID,
 			ChosenSkills: cc.chosenSkills,
 			BackgroundID: bgID,

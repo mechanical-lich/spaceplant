@@ -488,15 +488,35 @@ func (v *CharacterStatsView) refreshOverview() {
 			{"CL", sc.CL, "cl"},
 			{"LD", sc.LD, "ld"},
 			{"CS", sc.CS, "cs"},
+			{"HTCS", sc.HTCS, "htcs"},
 		}
 		v.overviewArea.AddText("── Stats ──────────────")
 		for _, s := range stats {
 			mods := v.collectStatMods(s.key)
-			if mods == "" {
-				v.overviewArea.AddText(fmt.Sprintf("  %s: %d", s.name, s.val))
-			} else {
-				v.overviewArea.AddText(fmt.Sprintf("  %s: %d  (%s)", s.name, s.val, mods))
+			var line string
+			switch s.key {
+			case "cs":
+				eff := 20 + sc.AG/2 + sc.CS
+				if mods == "" {
+					line = fmt.Sprintf("  %s: %d  [eff: %d%%]", s.name, s.val, eff)
+				} else {
+					line = fmt.Sprintf("  %s: %d  [eff: %d%%]  (%s)", s.name, s.val, eff, mods)
+				}
+			case "htcs":
+				eff := 20 + sc.PH/2 + sc.HTCS
+				if mods == "" {
+					line = fmt.Sprintf("  %s: %d  [eff: %d%%]", s.name, s.val, eff)
+				} else {
+					line = fmt.Sprintf("  %s: %d  [eff: %d%%]  (%s)", s.name, s.val, eff, mods)
+				}
+			default:
+				if mods == "" {
+					line = fmt.Sprintf("  %s: %d", s.name, s.val)
+				} else {
+					line = fmt.Sprintf("  %s: %d  (%s)", s.name, s.val, mods)
+				}
 			}
+			v.overviewArea.AddText(line)
 		}
 		v.overviewArea.AddText("")
 	}

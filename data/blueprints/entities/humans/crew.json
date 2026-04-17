@@ -125,8 +125,8 @@
             "MA": 10,
             "CL": 10,
             "LD": 8,
-            "CS": 40,
-            "HTCS": 25
+            "CS": 20,
+            "HTCS": 10
         },
         "HitLocationComponent": {
             "Weights": { "head": 10, "torso": 40, "right_arm": 15, "left_arm": 15, "legs": 15, "feet": 5 }
@@ -258,8 +258,8 @@
             "MA": 10,
             "CL": 10,
             "LD": 8,
-            "CS": 40,
-            "HTCS": 35
+            "CS": 20,
+            "HTCS": 15
         },
         "HitLocationComponent": {
             "Weights": { "head": 10, "torso": 40, "right_arm": 15, "left_arm": 15, "legs": 15, "feet": 5 }

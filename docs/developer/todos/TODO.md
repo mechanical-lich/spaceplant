@@ -1,6 +1,12 @@
 Things to pull from if I need ideas on what to work on:
-- Wound penalties — In AAG, a damaged but not-broken body part imposes ongoing penalties to actions (accuracy, movement, etc.) based on remaining HP. Spaceplant's BodyPart only tracks Broken and Amputated — there's no degraded-performance state in between. This is the biggest mechanical gap.
-- Shock and unconsciousness — AAG has endurance checks for cumulative trauma; high damage can knock an entity unconscious even without a kill. Not implemented.
+
 - Armor coverage — AAG tracks which body parts each armor piece covers. Spaceplant approximates this by keying armor items to body part slots, which is close but doesn't model partial coverage (e.g. a vest covering torso but not a wound that grazes the arm).
-- Suppression — Firing at an area (not necessarily aiming to hit) forces targets to make Cool Checks or go prone/seek cover. The shooter doesn't need to hit, just fire in the general direction.
 - Update the AI to be smarter about the actions it can take.   I'd like it to loop through available actions to it and choose the right one for the situation based on the AI's settings, such as aggressiveness. 
+- Add a title screen with load/new game options 
+- Add ability to save/load the game state
+- Add the win conditions.
+-- Blow up the station by accessing a specific terminal/mainframe on the bridge or by sabotaging the engine room.
+-- Hack the stations environmental controls to kill the plants
+-- Manually kill each plant on the station
+-- Escape using one of the station's lifeboats
+- We need a end screen for when the player wins or dies

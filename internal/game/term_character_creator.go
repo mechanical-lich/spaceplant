@@ -35,7 +35,7 @@ type TermCharacterCreator struct {
 	name []rune
 
 	// Stats step — same order as GUI: PH, AG, MA, CL, LD, HTCS
-	stats      [6]int
+	stats      [7]int
 	statCursor int
 
 	// Class step
@@ -52,7 +52,7 @@ func NewTermCharacterCreator() *TermCharacterCreator {
 	cc := &TermCharacterCreator{
 		active: true,
 		step:   termCCName,
-		stats:  [6]int{10, 10, 10, 10, 8, 30},
+		stats:  [7]int{10, 10, 10, 10, 8, 10, 20},
 	}
 	cc.classes = class.All()
 	cc.backgrounds = background.All()
@@ -63,7 +63,7 @@ func (cc *TermCharacterCreator) Active() bool  { return cc.active }
 func (cc *TermCharacterCreator) Visible() bool { return cc.active }
 
 func (cc *TermCharacterCreator) remainingPoints() int {
-	defaults := [6]int{10, 10, 10, 10, 8, 30}
+	defaults := [7]int{10, 10, 10, 10, 8, 10, 20}
 	used := 0
 	for i, v := range cc.stats {
 		d := v - defaults[i]
@@ -111,14 +111,14 @@ func (cc *TermCharacterCreator) handleName(ev *tcell.EventKey) {
 }
 
 func (cc *TermCharacterCreator) handleStats(ev *tcell.EventKey) {
-	defaults := [6]int{10, 10, 10, 10, 8, 30}
+	defaults := [7]int{10, 10, 10, 10, 8, 10, 20}
 	switch ev.Key() {
 	case tcell.KeyUp:
 		if cc.statCursor > 0 {
 			cc.statCursor--
 		}
 	case tcell.KeyDown:
-		if cc.statCursor < 5 {
+		if cc.statCursor < 6 {
 			cc.statCursor++
 		}
 	case tcell.KeyRight, tcell.KeyRune:
@@ -192,6 +192,7 @@ func (cc *TermCharacterCreator) submit() {
 			CL:           cc.stats[statCL],
 			LD:           cc.stats[statLD],
 			HTCS:         cc.stats[statHTCS],
+			CS:           cc.stats[statCS],
 			ClassID:      classID,
 			BackgroundID: bgID,
 			BodyType:     "mid",
@@ -236,7 +237,7 @@ func (cc *TermCharacterCreator) Draw(s tcell.Screen) {
 
 	case termCCStats:
 		rltermgui.DrawText(s, 2, 3, fmt.Sprintf("Distribute stat points  (remaining: %d)", cc.remainingPoints()), normal)
-		statLabels := [6]string{"PH  Physique", "AG  Agility", "MA  Mental", "CL  Cool", "LD  Leadership", "HTCS Hand-to-Hand"}
+		statLabels := [7]string{"PH  Physique", "AG  Agility", "MA  Mental", "CL  Cool", "LD  Leadership", "HTCS Hand-to-Hand", "CS  Ranged Combat"}
 		for i, label := range statLabels {
 			st := normal
 			if i == cc.statCursor {
@@ -332,7 +333,7 @@ func (cc *TermCharacterCreator) Draw(s tcell.Screen) {
 		y := 5
 		rltermgui.DrawText(s, 4, y, fmt.Sprintf("Name:  %s", name), normal)
 		y++
-		statLabels := [6]string{"PH", "AG", "MA", "CL", "LD", "HTCS"}
+		statLabels := [7]string{"PH", "AG", "MA", "CL", "LD", "HTCS", "CS"}
 		statLine := ""
 		for i, label := range statLabels {
 			statLine += fmt.Sprintf("%s:%d  ", label, cc.stats[i])

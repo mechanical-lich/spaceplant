@@ -81,8 +81,8 @@
             "MA": 6,
             "CL": 8,
             "LD": 3,
-            "CS": 45,
-            "HTCS": 40,
+            "CS": 20,
+            "HTCS": 15,
             "NaturalPen": 6
         },
         "HitLocationComponent": {
@@ -200,8 +200,8 @@
             "MA": 6,
             "CL": 10,
             "LD": 3,
-            "CS": 35,
-            "HTCS": 30,
+            "CS": 10,
+            "HTCS": 5,
             "NaturalPen": 10
         },
         "HitLocationComponent": {
@@ -303,8 +303,8 @@
             "MA": 6,
             "CL": 6,
             "LD": 3,
-            "CS": 40,
-            "HTCS": 35,
+            "CS": 15,
+            "HTCS": 10,
             "NaturalPen": 5
         },
         "HitLocationComponent": {
@@ -403,8 +403,8 @@
             "MA": 6,
             "CL": 10,
             "LD": 3,
-            "CS": 50,
-            "HTCS": 45,
+            "CS": 25,
+            "HTCS": 20,
             "NaturalPen": 8
         },
         "HitLocationComponent": {
@@ -494,8 +494,8 @@
             "MA": 5,
             "CL": 6,
             "LD": 3,
-            "CS": 38,
-            "HTCS": 33,
+            "CS": 12,
+            "HTCS": 8,
             "NaturalPen": 4
         },
         "HitLocationComponent": {
@@ -573,8 +573,8 @@
             "MA": 4,
             "CL": 5,
             "LD": 2,
-            "CS": 20,
-            "HTCS": 15,
+            "CS": 0,
+            "HTCS": 0,
             "NaturalPen": 2
         },
         "HitLocationComponent": {
@@ -658,8 +658,8 @@
             "MA": 4,
             "CL": 5,
             "LD": 2,
-            "CS": 20,
-            "HTCS": 15,
+            "CS": 0,
+            "HTCS": 0,
             "NaturalPen": 2
         },
         "HitLocationComponent": {
@@ -747,8 +747,8 @@
             "MA": 4,
             "CL": 5,
             "LD": 2,
-            "CS": 20,
-            "HTCS": 15,
+            "CS": 0,
+            "HTCS": 0,
             "NaturalPen": 2
         },
         "HitLocationComponent": {
@@ -842,8 +842,8 @@
             "MA": 5,
             "CL": 8,
             "LD": 3,
-            "CS": 30,
-            "HTCS": 25,
+            "CS": 5,
+            "HTCS": 0,
             "NaturalPen": 3
         },
         "HitLocationComponent": {

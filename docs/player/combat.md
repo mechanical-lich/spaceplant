@@ -67,7 +67,8 @@ See [Injuries & Penalties](injuries.md) for the full breakdown of wound severity
 
 | Stat | Effect |
 |---|---|
-| CS | Ranged attack accuracy |
-| HTCS | Melee attack accuracy and parry |
-| PH | Bare-hands penetration |
+| CS | Ranged training; effective hit% = 20 + AG/2 + CS |
+| HTCS | Melee training; effective hit% = 20 + PH/2 + HTCS |
+| AG | Contributes AG/2 to ranged hit% |
+| PH | Contributes PH/2 to melee hit% and bare-hands penetration |
 | CL (Cool) | Resistance to status effects (poison, slow, etc.) |
