@@ -122,6 +122,25 @@ func (s *SPClientState) Update(_ *transport.Snapshot) client.ClientState {
 		return nil
 	}
 
+	// F5 saves the game; F9 loads the last save.
+	if inpututil.IsKeyJustPressed(ebiten.KeyF5) {
+		if err := SaveGame(s.sim, "save.json"); err != nil {
+			fmt.Printf("Save failed: %v\n", err)
+		} else {
+			message.AddMessage("Game saved.")
+		}
+		return nil
+	}
+	if inpututil.IsKeyJustPressed(ebiten.KeyF9) {
+		if err := LoadIntoSimWorld(s.sim, "save.json"); err != nil {
+			fmt.Printf("Load failed: %v\n", err)
+		} else {
+			s.initGameViews()
+			message.AddMessage("Game loaded.")
+		}
+		return nil
+	}
+
 	fps := ebiten.ActualFPS()
 	tps := ebiten.ActualTPS()
 	s.sim.Mu.RLock()

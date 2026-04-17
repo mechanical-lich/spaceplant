@@ -16,6 +16,9 @@ import (
 // JSON factory for modern blueprints
 var jsonFactory = ecs.NewJSONFactory()
 
+// GetFactory returns the package-level JSON factory (used by save/load).
+func GetFactory() *ecs.JSONFactory { return jsonFactory }
+
 func init() {
 	registerComponents()
 }
