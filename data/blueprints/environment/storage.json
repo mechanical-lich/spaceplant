@@ -89,5 +89,12 @@
         "SolidComponent": {},
         "InanimateComponent": {},
         "InventoryComponent": {}
+    },
+    "filing_cabinet": {
+        "DescriptionComponent": { "Name": "Filing Cabinet" },
+        "AsciiAppearanceComponent": { "Character": "F", "R": 160, "G": 160, "B": 170 },
+        "SolidComponent": {},
+        "InanimateComponent": {},
+        "InventoryComponent": {}
     }
 }

@@ -135,16 +135,16 @@ var roomGenerators = map[string]RoomGenerator{
 	"bridge":          &bridgeGenerator{},
 	"mission_control": &controlRoomGenerator{farItems: []string{"operator_console", "operator_console", "operator_console"}, centerItems: []string{"holo_display", "table"}},
 	"comms_relay":     &controlRoomGenerator{farItems: []string{"antenna_rack", "signal_processor"}, sideItems: []string{"signal_processor", "operator_console"}},
-	"navigation":      &controlRoomGenerator{farItems: []string{"navigation_console"}, centerItems: []string{"map_table", "holo_display"}},
+	"navigation":      &controlRoomGenerator{farItems: []string{"navigation_console"}, centerItems: []string{"map_table", "holo_display"}, sideItems: []string{"porthole", "porthole"}},
 	"docking_control": &controlRoomGenerator{farItems: []string{"docking_monitor", "docking_monitor"}, sideItems: []string{"status_light", "control_panel"}},
-	"security_office": &controlRoomGenerator{farItems: []string{"monitoring_wall", "weapons_locker"}, sideItems: []string{"evidence_locker"}, nearItems: []string{"desk"}},
+	"security_office": &controlRoomGenerator{farItems: []string{"monitoring_wall", "weapons_locker"}, sideItems: []string{"evidence_locker", "turret_mount"}, nearItems: []string{"desk"}},
 	"executive_suite": &sleepingRoomGenerator{hasPartition: true, bedBlueprint: "single_bed", farItems: []string{"safe"}, nearItems: []string{"desk", "couch", "holo_display"}},
 
 	// Engineering
-	"reactor_core":           &controlRoomGenerator{centerItems: []string{"containment_vessel"}, farItems: []string{"control_panel"}, sideItems: []string{"coolant_pipe", "radiation_shielding", "catwalk"}},
+	"reactor_core":           &controlRoomGenerator{centerItems: []string{"containment_vessel", "reactor_core"}, farItems: []string{"control_panel"}, sideItems: []string{"coolant_pipe", "radiation_shielding", "catwalk"}},
 	"engineering_workshop":   &workshopGenerator{sideItems: []string{"workbench", "workbench"}, farItems: []string{"welding_rig"}, nearItems: []string{"tool_rack", "parts_bin"}},
 	"maintenance_bay":        &workshopGenerator{sideItems: []string{"tool_rack", "shelving"}, farItems: []string{"maintenance_platform"}, nearItems: []string{"tool_cart", "diagnostic_panel"}},
-	"life_support_control":   &controlRoomGenerator{farItems: []string{"environmental_panel"}, sideItems: []string{"control_panel", "control_panel"}},
+	"life_support_control":   &controlRoomGenerator{farItems: []string{"environmental_panel", "life_support_rig"}, sideItems: []string{"control_panel", "control_panel"}},
 	"water_waste_processing": &storageRoomGenerator{wallItems: []string{"filtration_tank", "filtration_tank"}, centerItems: []string{"diagnostic_panel"}},
 	"cargo_hold":             &storageRoomGenerator{wallItems: []string{"crate", "crate", "pallet"}, centerItems: []string{"pallet_rack", "cargo_net"}},
 	"fuel_storage":           &storageRoomGenerator{wallItems: []string{"fuel_tank", "fuel_tank", "pressure_gauge"}, centerItems: []string{"control_panel"}},
@@ -152,7 +152,7 @@ var roomGenerators = map[string]RoomGenerator{
 	"utility_corridor":       &storageRoomGenerator{wallItems: []string{"coolant_pipe", "junction_box"}, centerItems: []string{"diagnostic_panel"}},
 
 	// Logistics
-	"manufacturing_hangar": &workshopGenerator{sideItems: []string{"workbench", "welding_rig"}, farItems: []string{"crane"}, nearItems: []string{"tool_rack", "spare_parts_shelf"}},
+	"manufacturing_hangar": &workshopGenerator{sideItems: []string{"workbench", "welding_rig"}, farItems: []string{"crane", "hoist"}, nearItems: []string{"tool_rack", "spare_parts_shelf"}},
 	"robotics_bay":         &workshopGenerator{sideItems: []string{"charging_station", "charging_station"}, farItems: []string{"workbench"}, nearItems: []string{"tool_rack"}},
 	"freight_airlock":      &controlRoomGenerator{nearItems: []string{"airlock_controls"}, sideItems: []string{"crate", "crate"}, centerItems: []string{"pallet"}},
 	"freight_sorting":      &socialRoomGenerator{centerItems: []string{"conveyor_belt"}, sideItems: []string{"sorting_bin", "sorting_bin"}, nearItems: []string{"crate", "crate"}},
@@ -172,7 +172,7 @@ var roomGenerators = map[string]RoomGenerator{
 
 	// Science & Research
 	"general_lab":      &labStyleGenerator{sideItems: []string{"lab_bench", "sample_rack"}, farItems: []string{"analysis_instrument", "fume_hood"}},
-	"biolab":           &labStyleGenerator{sideItems: []string{"bio_cabinet", "specimen_tank", "specimen_tank"}, farItems: []string{"incubator", "decontamination_shower"}},
+	"biolab":           &labStyleGenerator{sideItems: []string{"bio_cabinet", "specimen_tank", "specimen_tank", "containment_cabinet"}, farItems: []string{"incubator", "decontamination_shower"}},
 	"chemistry_lab":    &labStyleGenerator{sideItems: []string{"lab_bench", "reagent_cabinet"}, farItems: []string{"fume_hood", "centrifuge"}},
 	"fabrication_lab":  &labStyleGenerator{sideItems: []string{"workbench", "tool_rack"}, farItems: []string{"3d_printer", "spare_parts_shelf"}},
 	"observatory":      &controlRoomGenerator{centerItems: []string{"telescope_mount"}, sideItems: []string{"sensor_console"}, farItems: []string{"holo_display"}},
@@ -181,7 +181,7 @@ var roomGenerators = map[string]RoomGenerator{
 	"data_center":      &storageRoomGenerator{wallItems: []string{"server_rack", "server_rack", "server_rack"}, centerItems: []string{"diagnostic_panel"}},
 
 	// Medical
-	"medical_bay": &rowBedsGenerator{bedBlueprint: "exam_bed", farItems: []string{"diagnostic_console", "drug_cabinet"}, nearItems: []string{"vitals_monitor"}},
+	"medical_bay": &rowBedsGenerator{bedBlueprint: "exam_bed", farItems: []string{"diagnostic_console", "drug_cabinet"}, nearItems: []string{"vitals_monitor", "privacy_curtain"}},
 	"surgery":     &controlRoomGenerator{centerItems: []string{"operating_table"}, farItems: []string{"surgical_light", "sterilization_unit"}, sideItems: []string{"anesthesia_console"}},
 	"quarantine":  &rowBedsGenerator{bedBlueprint: "exam_bed", nearItems: []string{"decontamination_shower", "ppe_station"}},
 	"pharmacy":    &storageRoomGenerator{wallItems: []string{"drug_cabinet", "drug_cabinet", "shelving"}},
