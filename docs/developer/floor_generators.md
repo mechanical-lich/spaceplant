@@ -24,7 +24,7 @@ Both `CarveRoom` and `CarveCircle` accept two flags:
 
 **Polish** — `l.Polish(z)` smooths rough tile edges after carving.
 
-**Room tagging** — `tagRooms` assigns a theme-weighted `Tag` string (e.g. `"crew_quarters"`) to each returned `Room` via `FloorTheme.pickRoomTag()`.
+**Room tagging** — `PlaceRooms` assigns a theme-weighted `Tag` string (e.g. `"crew_quarters"`) to each room via `FloorTheme.pickRoomTag()` before carving, so room size ranges can be chosen per-tag.
 
 ---
 
@@ -114,17 +114,39 @@ All generators return `[]Room`. Each `Room` is:
 ```go
 type Room struct {
     X, Y, Width, Height int
-    Tag                 string // e.g. "crew_quarters", "reactor_core"
+    Tag                 string   // e.g. "crew_quarters", "reactor_core"
+    DoorDir             [2]int   // direction from hallway into room; zero = no bud door
 }
 ```
 
-Explicitly carved rooms (bays, corner rooms) are included directly. `BudRooms`-generated rooms are appended after. The full slice is used downstream by `populate.go` to spawn furniture, NPCs, and items appropriate to each room's tag.
+`Tag` is assigned during `PlaceRooms` (before carving) so that room size ranges can be tag-aware. `DoorDir` records which cardinal direction the bud grew into the room — used by room generators to orient furniture correctly (far wall = opposite of DoorDir).
+
+Explicitly carved rooms (bays, corner rooms) are included directly. `BudRooms`-generated rooms are appended after. The full slice is used downstream by `room_generators.go` and `populate.go`.
+
+---
+
+## Generation Pipeline
+
+```
+generateFloor(l, z, theme)
+    └─ carve layout (ring_spokes / grid / etc.)
+    └─ PlaceRooms  ← tags rooms and records DoorDir during carving
+    └─ l.Polish(z)
+    └─ ApplyRoomGenerators  ← carves sub-geometry, returns PlacementHints
+    └─ l.Polish(z)
+    └─ results[z] = FloorResult{Rooms, PlacementHints}
+
+PopulateRooms(l, z, fr)
+    └─ per room: populateRoom(room, fr.PlacementHints[i])
+```
+
+`FloorResult` carries both `Rooms []Room` and `PlacementHints map[int][]PlacementHint` (room index → hints). The populate pass uses hints to place furniture in the correct regions without blocking doors.
 
 ---
 
 ## Adding a New Layout
 
 1. Add a `Layout*` constant to [floor_theme.go](../../internal/generation/floor_theme.go).
-2. Write a `generateMyLayout(l, z, theme) []Room` function in [floor_generators.go](../../internal/generation/floor_generators.go) following the pattern above: carve structure → `BudRooms` → optional polish → `CarveMaintenanceTunnels` → `flushDoors` → `tagRooms` → return.
+2. Write a `generateMyLayout(l, z, theme) []Room` function in [floor_generators.go](../../internal/generation/floor_generators.go): carve structure → `PlaceRooms` → polish → `CarveMaintenanceTunnels` → `flushDoors` → return.
 3. Add the new case to the `switch` in `generateFloor`.
 4. Create a `FloorTheme` var that references the new layout constant and add it to `FloorStack` if it should be part of the default station.
