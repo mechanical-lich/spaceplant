@@ -12,9 +12,9 @@ import (
 const Fallback_Name = "Fallback Name"
 
 type NameData struct {
-	FirstNames     []string `json:"first_names"`
-	LastNames      []string `json:"last_names"`
-	SettlementName []string `json:"settlement_names"`
+	FirstNames   []string `json:"first_names"`
+	LastNames    []string `json:"last_names"`
+	StationNames []string `json:"station_names"`
 }
 
 var nameData map[string]NameData
@@ -40,13 +40,11 @@ func RandomName(race string) string {
 	return RandomFirstName(race) + " " + RandomLastName(race)
 }
 
-func RandomSettlementName(race string) string {
-	if _, ok := nameData[race]; ok {
-		names := nameData[race]
-		return names.SettlementName[utility.GetRandom(0, len(names.SettlementName))]
+func RandomStationName() string {
+	if data, ok := nameData["stations"]; ok && len(data.StationNames) > 0 {
+		return data.StationNames[utility.GetRandom(0, len(data.StationNames))]
 	}
-
-	log.Print("Using fallback settlement name")
+	log.Print("Using fallback station name")
 	return Fallback_Name
 }
 

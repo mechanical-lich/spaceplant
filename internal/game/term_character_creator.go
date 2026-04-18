@@ -47,16 +47,28 @@ type TermCharacterCreator struct {
 	bgCursor    int
 }
 
-// NewTermCharacterCreator creates and activates a terminal character creator.
+// NewTermCharacterCreator creates a terminal character creator. It starts
+// inactive; call Activate() when ready to show it (after station selection).
 func NewTermCharacterCreator() *TermCharacterCreator {
 	cc := &TermCharacterCreator{
-		active: true,
+		active: false,
 		step:   termCCName,
 		stats:  [7]int{10, 10, 10, 10, 8, 10, 20},
 	}
 	cc.classes = class.All()
 	cc.backgrounds = background.All()
 	return cc
+}
+
+// Activate resets and shows the character creator.
+func (cc *TermCharacterCreator) Activate() {
+	cc.step = termCCName
+	cc.name = nil
+	cc.stats = [7]int{10, 10, 10, 10, 8, 10, 20}
+	cc.statCursor = 0
+	cc.classCursor = 0
+	cc.bgCursor = 0
+	cc.active = true
 }
 
 func (cc *TermCharacterCreator) Active() bool  { return cc.active }

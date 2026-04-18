@@ -1,9 +1,11 @@
 bin/
 vendor/
+saves/
 .DS_Store
 # ignore the `game` executable at repo root
 /game
 # but do not ignore the `game/` directory
 !/game/
+
 terminal
 gen_debug.txt

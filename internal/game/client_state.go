@@ -105,6 +105,16 @@ func (s *SPClientState) initGameViews() {
 
 	s.deathModal = newDeathModal()
 	s.deathModal.OnReturnToTitle = func() {
+		// Convert the player to a persistent corpse on the station, then save.
+		if s.sim.PlayerRunID != "" {
+			s.sim.ConvertPlayerToCorpse()
+			if err := SaveStation(s.sim, "saves"); err != nil {
+				fmt.Printf("Save station after death failed: %v\n", err)
+			}
+			if err := MarkPlayerRunDead("saves", s.sim.PlayerRunID); err != nil {
+				fmt.Printf("Mark player dead failed: %v\n", err)
+			}
+		}
 		s.returnToTitle = true
 	}
 	mlgeevent.GetQueuedInstance().RegisterListener(
@@ -114,7 +124,7 @@ func (s *SPClientState) initGameViews() {
 
 	s.pauseMenu = newPauseMenu()
 	s.pauseMenu.OnSave = func() {
-		if err := SaveGame(s.sim, "save.json"); err != nil {
+		if err := SaveAll(s.sim, "saves"); err != nil {
 			fmt.Printf("Save failed: %v\n", err)
 		} else {
 			message.AddMessage("Game saved.")

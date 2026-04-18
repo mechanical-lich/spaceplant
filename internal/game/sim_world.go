@@ -57,6 +57,11 @@ type SimWorld struct {
 	// Mu guards Level against concurrent access between the server goroutine
 	// (UpdateEntities writes) and the Ebiten render goroutine (Draw reads).
 	Mu sync.RWMutex
+
+	// Save identity fields — set when a station/player run is created or loaded.
+	StationID   string
+	StationName string
+	PlayerRunID string
 }
 
 // NewSimWorld constructs and populates the game world: level generation and systems.
@@ -114,6 +119,7 @@ func (sw *SimWorld) GetPlayer() *ecs.Entity { return sw.Player }
 // RegenerateLevel builds a brand-new level in-place, resets the player, and
 // clears turn/tick counters. Call this before starting a new game so the server
 // keeps its existing *SimWorld pointer while all state is refreshed.
+// A new StationID is generated; the caller should set StationName after calling.
 func (sw *SimWorld) RegenerateLevel() error {
 	pX := 50
 	pY := 50
@@ -144,6 +150,9 @@ func (sw *SimWorld) RegenerateLevel() error {
 	sw.CurrentZ = 0
 	sw.TickCount = 0
 	sw.TurnCount = 0
+	sw.StationID = generateID()
+	sw.StationName = ""
+	sw.PlayerRunID = ""
 	sw.aiSystem.Watcher = nil
 	sw.advancedAISystem.Watcher = nil
 	sw.Mu.Unlock()
@@ -236,11 +245,25 @@ func (sw *SimWorld) SpawnPlayer(data CharacterData) error {
 	sw.Mu.Lock()
 	defer sw.Mu.Unlock()
 	sw.Player = player
+	sw.PlayerRunID = generateID()
 	sw.aiSystem.Watcher = player
 	sw.advancedAISystem.Watcher = player
 	sw.Level.AddEntity(player)
 
 	return nil
+}
+
+// ConvertPlayerToCorpse strips the PlayerComponent from the player entity so it
+// becomes a regular (dead) entity that persists on the station. The player run
+// can then be marked dead and the station saved with the corpse in place.
+func (sw *SimWorld) ConvertPlayerToCorpse() {
+	if sw.Player == nil {
+		return
+	}
+	sw.Player.RemoveComponent(component.Player)
+	sw.Player = nil
+	sw.aiSystem.Watcher = nil
+	sw.advancedAISystem.Watcher = nil
 }
 
 // UpdateEntities runs one full simulation pass over all level entities.

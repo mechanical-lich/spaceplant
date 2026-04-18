@@ -118,13 +118,76 @@ func main() {
 		tc.GUI.Add(classView)
 	}
 
+	titleScreen := game.NewTermTitleScreen()
+	titleScreen.OnNewStation = func(name string) {
+		if err := sim.RegenerateLevel(); err != nil {
+			log.Printf("RegenerateLevel: %v", err)
+			return
+		}
+		sim.StationName = name
+		if err := game.SaveStation(sim, "saves"); err != nil {
+			log.Printf("SaveStation: %v", err)
+		}
+		termCC.Activate()
+	}
+	titleScreen.OnLoadStation = func(stationID string) {
+		if err := game.LoadStationIntoSimWorld(sim, stationID, "saves"); err != nil {
+			log.Printf("LoadStationIntoSimWorld: %v", err)
+		}
+		termCC.Activate()
+	}
+	titleScreen.OnContinuePlayer = func(stationID, playerRunID string) {
+		if err := game.LoadFullGame(sim, stationID, playerRunID, "saves"); err != nil {
+			log.Printf("LoadFullGame: %v", err)
+			return
+		}
+		// Player already exists; set up game views.
+		reload = game.NewTermReloadView(sim.Player)
+		reload.OnReload = func(weaponItem, ammoItem *ecs.Entity) {
+			cliT.SendCommand(&transport.Command{
+				Type:    game.CmdReload,
+				Payload: game.ReloadPayload{WeaponItem: weaponItem, AmmoItem: ammoItem},
+			})
+		}
+		tc.GUI.Add(reload)
+		aimedShot = game.NewTermAimedShotView()
+		aimedShot.OnSelect = func(bodyPart string) {
+			cliT.SendCommand(&transport.Command{
+				Type:    game.CmdAimedShot,
+				Payload: game.AimedShotPayload{BodyPart: bodyPart},
+			})
+		}
+		tc.GUI.Add(aimedShot)
+		loot = game.NewTermLootView()
+		loot.OnPickup = func(item *ecs.Entity, tx, ty, tz int) {
+			cliT.SendCommand(&transport.Command{
+				Type:    game.CmdPickupItem,
+				Payload: game.PickupItemPayload{Item: item, TileX: tx, TileY: ty, TileZ: tz},
+			})
+		}
+		loot.OnEquip = func(item *ecs.Entity, tx, ty, tz int) {
+			cliT.SendCommand(&transport.Command{
+				Type:    game.CmdEquipItem,
+				Payload: game.EquipItemPayload{Item: item, TileX: tx, TileY: ty, TileZ: tz},
+			})
+		}
+		tc.GUI.Add(loot)
+		classView = game.NewTermClassView(sim.Player)
+		tc.GUI.Add(classView)
+	}
+
 	tc.GUI = &rltermgui.GUI{}
-	tc.GUI.Add(termCC) // character creator first — draws over everything while active
+	tc.GUI.Add(titleScreen)
+	tc.GUI.Add(termCC) // character creator shown after title screen exits
 	tc.GUI.Add(hud)
 	tc.GUI.Add(inv)
 	tc.GUI.Add(look)
 
 	tc.OnTick = func(snap *transport.Snapshot) {
+		if titleScreen.Quit {
+			cliT.SendCommand(&transport.Command{Type: rltermclient.QuitCommand})
+			return
+		}
 		if termCC.Active() {
 			return
 		}
