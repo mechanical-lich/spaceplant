@@ -106,6 +106,13 @@ func NewMainSimState(sim *SimWorld) *MainSimState {
 
 func (s *MainSimState) Done() bool { return s.done }
 
+// ResetPhase resets the turn cycle to its initial state. Call this after
+// regenerating the level so the new game starts from a clean phaseTurnComplete.
+func (s *MainSimState) ResetPhase() {
+	s.phase = phaseTurnComplete
+	s.npcDelay = 0
+}
+
 // ProcessCommand is called once per queued client command, before Tick.
 // It pushes the key string onto the player's command queue.
 func (s *MainSimState) ProcessCommand(cmd *transport.Command) {

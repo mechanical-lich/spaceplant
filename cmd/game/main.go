@@ -39,10 +39,11 @@ func main() {
 		srvT,
 		codec,
 	)
-	server.SetState(game.NewMainSimState(sim))
+	simState := game.NewMainSimState(sim)
+	server.SetState(simState)
 	go server.Run()
 
-	clientState := game.NewSPClientState(sim, cliT)
+	clientState := game.NewTitleScreenState(sim, simState, cliT)
 	cfg := config.Global()
 	c := client.NewClient(cliT, codec, clientState, sim, func() []*ecs.Entity { return sim.Level.Entities }, client.ClientConfig{
 		ScreenWidth:  cfg.ScreenWidth,

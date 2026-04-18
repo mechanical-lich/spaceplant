@@ -111,6 +111,45 @@ func NewSimWorld() (*SimWorld, error) {
 // GetPlayer implements listeners.SimAccess.
 func (sw *SimWorld) GetPlayer() *ecs.Entity { return sw.Player }
 
+// RegenerateLevel builds a brand-new level in-place, resets the player, and
+// clears turn/tick counters. Call this before starting a new game so the server
+// keeps its existing *SimWorld pointer while all state is refreshed.
+func (sw *SimWorld) RegenerateLevel() error {
+	pX := 50
+	pY := 50
+	newLevel := world.NewLevel(100, 100, numLevels, world.NewDefaultTheme())
+	floorResults := generation.GenerateFloors(newLevel)
+
+	gm := gamemaster.GameMaster{}
+	for z := 0; z < numLevels; z++ {
+		gm.Init(newLevel, z)
+		gm.PlaceLockedProgression(newLevel, pX, pY, z, z+1)
+	}
+
+	item, _ := factory.Create("health", pX+2, pY)
+	if item != nil {
+		item.GetComponent("Position").(*component.PositionComponent).SetPosition(pX+2, pY, 0)
+		newLevel.AddEntity(item)
+	}
+	crate, _ := factory.Create("crate", pX+3, pY)
+	if crate != nil {
+		crate.GetComponent("Position").(*component.PositionComponent).SetPosition(pX+3, pY, 0)
+		newLevel.AddEntity(crate)
+	}
+
+	sw.Mu.Lock()
+	sw.Level = newLevel
+	sw.FloorResults = floorResults
+	sw.Player = nil
+	sw.CurrentZ = 0
+	sw.TickCount = 0
+	sw.TurnCount = 0
+	sw.aiSystem.Watcher = nil
+	sw.advancedAISystem.Watcher = nil
+	sw.Mu.Unlock()
+	return nil
+}
+
 // GetRLLevel implements listeners.SimAccess.
 func (sw *SimWorld) GetRLLevel() *rlworld.Level { return sw.Level.Level }
 
@@ -200,7 +239,6 @@ func (sw *SimWorld) SpawnPlayer(data CharacterData) error {
 	sw.aiSystem.Watcher = player
 	sw.advancedAISystem.Watcher = player
 	sw.Level.AddEntity(player)
-	sw.UpdateEntities()
 
 	return nil
 }

@@ -398,6 +398,15 @@ func LoadIntoSimWorld(sw *SimWorld, path string) error {
 		}
 	}
 
+	// Strip transient turn components so the turn cycle restarts cleanly.
+	// If the player was saved mid-turn (MyTurn present), AdvanceEnergy would skip
+	// them (it only grants MyTurn when the entity doesn't already have it), causing
+	// the server to enter phaseRunningTick and deadlock waiting for commands.
+	for _, e := range spLevel.Entities {
+		e.RemoveComponent(rlcomponents.MyTurn)
+		e.RemoveComponent(rlcomponents.TurnTaken)
+	}
+
 	// Sync skills for all level entities.
 	for _, e := range spLevel.Entities {
 		if e != nil {

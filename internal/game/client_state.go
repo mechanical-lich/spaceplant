@@ -7,6 +7,7 @@ import (
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/inpututil"
+	"github.com/mechanical-lich/ml-rogue-lib/pkg/rlcomponents"
 	"github.com/mechanical-lich/mlge/client"
 	"github.com/mechanical-lich/mlge/ecs"
 	mlgeevent "github.com/mechanical-lich/mlge/event"
@@ -24,6 +25,7 @@ var _ client.ClientState = (*SPClientState)(nil)
 // then renders the level and HUD each frame.
 type SPClientState struct {
 	sim              *SimWorld
+	simState         *MainSimState
 	transport        transport.ClientTransport
 	mainView         *GUIViewMain
 	classView        *ClassUpgradeView
@@ -32,16 +34,20 @@ type SPClientState struct {
 	aimedShotView    *AimedShotView
 	nearbyLootView   *NearbyLootView
 	characterCreator *CharacterCreator
+	deathModal       *DeathModal
+	pauseMenu        *PauseMenu
 	CameraX          int
 	CameraY          int
 	pressDelay       int
+	returnToTitle    bool
 }
 
 // NewSPClientState creates a ready-to-use graphical client state.
 // If the player hasn't been spawned yet, the character creator is shown first.
-func NewSPClientState(sim *SimWorld, t transport.ClientTransport) *SPClientState {
+func NewSPClientState(sim *SimWorld, simState *MainSimState, t transport.ClientTransport) *SPClientState {
 	cs := &SPClientState{
 		sim:       sim,
+		simState:  simState,
 		transport: t,
 		mainView:  &GUIViewMain{},
 	}
@@ -96,9 +102,51 @@ func (s *SPClientState) initGameViews() {
 	pc := s.sim.Player.GetComponent("Position").(*component.PositionComponent)
 	s.CameraX = pc.GetX()
 	s.CameraY = pc.GetY()
+
+	s.deathModal = newDeathModal()
+	s.deathModal.OnReturnToTitle = func() {
+		s.returnToTitle = true
+	}
+	mlgeevent.GetQueuedInstance().RegisterListener(
+		&playerDeathListener{player: s.sim.Player, modal: s.deathModal},
+		"rl.death",
+	)
+
+	s.pauseMenu = newPauseMenu()
+	s.pauseMenu.OnSave = func() {
+		if err := SaveGame(s.sim, "save.json"); err != nil {
+			fmt.Printf("Save failed: %v\n", err)
+		} else {
+			message.AddMessage("Game saved.")
+		}
+	}
+	s.pauseMenu.OnReturnToTitle = func() {
+		s.returnToTitle = true
+	}
 }
 
-func (s *SPClientState) Done() bool { return false }
+func (s *SPClientState) Done() bool { return s.returnToTitle }
+
+// playerDeathMessage returns a short cause-of-death string for the death modal.
+// Must be called with at least s.sim.Mu.RLock held.
+func (s *SPClientState) playerDeathMessage() string {
+	player := s.sim.Player
+	if player == nil {
+		return "You have died."
+	}
+	if player.HasComponent("Body") {
+		bc := player.GetComponent("Body").(*rlcomponents.BodyComponent)
+		for _, part := range bc.Parts {
+			if part.Broken && part.KillsWhenBroken {
+				return "Your " + part.Name + " was destroyed."
+			}
+			if part.Amputated && part.KillsWhenAmputated {
+				return "Your " + part.Name + " was amputated."
+			}
+		}
+	}
+	return "You have died."
+}
 
 func isModifierKey(k ebiten.Key) bool {
 	switch k {
@@ -122,23 +170,9 @@ func (s *SPClientState) Update(_ *transport.Snapshot) client.ClientState {
 		return nil
 	}
 
-	// F5 saves the game; F9 loads the last save.
-	if inpututil.IsKeyJustPressed(ebiten.KeyF5) {
-		if err := SaveGame(s.sim, "save.json"); err != nil {
-			fmt.Printf("Save failed: %v\n", err)
-		} else {
-			message.AddMessage("Game saved.")
-		}
-		return nil
-	}
-	if inpututil.IsKeyJustPressed(ebiten.KeyF9) {
-		if err := LoadIntoSimWorld(s.sim, "save.json"); err != nil {
-			fmt.Printf("Load failed: %v\n", err)
-		} else {
-			s.initGameViews()
-			message.AddMessage("Game loaded.")
-		}
-		return nil
+	// If "Return to Title" was clicked in the death modal, push the title screen.
+	if s.returnToTitle {
+		return NewTitleScreenState(s.sim, s.simState, s.transport)
 	}
 
 	fps := ebiten.ActualFPS()
@@ -152,7 +186,7 @@ func (s *SPClientState) Update(_ *transport.Snapshot) client.ClientState {
 
 	shift := ebiten.IsKeyPressed(ebiten.KeyShiftLeft) || ebiten.IsKeyPressed(ebiten.KeyShiftRight)
 
-	// Close modals on Escape (innermost first).
+	// ESC: close innermost open modal, or open the pause menu.
 	if inpututil.IsKeyJustPressed(ebiten.KeyEscape) {
 		if s.nearbyLootView.Visible {
 			s.nearbyLootView.Visible = false
@@ -174,6 +208,13 @@ func (s *SPClientState) Update(_ *transport.Snapshot) client.ClientState {
 			s.classView.Visible = false
 			return nil
 		}
+		if s.pauseMenu.Visible {
+			s.pauseMenu.Visible = false
+			return nil
+		}
+		// Nothing else open — open the pause menu.
+		s.pauseMenu.Open()
+		return nil
 	}
 
 	// I opens the stats modal (inventory tab); Shift+I opens to the overview tab.
@@ -198,10 +239,22 @@ func (s *SPClientState) Update(_ *transport.Snapshot) client.ClientState {
 	s.aimedShotView.Update()
 	s.nearbyLootView.Update()
 	hasTurn := s.sim.Player != nil && s.sim.Player.HasComponent("MyTurn")
+	if !s.deathModal.Visible && s.sim.Player != nil && s.sim.Player.HasComponent("Dead") {
+		s.deathModal.Show(s.playerDeathMessage())
+	}
 	s.sim.Mu.RUnlock()
 
+	// Update death modal and pause menu outside the lock — their callbacks may
+	// set returnToTitle. Check immediately after so Done() and Update() agree
+	// on the same frame (avoiding an empty-stack black screen).
+	s.deathModal.Update()
+	s.pauseMenu.Update()
+	if s.returnToTitle {
+		return NewTitleScreenState(s.sim, s.simState, s.transport)
+	}
+
 	// Block game input while any modal is open.
-	if s.classView.Visible || s.statsView.Visible || s.reloadView.Visible || s.aimedShotView.Visible || s.nearbyLootView.Visible {
+	if s.classView.Visible || s.statsView.Visible || s.reloadView.Visible || s.aimedShotView.Visible || s.nearbyLootView.Visible || s.deathModal.Visible || s.pauseMenu.Visible {
 		return nil
 	}
 
@@ -435,4 +488,6 @@ func (s *SPClientState) Draw(screen *ebiten.Image) {
 	s.reloadView.Draw(screen)
 	s.aimedShotView.Draw(screen)
 	s.nearbyLootView.Draw(screen)
+	s.deathModal.Draw(screen)
+	s.pauseMenu.Draw(screen)
 }
