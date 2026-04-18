@@ -1,59 +1,55 @@
-# Space Plant
+# Space Plants!
 
-Dead space inspired roguelike built using EbitenEngine, MLGE, and ml-rogue-lib.
+Dead Space–inspired roguelike built using EbitenEngine, MLGE, and ml-rogue-lib.
 
-## Running from source:
+## Running from source
 
-Graphical:
-`go run cmd/game/main.go`
+**Graphical (Ebiten):**
+```
+go run cmd/game/main.go
+```
 
-Terminal:
-`go run cmd/terminal/main.go`
+**Terminal (tcell):**
+```
+go run cmd/terminal/main.go
+```
 
 ## Documentation
 
-- [Player Guide](docs/player/README.md) — controls, combat, classes, skills, and items
-- [Developer](docs/developer/)
+- [Player Guide](docs/player/README.md) — controls, stations, combat, classes, skills, and items
+- [Developer Guide](docs/developer/README.md) — architecture, adding actions/skills, save system
 
-## Controls
+## Quick Controls Reference
 
 ### Movement
 | Key | Action |
 |-----|--------|
-| W | Move north |
-| A | Move west |
-| S | Move south |
-| D | Move east |
+| W / A / S / D | Move north / west / south / east |
+| Shift+W/A/S/D | Rotate facing without moving |
 
-### Actions
+### Combat
 | Key | Action |
 |-----|--------|
+| F | Snap shot — fire in facing direction |
+| Shift+F | Aimed shot — choose a body part to target |
+| G | Burst fire |
 | H | Use healing item |
-| E | Auto-equip first equippable item |
-| P | Pick up item at current tile |
-| . | Use stairs |
-| F | Snap shot: fire the equipped ranged weapon in your current facing direction |
-| Shift+F | Aimed shot: fires with +10 CS bonus (aimed precision) |
-| G | Burst fire: fires a weapon's burst if supported (first round +15 CS, subsequent rounds reduced) |
-| Move into occupied square | Basic melee attack / attempt to strike adjacent target |
+| Move into enemy | Melee attack |
 
-Note: Use `Shift+W/A/S/D` to rotate your facing without moving; this is useful for pre-aiming before firing.
-
-### Skills (when skill is equipped)
-| Key | Skill Required | Action |
-|-----|----------------|--------|
-| K | Roundhouse Kick | Strike all 8 adjacent enemies |
-| R | Martial Artist | Roundhouse kick (alt binding) |
-| V | Shove | Push entity in front one tile |
-| C | Flamethrower / Acid Spray | Fire a cone projectile |
+### Inventory & Equipment
+| Key | Action |
+|-----|--------|
+| E | Auto-equip from bag |
+| P | Open nearby items (pick up / equip within 1 tile) |
+| I | Open inventory |
+| Shift+I | Open character overview |
+| Shift+R | Open reload modal |
 
 ### UI
 | Key | Action |
 |-----|--------|
-| I | Open inventory tab |
-| Shift+I | Open stats overview tab |
-| Shift+C | Open class upgrade modal |
-| R | Toggle rush mode (2× speed, no turn cost) |
-| Escape | Close top modal |
-
+| R | Toggle rush mode |
+| . | Use stairs |
+| Shift+C | Open class upgrade screen |
+| Escape | Close current modal / open pause menu |
 
