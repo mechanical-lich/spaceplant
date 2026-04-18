@@ -106,7 +106,7 @@ func (a MoveAction) Execute(entity *ecs.Entity, level *world.Level) error {
 			} else if entityHit.HasComponent(component.Door) {
 				actionCost = energy.CostQuick
 				toggleDoor(entity, entityHit)
-			} else if rlcombat.IsFriendly(entity, entityHit) {
+			} else if rlcombat.IsFriendly(entity, entityHit) && !entityHit.HasComponent(rlcomponents.Inanimate) {
 				actionCost = energy.CostMove
 				rlentity.Swap(level.Level, entity, entityHit)
 				rlentity.CheckExcuseMe(entity, entityHit)

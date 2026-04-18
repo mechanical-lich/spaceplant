@@ -27,6 +27,7 @@ type FloorTheme struct {
 	BudCount            int // max rooms PlaceRooms will attempt
 	SecondaryStairCount int // how many secondary stair pairs connect this floor to the one above
 	RoomWeights         []RoomWeight
+	RequiredRooms       []string // room tags that must appear exactly once, placed before random fill
 }
 
 // pickRoomTag selects a room tag from the theme's weighted table.
@@ -55,6 +56,7 @@ var ThemeEngineering = FloorTheme{
 	Layout:              LayoutIndustrialRing,
 	BudCount:            60,
 	SecondaryStairCount: 4, // heavy service access between decks
+	RequiredRooms:       []string{"life_pod_bay", "self_destruct_room"},
 	RoomWeights: []RoomWeight{
 		{"reactor_core", 5},
 		{"engineering_workshop", 15},
@@ -65,6 +67,8 @@ var ThemeEngineering = FloorTheme{
 		{"fuel_storage", 8},
 		{"eva_bay", 10},
 		{"utility_corridor", 17},
+		{"life_pod_bay", 6},
+		{"self_destruct_room", 8},
 	},
 }
 

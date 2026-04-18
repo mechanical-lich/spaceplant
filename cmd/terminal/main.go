@@ -10,10 +10,12 @@ import (
 	"github.com/mechanical-lich/ml-rogue-lib/pkg/rltermclient"
 	"github.com/mechanical-lich/ml-rogue-lib/pkg/rltermgui"
 	"github.com/mechanical-lich/mlge/ecs"
+	mlgevent "github.com/mechanical-lich/mlge/event"
 	"github.com/mechanical-lich/mlge/message"
 	"github.com/mechanical-lich/mlge/simulation"
 	"github.com/mechanical-lich/mlge/transport"
 	"github.com/mechanical-lich/spaceplant/internal/component"
+	"github.com/mechanical-lich/spaceplant/internal/eventsystem"
 	"github.com/mechanical-lich/spaceplant/internal/game"
 )
 
@@ -62,6 +64,9 @@ func main() {
 		}()
 		server.Run()
 	}()
+
+	winState := &termWinCapture{}
+	eventsystem.EventManager.RegisterListener(winState, eventsystem.GameWon)
 
 	tc.World = asciiWorld
 
@@ -216,6 +221,22 @@ func main() {
 			tc.CameraX = pc.GetX() - cols/2
 			tc.CameraY = pc.GetY() - rows/2
 
+			// Win condition detected.
+			if winState.fired {
+				winState.fired = false
+				message.AddMessage("YOU WIN: " + winState.message)
+				if sim.PlayerRunID != "" {
+					if err := game.SaveStation(sim, "saves"); err != nil {
+						log.Printf("SaveStation after win: %v", err)
+					}
+					if err := game.GraveyardWonPlayerRun("saves", sim.PlayerRunID, winState.outcome); err != nil {
+						log.Printf("GraveyardWonPlayerRun: %v", err)
+					}
+				}
+				cliT.SendCommand(&transport.Command{Type: rltermclient.QuitCommand})
+				return
+			}
+
 			// Auto-save every 5 player turns.
 			turn := sim.TurnCount
 			if turn > 0 && turn != lastSavedTurn && turn%5 == 0 {
@@ -334,4 +355,22 @@ func termKeyToCommand(ev *tcell.EventKey) string {
 		return "quit"
 	}
 	return ""
+}
+
+// termWinCapture implements event.EventListener and captures a GameWon event.
+type termWinCapture struct {
+	outcome string
+	message string
+	fired   bool
+}
+
+func (w *termWinCapture) HandleEvent(evt mlgevent.EventData) error {
+	e, ok := evt.(eventsystem.GameWonEventData)
+	if !ok {
+		return nil
+	}
+	w.outcome = e.Outcome
+	w.message = e.Message
+	w.fired = true
+	return nil
 }

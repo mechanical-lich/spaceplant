@@ -4,7 +4,10 @@
         "Name": "Scientist",
         "Description": "A researcher trained in advanced sciences. Sharp mind, steady hands.",
         "StatMods": [
-            { "stat": "ma", "delta": 5 }
+            {
+                "stat": "ma",
+                "delta": 5
+            }
         ],
         "StartingItems": [
             "laser_trimmers",
@@ -26,8 +29,14 @@
         "Name": "Navigator",
         "Description": "Expert at reading star charts and getting everyone home in one piece.",
         "StatMods": [
-            { "stat": "ma", "delta": 2 },
-            { "stat": "cl", "delta": 2 }
+            {
+                "stat": "ma",
+                "delta": 2
+            },
+            {
+                "stat": "cl",
+                "delta": 2
+            }
         ],
         "StartingSkills": [
             "completed_minimap"
@@ -50,10 +59,16 @@
     {
         "ID": "officer",
         "Name": "Officer",
-        "Description": "A commanding presence with authority to match. Doors open for them — sometimes literally.",
+        "Description": "A commanding presence with authority to match. Doors open for them \u2014 sometimes literally.",
         "StatMods": [
-            { "stat": "ld", "delta": 3 },
-            { "stat": "ph", "delta": 2 }
+            {
+                "stat": "ld",
+                "delta": 3
+            },
+            {
+                "stat": "ph",
+                "delta": 2
+            }
         ],
         "StartingSkills": [
             "officer_access"
@@ -79,9 +94,18 @@
         "Name": "Security",
         "Description": "Trained to handle threats with force. When things go wrong, they're the last line of defense.",
         "StatMods": [
-            { "stat": "ph", "delta": 2 },
-            { "stat": "cs", "delta": 2 },
-            { "stat": "htcs", "delta": 2 }
+            {
+                "stat": "ph",
+                "delta": 2
+            },
+            {
+                "stat": "cs",
+                "delta": 2
+            },
+            {
+                "stat": "htcs",
+                "delta": 2
+            }
         ],
         "StartingItems": [
             "combat_knife",
@@ -104,8 +128,14 @@
         "Name": "Engineer",
         "Description": "The ship runs because they make it run. Can spot a broken system from a mile away.",
         "StatMods": [
-            { "stat": "ma", "delta": 3 },
-            { "stat": "ag", "delta": 1 }
+            {
+                "stat": "ma",
+                "delta": 3
+            },
+            {
+                "stat": "ag",
+                "delta": 1
+            }
         ],
         "StartingSkills": [
             "computer_repair_expert"
@@ -122,6 +152,40 @@
             "nimble",
             "thick_skin",
             "sprinter"
+        ]
+    },
+    {
+        "ID": "marine",
+        "Name": "Marine",
+        "Description": "Colonial defense. Sent in when security fails. Heavy weapons, heavier resolve.",
+        "StatMods": [
+            {
+                "stat": "ph",
+                "delta": 3
+            },
+            {
+                "stat": "cs",
+                "delta": 5
+            },
+            {
+                "stat": "htcs",
+                "delta": 3
+            }
+        ],
+        "StartingItems": [
+            "combat_knife",
+            "combat_armor",
+            "security_trousers",
+            "security_boots",
+            "security_hat"
+        ],
+        "Skills": [
+            "brawler",
+            "thick_skin",
+            "sharpshooter",
+            "ranged_combat_specialist",
+            "combat_specialist",
+            "shove"
         ]
     }
 ]

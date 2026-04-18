@@ -14,5 +14,13 @@
         "Skills": [
             "sprinter"
         ]
+    },
+    {
+        "ID": "saboteur",
+        "Name": "Saboteur",
+        "Description": "Hired to ensure this station never reports home. You carry a mother plant cutting. Place it with [X] and then escape.",
+        "Skills": [
+            "saboteur_instinct"
+        ]
     }
 ]

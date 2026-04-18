@@ -1,6 +1,8 @@
 package game
 
 import (
+	"fmt"
+	"math/rand"
 	"sync"
 
 	"github.com/mechanical-lich/ml-rogue-lib/pkg/rlcomponents"
@@ -62,6 +64,14 @@ type SimWorld struct {
 	StationID   string
 	StationName string
 	PlayerRunID string
+
+	// SelfDestructTurns counts down from the moment the self-destruct is armed.
+	// 0 means inactive. When it reaches 0 after being active, the player dies.
+	SelfDestructTurns    int
+	selfDestructArmed    bool
+
+	// MotherPlantPlaced is set true when the saboteur places their mother plant cutting.
+	MotherPlantPlaced bool
 }
 
 // NewSimWorld constructs and populates the game world: level generation and systems.
@@ -95,6 +105,7 @@ func NewSimWorld() (*SimWorld, error) {
 	sw.systemManager.AddSystem(sw.aiSystem)
 	sw.advancedAISystem = &system.AdvancedAISystem{}
 	sw.systemManager.AddSystem(sw.advancedAISystem)
+	sw.systemManager.AddSystem(&system.MotherPlantSeedSystem{})
 	sw.systemManager.AddSystem(&system.LightSystem{})
 	sw.systemManager.AddSystem(&rlsystems.DoorSystem{AppearanceType: component.Appearance})
 
@@ -250,7 +261,81 @@ func (sw *SimWorld) SpawnPlayer(data CharacterData) error {
 	sw.advancedAISystem.Watcher = player
 	sw.Level.AddEntity(player)
 
+	// Spawn initial mother plant on z=0 unless this is a saboteur run.
+	if data.BackgroundID != "saboteur" && !sw.motherPlantExists() {
+		sw.spawnMotherPlant(0)
+	}
+
+	sw.debugWinLocations()
+
 	return nil
+}
+
+// debugWinLocations prints the x,y,z of win-condition entities and special rooms to stdout.
+func (sw *SimWorld) debugWinLocations() {
+	// Special rooms from floor results.
+	roomTags := map[string]bool{
+		"life_pod_bay":       true,
+		"self_destruct_room": true,
+	}
+	for _, fr := range sw.FloorResults {
+		for _, room := range fr.Rooms {
+			if roomTags[room.Tag] {
+				fmt.Printf("[DEBUG] room:%s at x=%d y=%d z=%d (w=%d h=%d)\n",
+					room.Tag, room.X, room.Y, fr.Z, room.Width, room.Height)
+			}
+		}
+	}
+
+	// Key entities.
+	targets := map[string]bool{
+		"mother_plant":          true,
+		"mobile_mother_plant":   true,
+		"life_pod_console":      true,
+		"self_destruct_console": true,
+		"terminal":              true,
+	}
+	for _, e := range sw.Level.Level.GetEntities() {
+		if e == nil || !targets[e.Blueprint] {
+			continue
+		}
+		if !e.HasComponent("Position") {
+			continue
+		}
+		pc := e.GetComponent("Position").(*component.PositionComponent)
+		fmt.Printf("[DEBUG] entity:%s at x=%d y=%d z=%d\n", e.Blueprint, pc.GetX(), pc.GetY(), pc.GetZ())
+	}
+}
+
+func (sw *SimWorld) motherPlantExists() bool {
+	for _, e := range sw.Level.Level.GetEntities() {
+		if e != nil && (e.Blueprint == "mother_plant" || e.Blueprint == "mobile_mother_plant") && !e.HasComponent("Dead") {
+			return true
+		}
+	}
+	return false
+}
+
+// spawnMotherPlant places a mother_plant entity at a random floor tile on floor z.
+func (sw *SimWorld) spawnMotherPlant(z int) {
+	for tries := 0; tries < 200; tries++ {
+		x := rand.Intn(sw.Level.Width)
+		y := rand.Intn(sw.Level.Height)
+		tile := sw.Level.Level.GetTilePtr(x, y, z)
+		if tile == nil || tile.IsSolid() || tile.Type == world.TypeOpen {
+			continue
+		}
+		if sw.Level.GetEntityAt(x, y, z) != nil {
+			continue
+		}
+		e, err := factory.Create("mobile_mother_plant", x, y)
+		if err != nil {
+			return
+		}
+		e.GetComponent("Position").(*component.PositionComponent).SetPosition(x, y, z)
+		sw.Level.AddEntity(e)
+		return
+	}
 }
 
 // ConvertPlayerToCorpse strips the PlayerComponent from the player entity so it

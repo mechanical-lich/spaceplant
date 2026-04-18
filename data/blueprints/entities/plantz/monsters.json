@@ -853,5 +853,166 @@
                 "root_anchor": 40
             }
         }
+    },
+    "mother_plant": {
+        "DescriptionComponent": {
+            "Name": "Mother Plant",
+            "Faction": "plantz",
+            "LongDescription": "A massive pulsing mass of roots and tendrils \u2014 the source of the infestation. Kill it and the hive collapses.",
+            "PassOverDescription": [
+                "You step over the smoldering remains of the mother plant. It pulses faintly."
+            ],
+            "DeathAnnouncements": [
+                "The mother plant shudders and goes still. The infestation is over.",
+                "A final death-pulse ripples through the mother plant. It is done."
+            ]
+        },
+        "AsciiAppearanceComponent": {
+            "Character": "M",
+            "R": 200,
+            "G": 50,
+            "B": 200
+        },
+         "AppearanceComponent": {
+            "SpriteX": 64,
+            "SpriteY": 0,
+            "SpriteWidth": 64,
+            "SpriteHeight": 96,
+            "Resource": "large_entities",
+            "R": 0,
+            "G": 255,
+            "B": 0,
+            "Frames": 1,
+            "SpriteOffsetY": -16
+        },
+        "BodyComponent": {
+            "Parts": {
+                "core": {
+                    "Name": "Core",
+                    "HP": 200,
+                    "MaxHP": 200,
+                    "KillsWhenBroken": true,
+                    "KillsWhenAmputated": true,
+                    "WoundRole": "torso"
+                },
+                "root_mass": {
+                    "Name": "Root Mass",
+                    "HP": 80,
+                    "MaxHP": 80,
+                    "WoundRole": "leg"
+                }
+            }
+        },
+        "SolidComponent": {},
+        "AdvancedAIComponent": {
+            "Aggressiveness": 5,
+            "Fear": 0,
+            "SightRange": 0,
+            "Randomness": 0,
+            "AvoidsFriendlyFire": false
+        },
+        "EnergyComponent": {
+            "Speed": 100
+        },
+        "StatsComponent": {
+            "PH": 20,
+            "AG": 0,
+            "MA": 10,
+            "CL": 10,
+            "LD": 5,
+            "CS": 0,
+            "HTCS": 0,
+            "NaturalPen": 8
+        },
+        "HitLocationComponent": {
+            "Weights": {
+                "core": 60,
+                "root_mass": 40
+            }
+        },
+        "SkillComponent": {
+            "Skills": [
+                "massive_spread_overgrowth",
+                "immobile"
+            ]
+        },
+        "SizeComponent": {
+            "Width": 2,
+            "Height": 2
+        }
+    },
+    "mobile_mother_plant": {
+        "DescriptionComponent": {
+            "Name": "Mother Plant Cutting",
+            "Faction": "plantz",
+            "LongDescription": "A pulsing cutting of the mother plant. It's looking for somewhere to take root.",
+            "DeathAnnouncements": [
+                "The cutting shrivels and goes still.",
+                "The mother plant cutting dies before it can root."
+            ]
+        },
+        "AsciiAppearanceComponent": {
+            "Character": "m",
+            "R": 180,
+            "G": 0,
+            "B": 180
+        },
+        "AppearanceComponent": {
+            "SpriteX": 192,
+            "SpriteY": 0,
+            "SpriteWidth": 32,
+            "SpriteHeight": 48,
+            "Resource": "plantz",
+            "R": 0,
+            "G": 255,
+            "B": 0,
+            "Frames": 1,
+            "SpriteOffsetY": -16
+        },
+        "BodyComponent": {
+            "Parts": {
+                "body": {
+                    "Name": "Body",
+                    "HP": 40,
+                    "MaxHP": 40,
+                    "KillsWhenBroken": true,
+                    "WoundRole": "torso"
+                }
+            }
+        },
+        "SolidComponent": {},
+        "EnergyComponent": {
+            "Speed": 80
+        },
+        "StatsComponent": {
+            "PH": 8,
+            "AG": 4,
+            "MA": 5,
+            "CL": 5,
+            "LD": 3,
+            "CS": 0,
+            "HTCS": 0,
+            "NaturalPen": 0
+        },
+        "HitLocationComponent": {
+            "Weights": {
+                "body": 100
+            }
+        },
+        "AdvancedAIComponent": {
+            "Aggressiveness": 0,
+            "Fear": 5,
+            "SightRange": 6,
+            "Randomness": 8,
+            "AvoidsFriendlyFire": false
+        },
+        "MotherPlantSeedComponent": {
+            "TurnsLeft": 10
+        },
+        "SkillComponent": {
+            "Skills": [
+                "small"
+            ]
+        }
     }
 }

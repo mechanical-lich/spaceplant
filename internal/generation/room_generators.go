@@ -109,6 +109,10 @@ var roomSizes = map[string]RoomSizeRange{
 	"courtroom":     {10, 14, 9, 12},
 	"interrogation": {5, 8, 5, 8},
 	"forensics":     {8, 11, 7, 10},
+
+	// Engineering — special rooms
+	"life_pod_bay":    {9, 13, 8, 11},
+	"self_destruct_room": {7, 10, 6, 9},
 }
 
 // RoomSizeFor returns the preferred size range for the given tag,
@@ -193,6 +197,10 @@ var roomGenerators = map[string]RoomGenerator{
 	"courtroom":     &socialRoomGenerator{centerItems: []string{"bench", "bench", "bench", "table"}, farItems: []string{"desk"}},
 	"interrogation": &socialRoomGenerator{centerItems: []string{"table", "chair", "chair"}},
 	"forensics":     &labStyleGenerator{sideItems: []string{"lab_bench", "evidence_locker"}, farItems: []string{"analysis_instrument"}},
+
+	// Engineering — special rooms
+	"life_pod_bay":       &controlRoomGenerator{farItems: []string{"life_pod_console"}, sideItems: []string{"suit_rack", "suit_rack"}, nearItems: []string{"airlock_controls"}},
+	"self_destruct_room": &controlRoomGenerator{farItems: []string{"self_destruct_console"}, sideItems: []string{"radiation_shielding"}, nearItems: []string{"control_panel"}},
 }
 
 // ApplyRoomGenerators runs the registered generator for each tagged room, carving

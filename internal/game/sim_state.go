@@ -1,6 +1,7 @@
 package game
 
 import (
+	"fmt"
 	"math"
 
 	"github.com/mechanical-lich/ml-rogue-lib/pkg/rlcomponents"
@@ -15,6 +16,7 @@ import (
 	"github.com/mechanical-lich/spaceplant/internal/component"
 	"github.com/mechanical-lich/spaceplant/internal/config"
 	"github.com/mechanical-lich/spaceplant/internal/eventsystem"
+	"github.com/mechanical-lich/spaceplant/internal/factory"
 	"github.com/mechanical-lich/spaceplant/internal/game/listeners"
 	"github.com/mechanical-lich/spaceplant/internal/skill"
 	"github.com/mechanical-lich/spaceplant/internal/system"
@@ -70,6 +72,9 @@ func NewMainSimState(sim *SimWorld) *MainSimState {
 
 	eventsystem.EventManager.RegisterListener(s, eventsystem.Stairs)
 	eventsystem.EventManager.RegisterListener(s, eventsystem.DropItem)
+	eventsystem.EventManager.RegisterListener(s, eventsystem.LifePodEscape)
+	eventsystem.EventManager.RegisterListener(s, eventsystem.ArmSelfDestruct)
+	eventsystem.EventManager.RegisterListener(s, eventsystem.PlaceMotherPlant)
 
 	event.GetQueuedInstance().RegisterListener(
 		&listeners.MessageListener{Sim: sim},
@@ -179,6 +184,25 @@ func (s *MainSimState) Tick(_ any) simulation.SimulationState {
 		s.sim.Mu.Lock()
 		s.sim.TurnCount++
 		s.sim.TickCount = 0
+
+		// Self-destruct countdown.
+		if s.sim.selfDestructArmed {
+			if s.sim.SelfDestructTurns > 0 {
+				s.sim.SelfDestructTurns--
+				if s.sim.SelfDestructTurns <= 10 {
+					message.AddMessage(fmt.Sprintf("WARNING: Self-destruct in %d turns!", s.sim.SelfDestructTurns))
+				}
+			}
+			if s.sim.SelfDestructTurns == 0 {
+				// Station explodes — kill the player.
+				message.AddMessage("BOOM. The station tears itself apart.")
+				if s.sim.Player != nil {
+					s.sim.Player.AddComponent(rlcomponents.DeadComponent{})
+				}
+				s.sim.selfDestructArmed = false
+			}
+		}
+
 		playerGotTurn, _ := rlenergy.AdvanceEnergy(s.sim.Level.Entities, s.sim.Player)
 		applyPlantFoodBonus(s.sim.Level.Entities, s.sim.Level)
 		if playerGotTurn {
@@ -371,6 +395,35 @@ func (s *MainSimState) HandleEvent(data event.EventData) error {
 		dropItemEvent.Item.GetComponent("Position").(*component.PositionComponent).
 			SetPosition(dropItemEvent.X, dropItemEvent.Y, dropItemEvent.Z)
 		s.sim.Level.AddEntity(dropItemEvent.Item)
+
+	case eventsystem.LifePodEscape:
+		player := s.sim.Player
+		outcome := "escape_selfish"
+		msg := "You escape the station alone. The airlock seals behind you."
+		if player != nil && skill.HasSkill(player, "saboteur_instinct") && s.sim.MotherPlantPlaced {
+			outcome = "saboteur"
+			msg = "You've been paid. The station burns behind you."
+		}
+		eventsystem.EventManager.SendEvent(eventsystem.GameWonEventData{Outcome: outcome, Message: msg})
+
+	case eventsystem.ArmSelfDestruct:
+		ev := data.(eventsystem.ArmSelfDestructEventData)
+		s.sim.SelfDestructTurns = ev.Turns
+		s.sim.selfDestructArmed = true
+		message.AddMessage(fmt.Sprintf("Self-destruct armed. %d turns to detonation.", ev.Turns))
+
+	case eventsystem.PlaceMotherPlant:
+		if s.sim.MotherPlantPlaced {
+			message.AddMessage("The cutting withers — something already grows here.")
+			return nil
+		}
+		ev := data.(eventsystem.PlaceMotherPlantEventData)
+		e, err := factory.Create("mobile_mother_plant", ev.X, ev.Y)
+		if err == nil {
+			e.GetComponent("Position").(*component.PositionComponent).SetPosition(ev.X, ev.Y, ev.Z)
+			s.sim.Level.AddEntity(e)
+			s.sim.MotherPlantPlaced = true
+		}
 	}
 	return nil
 }

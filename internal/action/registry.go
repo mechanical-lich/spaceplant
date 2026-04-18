@@ -42,4 +42,5 @@ func init() {
 	RegisterSkill("spread_overgrowth", func(p ActionParams) Action {
 		return SpreadOvergrowthAction{Params: p}
 	})
+	RegisterSimple("place_mother_plant", func() Action { return PlaceMotherPlantAction{} })
 }

@@ -11,3 +11,4 @@ A collection of docs, guides, and architecture notes.
 - [Room Generators](room_generators.md)
 - [Tile Rendering](tile_rendering.md)
 - [Save System](save_system.md)
+- [Win Conditions](win_conditions.md)

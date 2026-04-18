@@ -86,10 +86,70 @@ func PlaceRooms(l *world.Level, z, maxRooms int, theme *FloorTheme) []Room {
 	var rooms []Room
 	placed := 0
 
-	for _, c := range candidates {
+	// Build a queue: required rooms first, then random weighted tags.
+	type taggedCandidate struct {
+		c   candidate
+		tag string
+	}
+	var queue []taggedCandidate
+
+	// Assign required tags to the first N candidates.
+	ci := 0
+	if theme != nil {
+		for _, tag := range theme.RequiredRooms {
+			for ci < len(candidates) {
+				c := candidates[ci]
+				ci++
+				sz := RoomSizeFor(tag)
+				rW := utility.GetRandom(sz.MinW, sz.MaxW+1)
+				rH := utility.GetRandom(sz.MinH, sz.MaxH+1)
+				var rx, ry int
+				switch {
+				case c.dx == 0 && c.dy == -1:
+					rx, ry = c.wx-rW/2, c.wy-rH+1
+				case c.dx == 0 && c.dy == 1:
+					rx, ry = c.wx-rW/2, c.wy
+				case c.dx == -1 && c.dy == 0:
+					rx, ry = c.wx-rW+1, c.wy-rH/2
+				default:
+					rx, ry = c.wx, c.wy-rH/2
+				}
+				if rx < 0 || ry < 0 || rx+rW > l.Width || ry+rH > l.Height {
+					continue
+				}
+				var intersects bool
+				switch {
+				case c.dx == 0 && c.dy == -1:
+					intersects = RoomIntersects(l, z, rx, ry, rW, rH-1)
+				case c.dx == 0 && c.dy == 1:
+					intersects = RoomIntersects(l, z, rx, ry+1, rW, rH-1)
+				case c.dx == -1 && c.dy == 0:
+					intersects = RoomIntersects(l, z, rx, ry, rW-1, rH)
+				default:
+					intersects = RoomIntersects(l, z, rx+1, ry, rW-1, rH)
+				}
+				if intersects {
+					continue
+				}
+				CarveRoom(l, rx, ry, z, rW, rH, world.TypeWall, world.TypeFloor, true, false)
+				spawnDoor(l, c.wx, c.wy, z)
+				rooms = append(rooms, Room{X: rx, Y: ry, Width: rW, Height: rH, Tag: tag, DoorDir: [2]int{c.dx, c.dy}})
+				placed++
+				break
+			}
+		}
+	}
+
+	// Remaining candidates get random weighted tags.
+	for _, c := range candidates[ci:] {
+		queue = append(queue, taggedCandidate{c: c})
+	}
+
+	for _, tc := range queue {
 		if placed >= maxRooms {
 			break
 		}
+		c := tc.c
 
 		var tag string
 		if theme != nil {

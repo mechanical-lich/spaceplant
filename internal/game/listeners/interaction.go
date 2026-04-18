@@ -1,10 +1,13 @@
 package listeners
 
 import (
+	"strconv"
+
 	"github.com/mechanical-lich/ml-rogue-lib/pkg/rlcomponents"
 	"github.com/mechanical-lich/ml-rogue-lib/pkg/rlentity"
 	mlgeevent "github.com/mechanical-lich/mlge/event"
 	"github.com/mechanical-lich/mlge/message"
+	"github.com/mechanical-lich/spaceplant/internal/eventsystem"
 )
 
 // InteractionListener handles InteractionEvents fired by rlentity.CheckInteraction.
@@ -73,6 +76,24 @@ func (l *InteractionListener) HandleEvent(data mlgeevent.EventData) error {
 					dc.OwnedBy = faction
 				}
 			}
+		}
+
+	case "life_pod_escape":
+		// Only fire for the player.
+		if ev.Actor != nil && ev.Actor == l.Sim.GetPlayer() {
+			eventsystem.EventManager.SendEvent(eventsystem.LifePodEscapeEventData{})
+		}
+
+	case "arm_self_destruct":
+		// Only fire for the player.
+		if ev.Actor != nil && ev.Actor == l.Sim.GetPlayer() {
+			turns := 60
+			if s := ev.Trigger.Params["turns"]; s != "" {
+				if v, err := strconv.Atoi(s); err == nil && v > 0 {
+					turns = v
+				}
+			}
+			eventsystem.EventManager.SendEvent(eventsystem.ArmSelfDestructEventData{Turns: turns})
 		}
 	}
 

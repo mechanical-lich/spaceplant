@@ -8,9 +8,11 @@ Welcome to Space Plants. The station is overrun. Good luck.
 - [Controls](controls.md) — keyboard reference
 - [Combat](combat.md) — how attacks, damage, and armor work
 - [Classes & Character Creation](classes.md) — classes, backgrounds, and stats
+- [Backgrounds](backgrounds.md) — starting backgrounds and what they do
 - [Skills](skills.md) — full skill list and what each one does
 - [Items & Equipment](items.md) — weapons, armor, and how to use them
 - [Injuries & Penalties](injuries.md) — wound effects, movement penalties, and healing
+- [Win Conditions](win_conditions.md) — how to actually win
 
 ---
 

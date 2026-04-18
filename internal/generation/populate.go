@@ -74,6 +74,9 @@ var roomFurniture = map[string][]string{
 	"courtroom": {"bench", "bench", "bench", "table", "desk"},
 	"interrogation": {"table", "chair", "chair"},
 	"forensics": {"lab_bench", "evidence_locker", "analysis_instrument"},
+
+	"life_pod_bay":       {"life_pod_console", "suit_rack", "suit_rack", "airlock_controls"},
+	"self_destruct_room": {"self_destruct_console", "radiation_shielding", "control_panel"},
 }
 
 // PopulateRooms places furniture entities inside each tagged room.
@@ -120,18 +123,29 @@ func populateRoom(l *world.Level, z int, room Room, hints []PlacementHint) {
 	numItems := utility.GetRandom(1, maxItems+1)
 
 	// Build a blueprint→region lookup from hints.
+	// Hinted blueprints are placed first (guaranteed); remaining slots filled randomly.
 	hintMap := make(map[string]PlacementRegion, len(hints))
+	hintOrder := make([]string, 0, len(hints))
+	hintSet := make(map[string]bool, len(hints))
 	for _, h := range hints {
 		hintMap[h.Blueprint] = h.Region
+		hintOrder = append(hintOrder, h.Blueprint)
+		hintSet[h.Blueprint] = true
 	}
 
-	// Shuffle blueprints so we don't always pick the same ones.
-	shuffled := make([]string, len(blueprints))
-	copy(shuffled, blueprints)
-	utility.Shuffle(shuffled)
+	// Non-hinted blueprints shuffled for random fill.
+	var rest []string
+	for _, bp := range blueprints {
+		if !hintSet[bp] {
+			rest = append(rest, bp)
+		}
+	}
+	utility.Shuffle(rest)
+
+	ordered := append(hintOrder, rest...)
 
 	placed := 0
-	for _, bp := range shuffled {
+	for _, bp := range ordered {
 		if placed >= numItems {
 			break
 		}

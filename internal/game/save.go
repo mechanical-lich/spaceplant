@@ -39,6 +39,8 @@ type PlayerRunMeta struct {
 	Name        string `json:"name"`
 	ClassName   string `json:"className"`
 	Dead        bool   `json:"dead"`
+	Won         bool   `json:"won"`
+	Outcome     string `json:"outcome"`
 	CurrentZ    int    `json:"currentZ"`
 }
 
@@ -67,6 +69,8 @@ type PlayerSaveFile struct {
 	Name        string       `json:"name"`
 	ClassName   string       `json:"className"`
 	Dead        bool         `json:"dead"`
+	Won         bool         `json:"won"`
+	Outcome     string       `json:"outcome"`
 	CurrentZ    int          `json:"currentZ"`
 	TickCount   int          `json:"tickCount"`
 	TurnCount   int          `json:"turnCount"`
@@ -382,6 +386,34 @@ func GraveyardPlayerRun(savesDir, playerRunID string) error {
 		return err
 	}
 	pf.Dead = true
+	out, err := json.MarshalIndent(pf, "", "  ")
+	if err != nil {
+		return err
+	}
+	gravDir := filepath.Join(savesDir, "graveyard")
+	if err := os.MkdirAll(gravDir, 0755); err != nil {
+		return fmt.Errorf("create graveyard dir: %w", err)
+	}
+	if err := os.WriteFile(graveyardRunPath(savesDir, playerRunID), out, 0644); err != nil {
+		return err
+	}
+	return os.Remove(src)
+}
+
+// GraveyardWonPlayerRun archives a winning player run to saves/graveyard/ with Won=true
+// and removes the live save from saves/players/. The outcome string (e.g. "saboteur") is stored.
+func GraveyardWonPlayerRun(savesDir, playerRunID, outcome string) error {
+	src := playerRunPath(savesDir, playerRunID)
+	data, err := os.ReadFile(src)
+	if err != nil {
+		return err
+	}
+	var pf PlayerSaveFile
+	if err := json.Unmarshal(data, &pf); err != nil {
+		return err
+	}
+	pf.Won = true
+	pf.Outcome = outcome
 	out, err := json.MarshalIndent(pf, "", "  ")
 	if err != nil {
 		return err

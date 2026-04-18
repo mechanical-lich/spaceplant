@@ -290,5 +290,13 @@
       "resist_dc": 15,
       "check_stat": "ph"
     }
+  },
+  {
+    "id": "saboteur_instinct",
+    "name": "Saboteur Instinct",
+    "description": "You carry a mother plant cutting. Place it with [X] and then get out. If crew see you plant it, they turn hostile.",
+    "action_bindings": {
+      "x": "place_mother_plant"
+    }
   }
 ]

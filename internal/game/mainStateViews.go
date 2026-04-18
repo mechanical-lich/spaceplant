@@ -300,7 +300,17 @@ func (g *GUIViewMain) Draw(screen *ebiten.Image, s any) {
 		fmt.Sprintf("Turn: %d  Tick: %d", cs.sim.TurnCount, cs.sim.TickCount),
 		12, cfg.WorldWidth+5, 170, color.RGBA{200, 200, 200, 255})
 
-	y := 185
+	if cs.sim.selfDestructArmed {
+		sdCol := color.RGBA{255, 60, 60, 255}
+		if cs.sim.SelfDestructTurns > 20 {
+			sdCol = color.RGBA{255, 180, 0, 255}
+		}
+		mlge_text.Draw(screen,
+			fmt.Sprintf("SELF-DESTRUCT: %d", cs.sim.SelfDestructTurns),
+			14, cfg.WorldWidth+5, 183, sdCol)
+	}
+
+	y := 200
 	if cs.sim.Player != nil && cs.sim.Player.HasComponent(rlcomponents.Energy) {
 		ec := cs.sim.Player.GetComponent(rlcomponents.Energy).(*rlcomponents.EnergyComponent)
 		var energyCol color.RGBA

@@ -15,6 +15,7 @@ import (
 	"github.com/mechanical-lich/mlge/transport"
 	"github.com/mechanical-lich/spaceplant/internal/component"
 	"github.com/mechanical-lich/spaceplant/internal/config"
+	"github.com/mechanical-lich/spaceplant/internal/eventsystem"
 )
 
 // compile-time assertion
@@ -35,7 +36,9 @@ type SPClientState struct {
 	nearbyLootView   *NearbyLootView
 	characterCreator *CharacterCreator
 	deathModal       *DeathModal
+	winModal         *WinModal
 	pauseMenu        *PauseMenu
+	cheatModal       *CheatModal
 	CameraX          int
 	CameraY          int
 	pressDelay       int
@@ -123,6 +126,24 @@ func (s *SPClientState) initGameViews() {
 		"rl.death",
 	)
 
+	s.winModal = newWinModal()
+	s.winModal.OnReturnToTitle = func() {
+		if s.sim.PlayerRunID != "" {
+			if err := SaveStation(s.sim, "saves"); err != nil {
+				fmt.Printf("Save station after win failed: %v\n", err)
+			}
+			if err := GraveyardWonPlayerRun("saves", s.sim.PlayerRunID, s.winModal.Outcome); err != nil {
+				fmt.Printf("Graveyard won player run failed: %v\n", err)
+			}
+		}
+		s.returnToTitle = true
+	}
+	eventsystem.EventManager.RegisterListener(
+		&gameWonListener{modal: s.winModal},
+		eventsystem.GameWon,
+	)
+
+	s.cheatModal = newCheatModal(s.sim)
 	s.pauseMenu = newPauseMenu()
 	s.pauseMenu.OnSave = func() {
 		if err := SaveAll(s.sim, "saves"); err != nil {
@@ -207,6 +228,14 @@ func (s *SPClientState) Update(_ *transport.Snapshot) client.ClientState {
 
 	shift := ebiten.IsKeyPressed(ebiten.KeyShiftLeft) || ebiten.IsKeyPressed(ebiten.KeyShiftRight)
 
+	// Shift+ESC: open developer cheat console.
+	if shift && inpututil.IsKeyJustPressed(ebiten.KeyEscape) {
+		if !s.cheatModal.Visible {
+			s.cheatModal.Open()
+		}
+		return nil
+	}
+
 	// ESC: close innermost open modal, or open the pause menu.
 	if inpututil.IsKeyJustPressed(ebiten.KeyEscape) {
 		if s.nearbyLootView.Visible {
@@ -269,13 +298,15 @@ func (s *SPClientState) Update(_ *transport.Snapshot) client.ClientState {
 	// set returnToTitle. Check immediately after so Done() and Update() agree
 	// on the same frame (avoiding an empty-stack black screen).
 	s.deathModal.Update()
+	s.winModal.Update()
 	s.pauseMenu.Update()
+	s.cheatModal.Update()
 	if s.returnToTitle {
 		return NewTitleScreenState(s.sim, s.simState, s.transport)
 	}
 
 	// Block game input while any modal is open.
-	if s.classView.Visible || s.statsView.Visible || s.reloadView.Visible || s.aimedShotView.Visible || s.nearbyLootView.Visible || s.deathModal.Visible || s.pauseMenu.Visible {
+	if s.classView.Visible || s.statsView.Visible || s.reloadView.Visible || s.aimedShotView.Visible || s.nearbyLootView.Visible || s.deathModal.Visible || s.winModal.Visible || s.pauseMenu.Visible || s.cheatModal.Visible {
 		return nil
 	}
 
@@ -510,5 +541,7 @@ func (s *SPClientState) Draw(screen *ebiten.Image) {
 	s.aimedShotView.Draw(screen)
 	s.nearbyLootView.Draw(screen)
 	s.deathModal.Draw(screen)
+	s.winModal.Draw(screen)
 	s.pauseMenu.Draw(screen)
+	s.cheatModal.Draw(screen)
 }
