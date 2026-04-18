@@ -40,6 +40,7 @@ type SPClientState struct {
 	CameraY          int
 	pressDelay       int
 	returnToTitle    bool
+	lastSavedTurn    int
 }
 
 // NewSPClientState creates a ready-to-use graphical client state.
@@ -111,8 +112,8 @@ func (s *SPClientState) initGameViews() {
 			if err := SaveStation(s.sim, "saves"); err != nil {
 				fmt.Printf("Save station after death failed: %v\n", err)
 			}
-			if err := MarkPlayerRunDead("saves", s.sim.PlayerRunID); err != nil {
-				fmt.Printf("Mark player dead failed: %v\n", err)
+			if err := GraveyardPlayerRun("saves", s.sim.PlayerRunID); err != nil {
+				fmt.Printf("Graveyard player run failed: %v\n", err)
 			}
 		}
 		s.returnToTitle = true
@@ -193,6 +194,16 @@ func (s *SPClientState) Update(_ *transport.Snapshot) client.ClientState {
 	s.sim.Mu.RUnlock()
 	title := fmt.Sprintf("%s - Turn: %d Tick: %d FPS: %.1f TPS: %.1f", "Space Plants!", turnCount, tickCount, fps, tps)
 	ebiten.SetWindowTitle(title)
+
+	// Auto-save every 5 player turns.
+	if turnCount > 0 && turnCount != s.lastSavedTurn && turnCount%5 == 0 {
+		s.lastSavedTurn = turnCount
+		go func() {
+			if err := SaveAll(s.sim, "saves"); err != nil {
+				fmt.Printf("Auto-save failed: %v\n", err)
+			}
+		}()
+	}
 
 	shift := ebiten.IsKeyPressed(ebiten.KeyShiftLeft) || ebiten.IsKeyPressed(ebiten.KeyShiftRight)
 

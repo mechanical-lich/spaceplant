@@ -183,6 +183,8 @@ func main() {
 	tc.GUI.Add(inv)
 	tc.GUI.Add(look)
 
+	var lastSavedTurn int
+
 	tc.OnTick = func(snap *transport.Snapshot) {
 		if titleScreen.Quit {
 			cliT.SendCommand(&transport.Command{Type: rltermclient.QuitCommand})
@@ -192,11 +194,38 @@ func main() {
 			return
 		}
 		if sim.Player != nil {
+			// Permadeath: player has died.
+			if sim.Player.HasComponent("Dead") {
+				message.AddMessage("You have died. Station saved. Press any key to quit.")
+				if sim.PlayerRunID != "" {
+					sim.ConvertPlayerToCorpse()
+					if err := game.SaveStation(sim, "saves"); err != nil {
+						log.Printf("SaveStation after death: %v", err)
+					}
+					if err := game.GraveyardPlayerRun("saves", sim.PlayerRunID); err != nil {
+						log.Printf("GraveyardPlayerRun: %v", err)
+					}
+				}
+				cliT.SendCommand(&transport.Command{Type: rltermclient.QuitCommand})
+				return
+			}
+
 			pc := sim.Player.GetComponent("Position").(*component.PositionComponent)
 			tc.CameraZ = pc.GetZ()
 			cols, rows := tc.ScreenSize()
 			tc.CameraX = pc.GetX() - cols/2
 			tc.CameraY = pc.GetY() - rows/2
+
+			// Auto-save every 5 player turns.
+			turn := sim.TurnCount
+			if turn > 0 && turn != lastSavedTurn && turn%5 == 0 {
+				lastSavedTurn = turn
+				go func() {
+					if err := game.SaveAll(sim, "saves"); err != nil {
+						log.Printf("Auto-save: %v", err)
+					}
+				}()
+			}
 		}
 	}
 

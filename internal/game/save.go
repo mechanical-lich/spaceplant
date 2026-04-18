@@ -121,9 +121,14 @@ func stationDir(savesDir, stationID string) string {
 	return filepath.Join(savesDir, "stations", stationID)
 }
 
-// playerRunPath returns the file path for a player run save.
+// playerRunPath returns the file path for a live player run save.
 func playerRunPath(savesDir, playerRunID string) string {
 	return filepath.Join(savesDir, "players", playerRunID+".json")
+}
+
+// graveyardRunPath returns the file path for a dead player run in the graveyard.
+func graveyardRunPath(savesDir, playerRunID string) string {
+	return filepath.Join(savesDir, "graveyard", playerRunID+".json")
 }
 
 // SaveStation serializes the station (all non-player entities + world tiles) to disk.
@@ -363,11 +368,12 @@ func SaveAll(sw *SimWorld, savesDir string) error {
 	return nil
 }
 
-// MarkPlayerRunDead marks the player run file as dead without requiring a loaded SimWorld.
-// Used after ConvertPlayerToCorpse to persist the dead state.
-func MarkPlayerRunDead(savesDir, playerRunID string) error {
-	path := playerRunPath(savesDir, playerRunID)
-	data, err := os.ReadFile(path)
+// GraveyardPlayerRun marks the player run as dead and moves it from saves/players/
+// to saves/graveyard/, removing the live save so it no longer appears in the player
+// browser. The graveyard copy is kept for historical reference.
+func GraveyardPlayerRun(savesDir, playerRunID string) error {
+	src := playerRunPath(savesDir, playerRunID)
+	data, err := os.ReadFile(src)
 	if err != nil {
 		return err
 	}
@@ -380,7 +386,14 @@ func MarkPlayerRunDead(savesDir, playerRunID string) error {
 	if err != nil {
 		return err
 	}
-	return os.WriteFile(path, out, 0644)
+	gravDir := filepath.Join(savesDir, "graveyard")
+	if err := os.MkdirAll(gravDir, 0755); err != nil {
+		return fmt.Errorf("create graveyard dir: %w", err)
+	}
+	if err := os.WriteFile(graveyardRunPath(savesDir, playerRunID), out, 0644); err != nil {
+		return err
+	}
+	return os.Remove(src)
 }
 
 // ListStations scans the saves directory and returns lightweight metadata for all stations.
