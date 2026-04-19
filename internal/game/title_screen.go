@@ -12,6 +12,7 @@ import (
 	mlge_text "github.com/mechanical-lich/mlge/text"
 	"github.com/mechanical-lich/mlge/transport"
 	"github.com/mechanical-lich/mlge/ui/minui"
+	"github.com/mechanical-lich/spaceplant/internal/buildinfo"
 	"github.com/mechanical-lich/spaceplant/internal/config"
 	"github.com/mechanical-lich/spaceplant/internal/lore"
 )
@@ -21,7 +22,7 @@ const savesDir = "saves"
 type titleScreen int
 
 const (
-	screenMain          titleScreen = iota
+	screenMain           titleScreen = iota
 	screenStationBrowser             // choose or generate a station
 	screenPlayerBrowser              // choose a player run on the selected station
 	screenNewStationName             // enter name for a new station
@@ -37,22 +38,22 @@ type TitleScreenState struct {
 	screen titleScreen
 
 	// Main menu buttons
-	newStationBtn    *minui.Button
+	newStationBtn     *minui.Button
 	browseStationsBtn *minui.Button
-	quitBtn          *minui.Button
+	quitBtn           *minui.Button
 
 	// Station browser
-	stationList    *minui.ListBox
-	stations       []StationMeta
-	selectStationBtn *minui.Button
+	stationList         *minui.ListBox
+	stations            []StationMeta
+	selectStationBtn    *minui.Button
 	backFromStationsBtn *minui.Button
 
 	// Player browser
-	playerList     *minui.ListBox
-	players        []PlayerRunMeta
-	selectedStation StationMeta
-	newPlayerBtn   *minui.Button
-	continueBtn    *minui.Button
+	playerList         *minui.ListBox
+	players            []PlayerRunMeta
+	selectedStation    StationMeta
+	newPlayerBtn       *minui.Button
+	continueBtn        *minui.Button
 	backFromPlayersBtn *minui.Button
 
 	// New station name input
@@ -371,6 +372,9 @@ func (ts *TitleScreenState) Draw(screen *ebiten.Image) {
 	if ts.errMsg != "" {
 		mlge_text.Draw(screen, ts.errMsg, 13, cfg.ScreenWidth/2-200, int(h)-60, color.RGBA{220, 80, 80, 255})
 	}
+
+	ver := buildinfo.Version
+	mlge_text.Draw(screen, ver, 11, cfg.ScreenWidth-len(ver)*11*4/10-8, int(h)-18, color.RGBA{80, 90, 80, 255})
 }
 
 func (ts *TitleScreenState) drawMain(screen *ebiten.Image) {
