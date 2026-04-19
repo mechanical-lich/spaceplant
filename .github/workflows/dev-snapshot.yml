@@ -1,9 +1,7 @@
-name: Release
+name: Dev Snapshot
 
 on:
-  push:
-    tags:
-      - 'v*'
+  workflow_dispatch:
 
 jobs:
   build:
@@ -35,6 +33,9 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: dev
+          fetch-depth: 0
 
       - uses: actions/setup-go@v5
         with:
@@ -94,12 +95,24 @@ jobs:
     permissions:
       contents: write
     steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: dev
+          fetch-depth: 0
+
       - uses: actions/download-artifact@v4
         with:
           path: dist/
           merge-multiple: true
 
+      - name: Compute tag name
+        id: tag
+        run: echo "tag=dev-snapshot-$(date -u '+%Y-%m-%d-%H%M')" >> "$GITHUB_OUTPUT"
+
       - uses: softprops/action-gh-release@v2
         with:
+          tag_name: ${{ steps.tag.outputs.tag }}
+          name: ${{ steps.tag.outputs.tag }}
           files: dist/*.zip
+          prerelease: true
           generate_release_notes: true
