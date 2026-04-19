@@ -56,3 +56,15 @@ func Load(path string) error {
 func Get(id string) *SkillDef {
 	return registry[id]
 }
+
+// AllActionBindings returns a map of actionID → default key across all loaded skills.
+// Where multiple skills bind the same action ID, the last one wins.
+func AllActionBindings() map[string]string {
+	out := map[string]string{}
+	for _, def := range registry {
+		for key, actionID := range def.ActionBindings {
+			out[actionID] = key
+		}
+	}
+	return out
+}

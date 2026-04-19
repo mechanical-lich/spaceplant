@@ -1,0 +1,23 @@
+{
+    "move_north":         "w",
+    "move_south":         "s",
+    "move_west":          "a",
+    "move_east":          "d",
+    "face_north":         "shift+w",
+    "face_south":         "shift+s",
+    "face_west":          "shift+a",
+    "face_east":          "shift+d",
+    "fire":               "f",
+    "burst_fire":         "g",
+    "heal":               "h",
+    "stairs":             ".",
+    "equip":              "e",
+    "pickup":             "p",
+    "rush":               "r",
+    "reload":             "shift+r",
+    "aimed_shot":         "shift+f",
+    "class_upgrade":      "shift+c",
+    "inventory":          "i",
+    "character_overview": "shift+i",
+    "place_mother_plant": "x"
+}

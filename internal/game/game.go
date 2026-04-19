@@ -6,6 +6,7 @@ import (
 	"github.com/mechanical-lich/spaceplant/internal/ccconfig"
 	"github.com/mechanical-lich/spaceplant/internal/class"
 	"github.com/mechanical-lich/spaceplant/internal/factory"
+	"github.com/mechanical-lich/spaceplant/internal/keybindings"
 	"github.com/mechanical-lich/spaceplant/internal/lore"
 	"github.com/mechanical-lich/spaceplant/internal/skill"
 	"github.com/mechanical-lich/spaceplant/internal/wincondition"
@@ -24,6 +25,7 @@ func LoadData() error {
 	if err := skill.Load("data/skills/skills.json"); err != nil {
 		return err
 	}
+	keybindings.Global().MergeDefaults(skill.AllActionBindings())
 	if err := class.Load("data/classes/classes.json"); err != nil {
 		return err
 	}
@@ -49,6 +51,7 @@ func LoadDataHeadless() error {
 	if err := skill.Load("data/skills/skills.json"); err != nil {
 		return err
 	}
+	keybindings.Global().MergeDefaults(skill.AllActionBindings())
 	if err := class.Load("data/classes/classes.json"); err != nil {
 		return err
 	}

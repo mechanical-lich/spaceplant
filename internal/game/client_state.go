@@ -16,6 +16,7 @@ import (
 	"github.com/mechanical-lich/spaceplant/internal/component"
 	"github.com/mechanical-lich/spaceplant/internal/config"
 	"github.com/mechanical-lich/spaceplant/internal/eventsystem"
+	"github.com/mechanical-lich/spaceplant/internal/keybindings"
 	"github.com/mechanical-lich/spaceplant/internal/wincondition"
 )
 
@@ -268,15 +269,18 @@ func (s *SPClientState) Update(_ *transport.Snapshot) client.ClientState {
 		return nil
 	}
 
-	// I opens the stats modal (inventory tab); Shift+I opens to the overview tab.
-	if inpututil.IsKeyJustPressed(ebiten.KeyI) {
+	// Inventory actions (work outside hasTurn).
+	kb := keybindings.Global()
+	if kb.IsJustPressed("inventory") {
 		if !s.classView.Visible && !s.statsView.Visible {
-			if shift {
-				s.statsView.Open()
-			} else {
-				s.statsView.SetNearbyEntity(s.nearbyInventoryEntity())
-				s.statsView.OpenToInventory()
-			}
+			s.statsView.SetNearbyEntity(s.nearbyInventoryEntity())
+			s.statsView.OpenToInventory()
+			return nil
+		}
+	}
+	if kb.IsJustPressed("character_overview") {
+		if !s.classView.Visible && !s.statsView.Visible {
+			s.statsView.Open()
 			return nil
 		}
 	}
@@ -320,16 +324,17 @@ func (s *SPClientState) Update(_ *transport.Snapshot) client.ClientState {
 
 	// Send movement/action commands only when it is the player's turn.
 	if hasTurn {
-		// Shift+R opens the reload modal; unmodified R toggles rush.
-		if inpututil.IsKeyJustPressed(ebiten.KeyR) {
-			if shift {
-				s.reloadView.Open()
-				return nil
-			}
+		// Rush is a just-pressed toggle, not a repeating held action.
+		if kb.IsJustPressed("rush") {
 			s.transport.SendCommand(&transport.Command{
 				Type:    CmdAction,
-				Payload: ActionPayload{Key: "r"},
+				Payload: ActionPayload{Key: "rush"},
 			})
+		}
+		// Reload modal is also just-pressed.
+		if kb.IsJustPressed("reload") {
+			s.reloadView.Open()
+			return nil
 		}
 
 		if s.pressDelay > 0 {
@@ -337,25 +342,18 @@ func (s *SPClientState) Update(_ *transport.Snapshot) client.ClientState {
 		}
 		keys := inpututil.AppendPressedKeys([]ebiten.Key{})
 		for _, k := range keys {
-			if k == ebiten.KeyR || isModifierKey(k) {
+			if isModifierKey(k) {
 				continue
 			}
 			if s.pressDelay == 0 {
-				keyStr := k.String()
-				// Single letter keys: lowercase without shift, uppercase with shift.
-				if len(keyStr) == 1 && keyStr[0] >= 'A' && keyStr[0] <= 'Z' {
-					if !shift {
-						keyStr = strings.ToLower(keyStr)
-					}
-				}
-				// Shift+C opens the class upgrade modal.
-				if keyStr == "C" {
+				action := kb.ActionFor(k.String(), shift)
+				switch action {
+				case "rush", "reload", "inventory", "character_overview":
+					// handled above or outside hasTurn — skip
+				case "class_upgrade":
 					s.classView.Open()
 					s.pressDelay = config.Global().PressDelay
-					continue
-				}
-				// P opens the nearby loot modal (pick up or equip from within).
-				if keyStr == "p" {
+				case "pickup":
 					s.sim.Mu.RLock()
 					hasNearby := s.hasNearbyItems()
 					s.sim.Mu.RUnlock()
@@ -363,30 +361,41 @@ func (s *SPClientState) Update(_ *transport.Snapshot) client.ClientState {
 						s.sim.Mu.RLock()
 						s.nearbyLootView.Open(s.sim.Player, s.sim.Level)
 						s.sim.Mu.RUnlock()
-						s.pressDelay = config.Global().PressDelay
-						continue
+					} else {
+						s.transport.SendCommand(&transport.Command{
+							Type:    CmdAction,
+							Payload: ActionPayload{Key: "pickup"},
+						})
 					}
-					// No nearby items — fall through to send the key as usual.
-				}
-				// Shift+F opens the targeted aimed shot modal.
-				if keyStr == "F" {
+					s.pressDelay = config.Global().PressDelay
+				case "aimed_shot":
 					s.sim.Mu.RLock()
 					target := s.rayTarget()
 					s.sim.Mu.RUnlock()
 					if target == nil {
 						message.AddMessage("Nothing to aim at.")
-						s.pressDelay = config.Global().PressDelay
-						continue
+					} else {
+						s.aimedShotView.Open(target)
 					}
-					s.aimedShotView.Open(target)
 					s.pressDelay = config.Global().PressDelay
-					continue
+				case "":
+					// No binding — pass raw key string through for skill hotkeys.
+					keyStr := k.String()
+					if len(keyStr) == 1 && keyStr[0] >= 'A' && keyStr[0] <= 'Z' && !shift {
+						keyStr = strings.ToLower(keyStr)
+					}
+					s.transport.SendCommand(&transport.Command{
+						Type:    CmdAction,
+						Payload: ActionPayload{Key: keyStr},
+					})
+					s.pressDelay = config.Global().PressDelay
+				default:
+					s.transport.SendCommand(&transport.Command{
+						Type:    CmdAction,
+						Payload: ActionPayload{Key: action},
+					})
+					s.pressDelay = config.Global().PressDelay
 				}
-				s.transport.SendCommand(&transport.Command{
-					Type:    CmdAction,
-					Payload: ActionPayload{Key: keyStr},
-				})
-				s.pressDelay = config.Global().PressDelay
 			}
 		}
 	}

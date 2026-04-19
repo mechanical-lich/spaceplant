@@ -28,9 +28,9 @@ func SkillForAIType(entity *ecs.Entity, aiType string) (*SkillDef, action.Action
 	return nil, nil
 }
 
-// ActionForKey returns the action bound to a key by one of the entity's skills,
-// or nil if no skill provides a binding for that key.
-func ActionForKey(entity *ecs.Entity, key string) action.Action {
+// ActionForKey returns the action for the given action ID if one of the entity's
+// skills provides a binding with that action ID, or nil if none match.
+func ActionForKey(entity *ecs.Entity, actionID string) action.Action {
 	if !entity.HasComponent(component.Skill) {
 		return nil
 	}
@@ -42,9 +42,11 @@ func ActionForKey(entity *ecs.Entity, key string) action.Action {
 			continue
 		}
 
-		if actionID, ok := def.ActionBindings[key]; ok {
-			if act := action.CreateSkillAction(actionID, def.ActionParams); act != nil {
-				return act
+		for _, boundActionID := range def.ActionBindings {
+			if boundActionID == actionID {
+				if act := action.CreateSkillAction(actionID, def.ActionParams); act != nil {
+					return act
+				}
 			}
 		}
 	}
