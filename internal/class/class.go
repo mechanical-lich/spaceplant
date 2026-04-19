@@ -10,13 +10,14 @@ import (
 )
 
 type ClassDef struct {
-	ID             string
-	Name           string
-	Description    string
-	StatMods       []skill.StatModifier `json:"StatMods,omitempty"`    // applied directly to stats at spawn
-	StartingSkills []string                                              // granted automatically when the class is assigned
-	StartingItems  []string             `json:"StartingItems,omitempty"` // blueprint IDs to spawn and equip at game start
-	Skills         []string                                              // available to purchase via upgrade points
+	ID               string
+	Name             string
+	Description      string
+	StatMods         []skill.StatModifier `json:"StatMods,omitempty"`
+	StartingSkills   []string
+	StartingItems    []string `json:"StartingItems,omitempty"`
+	Skills           []string
+	StartingRoomTags []string `json:"StartingRoomTags,omitempty"` // room tags to search across all floors for spawn location
 }
 
 var registry = map[string]*ClassDef{}

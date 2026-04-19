@@ -3,6 +3,7 @@
         "ID": "scientist",
         "Name": "Scientist",
         "Description": "A researcher trained in advanced sciences. Sharp mind, steady hands.",
+        "StartingRoomTags": ["general_lab", "biolab", "medical_bay"],
         "StatMods": [
             {
                 "stat": "ma",
@@ -28,6 +29,7 @@
         "ID": "navigator",
         "Name": "Navigator",
         "Description": "Expert at reading star charts and getting everyone home in one piece.",
+        "StartingRoomTags": ["bridge", "mission_control", "comms_relay"],
         "StatMods": [
             {
                 "stat": "ma",
@@ -60,6 +62,7 @@
         "ID": "officer",
         "Name": "Officer",
         "Description": "A commanding presence with authority to match. Doors open for them \u2014 sometimes literally.",
+        "StartingRoomTags": ["bridge", "officers_suite", "captains_quarters"],
         "StatMods": [
             {
                 "stat": "ld",
@@ -93,6 +96,7 @@
         "ID": "security",
         "Name": "Security",
         "Description": "Trained to handle threats with force. When things go wrong, they're the last line of defense.",
+        "StartingRoomTags": ["security_office", "armory"],
         "StatMods": [
             {
                 "stat": "ph",
@@ -127,6 +131,7 @@
         "ID": "engineer",
         "Name": "Engineer",
         "Description": "The ship runs because they make it run. Can spot a broken system from a mile away.",
+        "StartingRoomTags": ["engineering_workshop", "reactor_core", "maintenance_bay"],
         "StatMods": [
             {
                 "stat": "ma",
@@ -158,6 +163,7 @@
         "ID": "marine",
         "Name": "Marine",
         "Description": "Colonial defense. Sent in when security fails. Heavy weapons, heavier resolve.",
+        "StartingRoomTags": ["security_office", "life_pod_bay"],
         "StatMods": [
             {
                 "stat": "ph",

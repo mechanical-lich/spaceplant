@@ -173,10 +173,33 @@ func (sw *SimWorld) RegenerateLevel() error {
 // GetRLLevel implements listeners.SimAccess.
 func (sw *SimWorld) GetRLLevel() *rlworld.Level { return sw.Level.Level }
 
+// resolveSpawnLocation returns (x, y, z) for the player spawn point.
+// If the class has StartingRoomTags, it searches all floors for the first room
+// whose tag matches any of those tags and returns the room centre. Falls back
+// to floor 0 stair position when no match is found.
+func (sw *SimWorld) resolveSpawnLocation(classID string) (int, int, int) {
+	if def := class.Get(classID); def != nil && len(def.StartingRoomTags) > 0 {
+		wanted := make(map[string]bool, len(def.StartingRoomTags))
+		for _, t := range def.StartingRoomTags {
+			wanted[t] = true
+		}
+		for _, fr := range sw.FloorResults {
+			for _, room := range fr.Rooms {
+				if wanted[room.Tag] {
+					cx := room.X + room.Width/2
+					cy := room.Y + room.Height/2
+					return cx, cy, fr.Z
+				}
+			}
+		}
+	}
+	return sw.FloorResults[0].StairX, sw.FloorResults[0].StairY, 0
+}
+
 // SpawnPlayer creates the player entity from CharacterData and adds it to the world.
 // Must be called exactly once, after character creation is complete.
 func (sw *SimWorld) SpawnPlayer(data CharacterData) error {
-	pX, pY := sw.FloorResults[0].StairX, sw.FloorResults[0].StairY
+	pX, pY, pZ := sw.resolveSpawnLocation(data.ClassID)
 
 	player, err := factory.Create("player", pX, pY)
 	if err != nil {
@@ -248,13 +271,14 @@ func (sw *SimWorld) SpawnPlayer(data CharacterData) error {
 
 	// Reveal the entire starting floor for the Navigator's Stellar Cartography skill.
 	if skill.HasSkill(player, "completed_minimap") {
-		sw.Level.RevealFloor(0)
+		sw.Level.RevealFloor(pZ)
 	}
 
-	player.GetComponent("Position").(*component.PositionComponent).SetPosition(pX, pY, 0)
+	player.GetComponent("Position").(*component.PositionComponent).SetPosition(pX, pY, pZ)
 
 	sw.Mu.Lock()
 	defer sw.Mu.Unlock()
+	sw.CurrentZ = pZ
 	sw.Player = player
 	sw.PlayerRunID = generateID()
 	sw.aiSystem.Watcher = player
