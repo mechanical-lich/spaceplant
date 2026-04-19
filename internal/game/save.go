@@ -530,6 +530,8 @@ func LoadStationIntoSimWorld(sw *SimWorld, stationID, savesDir string) error {
 
 	addEntitiesToLevel(spLevel, sf.Entities, idToEntity)
 
+	spLevel.ShaderSrc = sw.Level.ShaderSrc
+
 	sw.Mu.Lock()
 	sw.Level = spLevel
 	sw.FloorResults = sf.FloorResults

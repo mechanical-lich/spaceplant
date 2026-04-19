@@ -2,7 +2,9 @@ package game
 
 import (
 	"fmt"
+	"log"
 	"math/rand"
+	"os"
 	"sync"
 
 	"github.com/mechanical-lich/ml-rogue-lib/pkg/rlcomponents"
@@ -68,8 +70,8 @@ type SimWorld struct {
 
 	// SelfDestructTurns counts down from the moment the self-destruct is armed.
 	// 0 means inactive. When it reaches 0 after being active, the player dies.
-	SelfDestructTurns    int
-	selfDestructArmed    bool
+	SelfDestructTurns int
+	selfDestructArmed bool
 
 	// MotherPlantPlaced is set true when the saboteur places their mother plant cutting.
 	MotherPlantPlaced bool
@@ -86,6 +88,11 @@ func NewSimWorld() (*SimWorld, error) {
 	pX := 50
 	pY := 50
 	sw.Level = world.NewLevel(100, 100, numLevels, world.NewDefaultTheme())
+	if b, err := os.ReadFile("data/shaders/crt.kage"); err != nil {
+		log.Printf("crt shader not loaded: %v", err)
+	} else {
+		sw.Level.ShaderSrc = b
+	}
 
 	sw.FloorResults = generation.GenerateFloors(sw.Level)
 
@@ -170,6 +177,8 @@ func (sw *SimWorld) RegenerateLevel() error {
 		crate.GetComponent("Position").(*component.PositionComponent).SetPosition(pX+3, pY, 0)
 		newLevel.AddEntity(crate)
 	}
+
+	newLevel.ShaderSrc = sw.Level.ShaderSrc
 
 	sw.Mu.Lock()
 	sw.Level = newLevel

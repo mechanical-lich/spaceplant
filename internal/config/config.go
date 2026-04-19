@@ -27,6 +27,7 @@ type Config struct {
 	ProfileMemory          bool    `json:"profileMemory"`          // Whether to profile memory usage
 	DumpGenerationASCII    bool    `json:"dumpGenerationASCII"`    // Write gen_debug.txt after each generation
 	NpcTurnDelayTicks      int     `json:"npcTurnDelayTicks"`      // Server ticks to pause between NPC-only turns (0 = no delay)
+	CRTIntensity           float64 `json:"crtIntensity"`           // CRT shader intensity: 0.0 = off, 1.0 = full effect
 }
 
 // LoadConfig reads and unmarshals a JSON config file.

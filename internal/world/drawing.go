@@ -124,6 +124,21 @@ func (l *Level) Render(aX, aY, z, width, height int, blind, centered bool) *ebit
 		}
 	}
 
+	if l.shader == nil && l.ShaderSrc != nil {
+		if s, err := ebiten.NewShader(l.ShaderSrc); err == nil {
+			l.shader = s
+		}
+	}
+	if l.shader != nil {
+		w, h := output.Bounds().Dx(), output.Bounds().Dy()
+		dst := ebiten.NewImage(w, h)
+		op := &ebiten.DrawRectShaderOptions{}
+		op.Images[0] = output
+		op.Uniforms = map[string]any{"Intensity": float32(config.Global().CRTIntensity)}
+		dst.DrawRectShader(w, h, l.shader, op)
+		return dst
+	}
+
 	return output
 }
 
@@ -211,7 +226,7 @@ func drawLayered(screen *ebiten.Image, entity *ecs.Entity, screenX, screenY floa
 	// Layered sprites are 32x48 drawn on 32x32 tiles — shift up 16px so the
 	// sprite's feet land on the tile rather than overflowing below it.
 	const spriteH = 48
-	offsetY := float64(spH-spriteH)
+	offsetY := float64(spH - spriteH)
 
 	dead := entity.HasComponent("Dead")
 	drawLayer := func(texName string, index int) {

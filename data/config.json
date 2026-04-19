@@ -17,5 +17,6 @@
     "profileMemory": false,
     "dumpGenerationASCII": true,
     "pressDelay": 6,
-    "npcTurnDelayTicks": 2
+    "npcTurnDelayTicks": 2,
+    "crtIntensity": 0.2
 }

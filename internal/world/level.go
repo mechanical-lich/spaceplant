@@ -16,6 +16,8 @@ type Level struct {
 	NoBudding []bool                      // parallel to Level.Data — generation flag
 	Overgrown []bool                      // parallel to Level.Data — overgrowth state
 	TileAnims map[TileAnimKey][]*TileAnim // visual-only tile overlay animations
+	ShaderSrc []byte                      // KAGE source compiled lazily on first render
+	shader    *ebiten.Shader              // compiled from ShaderSrc on first use
 }
 
 // NewLevel creates a single 3D level.
