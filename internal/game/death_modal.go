@@ -2,25 +2,23 @@ package game
 
 import (
 	"github.com/hajimehoshi/ebiten/v2"
-	"github.com/mechanical-lich/ml-rogue-lib/pkg/rlcomponents"
-	"github.com/mechanical-lich/mlge/ecs"
 	mlgeevent "github.com/mechanical-lich/mlge/event"
 	"github.com/mechanical-lich/mlge/ui/minui"
 	"github.com/mechanical-lich/spaceplant/internal/config"
+	"github.com/mechanical-lich/spaceplant/internal/eventsystem"
 )
 
-// playerDeathListener fires when the player's own death event arrives.
-type playerDeathListener struct {
-	player *ecs.Entity
-	modal  *DeathModal
+// gameLostListener fires when a GameLostEventData is emitted.
+type gameLostListener struct {
+	modal *DeathModal
 }
 
-func (l *playerDeathListener) HandleEvent(evt mlgeevent.EventData) error {
-	de, ok := evt.(rlcomponents.DeathEvent)
-	if !ok || de.Dying != l.player {
+func (l *gameLostListener) HandleEvent(evt mlgeevent.EventData) error {
+	e, ok := evt.(eventsystem.GameLostEventData)
+	if !ok {
 		return nil
 	}
-	l.modal.Show(de.Message)
+	l.modal.Show(e.Message, e.Detail)
 	return nil
 }
 
@@ -68,9 +66,14 @@ func newDeathModal() *DeathModal {
 	return dm
 }
 
-// Show displays the modal with the given death message.
-func (dm *DeathModal) Show(msg string) {
-	dm.msgLabel.Text = msg
+// Show displays the modal. msg is the condition-defined message (empty = use detail).
+// detail is the raw combat death cause.
+func (dm *DeathModal) Show(msg, detail string) {
+	if msg != "" {
+		dm.msgLabel.Text = msg
+	} else {
+		dm.msgLabel.Text = detail
+	}
 	dm.Visible = true
 }
 

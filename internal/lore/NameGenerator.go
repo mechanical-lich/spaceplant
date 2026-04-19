@@ -5,6 +5,7 @@ import (
 	"io"
 	"log"
 	"os"
+	"strings"
 
 	"github.com/mechanical-lich/mlge/utility"
 )
@@ -14,7 +15,7 @@ const Fallback_Name = "Fallback Name"
 type NameData struct {
 	FirstNames   []string `json:"first_names"`
 	LastNames    []string `json:"last_names"`
-	StationNames []string `json:"station_names"`
+	StationWords []string `json:"station_words"`
 }
 
 var nameData map[string]NameData
@@ -41,8 +42,21 @@ func RandomName(race string) string {
 }
 
 func RandomStationName() string {
-	if data, ok := nameData["stations"]; ok && len(data.StationNames) > 0 {
-		return data.StationNames[utility.GetRandom(0, len(data.StationNames))]
+	if data, ok := nameData["stations"]; ok && len(data.StationWords) > 0 {
+		wordCount := utility.GetRandom(1, 5) // 1 to 4 words
+		if wordCount > len(data.StationWords) {
+			wordCount = len(data.StationWords)
+		}
+		used := make(map[int]bool)
+		words := make([]string, 0, wordCount)
+		for len(words) < wordCount {
+			idx := utility.GetRandom(0, len(data.StationWords))
+			if !used[idx] {
+				used[idx] = true
+				words = append(words, data.StationWords[idx])
+			}
+		}
+		return strings.Join(words, " ")
 	}
 	log.Print("Using fallback station name")
 	return Fallback_Name

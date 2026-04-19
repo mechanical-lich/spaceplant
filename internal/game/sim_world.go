@@ -17,6 +17,7 @@ import (
 	"github.com/mechanical-lich/spaceplant/internal/generation"
 	"github.com/mechanical-lich/spaceplant/internal/skill"
 	"github.com/mechanical-lich/spaceplant/internal/system"
+	"github.com/mechanical-lich/spaceplant/internal/wincondition"
 	"github.com/mechanical-lich/spaceplant/internal/world"
 )
 
@@ -126,6 +127,22 @@ func NewSimWorld() (*SimWorld, error) {
 
 // GetPlayer implements listeners.SimAccess.
 func (sw *SimWorld) GetPlayer() *ecs.Entity { return sw.Player }
+
+// BuildEvalContext constructs a wincondition.EvalContext from the current sim state.
+func (sw *SimWorld) BuildEvalContext() wincondition.EvalContext {
+	var live []*ecs.Entity
+	for _, e := range sw.Level.Entities {
+		if e != nil && !e.HasComponent(rlcomponents.Dead) {
+			live = append(live, e)
+		}
+	}
+	return wincondition.EvalContext{
+		Player:            sw.Player,
+		Entities:          live,
+		SelfDestructArmed: sw.selfDestructArmed,
+		MotherPlantPlaced: sw.MotherPlantPlaced,
+	}
+}
 
 // RegenerateLevel builds a brand-new level in-place, resets the player, and
 // clears turn/tick counters. Call this before starting a new game so the server

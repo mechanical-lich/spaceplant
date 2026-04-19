@@ -8,9 +8,10 @@ import (
 var EventManager *event.QueuedEventManager
 
 const (
-	Stairs          event.EventType = "Stairs"
-	DropItem        event.EventType = "DropItem"
-	GameWon         event.EventType = "GameWon"
+	Stairs           event.EventType = "Stairs"
+	DropItem         event.EventType = "DropItem"
+	GameWon          event.EventType = "GameWon"
+	GameLost         event.EventType = "GameLost"
 	PlaceMotherPlant event.EventType = "PlaceMotherPlant"
 	ArmSelfDestruct  event.EventType = "ArmSelfDestruct"
 	LifePodEscape    event.EventType = "LifePodEscape"
@@ -28,6 +29,16 @@ type GameWonEventData struct {
 }
 
 func (e GameWonEventData) GetType() event.EventType { return GameWon }
+
+// GameLostEventData is emitted when the player loses (outside of normal death).
+// Message is the condition-defined message; Detail is the raw combat death cause.
+type GameLostEventData struct {
+	Outcome string
+	Message string
+	Detail  string
+}
+
+func (e GameLostEventData) GetType() event.EventType { return GameLost }
 
 // PlaceMotherPlantEventData is emitted by the place_mother_plant action.
 // X, Y, Z are the tile coordinates where the plant should be spawned.

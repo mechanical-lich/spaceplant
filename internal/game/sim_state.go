@@ -20,6 +20,7 @@ import (
 	"github.com/mechanical-lich/spaceplant/internal/game/listeners"
 	"github.com/mechanical-lich/spaceplant/internal/skill"
 	"github.com/mechanical-lich/spaceplant/internal/system"
+	"github.com/mechanical-lich/spaceplant/internal/wincondition"
 	"github.com/mechanical-lich/spaceplant/internal/world"
 )
 
@@ -60,14 +61,16 @@ type MainSimState struct {
 	done     bool
 	phase    tickPhase
 	npcDelay int
+	cleanUp  system.CleanUpSystem
 }
 
 // NewMainSimState registers event listeners and returns a ready-to-use state.
 // Starts at phaseTurnComplete so AdvanceEnergy runs before anyone acts.
 func NewMainSimState(sim *SimWorld) *MainSimState {
 	s := &MainSimState{
-		sim:   sim,
-		phase: phaseTurnComplete,
+		sim:     sim,
+		phase:   phaseTurnComplete,
+		cleanUp: system.CleanUpSystem{CtxProvider: sim.BuildEvalContext},
 	}
 
 	eventsystem.EventManager.RegisterListener(s, eventsystem.Stairs)
@@ -105,6 +108,10 @@ func NewMainSimState(sim *SimWorld) *MainSimState {
 		&listeners.DeathListener{Sim: sim},
 		rlcomponents.DeathEventType,
 	)
+
+	wcl := &listeners.WinConditionListener{Sim: sim}
+	eventsystem.EventManager.RegisterListener(wcl, eventsystem.LifePodEscape)
+	event.GetQueuedInstance().RegisterListener(wcl, rlcomponents.DeathEventType)
 
 	return s
 }
@@ -197,7 +204,13 @@ func (s *MainSimState) Tick(_ any) simulation.SimulationState {
 				// Station explodes — kill the player.
 				message.AddMessage("BOOM. The station tears itself apart.")
 				if s.sim.Player != nil {
-					s.sim.Player.AddComponent(rlcomponents.DeadComponent{})
+					// Evaluate win conditions before clearing selfDestructArmed so
+					// heroic_death rules can match.
+					ctx := s.sim.BuildEvalContext()
+					if rule, ok := wincondition.Active().EvalPlayerDeath(ctx); ok {
+						wincondition.FireRule(rule, "killed in the explosion")
+					}
+					s.sim.Player.AddComponent(&rlcomponents.DeadComponent{})
 				}
 				s.sim.selfDestructArmed = false
 			}
@@ -229,7 +242,7 @@ func (s *MainSimState) Tick(_ any) simulation.SimulationState {
 		s.sim.Mu.Lock()
 
 		// Resolve costs from the previous tick.
-		system.CleanUpSystem{}.Update(s.sim.Level)
+		s.cleanUp.Update(s.sim.Level)
 
 		// Re-grant turns to entities with leftover energy (multi-action).
 		// No-op for entities that already hold MyTurn from AdvanceEnergy.
@@ -395,16 +408,6 @@ func (s *MainSimState) HandleEvent(data event.EventData) error {
 		dropItemEvent.Item.GetComponent("Position").(*component.PositionComponent).
 			SetPosition(dropItemEvent.X, dropItemEvent.Y, dropItemEvent.Z)
 		s.sim.Level.AddEntity(dropItemEvent.Item)
-
-	case eventsystem.LifePodEscape:
-		player := s.sim.Player
-		outcome := "escape_selfish"
-		msg := "You escape the station alone. The airlock seals behind you."
-		if player != nil && skill.HasSkill(player, "saboteur_instinct") && s.sim.MotherPlantPlaced {
-			outcome = "saboteur"
-			msg = "You've been paid. The station burns behind you."
-		}
-		eventsystem.EventManager.SendEvent(eventsystem.GameWonEventData{Outcome: outcome, Message: msg})
 
 	case eventsystem.ArmSelfDestruct:
 		ev := data.(eventsystem.ArmSelfDestructEventData)

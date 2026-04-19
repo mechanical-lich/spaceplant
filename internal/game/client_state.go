@@ -16,6 +16,7 @@ import (
 	"github.com/mechanical-lich/spaceplant/internal/component"
 	"github.com/mechanical-lich/spaceplant/internal/config"
 	"github.com/mechanical-lich/spaceplant/internal/eventsystem"
+	"github.com/mechanical-lich/spaceplant/internal/wincondition"
 )
 
 // compile-time assertion
@@ -121,9 +122,9 @@ func (s *SPClientState) initGameViews() {
 		}
 		s.returnToTitle = true
 	}
-	mlgeevent.GetQueuedInstance().RegisterListener(
-		&playerDeathListener{player: s.sim.Player, modal: s.deathModal},
-		"rl.death",
+	eventsystem.EventManager.RegisterListener(
+		&gameLostListener{modal: s.deathModal},
+		eventsystem.GameLost,
 	)
 
 	s.winModal = newWinModal()
@@ -289,8 +290,15 @@ func (s *SPClientState) Update(_ *transport.Snapshot) client.ClientState {
 	s.aimedShotView.Update()
 	s.nearbyLootView.Update()
 	hasTurn := s.sim.Player != nil && s.sim.Player.HasComponent("MyTurn")
-	if !s.deathModal.Visible && s.sim.Player != nil && s.sim.Player.HasComponent("Dead") {
-		s.deathModal.Show(s.playerDeathMessage())
+	// Fallback: catch deaths where no modal fired yet (e.g. race with server
+	// goroutine, or edge cases with no DeathEvent). Evaluate conditions so JSON
+	// rules are respected even on this path.
+	if !s.deathModal.Visible && !s.winModal.Visible &&
+		s.sim.Player != nil && s.sim.Player.HasComponent("Dead") {
+		ctx := s.sim.BuildEvalContext()
+		if rule, ok := wincondition.Active().EvalPlayerDeath(ctx); ok {
+			wincondition.FireRule(rule, s.playerDeathMessage())
+		}
 	}
 	s.sim.Mu.RUnlock()
 

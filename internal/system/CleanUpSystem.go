@@ -7,12 +7,15 @@ import (
 	"github.com/mechanical-lich/ml-rogue-lib/pkg/rlenergy"
 	"github.com/mechanical-lich/mlge/ecs"
 	"github.com/mechanical-lich/spaceplant/internal/component"
-	"github.com/mechanical-lich/spaceplant/internal/eventsystem"
 	"github.com/mechanical-lich/spaceplant/internal/factory"
+	"github.com/mechanical-lich/spaceplant/internal/wincondition"
 	"github.com/mechanical-lich/spaceplant/internal/world"
 )
 
 type CleanUpSystem struct {
+	// CtxProvider, if set, is called to build the eval context for win-condition
+	// checks on entity death. If nil, no win conditions are evaluated from kills.
+	CtxProvider func() wincondition.EvalContext
 }
 
 // Update strips transient components from entities each frame.
@@ -23,12 +26,12 @@ func (s CleanUpSystem) Update(level *world.Level) {
 		rlenergy.ResolveTurn(entity)
 
 		if entity.HasComponent(rlcomponents.Dead) {
-			if entity.Blueprint == "mother_plant" && entity.HasComponent(rlcomponents.Solid) {
-				// Solid still present = first cleanup frame; fire win exactly once.
-				eventsystem.EventManager.SendEvent(eventsystem.GameWonEventData{
-					Outcome: "extermination",
-					Message: "The mother plant is dead. The infestation collapses.",
-				})
+			if entity.HasComponent(rlcomponents.Solid) && s.CtxProvider != nil {
+				// Solid still present = first cleanup frame; evaluate kill rules once.
+				ctx := s.CtxProvider()
+				if rule, ok := wincondition.Active().EvalKill(entity.Blueprint, ctx); ok {
+					wincondition.FireRule(rule, "")
+				}
 			}
 			if entity.Blueprint == "mobile_mother_plant" && entity.HasComponent(rlcomponents.Solid) {
 				// Remove the cutting on death — it leaves no corpse.

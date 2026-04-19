@@ -7,6 +7,7 @@ import (
 	"github.com/mechanical-lich/spaceplant/internal/class"
 	"github.com/mechanical-lich/spaceplant/internal/factory"
 	"github.com/mechanical-lich/spaceplant/internal/skill"
+	"github.com/mechanical-lich/spaceplant/internal/wincondition"
 	"github.com/mechanical-lich/spaceplant/internal/world"
 )
 
@@ -31,6 +32,9 @@ func LoadData() error {
 	if err := ccconfig.Load("data/character_creator_config.json"); err != nil {
 		return err
 	}
+	if err := wincondition.Load("data/win_conditions/default.json"); err != nil {
+		return err
+	}
 	return LoadAssets()
 }
 
@@ -50,6 +54,9 @@ func LoadDataHeadless() error {
 		return err
 	}
 	if err := ccconfig.Load("data/character_creator_config.json"); err != nil {
+		return err
+	}
+	if err := wincondition.Load("data/win_conditions/default.json"); err != nil {
 		return err
 	}
 	return world.LoadTileDefinitions("data/tile_definitions.json")
