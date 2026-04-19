@@ -1,4 +1,6 @@
 name = "spaceplant"
+GIT_TAG := $(shell git describe --tags --always --dirty)
+LDFLAGS := -ldflags "-X github.com/mechanical-lich/spaceplant/internal/buildinfo.Version=$(GIT_TAG)"
 
 bin:
 	mkdir bin
@@ -10,25 +12,25 @@ clean:
 	rm -rf ./bin
 
 run:
-	go run ./cmd/game/*.go
+	go run $(LDFLAGS) ./cmd/game/*.go
 
 run-debug:
-	GODEBUG=gctrace=1 go run ./cmd/game/*.go
+	GODEBUG=gctrace=1 go run $(LDFLAGS) ./cmd/game/*.go
 
 build: clean bin
-	go build -o ./bin/$(name)
+	go build $(LDFLAGS) -o ./bin/$(name) ./cmd/game
 
 build-all: clean build-mac build-windows build-linux
 	@echo "Builds for all platforms are complete."
 
 build-mac: bin
-	GOOS=darwin GOARCH=arm64 go build -o ./bin/$(name)-mac
+	GOOS=darwin GOARCH=arm64 go build $(LDFLAGS) -o ./bin/$(name)-mac ./cmd/game
 
 build-linux: bin
-	GOOS=linux GOARCH=amd64 go build -o ./bin/$(name)-linux
+	GOOS=linux GOARCH=amd64 go build $(LDFLAGS) -o ./bin/$(name)-linux ./cmd/game
 
 build-windows: bin
-	GOOS=windows GOARCH=amd64 go build -o ./bin/$(name)-windows.exe
+	GOOS=windows GOARCH=amd64 go build $(LDFLAGS) -o ./bin/$(name)-windows.exe ./cmd/game
 
 .PHONY: update-go-deps
 update-go-deps:

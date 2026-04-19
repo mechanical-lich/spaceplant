@@ -14,12 +14,15 @@ import (
 	"github.com/mechanical-lich/mlge/message"
 	"github.com/mechanical-lich/mlge/simulation"
 	"github.com/mechanical-lich/mlge/transport"
+	"github.com/mechanical-lich/spaceplant/internal/buildinfo"
 	"github.com/mechanical-lich/spaceplant/internal/component"
 	"github.com/mechanical-lich/spaceplant/internal/eventsystem"
 	"github.com/mechanical-lich/spaceplant/internal/game"
 )
 
 func main() {
+	log.Print("Version:", buildinfo.Version)
+
 	if _, err := os.Stat("data"); os.IsNotExist(err) {
 		if exe, err := os.Executable(); err == nil {
 			os.Chdir(filepath.Dir(exe))
