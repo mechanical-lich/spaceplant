@@ -70,10 +70,16 @@ func (l *Level) Render(aX, aY, z, width, height int, blind, centered bool) *ebit
 					// Draw tile animations (above entities, below fog)
 					l.drawAndAdvanceTileAnims(output, x, y, z, tX, tY, cfg.TileSizeW, cfg.TileSizeH)
 
-					// Draw fog
+					// Draw fog, covering the full sprite area which may exceed the tile grid cell.
 					if cfg.Lighting {
 						fogColor := color.RGBA{0, 0, 0, uint8(tile.LightLevel)}
-						ebitenutil.DrawRect(output, tX, tY, sw, sh, fogColor)
+						def := rlworld.TileDefinitions[tile.Type]
+						fogY := tY + float64(def.SpriteOffsetY)
+						fogH := sh
+						if def.SpriteHeight > cfg.TileSizeH {
+							fogH = float64(def.SpriteHeight)
+						}
+						ebitenutil.DrawRect(output, tX, fogY, sw, fogH, fogColor)
 					}
 				}
 			} else {
@@ -175,11 +181,19 @@ func (l *Level) DrawTile(output *ebiten.Image, t *Tile, screenX, screenY int, se
 
 	tileSeen := l.GetSeen(tx, ty, z)
 
+	// Cover the full sprite area, which may be taller than the tile grid cell.
+	overlayY := tY + float64(def.SpriteOffsetY)
+	overlayH := sh
+	if sprH > spH {
+		overlayH = float64(sprH)
+		overlayY = tY + float64(def.SpriteOffsetY)
+	}
+
 	if !seen {
 		if tileSeen {
-			ebitenutil.DrawRect(output, tX, tY, sw, sh, color.RGBA{0, 0, 0, 220})
+			ebitenutil.DrawRect(output, tX, overlayY, sw, overlayH, color.RGBA{0, 0, 0, 220})
 		} else {
-			ebitenutil.DrawRect(output, tX, tY, sw, sh, l.Theme.OpenBackgroundColor)
+			ebitenutil.DrawRect(output, tX, overlayY, sw, overlayH, l.Theme.OpenBackgroundColor)
 		}
 	} else {
 		l.SetSeen(tx, ty, z, true)
