@@ -6,6 +6,7 @@ import (
 	"github.com/mechanical-lich/spaceplant/internal/ccconfig"
 	"github.com/mechanical-lich/spaceplant/internal/class"
 	"github.com/mechanical-lich/spaceplant/internal/factory"
+	"github.com/mechanical-lich/spaceplant/internal/lore"
 	"github.com/mechanical-lich/spaceplant/internal/skill"
 	"github.com/mechanical-lich/spaceplant/internal/wincondition"
 	"github.com/mechanical-lich/spaceplant/internal/world"
@@ -35,6 +36,7 @@ func LoadData() error {
 	if err := wincondition.Load("data/win_conditions/default.json"); err != nil {
 		return err
 	}
+	lore.LoadNameData("data/name_data.json")
 	return LoadAssets()
 }
 
@@ -59,7 +61,11 @@ func LoadDataHeadless() error {
 	if err := wincondition.Load("data/win_conditions/default.json"); err != nil {
 		return err
 	}
-	return world.LoadTileDefinitions("data/tile_definitions.json")
+	if err := world.LoadTileDefinitions("data/tile_definitions.json"); err != nil {
+		return err
+	}
+	lore.LoadNameData("data/name_data.json")
+	return nil
 }
 
 // LoadAssets loads all image textures into the resource cache.

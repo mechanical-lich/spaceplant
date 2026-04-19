@@ -20,21 +20,17 @@ type NameData struct {
 
 var nameData map[string]NameData
 
-func init() {
-	log.Print("Loading name data...")
+func LoadNameData(path string) {
 	nameData = make(map[string]NameData)
-
-	if nameJson, err := os.OpenFile("data/name_data.json", os.O_RDONLY, 0644); err == nil {
+	if nameJson, err := os.OpenFile(path, os.O_RDONLY, 0644); err == nil {
 		defer nameJson.Close()
 		byteValue, _ := io.ReadAll(nameJson)
-		err = json.Unmarshal(byteValue, &nameData)
-		if err != nil {
+		if err = json.Unmarshal(byteValue, &nameData); err != nil {
 			log.Print("Failed to unmarshal name_data.json:", err)
 		}
 	} else {
-		log.Print("Failed to open name_data.json file:", err)
+		log.Print("Failed to open name_data.json:", err)
 	}
-
 }
 
 func RandomName(race string) string {
