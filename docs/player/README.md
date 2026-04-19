@@ -31,6 +31,7 @@ When you launch the game you will see the title screen:
 |--------|-------------|
 | New Station | Generate a fresh station (you name it or randomise), then create a character |
 | Browse Stations | Pick an existing station to start a new player on or continue an existing one |
+| Options | Adjust display and gameplay settings — CRT intensity, render scale, key repeat, NPC speed |
 
 ### Character Creation
 

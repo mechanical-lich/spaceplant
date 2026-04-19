@@ -58,3 +58,12 @@ func Global() *Config {
 	}
 	return settings
 }
+
+// Save writes the current config back to data/config.json.
+func Save() error {
+	data, err := json.MarshalIndent(settings, "", "    ")
+	if err != nil {
+		return err
+	}
+	return os.WriteFile("data/config.json", data, 0644)
+}

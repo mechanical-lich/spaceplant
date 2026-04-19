@@ -40,6 +40,7 @@ type TitleScreenState struct {
 	// Main menu buttons
 	newStationBtn     *minui.Button
 	browseStationsBtn *minui.Button
+	optionsBtn        *minui.Button
 	quitBtn           *minui.Button
 
 	// Station browser
@@ -62,6 +63,8 @@ type TitleScreenState struct {
 	confirmNameBtn   *minui.Button
 	cancelNameBtn    *minui.Button
 
+	optionsModal *OptionsModal
+
 	errMsg string
 	done   bool
 	next   client.ClientState
@@ -78,6 +81,7 @@ func NewTitleScreenState(sim *SimWorld, simState *MainSimState, t transport.Clie
 		screen:    screenMain,
 	}
 	ts.buildMainMenu()
+	ts.optionsModal = newOptionsModal()
 	return ts
 }
 
@@ -98,8 +102,13 @@ func (ts *TitleScreenState) buildMainMenu() {
 	ts.browseStationsBtn.SetSize(btnW, btnH)
 	ts.browseStationsBtn.OnClick = func() { ts.openStationBrowser() }
 
+	ts.optionsBtn = minui.NewButton("title_options", "Options")
+	ts.optionsBtn.SetPosition(btnX, 340+2*(btnH+12))
+	ts.optionsBtn.SetSize(btnW, btnH)
+	ts.optionsBtn.OnClick = func() { ts.optionsModal.Open() }
+
 	ts.quitBtn = minui.NewButton("title_quit", "Quit")
-	ts.quitBtn.SetPosition(btnX, 340+2*(btnH+12))
+	ts.quitBtn.SetPosition(btnX, 340+3*(btnH+12))
 	ts.quitBtn.SetSize(btnW, btnH)
 	ts.quitBtn.OnClick = func() { os.Exit(0) }
 
@@ -300,11 +309,16 @@ func (ts *TitleScreenState) Update(_ *transport.Snapshot) client.ClientState {
 }
 
 func (ts *TitleScreenState) updateMain() {
+	if ts.optionsModal.Visible {
+		ts.optionsModal.Update()
+		return
+	}
 	if inpututil.IsKeyJustPressed(ebiten.KeyQ) || inpututil.IsKeyJustPressed(ebiten.KeyEscape) {
 		os.Exit(0)
 	}
 	ts.newStationBtn.Update()
 	ts.browseStationsBtn.Update()
+	ts.optionsBtn.Update()
 	ts.quitBtn.Update()
 }
 
@@ -380,12 +394,15 @@ func (ts *TitleScreenState) Draw(screen *ebiten.Image) {
 func (ts *TitleScreenState) drawMain(screen *ebiten.Image) {
 	ts.newStationBtn.Draw(screen)
 	ts.browseStationsBtn.Draw(screen)
+	ts.optionsBtn.Draw(screen)
 	ts.quitBtn.Draw(screen)
 
 	cfg := config.Global()
 	h := float64(cfg.ScreenHeight)
 	hint := "[N] New Station    [B] Browse    [Q] Quit"
 	mlge_text.Draw(screen, hint, 12, cfg.ScreenWidth/2-len(hint)*12*3/10/2, int(h)-40, color.RGBA{90, 100, 90, 255})
+
+	ts.optionsModal.Draw(screen)
 }
 
 func (ts *TitleScreenState) drawNewStationName(screen *ebiten.Image) {
