@@ -74,6 +74,30 @@ func (b *Bindings) MergeDefaults(defaults map[string]string) {
 	}
 }
 
+// Save writes the current bindings back to data/keybindings.json.
+func (b *Bindings) Save() error {
+	data, err := json.MarshalIndent(b.raw, "", "    ")
+	if err != nil {
+		return err
+	}
+	return os.WriteFile("data/keybindings.json", data, 0644)
+}
+
+// Set updates (or adds) a single action→combo binding in memory.
+func (b *Bindings) Set(action, combo string) {
+	b.raw[action] = combo
+	b.inverse[strings.ToLower(combo)] = action
+}
+
+// All returns a copy of the raw action→combo map.
+func (b *Bindings) All() map[string]string {
+	out := make(map[string]string, len(b.raw))
+	for k, v := range b.raw {
+		out[k] = v
+	}
+	return out
+}
+
 func load(path string) (*Bindings, error) {
 	data, err := os.ReadFile(path)
 	if err != nil {

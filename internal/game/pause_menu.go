@@ -8,15 +8,16 @@ import (
 
 const (
 	pauseMenuW = 220
-	pauseMenuH = 258
+	pauseMenuH = 304
 )
 
 // PauseMenu is shown when the player presses ESC during gameplay.
-// It provides Save, Options, Return to Title, and Close (resume) options.
+// It provides Save, Options, Controls, Return to Title, and Close (resume) options.
 type PauseMenu struct {
-	Visible bool
-	modal   *minui.Modal
-	options *OptionsModal
+	Visible  bool
+	modal    *minui.Modal
+	options  *OptionsModal
+	controls *ControlsModal
 
 	OnSave          func()
 	OnReturnToTitle func()
@@ -28,7 +29,8 @@ func newPauseMenu() *PauseMenu {
 	my := (cfg.ScreenHeight - pauseMenuH) / 2
 
 	pm := &PauseMenu{
-		options: newOptionsModal(),
+		options:  newOptionsModal(),
+		controls: newControlsModal(),
 	}
 
 	pm.modal = minui.NewModal("pause_menu", "Paused", pauseMenuW, pauseMenuH)
@@ -56,8 +58,14 @@ func newPauseMenu() *PauseMenu {
 	optionsBtn.OnClick = func() { pm.options.Open() }
 	pm.modal.AddChild(optionsBtn)
 
+	controlsBtn := minui.NewButton("pause_controls", "Controls")
+	controlsBtn.SetPosition(btnX, 40+2*(btnH+12))
+	controlsBtn.SetSize(btnW, btnH)
+	controlsBtn.OnClick = func() { pm.controls.Open() }
+	pm.modal.AddChild(controlsBtn)
+
 	titleBtn := minui.NewButton("pause_title", "Return to Title")
-	titleBtn.SetPosition(btnX, 40+2*(btnH+12))
+	titleBtn.SetPosition(btnX, 40+3*(btnH+12))
 	titleBtn.SetSize(btnW, btnH)
 	titleBtn.OnClick = func() {
 		pm.Visible = false
@@ -68,7 +76,7 @@ func newPauseMenu() *PauseMenu {
 	pm.modal.AddChild(titleBtn)
 
 	closeBtn := minui.NewButton("pause_close", "Close")
-	closeBtn.SetPosition(btnX, 40+3*(btnH+12))
+	closeBtn.SetPosition(btnX, 40+4*(btnH+12))
 	closeBtn.SetSize(btnW, btnH)
 	closeBtn.OnClick = func() { pm.Visible = false }
 	pm.modal.AddChild(closeBtn)
@@ -86,6 +94,10 @@ func (pm *PauseMenu) Update() {
 		pm.options.Update()
 		return
 	}
+	if pm.controls.Visible {
+		pm.controls.Update()
+		return
+	}
 	pm.modal.Update()
 }
 
@@ -95,4 +107,5 @@ func (pm *PauseMenu) Draw(screen *ebiten.Image) {
 	}
 	pm.modal.Draw(screen)
 	pm.options.Draw(screen)
+	pm.controls.Draw(screen)
 }
