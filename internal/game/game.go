@@ -8,6 +8,7 @@ import (
 	"github.com/mechanical-lich/spaceplant/internal/factory"
 	"github.com/mechanical-lich/spaceplant/internal/keybindings"
 	"github.com/mechanical-lich/spaceplant/internal/lore"
+	"github.com/mechanical-lich/spaceplant/internal/scenario"
 	"github.com/mechanical-lich/spaceplant/internal/skill"
 	"github.com/mechanical-lich/spaceplant/internal/wincondition"
 	"github.com/mechanical-lich/spaceplant/internal/world"
@@ -35,9 +36,10 @@ func LoadData() error {
 	if err := ccconfig.Load("data/character_creator_config.json"); err != nil {
 		return err
 	}
-	if err := wincondition.Load("data/win_conditions/default.json"); err != nil {
+	if err := scenario.Load("data/scenarios"); err != nil {
 		return err
 	}
+	wincondition.LoadFromRules(scenario.Active().WinConditions)
 	lore.LoadNameData("data/name_data.json")
 	return LoadAssets()
 }
@@ -61,9 +63,10 @@ func LoadDataHeadless() error {
 	if err := ccconfig.Load("data/character_creator_config.json"); err != nil {
 		return err
 	}
-	if err := wincondition.Load("data/win_conditions/default.json"); err != nil {
+	if err := scenario.Load("data/scenarios"); err != nil {
 		return err
 	}
+	wincondition.LoadFromRules(scenario.Active().WinConditions)
 	if err := world.LoadTileDefinitions("data/tile_definitions.json"); err != nil {
 		return err
 	}

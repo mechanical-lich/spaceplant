@@ -22,6 +22,12 @@ func Load(path string) error {
 	return nil
 }
 
+// LoadFromRules installs rs as the active evaluator directly, without reading
+// a file. Used by the scenario system which embeds win conditions inline.
+func LoadFromRules(rs RuleSet) {
+	active = New(rs)
+}
+
 // Active returns the active evaluator. Panics if Load was never called.
 func Active() *Evaluator {
 	if active == nil {

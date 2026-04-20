@@ -13,4 +13,5 @@ A collection of docs, guides, and architecture notes.
 - [Shaders](shaders.md)
 - [Options System](options.md)
 - [Save System](save_system.md)
+- [Scenarios](scenarios.md)
 - [Win Conditions](win_conditions.md)

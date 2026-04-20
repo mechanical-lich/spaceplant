@@ -15,6 +15,8 @@ import (
 	"github.com/mechanical-lich/spaceplant/internal/buildinfo"
 	"github.com/mechanical-lich/spaceplant/internal/config"
 	"github.com/mechanical-lich/spaceplant/internal/lore"
+	"github.com/mechanical-lich/spaceplant/internal/scenario"
+	"github.com/mechanical-lich/spaceplant/internal/wincondition"
 )
 
 const savesDir = "saves"
@@ -58,10 +60,12 @@ type TitleScreenState struct {
 	backFromPlayersBtn *minui.Button
 
 	// New station name input
-	stationNameInput *minui.TextInput
-	randomNameBtn    *minui.Button
-	confirmNameBtn   *minui.Button
-	cancelNameBtn    *minui.Button
+	stationNameInput  *minui.TextInput
+	randomNameBtn     *minui.Button
+	confirmNameBtn    *minui.Button
+	cancelNameBtn     *minui.Button
+	scenarioPicker    *minui.SelectBox
+	scenarioPickerIDs []string // parallel to scenarioPicker items; "" means random
 
 	optionsModal *OptionsModal
 
@@ -125,13 +129,28 @@ func (ts *TitleScreenState) buildMainMenu() {
 	}
 	ts.randomNameBtn = randomNameBtn
 
+	// Scenario picker: "Random" + one entry per enabled scenario.
+	scenarios := scenario.AllEnabled()
+	pickerLabels := make([]string, 0, len(scenarios)+1)
+	ts.scenarioPickerIDs = make([]string, 0, len(scenarios)+1)
+	pickerLabels = append(pickerLabels, "Random")
+	ts.scenarioPickerIDs = append(ts.scenarioPickerIDs, "")
+	for _, s := range scenarios {
+		pickerLabels = append(pickerLabels, s.Name)
+		ts.scenarioPickerIDs = append(ts.scenarioPickerIDs, s.ID)
+	}
+	ts.scenarioPicker = minui.NewSelectBox("scenario_picker", pickerLabels)
+	ts.scenarioPicker.SetPosition(cx-150, 414)
+	ts.scenarioPicker.SetSize(300, 30)
+	ts.scenarioPicker.SelectByIndex(0)
+
 	ts.confirmNameBtn = minui.NewButton("confirm_name", "Generate")
-	ts.confirmNameBtn.SetPosition(cx-80, 360+48)
+	ts.confirmNameBtn.SetPosition(cx-80, 462)
 	ts.confirmNameBtn.SetSize(160, 36)
 	ts.confirmNameBtn.OnClick = func() { ts.generateNewStation() }
 
 	ts.cancelNameBtn = minui.NewButton("cancel_name", "Cancel")
-	ts.cancelNameBtn.SetPosition(cx-80, 360+96)
+	ts.cancelNameBtn.SetPosition(cx-80, 510)
 	ts.cancelNameBtn.SetSize(160, 36)
 	ts.cancelNameBtn.OnClick = func() { ts.screen = screenMain }
 }
@@ -245,6 +264,19 @@ func (ts *TitleScreenState) generateNewStation() {
 	if name == "" {
 		name = fmt.Sprintf("Station %s", generateID()[:4])
 	}
+	idx := ts.scenarioPicker.SelectedIndex
+	if idx > 0 && idx < len(ts.scenarioPickerIDs) {
+		if err := scenario.SelectByID(ts.scenarioPickerIDs[idx]); err != nil {
+			ts.errMsg = err.Error()
+			return
+		}
+	} else {
+		if err := scenario.SelectRandom(); err != nil {
+			ts.errMsg = err.Error()
+			return
+		}
+	}
+	wincondition.LoadFromRules(scenario.Active().WinConditions)
 	if err := ts.sim.RegenerateLevel(); err != nil {
 		ts.errMsg = "Generate failed: " + err.Error()
 		return
@@ -333,6 +365,7 @@ func (ts *TitleScreenState) updateNewStationName() {
 	}
 	ts.stationNameInput.Update()
 	ts.randomNameBtn.Update()
+	ts.scenarioPicker.Update()
 	ts.confirmNameBtn.Update()
 	ts.cancelNameBtn.Update()
 }
@@ -413,6 +446,8 @@ func (ts *TitleScreenState) drawNewStationName(screen *ebiten.Image) {
 	ts.randomNameBtn.Draw(screen)
 	ts.confirmNameBtn.Draw(screen)
 	ts.cancelNameBtn.Draw(screen)
+	mlge_text.Draw(screen, "Scenario:", 16, cx-150, 394, color.RGBA{180, 200, 180, 255})
+	ts.scenarioPicker.Draw(screen)
 }
 
 func (ts *TitleScreenState) drawStationBrowser(screen *ebiten.Image) {

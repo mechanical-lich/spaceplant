@@ -9,16 +9,13 @@ import (
 	"github.com/mechanical-lich/spaceplant/internal/component"
 	"github.com/mechanical-lich/spaceplant/internal/factory"
 	"github.com/mechanical-lich/spaceplant/internal/generation"
+	"github.com/mechanical-lich/spaceplant/internal/scenario"
 	"github.com/mechanical-lich/spaceplant/internal/utility"
 	"github.com/mechanical-lich/spaceplant/internal/world"
 )
 
-const hostileMax = 20
 const crewInitial = 10
-const hostileInitial = 15
 
-var hostiles = []string{"creeper", "viner", "scythe", "scrambler", "spitter"}
-var rareHostiles = []string{"abomination", "spreader", "ingrained_spreader", "massive_spreader"}
 var crew = []string{"crewmember", "officer"}
 
 type GameMaster struct {
@@ -51,7 +48,8 @@ func (gm *GameMaster) Init(l *world.Level, z int) {
 		}
 	}
 
-	for i := 0; i < hostileInitial; i++ {
+	s := scenario.Active()
+	for i := 0; i < s.HostileInitial; i++ {
 		x := rand.Intn(l.Width)
 		y := rand.Intn(l.Height)
 		tile := l.Level.GetTilePtr(x, y, z)
@@ -69,9 +67,9 @@ func (gm *GameMaster) Init(l *world.Level, z int) {
 			continue
 		}
 
-		blueprint := hostiles[utility.GetRandom(0, len(hostiles))]
+		blueprint := s.Hostiles[utility.GetRandom(0, len(s.Hostiles))]
 		if utility.GetRandom(0, 30) == 0 {
-			blueprint = rareHostiles[utility.GetRandom(0, len(rareHostiles))]
+			blueprint = s.RareHostiles[utility.GetRandom(0, len(s.RareHostiles))]
 		}
 		food, err := factory.Create(blueprint, x, y)
 		if err == nil {
@@ -180,19 +178,18 @@ func createKeyEntity(l *world.Level, x, y, z int, keyID string) {
 
 // Update Update the game master
 func (gm *GameMaster) Update(l *world.Level, z, pX, pY int) {
+	s := scenario.Active()
 	hostileCount := 0
 
-	// Random chance to spawn in a new enemy
-	if utility.GetRandom(0, 5) > 3 {
-		// Gather stats
+	spawnRoll := float64(utility.GetRandom(0, 100)) / 100.0
+	if spawnRoll < s.SpawnChance {
 		for _, e := range l.Entities {
 			if e.HasComponent("HostileAI") {
 				hostileCount++
 			}
 		}
 
-		// Handle hostile count
-		if hostileCount < hostileMax {
+		if hostileCount < s.HostileMax {
 			x := rand.Intn(l.Width)
 			y := rand.Intn(l.Height)
 			tile := l.Level.GetTilePtr(x, y, z)
@@ -211,10 +208,10 @@ func (gm *GameMaster) Update(l *world.Level, z, pX, pY int) {
 				}
 			}
 
-			blueprint := hostiles[utility.GetRandom(0, len(hostiles))]
+			blueprint := s.Hostiles[utility.GetRandom(0, len(s.Hostiles))]
 
 			if utility.GetRandom(0, 20) == 0 {
-				blueprint = rareHostiles[utility.GetRandom(0, len(rareHostiles))]
+				blueprint = s.RareHostiles[utility.GetRandom(0, len(s.RareHostiles))]
 			}
 			e, err := factory.Create(blueprint, x, y)
 			if err == nil {
