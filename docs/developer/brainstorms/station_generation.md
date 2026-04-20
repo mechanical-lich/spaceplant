@@ -1,6 +1,13 @@
 New station variables:
 - Crew capacity (determines quarters)
+    - Determines starting crew count.  One per quarters/bunk
 - Science lab count
+    - Determines how many spawn as researchers
 - Med count
+    - Determines how many spawn as nurses/doctors
+- Engineering capacity
+    - Determines how many spawn as engineers
+- Security capacity
+    - Determines how many spawn as security
 - Life Pod Bay count
-- 
+- Self Destruct Enabled

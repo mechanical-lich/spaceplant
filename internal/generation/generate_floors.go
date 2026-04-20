@@ -2,8 +2,43 @@ package generation
 
 import (
 	"github.com/mechanical-lich/spaceplant/internal/config"
+	"github.com/mechanical-lich/spaceplant/internal/stationconfig"
 	"github.com/mechanical-lich/spaceplant/internal/world"
 )
+
+// applyStationConfig stamps config-driven RequiredRoomCounts onto the relevant theme slots.
+// FloorStack indices: 0=Engineering, 1=Logistics, 2=Habitation, 3=Commerce, 4=Science, 5=Command.
+func applyStationConfig(themes *[]FloorTheme, cfg stationconfig.Config) {
+	set := func(idx int, tag string, count int) {
+		if idx >= len(*themes) {
+			return
+		}
+		t := &(*themes)[idx]
+		if t.RequiredRoomCounts == nil {
+			t.RequiredRoomCounts = make(map[string]int)
+		}
+		if count > 0 {
+			t.RequiredRoomCounts[tag] = count
+		}
+	}
+
+	// Engineering floor (z=0)
+	set(0, "engineering_workshop", cfg.EngineeringCapacity)
+	set(0, "life_pod_bay", cfg.LifePodBayCount)
+	if cfg.SelfDestructEnabled {
+		set(0, "self_destruct_room", 1)
+	}
+
+	// Habitation floor (z=2)
+	set(2, "crew_quarters", cfg.CrewCapacity)
+
+	// Science floor (z=4)
+	set(4, "general_lab", cfg.ScienceLabCount)
+	set(4, "medical_bay", cfg.MedCount)
+
+	// Command floor (z=5)
+	set(5, "security_office", cfg.SecurityCapacity)
+}
 
 // FloorResult holds the generated rooms for one floor after generation and population.
 type FloorResult struct {
@@ -19,7 +54,12 @@ type FloorResult struct {
 // It returns a FloorResult per floor so callers can run population passes afterward.
 func GenerateFloors(l *world.Level) []FloorResult {
 	numFloors := l.Depth
-	themes := FloorStack
+	cfg := stationconfig.Get()
+
+	// Build per-floor theme copies with config-driven RequiredRoomCounts applied.
+	themes := make([]FloorTheme, len(FloorStack))
+	copy(themes, FloorStack)
+	applyStationConfig(&themes, cfg)
 
 	results := make([]FloorResult, numFloors)
 

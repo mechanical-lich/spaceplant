@@ -73,7 +73,10 @@
         "AppearanceComponent": {
             "SpriteX": 352,
             "SpriteY": 0,
-            "Resource": "map"
+            "SpriteWidth": 32,
+            "SpriteHeight": 48,
+            "Resource": "map",
+            "SpriteOffsetY": -16
         },
         "AsciiAppearanceComponent": {
             "Character": "D",
@@ -186,7 +189,10 @@
         "AppearanceComponent": {
             "SpriteX": 576,
             "SpriteY": 0,
-            "Resource": "map"
+            "SpriteWidth": 32,
+            "SpriteHeight": 48,
+            "Resource": "map",
+            "SpriteOffsetY": -16
         },
         "AsciiAppearanceComponent": {
             "Character": "M",

@@ -10,11 +10,12 @@ import (
 	"github.com/mechanical-lich/spaceplant/internal/factory"
 	"github.com/mechanical-lich/spaceplant/internal/generation"
 	"github.com/mechanical-lich/spaceplant/internal/scenario"
+	"github.com/mechanical-lich/spaceplant/internal/stationconfig"
 	"github.com/mechanical-lich/spaceplant/internal/utility"
 	"github.com/mechanical-lich/spaceplant/internal/world"
 )
 
-const crewInitial = 10
+// crewInitial is now read from stationconfig at runtime.
 
 var crew = []string{"crewmember", "officer"}
 
@@ -23,7 +24,7 @@ type GameMaster struct {
 
 // Init Initial the game master
 func (gm *GameMaster) Init(l *world.Level, z int) {
-	for i := 0; i < crewInitial; i++ {
+	for i := 0; i < stationconfig.Get().CrewCapacity; i++ {
 		x := rand.Intn(l.Width)
 		y := rand.Intn(l.Height)
 		tile := l.Level.GetTilePtr(x, y, z)
