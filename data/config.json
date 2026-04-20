@@ -6,6 +6,7 @@
     "screenWidth": 1200,
     "screenHeight": 816,
     "title": "Space Plant!",
+    "fullscreen": false,
     "blueprintPath": "data/blueprints",
     "lighting": true,
     "colorShading": false,

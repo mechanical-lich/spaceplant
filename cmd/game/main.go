@@ -5,6 +5,7 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/mechanical-lich/mlge/client"
 	"github.com/mechanical-lich/mlge/ecs"
 	"github.com/mechanical-lich/mlge/simulation"
@@ -47,6 +48,7 @@ func main() {
 
 	clientState := game.NewTitleScreenState(sim, simState, cliT)
 	cfg := config.Global()
+	ebiten.SetFullscreen(cfg.Fullscreen)
 	c := client.NewClient(cliT, codec, clientState, sim, func() []*ecs.Entity { return sim.Level.Entities }, client.ClientConfig{
 		ScreenWidth:  cfg.ScreenWidth,
 		ScreenHeight: cfg.ScreenHeight,

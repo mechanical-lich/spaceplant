@@ -20,6 +20,7 @@ type OptionsModal struct {
 	pressDelayInput  *minui.TextInput
 	renderScaleInput *minui.TextInput
 	npcDelayInput    *minui.TextInput
+	fullscreenToggle *minui.Toggle
 
 	saveBtn   *minui.Button
 	statusMsg string
@@ -31,14 +32,13 @@ func newOptionsModal() *OptionsModal {
 	cfg := config.Global()
 
 	const (
-		modalW  = 360
-		modalH  = 320
-		labelX  = 20
-		fieldX  = 180
-		fieldW  = 140
-		fieldH  = 28
-		startY  = 50
-		rowGap  = 44
+		modalW = 360
+		modalH = 368
+		fieldX = 180
+		fieldW = 140
+		fieldH = 28
+		startY = 50
+		rowGap = 44
 	)
 
 	cx := cfg.ScreenWidth/2 - modalW/2
@@ -48,7 +48,7 @@ func newOptionsModal() *OptionsModal {
 	m.SetPosition(cx, cy)
 	m.Closeable = false
 
-	makeInput := func(id string, val string, row int) *minui.TextInput {
+	makeInput := func(id, val string, row int) *minui.TextInput {
 		ti := minui.NewTextInput(id, "")
 		ti.Text = val
 		ti.SetPosition(fieldX, startY+row*rowGap)
@@ -62,13 +62,19 @@ func newOptionsModal() *OptionsModal {
 	renderScaleInput := makeInput("opt_render_scale", fmt.Sprintf("%.1f", cfg.RenderScale), 2)
 	npcDelayInput := makeInput("opt_npc_delay", strconv.Itoa(cfg.NpcTurnDelayTicks), 3)
 
+	fsToggle := minui.NewToggle("opt_fullscreen", "")
+	fsToggle.On = cfg.Fullscreen
+	fsToggle.SetPosition(fieldX, startY+4*rowGap)
+	fsToggle.SetSize(fieldH*2, fieldH) // compact square-ish toggle
+	m.AddChild(fsToggle)
+
 	saveBtn := minui.NewButton("opt_save", "Save")
-	saveBtn.SetPosition(modalW/2-110, startY+4*rowGap+8)
+	saveBtn.SetPosition(modalW/2-110, startY+5*rowGap+8)
 	saveBtn.SetSize(100, 32)
 	m.AddChild(saveBtn)
 
 	closeBtn := minui.NewButton("opt_close", "Close")
-	closeBtn.SetPosition(modalW/2+10, startY+4*rowGap+8)
+	closeBtn.SetPosition(modalW/2+10, startY+5*rowGap+8)
 	closeBtn.SetSize(100, 32)
 	m.AddChild(closeBtn)
 
@@ -78,6 +84,7 @@ func newOptionsModal() *OptionsModal {
 		pressDelayInput:  pressDelayInput,
 		renderScaleInput: renderScaleInput,
 		npcDelayInput:    npcDelayInput,
+		fullscreenToggle: fsToggle,
 		saveBtn:          saveBtn,
 	}
 
@@ -102,6 +109,8 @@ func (om *OptionsModal) apply() {
 	if v, err := strconv.Atoi(om.npcDelayInput.Text); err == nil {
 		cfg.NpcTurnDelayTicks = v
 	}
+	cfg.Fullscreen = om.fullscreenToggle.On
+	ebiten.SetFullscreen(cfg.Fullscreen)
 
 	if err := config.Save(); err != nil {
 		log.Printf("options save failed: %v", err)
@@ -117,6 +126,7 @@ func (om *OptionsModal) Open() {
 	om.pressDelayInput.Text = strconv.Itoa(cfg.PressDelay)
 	om.renderScaleInput.Text = fmt.Sprintf("%.1f", cfg.RenderScale)
 	om.npcDelayInput.Text = strconv.Itoa(cfg.NpcTurnDelayTicks)
+	om.fullscreenToggle.On = cfg.Fullscreen
 	om.statusMsg = ""
 	om.modal.SetVisible(true)
 	om.Visible = true
@@ -142,11 +152,11 @@ func (om *OptionsModal) Draw(screen *ebiten.Image) {
 
 	cfg := config.Global()
 	cx := cfg.ScreenWidth/2 - 360/2
-	cy := cfg.ScreenHeight/2 - 320/2
+	cy := cfg.ScreenHeight/2 - 368/2
 
 	labelColor := color.RGBA{180, 200, 180, 255}
 	const fontSize = 13
-	const titleBarH = 30 // matches minui.Modal titleBarHeight
+	const titleBarH = 30
 	drawLabel := func(text string, row int) {
 		mlge_text.Draw(screen, text, fontSize, cx+20, cy+titleBarH+50+row*44+8, labelColor)
 	}
@@ -154,8 +164,9 @@ func (om *OptionsModal) Draw(screen *ebiten.Image) {
 	drawLabel("Press Delay (ticks):", 1)
 	drawLabel("Render Scale:", 2)
 	drawLabel("NPC Turn Delay:", 3)
+	drawLabel("Fullscreen:", 4)
 
 	if om.statusMsg != "" {
-		mlge_text.Draw(screen, om.statusMsg, fontSize, cx+20, cy+titleBarH+262, color.RGBA{120, 200, 120, 255})
+		mlge_text.Draw(screen, om.statusMsg, fontSize, cx+20, cy+titleBarH+50+5*44+8, color.RGBA{120, 200, 120, 255})
 	}
 }

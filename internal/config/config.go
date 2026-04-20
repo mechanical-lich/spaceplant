@@ -15,6 +15,7 @@ type Config struct {
 	ScreenWidth            int     `json:"screenWidth"`            // Total window width
 	ScreenHeight           int     `json:"screenHeight"`           // Total window height
 	Title                  string  `json:"title"`                  // Window title
+	Fullscreen             bool    `json:"fullscreen"`             // Whether to start in fullscreen mode
 	BlueprintPath          string  `json:"blueprintPath"`          // Path to blueprint directory
 	Lighting               bool    `json:"lighting"`               // Whether to render fog-of-war lighting
 	ColorShading           bool    `json:"colorShading"`           // Whether to apply colour shading to sprites
