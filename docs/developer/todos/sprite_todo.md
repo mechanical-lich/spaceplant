@@ -6,6 +6,20 @@ Weapons with real sprites use the `weapons` sheet. All named sprite positions be
 
 ---
 
+## Weapons — Ranged
+
+All currently on the `weapons` sheet with placeholder positions (borrowing existing weapon sprites).
+
+| Blueprint ID | Display Name | Notes |
+|---|---|---|
+| `pulse_rifle` | M41A Pulse Rifle | Colonial Marine bullpup rifle. Caseless drum mag, digital round counter. |
+| `smartgun` | M56 Smartgun | Body-mounted gyro-stabilized MG. Arm brace, large drum, optical sight. |
+| `tactical_shotgun` | Tactical Shotgun | Military pump-action. Polymer frame, extended tube, pistol grip. |
+| `heavy_pistol` | Heavy Pistol | Large-frame revolver-style .44. Wide barrel, chunky grip. |
+| `rivet_gun` | Rivet Gun | Industrial tool. Boxy, yellow/grey body, wide muzzle. |
+
+---
+
 ## Weapons — Melee
 
 All currently on the `weapons` sheet with placeholder positions.
@@ -17,6 +31,8 @@ All currently on the `weapons` sheet with placeholder positions.
 | `crowbar` | Crowbar | Heavy pry bar. Bludgeoning. |
 | `fire_axe` | Fire Axe | Large axe, red handle. Slashing. |
 | `stun_baton` | Stun Baton | Electric baton, glowing tip. Electric damage. Applies slowed on hit. |
+| `plasma_cutter` | Plasma Cutter | Heavy industrial cutter. Wide grip, glowing pink/magenta beam emitter. |
+| `electric_prod` | Electric Prod | Long pole with pronged tip, yellow arc markings. |
 
 ---
 
@@ -28,6 +44,25 @@ All three ammo types currently share `SpriteX: 0` on the `ammo` sheet — 5.56 a
 |---|---|---|
 | `5_56_rounds` | 5.56 Magazine | Rifle magazine, rectangular. Currently shares 9mm sprite. |
 | `12g_shells` | 12g Shells | Shotgun shell tube, orange/red. Currently shares 9mm sprite. |
+| `10mm_caseless_drum` | 10mm Caseless Drum | Wide cylindrical drum mag, grey/blue. Currently shares 9mm sprite. |
+| `44_rounds` | .44 Speedloader | Circular speedloader with large rounds. Currently shares 9mm sprite. |
+| `rivet_pack` | Rivet Pack | Strip/coil of steel rivets, industrial yellow. Currently shares 9mm sprite. |
+| `12g_slugs` | 12g Slugs | Tube of solid slugs, darker than buckshot shells. Currently shares 9mm sprite. |
+
+---
+
+## Armor
+
+New armor items use placeholder positions borrowed from existing armor sheet sprites.
+
+| Blueprint ID | Display Name | Slot | Notes |
+|---|---|---|---|
+| `tactical_vest` | Tactical Vest | torso | Plate carrier with front/back trauma plates. OD green or tan. |
+| `marine_armor` | Marine Battle Armor | torso | Full composite plates, Colonial Marine markings, dark olive. |
+| `combat_trousers` | Combat Trousers | legs | Armored knee/thigh panels over canvas. Matches marine armor palette. |
+| `marine_helmet` | Marine Helmet | head | Composite combat helmet, integrated HUD rail, visor mount. |
+| `eva_helmet` | EVA Helmet | head | Sealed bubble visor, white/grey, built-in lamp on forehead. |
+| `combat_boots` | Combat Boots | feet | Heavy steel-toe composite boots, black. Matches marine armor. |
 
 ---
 

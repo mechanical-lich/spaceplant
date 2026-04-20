@@ -131,12 +131,15 @@ func (l *Level) Render(aX, aY, z, width, height int, blind, centered bool) *ebit
 	}
 	if l.shader != nil {
 		w, h := output.Bounds().Dx(), output.Bounds().Dy()
-		dst := ebiten.NewImage(w, h)
+		if l.shaderDst == nil || l.shaderDst.Bounds().Dx() != w || l.shaderDst.Bounds().Dy() != h {
+			l.shaderDst = ebiten.NewImage(w, h)
+		}
+		l.shaderDst.Clear()
 		op := &ebiten.DrawRectShaderOptions{}
 		op.Images[0] = output
 		op.Uniforms = map[string]any{"Intensity": float32(config.Global().CRTIntensity)}
-		dst.DrawRectShader(w, h, l.shader, op)
-		return dst
+		l.shaderDst.DrawRectShader(w, h, l.shader, op)
+		return l.shaderDst
 	}
 
 	return output

@@ -149,6 +149,90 @@
             "Index": 4
         }
     },
+    "tactical_vest": {
+        "DescriptionComponent": {
+            "Name": "tactical_vest",
+            "Faction": "item",
+            "PassOverDescription": [
+                "A tactical vest lies here.",
+                "You spot a plate carrier on the floor.",
+                "Someone left a tactical vest here."
+            ]
+        },
+        "AsciiAppearanceComponent": {
+            "Character": "[",
+            "R": 80,
+            "G": 100,
+            "B": 80
+        },
+        "AppearanceComponent": {
+            "Resource": "mid_shirt",
+            "SpriteX": 128,
+            "SpriteY": 0,
+            "R": 80,
+            "G": 100,
+            "B": 80,
+            "Frames": 1,
+            "SpriteWidth": 32,
+            "SpriteHeight": 48,
+            "SpriteOffsetY": -16
+        },
+        "ItemComponent": {
+            "Value": 9,
+            "Slot": "torso",
+            "Name": "Tactical Vest",
+            "Description": "Lightweight plate carrier with trauma plates. Better protection than the security shirt without the bulk of full combat armor."
+        },
+        "ArmorComponent": {
+            "StoppingPower": 9
+        },
+        "WearableAppearanceComponent": {
+            "Layer": "shirt",
+            "Index": 4
+        }
+    },
+    "marine_armor": {
+        "DescriptionComponent": {
+            "Name": "marine_armor",
+            "Faction": "item",
+            "PassOverDescription": [
+                "Marine battle armor lies here.",
+                "You spot a set of colonial marine body armor.",
+                "Someone dropped marine battle armor here."
+            ]
+        },
+        "AsciiAppearanceComponent": {
+            "Character": "[",
+            "R": 60,
+            "G": 80,
+            "B": 60
+        },
+        "AppearanceComponent": {
+            "Resource": "mid_shirt",
+            "SpriteX": 160,
+            "SpriteY": 0,
+            "R": 60,
+            "G": 80,
+            "B": 60,
+            "Frames": 1,
+            "SpriteWidth": 32,
+            "SpriteHeight": 48,
+            "SpriteOffsetY": -16
+        },
+        "ItemComponent": {
+            "Value": 16,
+            "Slot": "torso",
+            "Name": "Marine Battle Armor",
+            "Description": "Full composite plate system worn by Colonial Marines. Ceramic trauma plates front and back. The best protection available."
+        },
+        "ArmorComponent": {
+            "StoppingPower": 18
+        },
+        "WearableAppearanceComponent": {
+            "Layer": "shirt",
+            "Index": 5
+        }
+    },
     "combat_armor": {
         "DescriptionComponent": {
             "Name": "Combat Armor",
@@ -305,6 +389,48 @@
             "Index": 3
         }
     },
+    "combat_trousers": {
+        "DescriptionComponent": {
+            "Name": "combat_trousers",
+            "Faction": "item",
+            "PassOverDescription": [
+                "A pair of combat trousers lies here.",
+                "You spot armored combat trousers.",
+                "Someone left combat trousers here."
+            ]
+        },
+        "AsciiAppearanceComponent": {
+            "Character": "[",
+            "R": 80,
+            "G": 100,
+            "B": 80
+        },
+        "AppearanceComponent": {
+            "Resource": "mid_pants",
+            "SpriteX": 128,
+            "SpriteY": 0,
+            "R": 80,
+            "G": 100,
+            "B": 80,
+            "Frames": 1,
+            "SpriteWidth": 32,
+            "SpriteHeight": 48,
+            "SpriteOffsetY": -16
+        },
+        "ItemComponent": {
+            "Value": 8,
+            "Slot": "legs",
+            "Name": "Combat Trousers",
+            "Description": "Ballistic-rated leg panels over heavy canvas. Colonial Marine standard issue."
+        },
+        "ArmorComponent": {
+            "StoppingPower": 9
+        },
+        "WearableAppearanceComponent": {
+            "Layer": "pants",
+            "Index": 4
+        }
+    },
     "security_trousers": {
         "DescriptionComponent": {
             "Name": "Security Trousers",
@@ -449,6 +575,48 @@
         },
         "ArmorComponent": {
             "StoppingPower": 6
+        },
+        "WearableAppearanceComponent": {
+            "Layer": "shoes",
+            "Index": 3
+        }
+    },
+    "combat_boots": {
+        "DescriptionComponent": {
+            "Name": "combat_boots",
+            "Faction": "item",
+            "PassOverDescription": [
+                "A pair of combat boots lies here.",
+                "You spot heavy military boots.",
+                "Someone left combat boots here."
+            ]
+        },
+        "AsciiAppearanceComponent": {
+            "Character": "[",
+            "R": 60,
+            "G": 60,
+            "B": 60
+        },
+        "AppearanceComponent": {
+            "Resource": "mid_shoes",
+            "SpriteX": 96,
+            "SpriteY": 0,
+            "R": 60,
+            "G": 60,
+            "B": 60,
+            "Frames": 1,
+            "SpriteWidth": 32,
+            "SpriteHeight": 48,
+            "SpriteOffsetY": -16
+        },
+        "ItemComponent": {
+            "Value": 7,
+            "Slot": "feet",
+            "Name": "Combat Boots",
+            "Description": "Steel-toed composite military boots. Reinforced ankle support and ballistic toe cap."
+        },
+        "ArmorComponent": {
+            "StoppingPower": 8
         },
         "WearableAppearanceComponent": {
             "Layer": "shoes",
@@ -633,6 +801,90 @@
         "WearableAppearanceComponent": {
             "Layer": "headwear",
             "Index": 4
+        }
+    },
+    "marine_helmet": {
+        "DescriptionComponent": {
+            "Name": "marine_helmet",
+            "Faction": "item",
+            "PassOverDescription": [
+                "A marine helmet rests on the floor.",
+                "You spot a colonial marine helmet.",
+                "Someone dropped a marine helmet."
+            ]
+        },
+        "AsciiAppearanceComponent": {
+            "Character": "[",
+            "R": 80,
+            "G": 100,
+            "B": 80
+        },
+        "AppearanceComponent": {
+            "Resource": "mid_headwear",
+            "SpriteX": 96,
+            "SpriteY": 0,
+            "R": 80,
+            "G": 100,
+            "B": 80,
+            "Frames": 1,
+            "SpriteWidth": 32,
+            "SpriteHeight": 48,
+            "SpriteOffsetY": -16
+        },
+        "ItemComponent": {
+            "Value": 10,
+            "Slot": "head",
+            "Name": "Marine Helmet",
+            "Description": "Colonial Marine composite combat helmet. Integrated HUD mount and visor. Superior head protection."
+        },
+        "ArmorComponent": {
+            "StoppingPower": 10
+        },
+        "WearableAppearanceComponent": {
+            "Layer": "headwear",
+            "Index": 3
+        }
+    },
+    "eva_helmet": {
+        "DescriptionComponent": {
+            "Name": "eva_helmet",
+            "Faction": "item",
+            "PassOverDescription": [
+                "An EVA helmet lies here.",
+                "You spot a sealed EVA helmet.",
+                "Someone left an EVA helmet here."
+            ]
+        },
+        "AsciiAppearanceComponent": {
+            "Character": "[",
+            "R": 220,
+            "G": 220,
+            "B": 255
+        },
+        "AppearanceComponent": {
+            "Resource": "mid_headwear",
+            "SpriteX": 64,
+            "SpriteY": 0,
+            "R": 220,
+            "G": 220,
+            "B": 255,
+            "Frames": 1,
+            "SpriteWidth": 32,
+            "SpriteHeight": 48,
+            "SpriteOffsetY": -16
+        },
+        "ItemComponent": {
+            "Value": 8,
+            "Slot": "head",
+            "Name": "EVA Helmet",
+            "Description": "Sealed vacuum-rated helmet. Built-in lamp and comms. Moderate protection but rated for hard vacuum."
+        },
+        "ArmorComponent": {
+            "StoppingPower": 7
+        },
+        "WearableAppearanceComponent": {
+            "Layer": "headwear",
+            "Index": 2
         }
     },
     "helmet": {

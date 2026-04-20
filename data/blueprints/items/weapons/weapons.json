@@ -578,5 +578,397 @@
                 "flamethrower"
             ]
         }
+    },
+    "smartgun": {
+        "DescriptionComponent": {
+            "Name": "smartgun",
+            "Faction": "item",
+            "PassOverDescription": [
+                "A smartgun rig lies here.",
+                "You spot a M56 smartgun on the floor.",
+                "Someone left a smartgun rig here."
+            ]
+        },
+        "AsciiAppearanceComponent": {
+            "Character": ")",
+            "R": 80,
+            "G": 160,
+            "B": 80
+        },
+        "AppearanceComponent": {
+            "Resource": "weapons",
+            "SpriteX": 128,
+            "SpriteY": 0,
+            "R": 80,
+            "G": 160,
+            "B": 80,
+            "Frames": 1,
+            "SpriteWidth": 32,
+            "SpriteHeight": 48,
+            "SpriteOffsetY": -16
+        },
+        "ItemComponent": {
+            "Value": 14,
+            "Slot": "hand",
+            "Name": "M56 Smartgun",
+            "Description": "Body-mounted autonomous targeting gun. Gyro-stabilized. F=fire, Shift+F=aimed burst. Motion tracker linked."
+        },
+        "WeaponComponent": {
+            "Penetration": 18,
+            "CombatSkillModifier": 15,
+            "Range": 14,
+            "Ranged": true,
+            "AutoRounds": 6,
+            "AmmoType": "10mm_caseless",
+            "Magazine": 500,
+            "MaxMagazine": 500,
+            "DamageType": "ballistic",
+            "RangeBands": [
+                {
+                    "max_dist": 1,
+                    "cs_mod": -10
+                },
+                {
+                    "max_dist": 6,
+                    "cs_mod": 10
+                },
+                {
+                    "max_dist": 10,
+                    "cs_mod": 5
+                },
+                {
+                    "max_dist": 14,
+                    "cs_mod": -5
+                }
+            ]
+        }
+    },
+    "pulse_rifle": {
+        "DescriptionComponent": {
+            "Name": "pulse_rifle",
+            "Faction": "item",
+            "PassOverDescription": [
+                "A pulse rifle lies here.",
+                "You spot an M41A pulse rifle on the floor.",
+                "Someone left a pulse rifle here."
+            ]
+        },
+        "AsciiAppearanceComponent": {
+            "Character": ")",
+            "R": 140,
+            "G": 140,
+            "B": 160
+        },
+        "AppearanceComponent": {
+            "Resource": "weapons",
+            "SpriteX": 128,
+            "SpriteY": 0,
+            "R": 140,
+            "G": 140,
+            "B": 160,
+            "Frames": 1,
+            "SpriteWidth": 32,
+            "SpriteHeight": 48,
+            "SpriteOffsetY": -16
+        },
+        "ItemComponent": {
+            "Value": 12,
+            "Slot": "hand",
+            "Name": "M41A Pulse Rifle",
+            "Description": "Standard Colonial Marine rifle. Caseless 10mm with underslung 30mm grenade launcher. F=fire, Shift+F=aimed, G=burst."
+        },
+        "WeaponComponent": {
+            "Penetration": 16,
+            "CombatSkillModifier": 8,
+            "Range": 12,
+            "Ranged": true,
+            "BurstSize": 4,
+            "AmmoType": "10mm_caseless",
+            "Magazine": 99,
+            "MaxMagazine": 99,
+            "DamageType": "ballistic",
+            "RangeBands": [
+                {
+                    "max_dist": 1,
+                    "cs_mod": -10
+                },
+                {
+                    "max_dist": 5,
+                    "cs_mod": 8
+                },
+                {
+                    "max_dist": 9,
+                    "cs_mod": 2
+                },
+                {
+                    "max_dist": 12,
+                    "cs_mod": -8
+                }
+            ]
+        }
+    },
+    "tactical_shotgun": {
+        "DescriptionComponent": {
+            "Name": "tactical_shotgun",
+            "Faction": "item",
+            "PassOverDescription": [
+                "A tactical shotgun lies here.",
+                "You spot a pump-action tactical shotgun.",
+                "Someone dropped a tactical shotgun here."
+            ]
+        },
+        "AsciiAppearanceComponent": {
+            "Character": ")",
+            "R": 100,
+            "G": 100,
+            "B": 120
+        },
+        "AppearanceComponent": {
+            "Resource": "weapons",
+            "SpriteX": 96,
+            "SpriteY": 0,
+            "R": 100,
+            "G": 100,
+            "B": 120,
+            "Frames": 1,
+            "SpriteWidth": 32,
+            "SpriteHeight": 48,
+            "SpriteOffsetY": -16
+        },
+        "ItemComponent": {
+            "Value": 9,
+            "Slot": "hand",
+            "Name": "Tactical Shotgun",
+            "Description": "Military-grade pump action. Polymer frame, extended tube. F=fire spread. Punishing in corridors."
+        },
+        "WeaponComponent": {
+            "Penetration": 22,
+            "CombatSkillModifier": 2,
+            "Range": 6,
+            "Ranged": true,
+            "SpreadAngle": 1,
+            "AmmoType": "12g_slug",
+            "Magazine": 6,
+            "MaxMagazine": 6,
+            "DamageType": "ballistic",
+            "RangeBands": [
+                {
+                    "max_dist": 1,
+                    "cs_mod": 25
+                },
+                {
+                    "max_dist": 3,
+                    "cs_mod": 10
+                },
+                {
+                    "max_dist": 6,
+                    "cs_mod": -20
+                }
+            ]
+        }
+    },
+    "heavy_pistol": {
+        "DescriptionComponent": {
+            "Name": "heavy_pistol",
+            "Faction": "item",
+            "PassOverDescription": [
+                "A heavy pistol lies here.",
+                "You spot a large-caliber handgun on the floor.",
+                "Someone left a heavy pistol here."
+            ]
+        },
+        "AsciiAppearanceComponent": {
+            "Character": ")",
+            "R": 160,
+            "G": 100,
+            "B": 100
+        },
+        "AppearanceComponent": {
+            "Resource": "weapons",
+            "SpriteX": 64,
+            "SpriteY": 0,
+            "R": 160,
+            "G": 100,
+            "B": 100,
+            "Frames": 1,
+            "SpriteWidth": 32,
+            "SpriteHeight": 48,
+            "SpriteOffsetY": -16
+        },
+        "ItemComponent": {
+            "Value": 7,
+            "Slot": "hand",
+            "Name": "Heavy Pistol",
+            "Description": "A .44 magnum-class sidearm. Slow to cycle but hits like a freight loader. F=fire, Shift+R=reload."
+        },
+        "WeaponComponent": {
+            "Penetration": 20,
+            "CombatSkillModifier": -5,
+            "Range": 7,
+            "Ranged": true,
+            "AmmoType": ".44",
+            "Magazine": 6,
+            "MaxMagazine": 6,
+            "DamageType": "ballistic",
+            "RangeBands": [
+                {
+                    "max_dist": 1,
+                    "cs_mod": 15
+                },
+                {
+                    "max_dist": 4,
+                    "cs_mod": 5
+                },
+                {
+                    "max_dist": 7,
+                    "cs_mod": -15
+                }
+            ]
+        }
+    },
+    "plasma_cutter": {
+        "DescriptionComponent": {
+            "Name": "plasma_cutter",
+            "Faction": "item",
+            "PassOverDescription": [
+                "A plasma cutter lies here.",
+                "You spot an industrial plasma cutter.",
+                "Someone left a plasma cutter here."
+            ]
+        },
+        "AsciiAppearanceComponent": {
+            "Character": ")",
+            "R": 255,
+            "G": 80,
+            "B": 200
+        },
+        "AppearanceComponent": {
+            "Resource": "weapons",
+            "SpriteX": 0,
+            "SpriteY": 0,
+            "R": 255,
+            "G": 80,
+            "B": 200,
+            "Frames": 1,
+            "SpriteWidth": 32,
+            "SpriteHeight": 48,
+            "SpriteOffsetY": -16
+        },
+        "ItemComponent": {
+            "Value": 6,
+            "Slot": "hand",
+            "Name": "Plasma Cutter",
+            "Description": "Heavy-duty mining tool repurposed as a weapon. Slow but melts through anything. High energy penetration."
+        },
+        "WeaponComponent": {
+            "Penetration": 24,
+            "CombatSkillModifier": -8,
+            "DamageType": "energy",
+            "ActionCost": 140
+        }
+    },
+    "rivet_gun": {
+        "DescriptionComponent": {
+            "Name": "rivet_gun",
+            "Faction": "item",
+            "PassOverDescription": [
+                "A rivet gun lies here.",
+                "You spot an industrial rivet gun.",
+                "Someone left a rivet gun here."
+            ]
+        },
+        "AsciiAppearanceComponent": {
+            "Character": ")",
+            "R": 180,
+            "G": 140,
+            "B": 80
+        },
+        "AppearanceComponent": {
+            "Resource": "weapons",
+            "SpriteX": 64,
+            "SpriteY": 0,
+            "R": 180,
+            "G": 140,
+            "B": 80,
+            "Frames": 1,
+            "SpriteWidth": 32,
+            "SpriteHeight": 48,
+            "SpriteOffsetY": -16
+        },
+        "ItemComponent": {
+            "Value": 4,
+            "Slot": "hand",
+            "Name": "Rivet Gun",
+            "Description": "Industrial fastener launcher. Short range but punches through light armor. F=fire, Shift+R=reload."
+        },
+        "WeaponComponent": {
+            "Penetration": 17,
+            "CombatSkillModifier": -5,
+            "Range": 4,
+            "Ranged": true,
+            "AmmoType": "rivets",
+            "Magazine": 20,
+            "MaxMagazine": 20,
+            "DamageType": "ballistic",
+            "RangeBands": [
+                {
+                    "max_dist": 1,
+                    "cs_mod": 20
+                },
+                {
+                    "max_dist": 3,
+                    "cs_mod": 0
+                },
+                {
+                    "max_dist": 4,
+                    "cs_mod": -30
+                }
+            ]
+        }
+    },
+    "electric_prod": {
+        "DescriptionComponent": {
+            "Name": "electric_prod",
+            "Faction": "item",
+            "PassOverDescription": [
+                "An electric prod lies here.",
+                "You spot a cattle prod-style shock tool.",
+                "Someone left an electric prod here."
+            ]
+        },
+        "AsciiAppearanceComponent": {
+            "Character": ")",
+            "R": 255,
+            "G": 220,
+            "B": 0
+        },
+        "AppearanceComponent": {
+            "Resource": "weapons",
+            "SpriteX": 320,
+            "SpriteY": 0,
+            "R": 255,
+            "G": 220,
+            "B": 0,
+            "Frames": 1,
+            "SpriteWidth": 32,
+            "SpriteHeight": 48,
+            "SpriteOffsetY": -16
+        },
+        "ItemComponent": {
+            "Value": 5,
+            "Slot": "hand",
+            "Name": "Electric Prod",
+            "Description": "Heavy-duty livestock prod used for moving cargo animals and unruly personnel. Powerful stun on contact."
+        },
+        "WeaponComponent": {
+            "Penetration": 8,
+            "CombatSkillModifier": 0,
+            "DamageType": "electric",
+            "ActionCost": 90,
+            "OnHitCondition": "slowed",
+            "OnHitDuration": 5,
+            "OnHitResistDC": 15,
+            "OnHitCheckStat": "ph"
+        }
     }
 }
