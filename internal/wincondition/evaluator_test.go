@@ -311,10 +311,12 @@ func TestApplyOp(t *testing.T) {
 
 // Loader
 
-func TestLoad_DefaultJSON(t *testing.T) {
-	if err := Load("../../data/win_conditions/default.json"); err != nil {
-		t.Fatalf("Load: %v", err)
-	}
+func TestLoadFromRules_PlantzRules(t *testing.T) {
+	LoadFromRules(RuleSet{Rules: []Rule{
+		{ID: "kill_mother_plant", Trigger: "kill", Blueprint: "mother_plant", Result: ResultWin, Outcome: "extermination"},
+		{ID: "life_pod_escape", Trigger: "interaction", Interaction: "life_pod_escape", Result: ResultWin, Outcome: "escape_selfish"},
+		{ID: "player_death_default", Trigger: "player_death", Result: ResultLose, Outcome: "dead"},
+	}})
 	ev := Active()
 
 	// kill mother_plant → extermination win
@@ -323,7 +325,7 @@ func TestLoad_DefaultJSON(t *testing.T) {
 		t.Errorf("extermination: got %+v ok=%v", rule, ok)
 	}
 
-	// life pod escape (no conditions) → escape_selfish win
+	// life pod escape → escape_selfish win
 	rule, ok = ev.EvalInteraction("life_pod_escape", EvalContext{})
 	if !ok || rule.Outcome != "escape_selfish" || rule.Result != ResultWin {
 		t.Errorf("escape_selfish: got %+v ok=%v", rule, ok)

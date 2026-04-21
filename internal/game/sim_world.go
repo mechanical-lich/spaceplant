@@ -16,6 +16,7 @@ import (
 	"github.com/mechanical-lich/spaceplant/internal/component"
 	"github.com/mechanical-lich/spaceplant/internal/factory"
 	"github.com/mechanical-lich/spaceplant/internal/gamemaster"
+	"github.com/mechanical-lich/spaceplant/internal/scenario"
 	"github.com/mechanical-lich/spaceplant/internal/generation"
 	"github.com/mechanical-lich/spaceplant/internal/skill"
 	"github.com/mechanical-lich/spaceplant/internal/system"
@@ -97,7 +98,7 @@ func NewSimWorld() (*SimWorld, error) {
 	sw.FloorResults = generation.GenerateFloors(sw.Level)
 
 	for z := 0; z < numLevels; z++ {
-		sw.gm.Init(sw.Level, z)
+		sw.gm.Init(sw.Level, z, sw.FloorResults[z])
 		sw.gm.PlaceLockedProgression(sw.Level, pX, pY, z, z+1)
 	}
 
@@ -163,7 +164,7 @@ func (sw *SimWorld) RegenerateLevel() error {
 
 	gm := gamemaster.GameMaster{}
 	for z := 0; z < numLevels; z++ {
-		gm.Init(newLevel, z)
+		gm.Init(newLevel, z, floorResults[z])
 		gm.PlaceLockedProgression(newLevel, pX, pY, z, z+1)
 	}
 
@@ -311,9 +312,27 @@ func (sw *SimWorld) SpawnPlayer(data CharacterData) error {
 	sw.advancedAISystem.Watcher = player
 	sw.Level.AddEntity(player)
 
-	// Spawn initial mother plant on z=0 unless this is a saboteur run.
-	if data.BackgroundID != "saboteur" && !sw.motherPlantExists() {
-		sw.spawnMotherPlant(0)
+	// Spawn scenario boss(es) unless the saboteur background handles placement manually.
+	if data.BackgroundID != "saboteur" {
+		s := scenario.Active()
+		for _, bp := range s.BossSpawns {
+			rule := s.SpawnRules[bp]
+			// Determine which floor to use: first floor matching the rule, default z=0.
+			targetZ := 0
+			for _, fr := range sw.FloorResults {
+				themeName := ""
+				if fr.Theme != nil {
+					themeName = fr.Theme.Name
+				}
+				if rule.FloorMatches(fr.Z, themeName) {
+					targetZ = fr.Z
+					break
+				}
+			}
+			fr := sw.FloorResults[targetZ]
+			candidates := scenario.SpawnTiles(sw.Level, targetZ, fr, rule)
+			sw.spawnBossFromCandidates(bp, targetZ, candidates)
+		}
 	}
 
 	sw.debugWinLocations()
@@ -366,19 +385,37 @@ func (sw *SimWorld) motherPlantExists() bool {
 	return false
 }
 
-// spawnMotherPlant places a mother_plant entity at a random floor tile on floor z.
+// spawnMotherPlant places a mobile_mother_plant at a random floor tile on floor z.
+// Kept for the saboteur background path.
 func (sw *SimWorld) spawnMotherPlant(z int) {
-	for tries := 0; tries < 200; tries++ {
-		x := rand.Intn(sw.Level.Width)
-		y := rand.Intn(sw.Level.Height)
-		tile := sw.Level.Level.GetTilePtr(x, y, z)
-		if tile == nil || tile.IsSolid() || tile.Type == world.TypeOpen {
-			continue
+	sw.spawnBossFromCandidates("mobile_mother_plant", z, nil)
+}
+
+// spawnBossFromCandidates places blueprint at a random tile from candidates.
+// If candidates is nil/empty, falls back to any passable tile on floor z.
+func (sw *SimWorld) spawnBossFromCandidates(blueprint string, z int, candidates [][2]int) {
+	// Build fallback list if no candidates provided.
+	if len(candidates) == 0 {
+		for tries := 0; tries < 200; tries++ {
+			x := rand.Intn(sw.Level.Width)
+			y := rand.Intn(sw.Level.Height)
+			tile := sw.Level.Level.GetTilePtr(x, y, z)
+			if tile == nil || tile.IsSolid() || tile.Type == world.TypeOpen {
+				continue
+			}
+			if sw.Level.GetEntityAt(x, y, z) != nil {
+				continue
+			}
+			candidates = append(candidates, [2]int{x, y})
+			break
 		}
+	}
+	for _, c := range rand.Perm(len(candidates)) {
+		x, y := candidates[c][0], candidates[c][1]
 		if sw.Level.GetEntityAt(x, y, z) != nil {
 			continue
 		}
-		e, err := factory.Create("mobile_mother_plant", x, y)
+		e, err := factory.Create(blueprint, x, y)
 		if err != nil {
 			return
 		}
