@@ -1,6 +1,6 @@
 # Scenarios — Developer Guide
 
-A scenario is the self-contained "threat" for a station run. It controls which monsters spawn, how aggressively, which win/lose rules apply, and which extra skills and backgrounds appear in character creation. One scenario is randomly chosen (or player-selected) when a new station is generated.
+A scenario is the self-contained "threat" for a station run. It controls which monsters spawn, how aggressively, which win/lose rules apply, which extra skills and backgrounds appear in character creation, and where each entity is allowed to spawn. One scenario is randomly chosen (or player-selected) when a new station is generated.
 
 ---
 
@@ -9,10 +9,12 @@ A scenario is the self-contained "threat" for a station run. It controls which m
 | Layer | File |
 |-------|------|
 | Scenario type & fields | `internal/scenario/types.go` |
+| Spawn rule helpers | `internal/scenario/spawn.go` |
 | Loading, selection, singleton | `internal/scenario/loader.go` |
 | Data files | `data/scenarios/*.json` |
 | Wired into startup | `internal/game/game.go` (`LoadData` / `LoadDataHeadless`) |
 | Monster spawning | `internal/gamemaster/gm.go` |
+| Boss spawning | `internal/game/sim_world.go` (`spawnBossFromCandidates`) |
 | Character creator extras | `internal/game/character_creator.go` |
 | New-station picker UI | `internal/game/title_screen.go` |
 
@@ -24,7 +26,7 @@ game.LoadData()
   └── wincondition.LoadFromRules(...)       // installs the scenario's win/lose rules as active
 ```
 
-`scenario.Active()` returns the chosen scenario for the rest of the run. `GameMaster.Init` and `GameMaster.Update` read from it for spawn lists and counts.
+`scenario.Active()` returns the chosen scenario for the rest of the run. `GameMaster.Init` and `GameMaster.Update` read from it for spawn lists, counts, and spawn rules.
 
 ---
 
@@ -37,14 +39,20 @@ game.LoadData()
   "description": "Shown nowhere yet — useful for dev notes.",
   "enabled": true,
 
-  "hostiles":      ["blueprint_id", ...],
-  "rare_hostiles": ["blueprint_id", ...],
+  "hostiles":        ["blueprint_id", ...],
+  "rare_hostiles":   ["blueprint_id", ...],
   "hostile_initial": 15,
-  "hostile_max":    20,
-  "spawn_chance":   0.4,
+  "hostile_max":     20,
+  "spawn_chance":    0.4,
 
   "extra_skills":      ["skill_id", ...],
   "extra_backgrounds": ["background_id", ...],
+
+  "boss_spawns": ["blueprint_id", ...],
+
+  "spawn_rules": {
+    "blueprint_id": { "floors": ["Theme Name"], "rooms": ["room_tag"] }
+  },
 
   "win_conditions": {
     "rules": [ ... ]
@@ -66,7 +74,44 @@ game.LoadData()
 | `spawn_chance` | float64 | Probability (0.0–1.0) that a new hostile spawns each game tick. |
 | `extra_skills` | []string | Skill IDs added to the character creation skill list for this scenario. |
 | `extra_backgrounds` | []string | Background IDs added to the character creation background list. These must already exist in `data/backgrounds/backgrounds.json`. |
-| `win_conditions` | RuleSet | Embedded win/lose rules. Same schema as the old `data/win_conditions/default.json`. See [Win Conditions](win_conditions.md). |
+| `boss_spawns` | []string | Blueprint IDs spawned exactly once at station creation (skipped for the saboteur background, which places its own boss). Placement respects `spawn_rules`. |
+| `spawn_rules` | map[string]SpawnRule | Per-blueprint placement rules. See [Spawn Rules](#spawn-rules) below. |
+| `win_conditions` | RuleSet | Embedded win/lose rules. See [Win Conditions](win_conditions.md). |
+
+---
+
+## Spawn Rules
+
+`spawn_rules` is a map from blueprint ID to a `SpawnRule` object. Both fields are optional lists — omitting or leaving a list empty means "anywhere".
+
+```json
+"spawn_rules": {
+  "my_boss":  { "floors": ["Engineering & Systems"] },
+  "my_grunt": { "rooms": ["crew_quarters", "mess_hall"] },
+  "my_elite": { "floors": ["Science & Research", "Operations & Command"], "rooms": ["general_lab"] },
+  "my_roamer": {}
+}
+```
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `floors` | []string | Floor theme names (e.g. `"Engineering & Systems"`) or floor indices as strings (`"0"`–`"5"`). Empty = any floor. |
+| `rooms` | []string | Room tags (e.g. `"crew_quarters"`, `"medical_bay"`). Empty = anywhere on the allowed floors. |
+
+**Floor theme names** (matching `FloorStack` in `internal/generation/floor_theme.go`):
+
+| Index | Theme Name |
+|-------|-----------|
+| 0 | `Engineering & Systems` |
+| 1 | `Logistics & Industry` |
+| 2 | `Habitation` |
+| 3 | `Commerce & Social` |
+| 4 | `Science & Research` |
+| 5 | `Operations & Command` |
+
+Blueprints with no entry in `spawn_rules` (or an empty rule `{}`) spawn on any floor, anywhere.
+
+At init time, floors that have no valid blueprints after filtering skip hostile spawning entirely — useful for keeping science monsters out of engineering and vice versa.
 
 ---
 
@@ -103,7 +148,7 @@ wincondition.LoadFromRules(scenario.Active().WinConditions)
 
 ## Win Conditions in a Scenario
 
-Win/lose rules are embedded directly in the scenario JSON under `"win_conditions"`. The schema is identical to the old standalone `data/win_conditions/default.json` (which is now superseded).
+Win/lose rules are embedded directly in the scenario JSON under `"win_conditions"`.
 
 ```json
 "win_conditions": {
@@ -137,7 +182,7 @@ See [Win Conditions](win_conditions.md) for the full trigger/condition reference
 
 ### 1. Add monster blueprints (if needed)
 
-Create a JSON file under `data/blueprints/entities/<scenario_name>/monsters.json`. Follow the structure of `data/blueprints/entities/plantz/monsters.json`. The blueprint IDs you define here are what you put in `hostiles` and `rare_hostiles`.
+Create a JSON file under `data/blueprints/entities/<scenario_name>/monsters.json`. Follow the structure of `data/blueprints/entities/plantz/monsters.json`. The blueprint IDs you define here are what you put in `hostiles`, `rare_hostiles`, and `boss_spawns`.
 
 ### 2. Add scenario-specific skills and backgrounds (if needed)
 
@@ -148,7 +193,7 @@ Reference their IDs in `extra_skills` / `extra_backgrounds`.
 
 ### 3. Create `data/scenarios/<id>.json`
 
-Start with `"enabled": false` while developing. Add your monster blueprint IDs, tuning values, any extra skills/backgrounds, and the `win_conditions` rule set.
+Start with `"enabled": false` while developing. Add your monster blueprint IDs, tuning values, spawn rules, any extra skills/backgrounds, boss spawns, and the `win_conditions` rule set.
 
 ### 4. Enable and test
 

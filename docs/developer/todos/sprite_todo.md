@@ -57,12 +57,12 @@ New armor items use placeholder positions borrowed from existing armor sheet spr
 
 | Blueprint ID | Display Name | Slot | Notes |
 |---|---|---|---|
-| `tactical_vest` | Tactical Vest | torso | Plate carrier with front/back trauma plates. OD green or tan. |
-| `marine_armor` | Marine Battle Armor | torso | Full composite plates, Colonial Marine markings, dark olive. |
-| `combat_trousers` | Combat Trousers | legs | Armored knee/thigh panels over canvas. Matches marine armor palette. |
-| `marine_helmet` | Marine Helmet | head | Composite combat helmet, integrated HUD rail, visor mount. |
-| `eva_helmet` | EVA Helmet | head | Sealed bubble visor, white/grey, built-in lamp on forehead. |
-| `combat_boots` | Combat Boots | feet | Heavy steel-toe composite boots, black. Matches marine armor. |
+| `tactical_vest` | Tactical Vest | torso | Plate carrier with front/back trauma plates. OD green or tan. | <done>
+| `marine_armor` | Marine Battle Armor | torso | Full composite plates, Colonial Marine markings, dark olive. | <done>
+| `combat_trousers` | Combat Trousers | legs | Armored knee/thigh panels over canvas. Matches marine armor palette. | <done>
+| `marine_helmet` | Marine Helmet | head | Composite combat helmet, integrated HUD rail, visor mount. | <done>
+| `eva_helmet` | EVA Helmet | head | Sealed bubble visor, white/grey, built-in lamp on forehead. | <done>
+| `combat_boots` | Combat Boots | feet | Heavy steel-toe composite boots, black. Matches marine armor. | <done>
 
 ---
 

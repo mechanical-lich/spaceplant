@@ -19,5 +19,5 @@
     "profileMemory": false,
     "dumpGenerationASCII": true,
     "npcTurnDelayTicks": 2,
-    "crtIntensity": 0.25
+    "crtIntensity": 0
 }

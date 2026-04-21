@@ -180,10 +180,10 @@
         ],
         "StartingItems": [
             "combat_knife",
-            "combat_armor",
-            "security_trousers",
-            "security_boots",
-            "security_hat"
+            "combat_trousers",
+            "combat_boots",
+            "marine_armor",
+            "marine_helmet"
         ],
         "Skills": [
             "brawler",

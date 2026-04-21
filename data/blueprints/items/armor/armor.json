@@ -167,7 +167,7 @@
         },
         "AppearanceComponent": {
             "Resource": "mid_shirt",
-            "SpriteX": 128,
+            "SpriteX": 192,
             "SpriteY": 0,
             "R": 80,
             "G": 100,
@@ -188,7 +188,7 @@
         },
         "WearableAppearanceComponent": {
             "Layer": "shirt",
-            "Index": 4
+            "Index": 6
         }
     },
     "marine_armor": {
@@ -209,7 +209,7 @@
         },
         "AppearanceComponent": {
             "Resource": "mid_shirt",
-            "SpriteX": 160,
+            "SpriteX": 224,
             "SpriteY": 0,
             "R": 60,
             "G": 80,
@@ -230,7 +230,7 @@
         },
         "WearableAppearanceComponent": {
             "Layer": "shirt",
-            "Index": 5
+            "Index": 7
         }
     },
     "combat_armor": {
@@ -407,7 +407,7 @@
         },
         "AppearanceComponent": {
             "Resource": "mid_pants",
-            "SpriteX": 128,
+            "SpriteX": 160,
             "SpriteY": 0,
             "R": 80,
             "G": 100,
@@ -428,7 +428,7 @@
         },
         "WearableAppearanceComponent": {
             "Layer": "pants",
-            "Index": 4
+            "Index": 5
         }
     },
     "security_trousers": {
@@ -599,7 +599,7 @@
         },
         "AppearanceComponent": {
             "Resource": "mid_shoes",
-            "SpriteX": 96,
+            "SpriteX": 160,
             "SpriteY": 0,
             "R": 60,
             "G": 60,
@@ -620,7 +620,7 @@
         },
         "WearableAppearanceComponent": {
             "Layer": "shoes",
-            "Index": 3
+            "Index": 5
         }
     },
     "security_boots": {
@@ -821,7 +821,7 @@
         },
         "AppearanceComponent": {
             "Resource": "mid_headwear",
-            "SpriteX": 96,
+            "SpriteX": 160,
             "SpriteY": 0,
             "R": 80,
             "G": 100,
@@ -842,7 +842,7 @@
         },
         "WearableAppearanceComponent": {
             "Layer": "headwear",
-            "Index": 3
+            "Index": 5
         }
     },
     "eva_helmet": {
@@ -863,7 +863,7 @@
         },
         "AppearanceComponent": {
             "Resource": "mid_headwear",
-            "SpriteX": 64,
+            "SpriteX": 192,
             "SpriteY": 0,
             "R": 220,
             "G": 220,
@@ -884,7 +884,7 @@
         },
         "WearableAppearanceComponent": {
             "Layer": "headwear",
-            "Index": 2
+            "Index": 6
         }
     },
     "helmet": {
