@@ -1,7 +1,6 @@
 package game
 
 import (
-	"fmt"
 	"log"
 	"math/rand"
 	"os"
@@ -69,11 +68,6 @@ type SimWorld struct {
 	StationName string
 	PlayerRunID string
 
-	// SelfDestructTurns counts down from the moment the self-destruct is armed.
-	// 0 means inactive. When it reaches 0 after being active, the player dies.
-	SelfDestructTurns int
-	selfDestructArmed bool
-
 	// MotherPlantPlaced is set true when the saboteur places their mother plant cutting.
 	MotherPlantPlaced bool
 }
@@ -114,7 +108,7 @@ func NewSimWorld() (*SimWorld, error) {
 	sw.systemManager.AddSystem(sw.aiSystem)
 	sw.advancedAISystem = &system.AdvancedAISystem{}
 	sw.systemManager.AddSystem(sw.advancedAISystem)
-	sw.systemManager.AddSystem(&system.MotherPlantSeedSystem{})
+	sw.systemManager.AddSystem(&system.ScriptSystem{})
 	sw.systemManager.AddSystem(&system.LightSystem{})
 	sw.systemManager.AddSystem(&rlsystems.DoorSystem{AppearanceType: component.Appearance})
 
@@ -147,7 +141,7 @@ func (sw *SimWorld) BuildEvalContext() wincondition.EvalContext {
 	return wincondition.EvalContext{
 		Player:            sw.Player,
 		Entities:          live,
-		SelfDestructArmed: sw.selfDestructArmed,
+		Flags:             sw.Level.Flags,
 		MotherPlantPlaced: sw.MotherPlantPlaced,
 	}
 }
@@ -199,6 +193,30 @@ func (sw *SimWorld) RegenerateLevel() error {
 
 // GetRLLevel implements listeners.SimAccess.
 func (sw *SimWorld) GetRLLevel() *rlworld.Level { return sw.Level.Level }
+
+// SelfDestructArmed returns true when the self-destruct flag has been set by a script.
+func (sw *SimWorld) SelfDestructArmed() bool {
+	v := sw.Level.Flags["self_destruct_armed"]
+	return v != nil && v != false && v != 0.0
+}
+
+// SelfDestructTurns returns the remaining countdown stored in Level.Flags by the script.
+func (sw *SimWorld) SelfDestructTurns() int {
+	v := sw.Level.Flags["self_destruct_turns"]
+	if v == nil {
+		return 0
+	}
+	switch n := v.(type) {
+	case float64:
+		return int(n)
+	case int:
+		return n
+	}
+	return 0
+}
+
+// GetLevel implements listeners.SimAccess.
+func (sw *SimWorld) GetLevel() *world.Level { return sw.Level }
 
 // resolveSpawnLocation returns (x, y, z) for the player spawn point.
 // If the class has StartingRoomTags, it searches all floors for the first room
@@ -335,45 +353,7 @@ func (sw *SimWorld) SpawnPlayer(data CharacterData) error {
 		}
 	}
 
-	sw.debugWinLocations()
-
 	return nil
-}
-
-// debugWinLocations prints the x,y,z of win-condition entities and special rooms to stdout.
-func (sw *SimWorld) debugWinLocations() {
-	// Special rooms from floor results.
-	roomTags := map[string]bool{
-		"life_pod_bay":       true,
-		"self_destruct_room": true,
-	}
-	for _, fr := range sw.FloorResults {
-		for _, room := range fr.Rooms {
-			if roomTags[room.Tag] {
-				fmt.Printf("[DEBUG] room:%s at x=%d y=%d z=%d (w=%d h=%d)\n",
-					room.Tag, room.X, room.Y, fr.Z, room.Width, room.Height)
-			}
-		}
-	}
-
-	// Key entities.
-	targets := map[string]bool{
-		"mother_plant":          true,
-		"mobile_mother_plant":   true,
-		"life_pod_console":      true,
-		"self_destruct_console": true,
-		"terminal":              true,
-	}
-	for _, e := range sw.Level.Level.GetEntities() {
-		if e == nil || !targets[e.Blueprint] {
-			continue
-		}
-		if !e.HasComponent("Position") {
-			continue
-		}
-		pc := e.GetComponent("Position").(*component.PositionComponent)
-		fmt.Printf("[DEBUG] entity:%s at x=%d y=%d z=%d\n", e.Blueprint, pc.GetX(), pc.GetY(), pc.GetZ())
-	}
 }
 
 func (sw *SimWorld) motherPlantExists() bool {

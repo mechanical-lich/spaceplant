@@ -4,11 +4,11 @@ import "github.com/mechanical-lich/spaceplant/internal/utility"
 
 // Layout constants define the macro shape of a floor.
 const (
-	LayoutRingSpokes   = "ring_spokes"   // circle hub + 4 hallway arms + budded rooms off arms
-	LayoutGrid         = "grid"          // cross/grid halls with many small budded rooms
+	LayoutRingSpokes     = "ring_spokes"     // circle hub + 4 hallway arms + budded rooms off arms
+	LayoutGrid           = "grid"            // cross/grid halls with many small budded rooms
 	LayoutIndustrialRing = "industrial_ring" // outer ring + inner maintenance tunnels, open bays
-	LayoutOpenBays     = "open_bays"     // few large rooms, minimal budding
-	LayoutRectangle    = "rectangle"     // corner rooms + connecting halls + central circle
+	LayoutOpenBays       = "open_bays"       // few large rooms, minimal budding
+	LayoutRectangle      = "rectangle"       // corner rooms + connecting halls + central circle
 )
 
 // RoomWeight pairs a room tag with its relative spawn weight.
@@ -67,8 +67,6 @@ var ThemeEngineering = FloorTheme{
 		{"fuel_storage", 8},
 		{"eva_bay", 10},
 		{"utility_corridor", 17},
-		{"life_pod_bay", 6},
-		{"self_destruct_room", 8},
 	},
 }
 
@@ -102,6 +100,7 @@ var ThemeHabitation = FloorTheme{
 		{"childcare", 5},
 		{"captains_quarters", 3},
 	},
+	RequiredRooms: []string{"life_pod_bay"}, // ensure escape pods are available in emergencies
 }
 
 var ThemeCommerceSocial = FloorTheme{
@@ -157,6 +156,7 @@ var ThemeCommand = FloorTheme{
 		{"courtroom", 5},
 		{"executive_suite", 12},
 	},
+	RequiredRooms: []string{"self_destruct_room"},
 }
 
 // FloorStack is the ordered list of themes from Z=0 (bottom) to top.

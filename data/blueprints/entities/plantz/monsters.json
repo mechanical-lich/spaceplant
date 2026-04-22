@@ -1006,8 +1006,9 @@
             "Randomness": 8,
             "AvoidsFriendlyFire": false
         },
-        "MotherPlantSeedComponent": {
-            "TurnsLeft": 10
+        "ScriptComponent": {
+            "ScriptPath": "data/scripts/mobile_mother_plant.basic",
+            "Vars": { "turns_left": 10 }
         },
         "SkillComponent": {
             "Skills": [

@@ -271,17 +271,19 @@ func (s *SPClientState) Update(_ *transport.Snapshot) client.ClientState {
 
 	// Inventory actions (work outside hasTurn).
 	kb := keybindings.Global()
-	if kb.IsJustPressed("inventory") {
-		if !s.classView.Visible && !s.statsView.Visible {
-			s.statsView.SetNearbyEntity(s.nearbyInventoryEntity())
-			s.statsView.OpenToInventory()
-			return nil
+	if !s.cheatModal.Visible {
+		if kb.IsJustPressed("inventory") {
+			if !s.classView.Visible && !s.statsView.Visible {
+				s.statsView.SetNearbyEntity(s.nearbyInventoryEntity())
+				s.statsView.OpenToInventory()
+				return nil
+			}
 		}
-	}
-	if kb.IsJustPressed("character_overview") {
-		if !s.classView.Visible && !s.statsView.Visible {
-			s.statsView.Open()
-			return nil
+		if kb.IsJustPressed("character_overview") {
+			if !s.classView.Visible && !s.statsView.Visible {
+				s.statsView.Open()
+				return nil
+			}
 		}
 	}
 

@@ -10,7 +10,7 @@ import (
 type EvalContext struct {
 	Player            *ecs.Entity
 	Entities          []*ecs.Entity // live (non-dead) entities
-	SelfDestructArmed bool
+	Flags             map[string]any
 	MotherPlantPlaced bool
 }
 
@@ -102,16 +102,15 @@ func matchCondition(c Condition, ctx EvalContext) bool {
 
 	if c.GameFlag != nil {
 		switch *c.GameFlag {
-		case "self_destruct_armed":
-			if !ctx.SelfDestructArmed {
-				return false
-			}
 		case "mother_plant_placed":
 			if !ctx.MotherPlantPlaced {
 				return false
 			}
 		default:
-			return false
+			v := ctx.Flags[*c.GameFlag]
+			if v == nil || v == false || v == 0.0 {
+				return false
+			}
 		}
 	}
 
