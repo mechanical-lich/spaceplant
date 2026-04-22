@@ -73,6 +73,154 @@
             "Count": 30
         }
     },
+    "10mm_caseless_drum": {
+        "DescriptionComponent": {
+            "Name": "10mm_caseless_drum",
+            "Faction": "item",
+            "PassOverDescription": [
+                "A drum of 10mm caseless rounds lies here.",
+                "You spot a pulse rifle drum magazine."
+            ]
+        },
+        "AsciiAppearanceComponent": {
+            "Character": "*",
+            "R": 140,
+            "G": 160,
+            "B": 180
+        },
+        "AppearanceComponent": {
+            "Resource": "ammo",
+            "SpriteX": 0,
+            "SpriteY": 0,
+            "R": 140,
+            "G": 160,
+            "B": 180,
+            "Frames": 1,
+            "SpriteWidth": 32,
+            "SpriteHeight": 48,
+            "SpriteOffsetY": -16
+        },
+        "ItemComponent": {
+            "Slot": "bag",
+            "Name": "10mm Caseless Drum",
+            "Description": "99-round drum of caseless 10mm ammunition. Fits the M41A pulse rifle and M56 smartgun."
+        },
+        "AmmoComponent": {
+            "AmmoType": "10mm_caseless",
+            "Count": 99
+        }
+    },
+    "44_rounds": {
+        "DescriptionComponent": {
+            "Name": "44_rounds",
+            "Faction": "item",
+            "PassOverDescription": [
+                "A speedloader of .44 rounds lies here.",
+                "You spot some heavy pistol ammunition."
+            ]
+        },
+        "AsciiAppearanceComponent": {
+            "Character": "*",
+            "R": 200,
+            "G": 120,
+            "B": 80
+        },
+        "AppearanceComponent": {
+            "Resource": "ammo",
+            "SpriteX": 0,
+            "SpriteY": 0,
+            "R": 200,
+            "G": 120,
+            "B": 80,
+            "Frames": 1,
+            "SpriteWidth": 32,
+            "SpriteHeight": 48,
+            "SpriteOffsetY": -16
+        },
+        "ItemComponent": {
+            "Slot": "bag",
+            "Name": ".44 Speedloader",
+            "Description": "A 6-round speedloader for the heavy pistol. Hard-hitting, slow to reload."
+        },
+        "AmmoComponent": {
+            "AmmoType": ".44",
+            "Count": 6
+        }
+    },
+    "rivet_pack": {
+        "DescriptionComponent": {
+            "Name": "rivet_pack",
+            "Faction": "item",
+            "PassOverDescription": [
+                "A pack of rivets lies here.",
+                "You spot a rivet gun magazine."
+            ]
+        },
+        "AsciiAppearanceComponent": {
+            "Character": "*",
+            "R": 160,
+            "G": 130,
+            "B": 60
+        },
+        "AppearanceComponent": {
+            "Resource": "ammo",
+            "SpriteX": 0,
+            "SpriteY": 0,
+            "R": 160,
+            "G": 130,
+            "B": 60,
+            "Frames": 1,
+            "SpriteWidth": 32,
+            "SpriteHeight": 48,
+            "SpriteOffsetY": -16
+        },
+        "ItemComponent": {
+            "Slot": "bag",
+            "Name": "Rivet Pack",
+            "Description": "20 heavy-gauge steel rivets. Fits the industrial rivet gun."
+        },
+        "AmmoComponent": {
+            "AmmoType": "rivets",
+            "Count": 20
+        }
+    },
+    "12g_slugs": {
+        "DescriptionComponent": {
+            "Name": "12g_slugs",
+            "Faction": "item",
+            "PassOverDescription": [
+                "A box of 12-gauge slugs lies here.",
+                "You spot some tactical shotgun slugs."
+            ]
+        },
+        "AsciiAppearanceComponent": {
+            "Character": "*",
+            "R": 160,
+            "G": 120,
+            "B": 60
+        },
+        "AppearanceComponent": {
+            "Resource": "ammo",
+            "SpriteX": 0,
+            "SpriteY": 0,
+            "R": 160,
+            "G": 120,
+            "B": 60,
+            "Frames": 1,
+            "SpriteWidth": 32,
+            "SpriteHeight": 48,
+            "SpriteOffsetY": -16
+        },
+        "ItemComponent": {
+            "Slot": "bag",
+            "Name": "12g Slugs",
+            "Description": "6 solid slugs for the tactical shotgun. More penetration than buckshot, less spread."
+        },
+        "AmmoComponent": {
+            "AmmoType": "12g_slug",
+            "Count": 6
+        }
+    },
     "12g_shells": {
         "DescriptionComponent": {
             "Name": "12g_shells",

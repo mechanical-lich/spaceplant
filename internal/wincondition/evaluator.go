@@ -10,7 +10,7 @@ import (
 type EvalContext struct {
 	Player            *ecs.Entity
 	Entities          []*ecs.Entity // live (non-dead) entities
-	SelfDestructArmed bool
+	Flags             map[string]any
 	MotherPlantPlaced bool
 }
 
@@ -102,16 +102,18 @@ func matchCondition(c Condition, ctx EvalContext) bool {
 
 	if c.GameFlag != nil {
 		switch *c.GameFlag {
-		case "self_destruct_armed":
-			if !ctx.SelfDestructArmed {
-				return false
-			}
 		case "mother_plant_placed":
 			if !ctx.MotherPlantPlaced {
 				return false
 			}
 		default:
-			return false
+			if ctx.Flags == nil {
+				return false
+			}
+			v, ok := ctx.Flags[*c.GameFlag]
+			if !ok || !isTruthyFlag(v) {
+				return false
+			}
 		}
 	}
 
@@ -146,6 +148,19 @@ func FireRule(rule Rule, detail string) {
 			Message: rule.Message,
 			Detail:  detail,
 		})
+	}
+}
+
+func isTruthyFlag(v any) bool {
+	switch t := v.(type) {
+	case bool:
+		return t
+	case float64:
+		return t != 0
+	case int:
+		return t != 0
+	default:
+		return false
 	}
 }
 

@@ -1,0 +1,85 @@
+{
+  "id": "plantz",
+  "enabled": true,
+  "name": "Plant Infestation",
+  "description": "Overgrowth has taken hold of the station. Destroy the mother plant — or find another way out.",
+  "hostiles": ["creeper", "viner", "scythe", "scrambler", "spitter"],
+  "rare_hostiles": ["abomination", "spreader", "ingrained_spreader", "massive_spreader"],
+  "hostile_initial": 15,
+  "hostile_max": 20,
+  "spawn_chance": 0.4,
+  "extra_skills": [],
+  "extra_backgrounds": ["saboteur"],
+  "boss_spawns": ["mobile_mother_plant"],
+  "spawn_rules": {
+    "mobile_mother_plant": { "floors": ["Engineering & Systems"] },
+    "creeper":  {},
+    "viner":    { "rooms": ["crew_quarters", "family_apartment", "officers_suite"] },
+    "scythe":   {},
+    "scrambler":{},
+    "spitter":  { "rooms": ["general_lab", "biolab", "hydroponics_lab"] },
+    "abomination":        {},
+    "spreader":           { "floors": ["Habitation", "Commerce & Social"] },
+    "ingrained_spreader": { "floors": ["Habitation", "Commerce & Social"] },
+    "massive_spreader":   {}
+  },
+  "win_conditions": {
+    "rules": [
+      {
+        "id": "extermination",
+        "trigger": "kill",
+        "blueprint": "mother_plant",
+        "result": "win",
+        "outcome": "extermination",
+        "message": "The mother plant is dead. The infestation collapses."
+      },
+      {
+        "id": "saboteur_escape",
+        "trigger": "interaction",
+        "interaction": "life_pod_escape",
+        "when": [
+          {"player_background": "saboteur"},
+          {"game_flag": "mother_plant_placed"}
+        ],
+        "result": "win",
+        "outcome": "saboteur",
+        "message": "You've been paid. The station burns behind you."
+      },
+      {
+        "id": "saboteur_caught",
+        "trigger": "interaction",
+        "interaction": "life_pod_escape",
+        "when": [
+          {"player_background": "saboteur"},
+          {"entity_count": {"blueprint": "mother_plant", "op": "eq", "value": 0}}
+        ],
+        "result": "lose",
+        "outcome": "saboteur_caught",
+        "message": "You tried to flee without completing your mission."
+      },
+      {
+        "id": "escape_selfish",
+        "trigger": "interaction",
+        "interaction": "life_pod_escape",
+        "result": "win",
+        "outcome": "escape_selfish",
+        "message": "You escape the station alone. The airlock seals behind you."
+      },
+      {
+        "id": "heroic_death",
+        "trigger": "player_death",
+        "when": [{"game_flag": "self_destruct_armed"}],
+        "result": "win",
+        "outcome": "heroic_death",
+        "message": "You stay behind to ensure the station is destroyed. A hero's end."
+      },
+      {
+        "id": "player_death_default",
+        "trigger": "player_death",
+        "result": "lose",
+        "outcome": "dead",
+        "message": ""
+      }
+    ]
+  }
+}

@@ -15,6 +15,7 @@ import (
 	"github.com/mechanical-lich/spaceplant/internal/class"
 	"github.com/mechanical-lich/spaceplant/internal/config"
 	"github.com/mechanical-lich/spaceplant/internal/lore"
+	"github.com/mechanical-lich/spaceplant/internal/scenario"
 	"github.com/mechanical-lich/spaceplant/internal/skill"
 )
 
@@ -511,6 +512,7 @@ func (cc *CharacterCreator) refreshClassDesc() {
 
 func (cc *CharacterCreator) refreshSkillList() {
 	baseSkills := ccconfig.Get().BaseSkills
+	scenarioSkills := scenario.Active().ExtraSkills
 
 	var classSkills []string
 	if cc.selectedClass >= 0 && cc.selectedClass < len(cc.classIDs) {
@@ -519,10 +521,10 @@ func (cc *CharacterCreator) refreshSkillList() {
 		}
 	}
 
-	cc.skillIDs = make([]string, 0, len(baseSkills)+len(classSkills))
-	names := make([]string, 0, len(baseSkills)+len(classSkills))
+	cc.skillIDs = make([]string, 0, len(baseSkills)+len(scenarioSkills)+len(classSkills))
+	names := make([]string, 0, len(baseSkills)+len(scenarioSkills)+len(classSkills))
 
-	for _, sID := range baseSkills {
+	for _, sID := range append(baseSkills, scenarioSkills...) {
 		cc.skillIDs = append(cc.skillIDs, sID)
 		name := sID
 		if sd := skill.Get(sID); sd != nil {
@@ -615,6 +617,21 @@ func (cc *CharacterCreator) forgetSkill() {
 
 func (cc *CharacterCreator) refreshBgList() {
 	defs := background.All()
+
+	// Include scenario-specific backgrounds that aren't already in the list.
+	extraIDs := scenario.Active().ExtraBackgrounds
+	seen := make(map[string]bool, len(defs))
+	for _, d := range defs {
+		seen[d.ID] = true
+	}
+	for _, id := range extraIDs {
+		if !seen[id] {
+			if d := background.Get(id); d != nil {
+				defs = append(defs, d)
+			}
+		}
+	}
+
 	cc.bgIDs = make([]string, len(defs))
 	names := make([]string, len(defs))
 	for i, d := range defs {

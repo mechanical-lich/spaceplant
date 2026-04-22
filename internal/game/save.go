@@ -55,6 +55,7 @@ type StationSaveFile struct {
 	Tiles        []saveTile               `json:"tiles"`
 	NoBudding    []bool                   `json:"noBudding"`
 	Overgrown    []bool                   `json:"overgrown"`
+	Flags        map[string]any           `json:"flags,omitempty"`
 	FloorResults []generation.FloorResult `json:"floorResults"`
 	Entities     []saveEntity             `json:"entities"`
 	Hour         int                      `json:"hour"`
@@ -222,6 +223,7 @@ func SaveStation(sw *SimWorld, savesDir string) error {
 		Tiles:        tiles,
 		NoBudding:    append([]bool(nil), level.NoBudding...),
 		Overgrown:    append([]bool(nil), level.Overgrown...),
+		Flags:        level.Flags,
 		FloorResults: sw.FloorResults,
 		Entities:     savedEntities,
 		Hour:         level.Hour,
@@ -520,6 +522,9 @@ func LoadStationIntoSimWorld(sw *SimWorld, stationID, savesDir string) error {
 	}
 	copy(spLevel.NoBudding, sf.NoBudding)
 	copy(spLevel.Overgrown, sf.Overgrown)
+	if sf.Flags != nil {
+		spLevel.Flags = sf.Flags
+	}
 	spLevel.Level.Hour = sf.Hour
 	spLevel.Level.Day = sf.Day
 
@@ -529,6 +534,8 @@ func LoadStationIntoSimWorld(sw *SimWorld, stationID, savesDir string) error {
 	}
 
 	addEntitiesToLevel(spLevel, sf.Entities, idToEntity)
+
+	spLevel.ShaderSrc = sw.Level.ShaderSrc
 
 	sw.Mu.Lock()
 	sw.Level = spLevel

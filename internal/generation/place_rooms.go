@@ -93,10 +93,21 @@ func PlaceRooms(l *world.Level, z, maxRooms int, theme *FloorTheme) []Room {
 	}
 	var queue []taggedCandidate
 
+	// Build the full required-tag list: RequiredRooms (×1 each) + RequiredRoomCounts (×N each).
+	var requiredTags []string
+	if theme != nil {
+		requiredTags = append(requiredTags, theme.RequiredRooms...)
+		for tag, count := range theme.RequiredRoomCounts {
+			for i := 0; i < count; i++ {
+				requiredTags = append(requiredTags, tag)
+			}
+		}
+	}
+
 	// Assign required tags to the first N candidates.
 	ci := 0
 	if theme != nil {
-		for _, tag := range theme.RequiredRooms {
+		for _, tag := range requiredTags {
 			for ci < len(candidates) {
 				c := candidates[ci]
 				ci++

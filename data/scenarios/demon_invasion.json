@@ -1,0 +1,48 @@
+{
+  "id": "demon_invasion",
+  "enabled": false,
+  "name": "Event Horizon",
+  "description": "A dimensional rift has torn open in the reactor bay. Demons pour through. Close the rift — or die trying.",
+  "hostiles": ["imp", "hellhound", "possessed_crew"],
+  "rare_hostiles": ["archfiend", "herald_of_ruin"],
+  "hostile_initial": 12,
+  "hostile_max": 18,
+  "spawn_chance": 0.35,
+  "extra_skills": ["exorcism", "holy_strike"],
+  "extra_backgrounds": ["chaplain"],
+  "win_conditions": {
+    "rules": [
+      {
+        "id": "rift_sealed",
+        "trigger": "interaction",
+        "interaction": "rift_seal",
+        "result": "win",
+        "outcome": "rift_sealed",
+        "message": "The rift collapses. The demons dissolve into smoke. The station is quiet."
+      },
+      {
+        "id": "escape_selfish",
+        "trigger": "interaction",
+        "interaction": "life_pod_escape",
+        "result": "win",
+        "outcome": "escape_selfish",
+        "message": "You escape the station alone. The airlock seals behind you."
+      },
+      {
+        "id": "heroic_death",
+        "trigger": "player_death",
+        "when": [{"game_flag": "self_destruct_armed"}],
+        "result": "win",
+        "outcome": "heroic_death",
+        "message": "You stay behind to ensure the station is destroyed. A hero's end."
+      },
+      {
+        "id": "player_death_default",
+        "trigger": "player_death",
+        "result": "lose",
+        "outcome": "dead",
+        "message": ""
+      }
+    ]
+  }
+}

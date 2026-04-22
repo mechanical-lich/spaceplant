@@ -8,14 +8,16 @@ import (
 
 const (
 	pauseMenuW = 220
-	pauseMenuH = 210
+	pauseMenuH = 304
 )
 
 // PauseMenu is shown when the player presses ESC during gameplay.
-// It provides Save, Return to Title, and Close (resume) options.
+// It provides Save, Options, Controls, Return to Title, and Close (resume) options.
 type PauseMenu struct {
-	Visible bool
-	modal   *minui.Modal
+	Visible  bool
+	modal    *minui.Modal
+	options  *OptionsModal
+	controls *ControlsModal
 
 	OnSave          func()
 	OnReturnToTitle func()
@@ -26,7 +28,10 @@ func newPauseMenu() *PauseMenu {
 	mx := (cfg.ScreenWidth - pauseMenuW) / 2
 	my := (cfg.ScreenHeight - pauseMenuH) / 2
 
-	pm := &PauseMenu{}
+	pm := &PauseMenu{
+		options:  newOptionsModal(),
+		controls: newControlsModal(),
+	}
 
 	pm.modal = minui.NewModal("pause_menu", "Paused", pauseMenuW, pauseMenuH)
 	pm.modal.SetPosition(mx, my)
@@ -47,8 +52,20 @@ func newPauseMenu() *PauseMenu {
 	}
 	pm.modal.AddChild(saveBtn)
 
+	optionsBtn := minui.NewButton("pause_options", "Options")
+	optionsBtn.SetPosition(btnX, 40+btnH+12)
+	optionsBtn.SetSize(btnW, btnH)
+	optionsBtn.OnClick = func() { pm.options.Open() }
+	pm.modal.AddChild(optionsBtn)
+
+	controlsBtn := minui.NewButton("pause_controls", "Controls")
+	controlsBtn.SetPosition(btnX, 40+2*(btnH+12))
+	controlsBtn.SetSize(btnW, btnH)
+	controlsBtn.OnClick = func() { pm.controls.Open() }
+	pm.modal.AddChild(controlsBtn)
+
 	titleBtn := minui.NewButton("pause_title", "Return to Title")
-	titleBtn.SetPosition(btnX, 40+btnH+12)
+	titleBtn.SetPosition(btnX, 40+3*(btnH+12))
 	titleBtn.SetSize(btnW, btnH)
 	titleBtn.OnClick = func() {
 		pm.Visible = false
@@ -59,7 +76,7 @@ func newPauseMenu() *PauseMenu {
 	pm.modal.AddChild(titleBtn)
 
 	closeBtn := minui.NewButton("pause_close", "Close")
-	closeBtn.SetPosition(btnX, 40+2*(btnH+12))
+	closeBtn.SetPosition(btnX, 40+4*(btnH+12))
 	closeBtn.SetSize(btnW, btnH)
 	closeBtn.OnClick = func() { pm.Visible = false }
 	pm.modal.AddChild(closeBtn)
@@ -73,6 +90,14 @@ func (pm *PauseMenu) Update() {
 	if !pm.Visible {
 		return
 	}
+	if pm.options.Visible {
+		pm.options.Update()
+		return
+	}
+	if pm.controls.Visible {
+		pm.controls.Update()
+		return
+	}
 	pm.modal.Update()
 }
 
@@ -81,4 +106,6 @@ func (pm *PauseMenu) Draw(screen *ebiten.Image) {
 		return
 	}
 	pm.modal.Draw(screen)
+	pm.options.Draw(screen)
+	pm.controls.Draw(screen)
 }

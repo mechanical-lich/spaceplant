@@ -51,7 +51,7 @@ func (s *PlayerSystem) UpdateEntity(levelInterface any, entity *ecs.Entity) erro
 
 	// Non-turn-consuming commands.
 	switch command {
-	case "r":
+	case "rush":
 		ec := entity.GetComponent(component.Energy).(*component.EnergyComponent)
 		if playerComponent.Rushing {
 			ec.Speed /= 2
@@ -63,19 +63,19 @@ func (s *PlayerSystem) UpdateEntity(levelInterface any, entity *ecs.Entity) erro
 			message.AddMessage("Rush mode on!")
 		}
 		return nil
-	case "W":
+	case "face_north":
 		rlentity.Face(entity, 0, -1)
 		message.AddMessage("Facing north.")
 		return nil
-	case "S":
+	case "face_south":
 		rlentity.Face(entity, 0, 1)
 		message.AddMessage("Facing south.")
 		return nil
-	case "A":
+	case "face_west":
 		rlentity.Face(entity, -1, 0)
 		message.AddMessage("Facing west.")
 		return nil
-	case "D":
+	case "face_east":
 		rlentity.Face(entity, 1, 0)
 		message.AddMessage("Facing east.")
 		return nil
@@ -83,32 +83,30 @@ func (s *PlayerSystem) UpdateEntity(levelInterface any, entity *ecs.Entity) erro
 
 	var act action.Action
 	switch command {
-	case "w":
+	case "move_north":
 		act = action.MoveAction{DeltaX: 0, DeltaY: -1}
-	case "s":
+	case "move_south":
 		act = action.MoveAction{DeltaX: 0, DeltaY: 1}
-	case "a":
+	case "move_west":
 		act = action.MoveAction{DeltaX: -1, DeltaY: 0}
-	case "d":
+	case "move_east":
 		act = action.MoveAction{DeltaX: 1, DeltaY: 0}
-	case "f":
+	case "fire":
 		act = action.ShootAction{Aimed: false}
-	case "F":
-		act = action.ShootAction{Aimed: true}
 	case "aimed_shot":
 		pc := entity.GetComponent("PlayerComponent").(*component.PlayerComponent)
 		bodyPart := pc.PendingAimedBodyPart
 		pc.PendingAimedBodyPart = ""
 		act = action.ShootAction{Aimed: true, AimedBodyPart: bodyPart}
-	case "g":
+	case "burst_fire":
 		act = action.ShootAction{Burst: true}
-	case "h":
+	case "heal":
 		act = action.HealAction{}
-	case "Period":
+	case "stairs":
 		act = action.StairsAction{}
-	case "e":
+	case "equip":
 		act = action.EquipAction{}
-	case "p":
+	case "pickup":
 		act = action.PickupAction{}
 	case "pickup_item":
 		pc := entity.GetComponent("PlayerComponent").(*component.PlayerComponent)

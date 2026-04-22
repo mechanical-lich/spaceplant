@@ -4,11 +4,11 @@ import "github.com/mechanical-lich/spaceplant/internal/utility"
 
 // Layout constants define the macro shape of a floor.
 const (
-	LayoutRingSpokes   = "ring_spokes"   // circle hub + 4 hallway arms + budded rooms off arms
-	LayoutGrid         = "grid"          // cross/grid halls with many small budded rooms
+	LayoutRingSpokes     = "ring_spokes"     // circle hub + 4 hallway arms + budded rooms off arms
+	LayoutGrid           = "grid"            // cross/grid halls with many small budded rooms
 	LayoutIndustrialRing = "industrial_ring" // outer ring + inner maintenance tunnels, open bays
-	LayoutOpenBays     = "open_bays"     // few large rooms, minimal budding
-	LayoutRectangle    = "rectangle"     // corner rooms + connecting halls + central circle
+	LayoutOpenBays       = "open_bays"       // few large rooms, minimal budding
+	LayoutRectangle      = "rectangle"       // corner rooms + connecting halls + central circle
 )
 
 // RoomWeight pairs a room tag with its relative spawn weight.
@@ -27,7 +27,8 @@ type FloorTheme struct {
 	BudCount            int // max rooms PlaceRooms will attempt
 	SecondaryStairCount int // how many secondary stair pairs connect this floor to the one above
 	RoomWeights         []RoomWeight
-	RequiredRooms       []string // room tags that must appear exactly once, placed before random fill
+	RequiredRooms       []string       // room tags that must appear exactly once, placed before random fill
+	RequiredRoomCounts  map[string]int // room tags that must appear exactly N times, merged with RequiredRooms
 }
 
 // pickRoomTag selects a room tag from the theme's weighted table.
@@ -56,7 +57,6 @@ var ThemeEngineering = FloorTheme{
 	Layout:              LayoutIndustrialRing,
 	BudCount:            60,
 	SecondaryStairCount: 4, // heavy service access between decks
-	RequiredRooms:       []string{"life_pod_bay", "self_destruct_room"},
 	RoomWeights: []RoomWeight{
 		{"reactor_core", 5},
 		{"engineering_workshop", 15},
@@ -67,8 +67,6 @@ var ThemeEngineering = FloorTheme{
 		{"fuel_storage", 8},
 		{"eva_bay", 10},
 		{"utility_corridor", 17},
-		{"life_pod_bay", 6},
-		{"self_destruct_room", 8},
 	},
 }
 

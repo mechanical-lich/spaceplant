@@ -1,0 +1,48 @@
+{
+  "id": "xenomorph",
+  "enabled": false,
+  "name": "Alien Infestation",
+  "description": "Something came aboard in a sample container. It's breeding in the lower decks. Find the queen — and end it.",
+  "hostiles": ["xeno_drone", "xeno_warrior", "face_hugger"],
+  "rare_hostiles": ["xeno_praetorian", "xeno_queen"],
+  "hostile_initial": 8,
+  "hostile_max": 25,
+  "spawn_chance": 0.5,
+  "extra_skills": ["flamethrower_mastery", "motion_tracker"],
+  "extra_backgrounds": ["colonial_marine"],
+  "win_conditions": {
+    "rules": [
+      {
+        "id": "queen_killed",
+        "trigger": "kill",
+        "blueprint": "xeno_queen",
+        "result": "win",
+        "outcome": "queen_killed",
+        "message": "The queen is dead. Without her, the hive falls apart."
+      },
+      {
+        "id": "escape_selfish",
+        "trigger": "interaction",
+        "interaction": "life_pod_escape",
+        "result": "win",
+        "outcome": "escape_selfish",
+        "message": "You escape the station alone. The airlock seals behind you."
+      },
+      {
+        "id": "heroic_death",
+        "trigger": "player_death",
+        "when": [{"game_flag": "self_destruct_armed"}],
+        "result": "win",
+        "outcome": "heroic_death",
+        "message": "You stay behind to ensure the station is destroyed. A hero's end."
+      },
+      {
+        "id": "player_death_default",
+        "trigger": "player_death",
+        "result": "lose",
+        "outcome": "dead",
+        "message": ""
+      }
+    ]
+  }
+}

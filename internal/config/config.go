@@ -15,6 +15,7 @@ type Config struct {
 	ScreenWidth            int     `json:"screenWidth"`            // Total window width
 	ScreenHeight           int     `json:"screenHeight"`           // Total window height
 	Title                  string  `json:"title"`                  // Window title
+	Fullscreen             bool    `json:"fullscreen"`             // Whether to start in fullscreen mode
 	BlueprintPath          string  `json:"blueprintPath"`          // Path to blueprint directory
 	Lighting               bool    `json:"lighting"`               // Whether to render fog-of-war lighting
 	ColorShading           bool    `json:"colorShading"`           // Whether to apply colour shading to sprites
@@ -27,6 +28,7 @@ type Config struct {
 	ProfileMemory          bool    `json:"profileMemory"`          // Whether to profile memory usage
 	DumpGenerationASCII    bool    `json:"dumpGenerationASCII"`    // Write gen_debug.txt after each generation
 	NpcTurnDelayTicks      int     `json:"npcTurnDelayTicks"`      // Server ticks to pause between NPC-only turns (0 = no delay)
+	CRTIntensity           float64 `json:"crtIntensity"`           // CRT shader intensity: 0.0 = off, 1.0 = full effect
 }
 
 // LoadConfig reads and unmarshals a JSON config file.
@@ -56,4 +58,13 @@ func Global() *Config {
 		}
 	}
 	return settings
+}
+
+// Save writes the current config back to data/config.json.
+func Save() error {
+	data, err := json.MarshalIndent(settings, "", "    ")
+	if err != nil {
+		return err
+	}
+	return os.WriteFile("data/config.json", data, 0644)
 }

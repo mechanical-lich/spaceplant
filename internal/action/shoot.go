@@ -111,14 +111,34 @@ func (a ShootAction) Execute(entity *ecs.Entity, level *world.Level) error {
 				}
 			}
 		}
-		execSpread(entity, level, wc, dx, dy, maxRange, csBonus, 1.0, a.AimedBodyPart)
-		if wc.MaxMagazine > 0 {
-			wc.Magazine--
-		}
+		execAuto(entity, level, wc, dx, dy, maxRange, csBonus, a.AimedBodyPart)
 	}
 
 	rlenergy.SetActionCost(entity, cost)
 	return nil
+}
+
+// execAuto fires wc.AutoRounds rounds per trigger pull (defaults to 1).
+// Unlike burst, auto fire is the normal shot — no recoil stacking, no player choice.
+func execAuto(entity *ecs.Entity, level *world.Level, wc *component.WeaponComponent, dx, dy, maxRange, csBonus int, aimedBodyPart string) {
+	rounds := wc.AutoRounds
+	if rounds < 2 {
+		execSpread(entity, level, wc, dx, dy, maxRange, csBonus, 1.0, aimedBodyPart)
+		if wc.MaxMagazine > 0 {
+			wc.Magazine--
+		}
+		return
+	}
+	for i := 0; i < rounds; i++ {
+		if wc.MaxMagazine > 0 && wc.Magazine <= 0 {
+			message.AddMessage("Weapon empty.")
+			return
+		}
+		execSpread(entity, level, wc, dx, dy, maxRange, csBonus, 1.0, aimedBodyPart)
+		if wc.MaxMagazine > 0 {
+			wc.Magazine--
+		}
+	}
 }
 
 // execBurst fires wc.BurstSize rounds along the facing line.

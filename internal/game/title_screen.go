@@ -12,8 +12,12 @@ import (
 	mlge_text "github.com/mechanical-lich/mlge/text"
 	"github.com/mechanical-lich/mlge/transport"
 	"github.com/mechanical-lich/mlge/ui/minui"
+	"github.com/mechanical-lich/spaceplant/internal/buildinfo"
 	"github.com/mechanical-lich/spaceplant/internal/config"
 	"github.com/mechanical-lich/spaceplant/internal/lore"
+	"github.com/mechanical-lich/spaceplant/internal/scenario"
+	"github.com/mechanical-lich/spaceplant/internal/stationconfig"
+	"github.com/mechanical-lich/spaceplant/internal/wincondition"
 )
 
 const savesDir = "saves"
@@ -21,7 +25,7 @@ const savesDir = "saves"
 type titleScreen int
 
 const (
-	screenMain          titleScreen = iota
+	screenMain           titleScreen = iota
 	screenStationBrowser             // choose or generate a station
 	screenPlayerBrowser              // choose a player run on the selected station
 	screenNewStationName             // enter name for a new station
@@ -37,29 +41,56 @@ type TitleScreenState struct {
 	screen titleScreen
 
 	// Main menu buttons
-	newStationBtn    *minui.Button
+	newStationBtn     *minui.Button
 	browseStationsBtn *minui.Button
-	quitBtn          *minui.Button
+	optionsBtn        *minui.Button
+	quitBtn           *minui.Button
 
 	// Station browser
-	stationList    *minui.ListBox
-	stations       []StationMeta
-	selectStationBtn *minui.Button
+	stationList         *minui.ListBox
+	stations            []StationMeta
+	selectStationBtn    *minui.Button
 	backFromStationsBtn *minui.Button
 
 	// Player browser
-	playerList     *minui.ListBox
-	players        []PlayerRunMeta
-	selectedStation StationMeta
-	newPlayerBtn   *minui.Button
-	continueBtn    *minui.Button
+	playerList         *minui.ListBox
+	players            []PlayerRunMeta
+	selectedStation    StationMeta
+	newPlayerBtn       *minui.Button
+	continueBtn        *minui.Button
 	backFromPlayersBtn *minui.Button
 
 	// New station name input
-	stationNameInput *minui.TextInput
-	randomNameBtn    *minui.Button
-	confirmNameBtn   *minui.Button
-	cancelNameBtn    *minui.Button
+	stationNameInput  *minui.TextInput
+	randomNameBtn     *minui.Button
+	confirmNameBtn    *minui.Button
+	cancelNameBtn     *minui.Button
+	scenarioPicker    *minui.SelectBox
+	scenarioPickerIDs []string // parallel to scenarioPicker items; "" means random
+
+	// Station config spinners
+	cfgCrewCapacity        int
+	cfgScienceLabCount     int
+	cfgMedCount            int
+	cfgEngineeringCapacity int
+	cfgSecurityCapacity    int
+	cfgLifePodBayCount     int
+	cfgSelfDestructEnabled bool
+	cfgCrewMinus           *minui.Button
+	cfgCrewPlus            *minui.Button
+	cfgSciMinus            *minui.Button
+	cfgSciPlus             *minui.Button
+	cfgMedMinus            *minui.Button
+	cfgMedPlus             *minui.Button
+	cfgEngMinus            *minui.Button
+	cfgEngPlus             *minui.Button
+	cfgSecMinus            *minui.Button
+	cfgSecPlus             *minui.Button
+	cfgPodMinus            *minui.Button
+	cfgPodPlus             *minui.Button
+	cfgSelfDestructToggle  *minui.Toggle
+
+	optionsModal *OptionsModal
 
 	errMsg string
 	done   bool
@@ -77,6 +108,7 @@ func NewTitleScreenState(sim *SimWorld, simState *MainSimState, t transport.Clie
 		screen:    screenMain,
 	}
 	ts.buildMainMenu()
+	ts.optionsModal = newOptionsModal()
 	return ts
 }
 
@@ -97,33 +129,101 @@ func (ts *TitleScreenState) buildMainMenu() {
 	ts.browseStationsBtn.SetSize(btnW, btnH)
 	ts.browseStationsBtn.OnClick = func() { ts.openStationBrowser() }
 
+	ts.optionsBtn = minui.NewButton("title_options", "Options")
+	ts.optionsBtn.SetPosition(btnX, 340+2*(btnH+12))
+	ts.optionsBtn.SetSize(btnW, btnH)
+	ts.optionsBtn.OnClick = func() { ts.optionsModal.Open() }
+
 	ts.quitBtn = minui.NewButton("title_quit", "Quit")
-	ts.quitBtn.SetPosition(btnX, 340+2*(btnH+12))
+	ts.quitBtn.SetPosition(btnX, 340+3*(btnH+12))
 	ts.quitBtn.SetSize(btnW, btnH)
 	ts.quitBtn.OnClick = func() { os.Exit(0) }
 
 	// New station name input
 	ts.stationNameInput = minui.NewTextInput("station_name_input", "")
-	ts.stationNameInput.SetPosition(cx-150, 360)
-	ts.stationNameInput.SetSize(220, 36)
+	ts.stationNameInput.SetPosition(cx-150, 315)
+	ts.stationNameInput.SetSize(220, 28)
 
 	randomNameBtn := minui.NewButton("random_station_name", "Random")
-	randomNameBtn.SetPosition(cx+80, 360)
-	randomNameBtn.SetSize(80, 36)
+	randomNameBtn.SetPosition(cx+80, 315)
+	randomNameBtn.SetSize(80, 28)
 	randomNameBtn.OnClick = func() {
 		ts.stationNameInput.Text = lore.RandomStationName()
 	}
 	ts.randomNameBtn = randomNameBtn
 
+	// Scenario picker: "Random" + one entry per enabled scenario.
+	scenarios := scenario.AllEnabled()
+	pickerLabels := make([]string, 0, len(scenarios)+1)
+	ts.scenarioPickerIDs = make([]string, 0, len(scenarios)+1)
+	pickerLabels = append(pickerLabels, "Random")
+	ts.scenarioPickerIDs = append(ts.scenarioPickerIDs, "")
+	for _, s := range scenarios {
+		pickerLabels = append(pickerLabels, s.Name)
+		ts.scenarioPickerIDs = append(ts.scenarioPickerIDs, s.ID)
+	}
+	ts.scenarioPicker = minui.NewSelectBox("scenario_picker", pickerLabels)
+	ts.scenarioPicker.SetPosition(cx-150, 370)
+	ts.scenarioPicker.SetSize(300, 28)
+	ts.scenarioPicker.SelectByIndex(0)
+
+	// Station config spinners — seed from defaults.
+	def := stationconfig.Get()
+	ts.cfgCrewCapacity = def.CrewCapacity
+	ts.cfgScienceLabCount = def.ScienceLabCount
+	ts.cfgMedCount = def.MedCount
+	ts.cfgEngineeringCapacity = def.EngineeringCapacity
+	ts.cfgSecurityCapacity = def.SecurityCapacity
+	ts.cfgLifePodBayCount = def.LifePodBayCount
+	ts.cfgSelfDestructEnabled = def.SelfDestructEnabled
+
+	ts.cfgCrewMinus, ts.cfgCrewPlus = ts.makeSpinner("cfg_crew", cx+60, 416, func(d int) { ts.cfgCrewCapacity = clampSpin(ts.cfgCrewCapacity+d, 1, 100) })
+	ts.cfgSciMinus, ts.cfgSciPlus = ts.makeSpinner("cfg_sci", cx+60, 441, func(d int) { ts.cfgScienceLabCount = clampSpin(ts.cfgScienceLabCount+d, 0, 30) })
+	ts.cfgMedMinus, ts.cfgMedPlus = ts.makeSpinner("cfg_med", cx+60, 466, func(d int) { ts.cfgMedCount = clampSpin(ts.cfgMedCount+d, 0, 30) })
+	ts.cfgEngMinus, ts.cfgEngPlus = ts.makeSpinner("cfg_eng", cx+60, 491, func(d int) { ts.cfgEngineeringCapacity = clampSpin(ts.cfgEngineeringCapacity+d, 0, 30) })
+	ts.cfgSecMinus, ts.cfgSecPlus = ts.makeSpinner("cfg_sec", cx+60, 516, func(d int) { ts.cfgSecurityCapacity = clampSpin(ts.cfgSecurityCapacity+d, 0, 30) })
+	ts.cfgPodMinus, ts.cfgPodPlus = ts.makeSpinner("cfg_pod", cx+60, 541, func(d int) { ts.cfgLifePodBayCount = clampSpin(ts.cfgLifePodBayCount+d, 0, 20) })
+
+	ts.cfgSelfDestructToggle = minui.NewToggle("cfg_selfdestruct", "Self-Destruct")
+	ts.cfgSelfDestructToggle.On = ts.cfgSelfDestructEnabled
+	ts.cfgSelfDestructToggle.SetPosition(cx-150, 566)
+	ts.cfgSelfDestructToggle.SetSize(200, 24)
+	ts.cfgSelfDestructToggle.OnChange = func(on bool) { ts.cfgSelfDestructEnabled = on }
+
 	ts.confirmNameBtn = minui.NewButton("confirm_name", "Generate")
-	ts.confirmNameBtn.SetPosition(cx-80, 360+48)
+	ts.confirmNameBtn.SetPosition(cx-80, 603)
 	ts.confirmNameBtn.SetSize(160, 36)
 	ts.confirmNameBtn.OnClick = func() { ts.generateNewStation() }
 
 	ts.cancelNameBtn = minui.NewButton("cancel_name", "Cancel")
-	ts.cancelNameBtn.SetPosition(cx-80, 360+96)
+	ts.cancelNameBtn.SetPosition(cx-80, 648)
 	ts.cancelNameBtn.SetSize(160, 36)
 	ts.cancelNameBtn.OnClick = func() { ts.screen = screenMain }
+}
+
+// makeSpinner creates a minus and plus button for a numeric spinner at (x, y).
+func (ts *TitleScreenState) makeSpinner(id string, x, y int, onChange func(delta int)) (*minui.Button, *minui.Button) {
+	minus := minui.NewButton(id+"_minus", "-")
+	minus.SetPosition(x, y)
+	minus.SetSize(24, 24)
+	minus.OnClick = func() { onChange(-1) }
+
+	plus := minui.NewButton(id+"_plus", "+")
+	plus.SetPosition(x+50, y)
+	plus.SetSize(24, 24)
+	plus.OnClick = func() { onChange(1) }
+
+	return minus, plus
+}
+
+func clampSpin(v, min, max int) int {
+	if v < min {
+		return min
+	}
+	if v > max {
+		return max
+	}
+	return v
 }
 
 func (ts *TitleScreenState) openStationBrowser() {
@@ -235,6 +335,28 @@ func (ts *TitleScreenState) generateNewStation() {
 	if name == "" {
 		name = fmt.Sprintf("Station %s", generateID()[:4])
 	}
+	idx := ts.scenarioPicker.SelectedIndex
+	if idx > 0 && idx < len(ts.scenarioPickerIDs) {
+		if err := scenario.SelectByID(ts.scenarioPickerIDs[idx]); err != nil {
+			ts.errMsg = err.Error()
+			return
+		}
+	} else {
+		if err := scenario.SelectRandom(); err != nil {
+			ts.errMsg = err.Error()
+			return
+		}
+	}
+	wincondition.LoadFromRules(scenario.Active().WinConditions)
+	stationconfig.Set(stationconfig.Config{
+		CrewCapacity:        ts.cfgCrewCapacity,
+		ScienceLabCount:     ts.cfgScienceLabCount,
+		MedCount:            ts.cfgMedCount,
+		EngineeringCapacity: ts.cfgEngineeringCapacity,
+		SecurityCapacity:    ts.cfgSecurityCapacity,
+		LifePodBayCount:     ts.cfgLifePodBayCount,
+		SelfDestructEnabled: ts.cfgSelfDestructEnabled,
+	})
 	if err := ts.sim.RegenerateLevel(); err != nil {
 		ts.errMsg = "Generate failed: " + err.Error()
 		return
@@ -299,11 +421,16 @@ func (ts *TitleScreenState) Update(_ *transport.Snapshot) client.ClientState {
 }
 
 func (ts *TitleScreenState) updateMain() {
+	if ts.optionsModal.Visible {
+		ts.optionsModal.Update()
+		return
+	}
 	if inpututil.IsKeyJustPressed(ebiten.KeyQ) || inpututil.IsKeyJustPressed(ebiten.KeyEscape) {
 		os.Exit(0)
 	}
 	ts.newStationBtn.Update()
 	ts.browseStationsBtn.Update()
+	ts.optionsBtn.Update()
 	ts.quitBtn.Update()
 }
 
@@ -318,6 +445,20 @@ func (ts *TitleScreenState) updateNewStationName() {
 	}
 	ts.stationNameInput.Update()
 	ts.randomNameBtn.Update()
+	ts.scenarioPicker.Update()
+	ts.cfgCrewMinus.Update()
+	ts.cfgCrewPlus.Update()
+	ts.cfgSciMinus.Update()
+	ts.cfgSciPlus.Update()
+	ts.cfgMedMinus.Update()
+	ts.cfgMedPlus.Update()
+	ts.cfgEngMinus.Update()
+	ts.cfgEngPlus.Update()
+	ts.cfgSecMinus.Update()
+	ts.cfgSecPlus.Update()
+	ts.cfgPodMinus.Update()
+	ts.cfgPodPlus.Update()
+	ts.cfgSelfDestructToggle.Update()
 	ts.confirmNameBtn.Update()
 	ts.cancelNameBtn.Update()
 }
@@ -371,25 +512,64 @@ func (ts *TitleScreenState) Draw(screen *ebiten.Image) {
 	if ts.errMsg != "" {
 		mlge_text.Draw(screen, ts.errMsg, 13, cfg.ScreenWidth/2-200, int(h)-60, color.RGBA{220, 80, 80, 255})
 	}
+
+	ver := buildinfo.Version
+	mlge_text.Draw(screen, ver, 11, cfg.ScreenWidth-len(ver)*11*4/10-8, int(h)-18, color.RGBA{80, 90, 80, 255})
 }
 
 func (ts *TitleScreenState) drawMain(screen *ebiten.Image) {
 	ts.newStationBtn.Draw(screen)
 	ts.browseStationsBtn.Draw(screen)
+	ts.optionsBtn.Draw(screen)
 	ts.quitBtn.Draw(screen)
 
 	cfg := config.Global()
 	h := float64(cfg.ScreenHeight)
 	hint := "[N] New Station    [B] Browse    [Q] Quit"
 	mlge_text.Draw(screen, hint, 12, cfg.ScreenWidth/2-len(hint)*12*3/10/2, int(h)-40, color.RGBA{90, 100, 90, 255})
+
+	ts.optionsModal.Draw(screen)
 }
 
 func (ts *TitleScreenState) drawNewStationName(screen *ebiten.Image) {
 	cfg := config.Global()
 	cx := cfg.ScreenWidth / 2
-	mlge_text.Draw(screen, "Station Name:", 16, cx-150, 330, color.RGBA{180, 200, 180, 255})
+	labelColor := color.RGBA{180, 200, 180, 255}
+	dimColor := color.RGBA{130, 150, 130, 255}
+
+	mlge_text.Draw(screen, "Station Name:", 14, cx-150, 298, labelColor)
 	ts.stationNameInput.Draw(screen)
 	ts.randomNameBtn.Draw(screen)
+
+	mlge_text.Draw(screen, "Scenario:", 14, cx-150, 354, labelColor)
+	ts.scenarioPicker.Draw(screen)
+
+	mlge_text.Draw(screen, "Station Configuration", 13, cx-150, 402, dimColor)
+
+	type spinRow struct {
+		label string
+		y     int
+		val   int
+		minus *minui.Button
+		plus  *minui.Button
+	}
+	rows := []spinRow{
+		{"Crew Capacity:", 416, ts.cfgCrewCapacity, ts.cfgCrewMinus, ts.cfgCrewPlus},
+		{"Science Labs:", 441, ts.cfgScienceLabCount, ts.cfgSciMinus, ts.cfgSciPlus},
+		{"Med Bays:", 466, ts.cfgMedCount, ts.cfgMedMinus, ts.cfgMedPlus},
+		{"Engineering:", 491, ts.cfgEngineeringCapacity, ts.cfgEngMinus, ts.cfgEngPlus},
+		{"Security:", 516, ts.cfgSecurityCapacity, ts.cfgSecMinus, ts.cfgSecPlus},
+		{"Life Pod Bays:", 541, ts.cfgLifePodBayCount, ts.cfgPodMinus, ts.cfgPodPlus},
+	}
+	for _, r := range rows {
+		mlge_text.Draw(screen, r.label, 13, cx-150, r.y+5, labelColor)
+		r.minus.Draw(screen)
+		mlge_text.Draw(screen, fmt.Sprintf("%d", r.val), 13, cx+88, r.y+5, color.RGBA{220, 230, 220, 255})
+		r.plus.Draw(screen)
+	}
+
+	ts.cfgSelfDestructToggle.Draw(screen)
+
 	ts.confirmNameBtn.Draw(screen)
 	ts.cancelNameBtn.Draw(screen)
 }

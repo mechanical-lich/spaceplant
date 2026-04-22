@@ -9,38 +9,60 @@ import (
 	"github.com/mechanical-lich/spaceplant/internal/component"
 	"github.com/mechanical-lich/spaceplant/internal/factory"
 	"github.com/mechanical-lich/spaceplant/internal/generation"
+	"github.com/mechanical-lich/spaceplant/internal/scenario"
+	"github.com/mechanical-lich/spaceplant/internal/stationconfig"
 	"github.com/mechanical-lich/spaceplant/internal/utility"
 	"github.com/mechanical-lich/spaceplant/internal/world"
 )
 
-const hostileMax = 20
-const crewInitial = 10
-const hostileInitial = 15
+// pickTile selects a random unoccupied passable tile from candidates, falling back
+// to a full random search if candidates is empty.
+func pickTile(l *world.Level, z int, candidates [][2]int) (x, y int, ok bool) {
+	// Shuffle candidates and return the first unoccupied one.
+	if len(candidates) > 0 {
+		perm := rand.Perm(len(candidates))
+		for _, i := range perm {
+			cx, cy := candidates[i][0], candidates[i][1]
+			if l.GetEntityAt(cx, cy, z) == nil {
+				return cx, cy, true
+			}
+		}
+		return 0, 0, false
+	}
+	// No candidates list — random search fallback.
+	for tries := 0; tries < 200; tries++ {
+		rx := rand.Intn(l.Width)
+		ry := rand.Intn(l.Height)
+		t := l.Level.GetTilePtr(rx, ry, z)
+		if t == nil || t.IsSolid() || t.Type == world.TypeOpen {
+			continue
+		}
+		if l.GetEntityAt(rx, ry, z) != nil {
+			continue
+		}
+		return rx, ry, true
+	}
+	return 0, 0, false
+}
 
-var hostiles = []string{"creeper", "viner", "scythe", "scrambler", "spitter"}
-var rareHostiles = []string{"abomination", "spreader", "ingrained_spreader", "massive_spreader"}
+// crewInitial is now read from stationconfig at runtime.
+
 var crew = []string{"crewmember", "officer"}
 
 type GameMaster struct {
 }
 
-// Init Initial the game master
-func (gm *GameMaster) Init(l *world.Level, z int) {
-	for i := 0; i < crewInitial; i++ {
-		x := rand.Intn(l.Width)
-		y := rand.Intn(l.Height)
-		tile := l.Level.GetTilePtr(x, y, z)
-		tries := 0
-		for tile == nil || tile.IsSolid() || tile.Type == world.TypeOpen || l.GetEntityAt(x, y, z) != nil {
-			x = rand.Intn(l.Width)
-			y = rand.Intn(l.Height)
-			tile = l.Level.GetTilePtr(x, y, z)
-			tries++
-			if tries > 10 {
-				break
-			}
-		}
-		if tries > 10 {
+// Init initialises the game master for floor z, spawning crew and scenario hostiles.
+func (gm *GameMaster) Init(l *world.Level, z int, fr generation.FloorResult) {
+	themeName := ""
+	if fr.Theme != nil {
+		themeName = fr.Theme.Name
+	}
+
+	// Crew — random tile anywhere on the floor.
+	for i := 0; i < stationconfig.Get().CrewCapacity; i++ {
+		x, y, ok := pickTile(l, z, nil)
+		if !ok {
 			continue
 		}
 		blueprint := crew[utility.GetRandom(0, len(crew))]
@@ -51,32 +73,38 @@ func (gm *GameMaster) Init(l *world.Level, z int) {
 		}
 	}
 
-	for i := 0; i < hostileInitial; i++ {
-		x := rand.Intn(l.Width)
-		y := rand.Intn(l.Height)
-		tile := l.Level.GetTilePtr(x, y, z)
-		tries := 0
-		for tile == nil || tile.IsSolid() || tile.Type == world.TypeOpen || l.GetEntityAt(x, y, z) != nil {
-			x = rand.Intn(l.Width)
-			y = rand.Intn(l.Height)
-			tile = l.Level.GetTilePtr(x, y, z)
-			tries++
-			if tries > 10 {
-				break
-			}
+	s := scenario.Active()
+
+	// Filter hostile pool to blueprints whose floor rule matches this floor.
+	validHostiles := scenario.FilterByFloor(s.Hostiles, s.SpawnRules, z, themeName)
+	validRare := scenario.FilterByFloor(s.RareHostiles, s.SpawnRules, z, themeName)
+
+	// Skip hostile spawning on this floor if no blueprints are valid here.
+	if len(validHostiles) == 0 && len(validRare) == 0 {
+		return
+	}
+	if len(validHostiles) == 0 {
+		validHostiles = validRare
+	}
+	if len(validRare) == 0 {
+		validRare = validHostiles
+	}
+
+	for i := 0; i < s.HostileInitial; i++ {
+		blueprint := validHostiles[utility.GetRandom(0, len(validHostiles))]
+		if utility.GetRandom(0, 30) == 0 {
+			blueprint = validRare[utility.GetRandom(0, len(validRare))]
 		}
-		if tries > 10 {
+		rule := s.SpawnRules[blueprint]
+		candidates := scenario.SpawnTiles(l, z, fr, rule)
+		x, y, ok := pickTile(l, z, candidates)
+		if !ok {
 			continue
 		}
-
-		blueprint := hostiles[utility.GetRandom(0, len(hostiles))]
-		if utility.GetRandom(0, 30) == 0 {
-			blueprint = rareHostiles[utility.GetRandom(0, len(rareHostiles))]
-		}
-		food, err := factory.Create(blueprint, x, y)
+		e, err := factory.Create(blueprint, x, y)
 		if err == nil {
-			food.GetComponent("Position").(*component.PositionComponent).SetPosition(x, y, z)
-			l.AddEntity(food)
+			e.GetComponent("Position").(*component.PositionComponent).SetPosition(x, y, z)
+			l.AddEntity(e)
 		}
 	}
 }
@@ -178,49 +206,65 @@ func createKeyEntity(l *world.Level, x, y, z int, keyID string) {
 	l.Level.AddEntity(e)
 }
 
-// Update Update the game master
-func (gm *GameMaster) Update(l *world.Level, z, pX, pY int) {
+// Update runs per-tick game master logic, potentially spawning a new hostile.
+func (gm *GameMaster) Update(l *world.Level, z, pX, pY int, fr generation.FloorResult) {
+	s := scenario.Active()
+
+	spawnRoll := float64(utility.GetRandom(0, 100)) / 100.0
+	if spawnRoll >= s.SpawnChance {
+		return
+	}
+
 	hostileCount := 0
-
-	// Random chance to spawn in a new enemy
-	if utility.GetRandom(0, 5) > 3 {
-		// Gather stats
-		for _, e := range l.Entities {
-			if e.HasComponent("HostileAI") {
-				hostileCount++
-			}
+	for _, e := range l.Entities {
+		if e.HasComponent("HostileAI") {
+			hostileCount++
 		}
+	}
+	if hostileCount >= s.HostileMax {
+		return
+	}
 
-		// Handle hostile count
-		if hostileCount < hostileMax {
-			x := rand.Intn(l.Width)
-			y := rand.Intn(l.Height)
-			tile := l.Level.GetTilePtr(x, y, z)
-			tries := 0
-			dist := utility.Distance(pX, pY, x, y)
+	themeName := ""
+	if fr.Theme != nil {
+		themeName = fr.Theme.Name
+	}
+	validHostiles := scenario.FilterByFloor(s.Hostiles, s.SpawnRules, z, themeName)
+	validRare := scenario.FilterByFloor(s.RareHostiles, s.SpawnRules, z, themeName)
+	if len(validHostiles) == 0 && len(validRare) == 0 {
+		return
+	}
+	if len(validHostiles) == 0 {
+		validHostiles = validRare
+	}
+	if len(validRare) == 0 {
+		validRare = validHostiles
+	}
 
-			for tile == nil || tile.IsSolid() || tile.Type == world.TypeOpen || l.GetEntityAt(x, y, z) != nil || dist < 20 || dist > 50 {
-				x = rand.Intn(l.Width)
-				y = rand.Intn(l.Height)
-				tile = l.Level.GetTilePtr(x, y, z)
-				dist = utility.Distance(pX, pY, x, y)
+	blueprint := validHostiles[utility.GetRandom(0, len(validHostiles))]
+	if utility.GetRandom(0, 20) == 0 {
+		blueprint = validRare[utility.GetRandom(0, len(validRare))]
+	}
 
-				tries++
-				if tries > 1000 {
-					break
-				}
-			}
-
-			blueprint := hostiles[utility.GetRandom(0, len(hostiles))]
-
-			if utility.GetRandom(0, 20) == 0 {
-				blueprint = rareHostiles[utility.GetRandom(0, len(rareHostiles))]
-			}
-			e, err := factory.Create(blueprint, x, y)
-			if err == nil {
-				e.GetComponent("Position").(*component.PositionComponent).SetPosition(x, y, z)
-				l.AddEntity(e)
-			}
+	// Restrict to tiles at a sane distance from the player.
+	rule := s.SpawnRules[blueprint]
+	candidates := scenario.SpawnTiles(l, z, fr, rule)
+	// Filter by player distance.
+	filtered := candidates[:0]
+	for _, c := range candidates {
+		d := utility.Distance(pX, pY, c[0], c[1])
+		if d >= 20 && d <= 50 {
+			filtered = append(filtered, c)
 		}
+	}
+
+	x, y, ok := pickTile(l, z, filtered)
+	if !ok {
+		return
+	}
+	e, err := factory.Create(blueprint, x, y)
+	if err == nil {
+		e.GetComponent("Position").(*component.PositionComponent).SetPosition(x, y, z)
+		l.AddEntity(e)
 	}
 }

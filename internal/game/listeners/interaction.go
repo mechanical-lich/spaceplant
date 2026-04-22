@@ -1,6 +1,7 @@
 package listeners
 
 import (
+	"fmt"
 	"strconv"
 
 	"github.com/mechanical-lich/ml-rogue-lib/pkg/rlcomponents"
@@ -8,6 +9,7 @@ import (
 	mlgeevent "github.com/mechanical-lich/mlge/event"
 	"github.com/mechanical-lich/mlge/message"
 	"github.com/mechanical-lich/spaceplant/internal/eventsystem"
+	"github.com/mechanical-lich/spaceplant/internal/system"
 )
 
 // InteractionListener handles InteractionEvents fired by rlentity.CheckInteraction.
@@ -94,6 +96,14 @@ func (l *InteractionListener) HandleEvent(data mlgeevent.EventData) error {
 				}
 			}
 			eventsystem.EventManager.SendEvent(eventsystem.ArmSelfDestructEventData{Turns: turns})
+		}
+
+	case "call_script_interact":
+		// Only fire for the player.
+		if ev.Actor != nil && ev.Actor == l.Sim.GetPlayer() {
+			if err := system.CallScriptEvent("on_interact", ev.Target, l.Sim.GetLevel()); err != nil {
+				return fmt.Errorf("call interact script event: %w", err)
+			}
 		}
 	}
 

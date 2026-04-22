@@ -16,6 +16,11 @@ type Level struct {
 	NoBudding []bool                      // parallel to Level.Data — generation flag
 	Overgrown []bool                      // parallel to Level.Data — overgrowth state
 	TileAnims map[TileAnimKey][]*TileAnim // visual-only tile overlay animations
+	ShaderSrc  []byte                      // KAGE source compiled lazily on first render
+	shader     *ebiten.Shader              // compiled from ShaderSrc on first use
+	shaderDst  *ebiten.Image              // reused shader output — reallocated only when size changes
+	// Flags is a general-purpose key-value store for scripts and scenarios to communicate.
+	Flags map[string]any
 }
 
 // NewLevel creates a single 3D level.
@@ -28,6 +33,7 @@ func NewLevel(width, height, depth int, theme Theme) *Level {
 		NoBudding: make([]bool, total),
 		Overgrown: make([]bool, total),
 		TileAnims: make(map[TileAnimKey][]*TileAnim),
+		Flags:     make(map[string]any),
 	}
 
 	// Initialize all tiles to "open" (space)

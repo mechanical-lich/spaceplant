@@ -1,8 +1,9 @@
 package game
 
 import (
-	"fmt"
+	"log"
 	"math/rand"
+	"os"
 	"sync"
 
 	"github.com/mechanical-lich/ml-rogue-lib/pkg/rlcomponents"
@@ -14,6 +15,7 @@ import (
 	"github.com/mechanical-lich/spaceplant/internal/component"
 	"github.com/mechanical-lich/spaceplant/internal/factory"
 	"github.com/mechanical-lich/spaceplant/internal/gamemaster"
+	"github.com/mechanical-lich/spaceplant/internal/scenario"
 	"github.com/mechanical-lich/spaceplant/internal/generation"
 	"github.com/mechanical-lich/spaceplant/internal/skill"
 	"github.com/mechanical-lich/spaceplant/internal/system"
@@ -66,11 +68,6 @@ type SimWorld struct {
 	StationName string
 	PlayerRunID string
 
-	// SelfDestructTurns counts down from the moment the self-destruct is armed.
-	// 0 means inactive. When it reaches 0 after being active, the player dies.
-	SelfDestructTurns    int
-	selfDestructArmed    bool
-
 	// MotherPlantPlaced is set true when the saboteur places their mother plant cutting.
 	MotherPlantPlaced bool
 }
@@ -86,11 +83,16 @@ func NewSimWorld() (*SimWorld, error) {
 	pX := 50
 	pY := 50
 	sw.Level = world.NewLevel(100, 100, numLevels, world.NewDefaultTheme())
+	if b, err := os.ReadFile("data/shaders/crt.kage"); err != nil {
+		log.Printf("crt shader not loaded: %v", err)
+	} else {
+		sw.Level.ShaderSrc = b
+	}
 
 	sw.FloorResults = generation.GenerateFloors(sw.Level)
 
 	for z := 0; z < numLevels; z++ {
-		sw.gm.Init(sw.Level, z)
+		sw.gm.Init(sw.Level, z, sw.FloorResults[z])
 		sw.gm.PlaceLockedProgression(sw.Level, pX, pY, z, z+1)
 	}
 
@@ -106,7 +108,7 @@ func NewSimWorld() (*SimWorld, error) {
 	sw.systemManager.AddSystem(sw.aiSystem)
 	sw.advancedAISystem = &system.AdvancedAISystem{}
 	sw.systemManager.AddSystem(sw.advancedAISystem)
-	sw.systemManager.AddSystem(&system.MotherPlantSeedSystem{})
+	sw.systemManager.AddSystem(&system.ScriptSystem{})
 	sw.systemManager.AddSystem(&system.LightSystem{})
 	sw.systemManager.AddSystem(&rlsystems.DoorSystem{AppearanceType: component.Appearance})
 
@@ -139,7 +141,7 @@ func (sw *SimWorld) BuildEvalContext() wincondition.EvalContext {
 	return wincondition.EvalContext{
 		Player:            sw.Player,
 		Entities:          live,
-		SelfDestructArmed: sw.selfDestructArmed,
+		Flags:             sw.Level.Flags,
 		MotherPlantPlaced: sw.MotherPlantPlaced,
 	}
 }
@@ -156,7 +158,7 @@ func (sw *SimWorld) RegenerateLevel() error {
 
 	gm := gamemaster.GameMaster{}
 	for z := 0; z < numLevels; z++ {
-		gm.Init(newLevel, z)
+		gm.Init(newLevel, z, floorResults[z])
 		gm.PlaceLockedProgression(newLevel, pX, pY, z, z+1)
 	}
 
@@ -170,6 +172,8 @@ func (sw *SimWorld) RegenerateLevel() error {
 		crate.GetComponent("Position").(*component.PositionComponent).SetPosition(pX+3, pY, 0)
 		newLevel.AddEntity(crate)
 	}
+
+	newLevel.ShaderSrc = sw.Level.ShaderSrc
 
 	sw.Mu.Lock()
 	sw.Level = newLevel
@@ -189,6 +193,30 @@ func (sw *SimWorld) RegenerateLevel() error {
 
 // GetRLLevel implements listeners.SimAccess.
 func (sw *SimWorld) GetRLLevel() *rlworld.Level { return sw.Level.Level }
+
+// SelfDestructArmed returns true when the self-destruct flag has been set by a script.
+func (sw *SimWorld) SelfDestructArmed() bool {
+	v := sw.Level.Flags["self_destruct_armed"]
+	return v != nil && v != false && v != 0.0
+}
+
+// SelfDestructTurns returns the remaining countdown stored in Level.Flags by the script.
+func (sw *SimWorld) SelfDestructTurns() int {
+	v := sw.Level.Flags["self_destruct_turns"]
+	if v == nil {
+		return 0
+	}
+	switch n := v.(type) {
+	case float64:
+		return int(n)
+	case int:
+		return n
+	}
+	return 0
+}
+
+// GetLevel implements listeners.SimAccess.
+func (sw *SimWorld) GetLevel() *world.Level { return sw.Level }
 
 // resolveSpawnLocation returns (x, y, z) for the player spawn point.
 // If the class has StartingRoomTags, it searches all floors for the first room
@@ -302,50 +330,30 @@ func (sw *SimWorld) SpawnPlayer(data CharacterData) error {
 	sw.advancedAISystem.Watcher = player
 	sw.Level.AddEntity(player)
 
-	// Spawn initial mother plant on z=0 unless this is a saboteur run.
-	if data.BackgroundID != "saboteur" && !sw.motherPlantExists() {
-		sw.spawnMotherPlant(0)
+	// Spawn scenario boss(es) unless the saboteur background handles placement manually.
+	if data.BackgroundID != "saboteur" {
+		s := scenario.Active()
+		for _, bp := range s.BossSpawns {
+			rule := s.SpawnRules[bp]
+			// Determine which floor to use: first floor matching the rule, default z=0.
+			targetZ := 0
+			for _, fr := range sw.FloorResults {
+				themeName := ""
+				if fr.Theme != nil {
+					themeName = fr.Theme.Name
+				}
+				if rule.FloorMatches(fr.Z, themeName) {
+					targetZ = fr.Z
+					break
+				}
+			}
+			fr := sw.FloorResults[targetZ]
+			candidates := scenario.SpawnTiles(sw.Level, targetZ, fr, rule)
+			sw.spawnBossFromCandidates(bp, targetZ, candidates)
+		}
 	}
-
-	sw.debugWinLocations()
 
 	return nil
-}
-
-// debugWinLocations prints the x,y,z of win-condition entities and special rooms to stdout.
-func (sw *SimWorld) debugWinLocations() {
-	// Special rooms from floor results.
-	roomTags := map[string]bool{
-		"life_pod_bay":       true,
-		"self_destruct_room": true,
-	}
-	for _, fr := range sw.FloorResults {
-		for _, room := range fr.Rooms {
-			if roomTags[room.Tag] {
-				fmt.Printf("[DEBUG] room:%s at x=%d y=%d z=%d (w=%d h=%d)\n",
-					room.Tag, room.X, room.Y, fr.Z, room.Width, room.Height)
-			}
-		}
-	}
-
-	// Key entities.
-	targets := map[string]bool{
-		"mother_plant":          true,
-		"mobile_mother_plant":   true,
-		"life_pod_console":      true,
-		"self_destruct_console": true,
-		"terminal":              true,
-	}
-	for _, e := range sw.Level.Level.GetEntities() {
-		if e == nil || !targets[e.Blueprint] {
-			continue
-		}
-		if !e.HasComponent("Position") {
-			continue
-		}
-		pc := e.GetComponent("Position").(*component.PositionComponent)
-		fmt.Printf("[DEBUG] entity:%s at x=%d y=%d z=%d\n", e.Blueprint, pc.GetX(), pc.GetY(), pc.GetZ())
-	}
 }
 
 func (sw *SimWorld) motherPlantExists() bool {
@@ -357,19 +365,37 @@ func (sw *SimWorld) motherPlantExists() bool {
 	return false
 }
 
-// spawnMotherPlant places a mother_plant entity at a random floor tile on floor z.
+// spawnMotherPlant places a mobile_mother_plant at a random floor tile on floor z.
+// Kept for the saboteur background path.
 func (sw *SimWorld) spawnMotherPlant(z int) {
-	for tries := 0; tries < 200; tries++ {
-		x := rand.Intn(sw.Level.Width)
-		y := rand.Intn(sw.Level.Height)
-		tile := sw.Level.Level.GetTilePtr(x, y, z)
-		if tile == nil || tile.IsSolid() || tile.Type == world.TypeOpen {
-			continue
+	sw.spawnBossFromCandidates("mobile_mother_plant", z, nil)
+}
+
+// spawnBossFromCandidates places blueprint at a random tile from candidates.
+// If candidates is nil/empty, falls back to any passable tile on floor z.
+func (sw *SimWorld) spawnBossFromCandidates(blueprint string, z int, candidates [][2]int) {
+	// Build fallback list if no candidates provided.
+	if len(candidates) == 0 {
+		for tries := 0; tries < 200; tries++ {
+			x := rand.Intn(sw.Level.Width)
+			y := rand.Intn(sw.Level.Height)
+			tile := sw.Level.Level.GetTilePtr(x, y, z)
+			if tile == nil || tile.IsSolid() || tile.Type == world.TypeOpen {
+				continue
+			}
+			if sw.Level.GetEntityAt(x, y, z) != nil {
+				continue
+			}
+			candidates = append(candidates, [2]int{x, y})
+			break
 		}
+	}
+	for _, c := range rand.Perm(len(candidates)) {
+		x, y := candidates[c][0], candidates[c][1]
 		if sw.Level.GetEntityAt(x, y, z) != nil {
 			continue
 		}
-		e, err := factory.Create("mobile_mother_plant", x, y)
+		e, err := factory.Create(blueprint, x, y)
 		if err != nil {
 			return
 		}

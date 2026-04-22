@@ -21,7 +21,6 @@ eventsystem.EventManager.SendEvent(eventsystem.GameWonEventData{
 |----------|---------|
 | `GameWon` | Player won — triggers win screen |
 | `LifePodEscape` | Player activated a life pod console |
-| `ArmSelfDestruct` | Player activated the self-destruct console |
 | `PlaceMotherPlant` | Saboteur placed their cutting |
 
 ### Win screen (`internal/game/win_modal.go`)
@@ -95,20 +94,39 @@ This fires regardless of line-of-sight (unlike `DeathEvent`, which is LOS-gated)
 ## Self-Destruct System
 
 **Blueprint:** `self_destruct_console` in `data/blueprints/environment/environment.json`  
-**Room:** `self_destruct_room` (guaranteed to spawn once on Z=0 via `ThemeEngineering.RequiredRooms`)
+**Room:** `self_destruct_room` (guaranteed to spawn once on Z=5 via `ThemeCommand.RequiredRoomCounts`)  
+**Script:** `data/scripts/self_destruct_console.basic`
+
+The console is a live (non-inanimate) entity with an energy budget so it can tick every turn. All arming and countdown logic lives in its script; `SimWorld` and `MainSimState` hold no self-destruct state.
 
 **Flow:**
-1. Player bumps console → `arm_self_destruct` trigger → `ArmSelfDestructEventData{Turns: 60}`
-2. `MainSimState.HandleEvent` sets `sim.SelfDestructTurns` and `sim.selfDestructArmed = true`
-3. Each `phaseTurnComplete` decrements `SelfDestructTurns`; at 0, adds `DeadComponent` to player
-4. HUD shows countdown in red/amber (`internal/game/mainStateViews.go`)
-5. If player reaches a life pod before countdown hits 0 → win via `LifePodEscape` path
+1. Player interacts with console → `call_script_interact` trigger → `system.CallScriptEvent("on_interact", ...)`.
+2. Script's `on_interact`: if not already armed, sets `armed = 1` in `Vars`, sets `Level.Flags["self_destruct_armed"] = 1` and `Level.Flags["self_destruct_turns"] = 60`, posts a warning message.
+3. Each turn the console's `on_turn_taken` fires: decrements `turns_left` in `Vars` and syncs `Level.Flags["self_destruct_turns"]`. Posts warnings at ≤10 turns. At zero, calls `kill_player()`.
+4. HUD reads `Level.Flags` via `SimWorld.SelfDestructArmed()` and `SimWorld.SelfDestructTurns()` and shows the countdown in amber/red.
+5. If the player reaches a life pod before the countdown hits 0 → win via `LifePodEscape` path.
 
-**SimWorld fields:**
+**SimWorld helpers (read-only, no stored state):**
 ```go
-SelfDestructTurns int  // exported for HUD reads
-selfDestructArmed bool // unexported; set by HandleEvent
+func (sw *SimWorld) SelfDestructArmed() bool { ... } // reads Level.Flags["self_destruct_armed"]
+func (sw *SimWorld) SelfDestructTurns() int  { ... } // reads Level.Flags["self_destruct_turns"]
 ```
+
+**Win condition — heroic death:**
+
+The `plantz` scenario includes a `player_death` rule that fires a win when `self_destruct_armed` is set, letting the player die in the explosion as a valid win state:
+
+```json
+{
+  "id": "heroic_death",
+  "trigger": "player_death",
+  "when": [{ "game_flag": "self_destruct_armed" }],
+  "result": "win",
+  "outcome": "heroic_death"
+}
+```
+
+See [Scripting](scripting.md) for how the console script works.
 
 ---
 
@@ -117,9 +135,9 @@ selfDestructArmed bool // unexported; set by HandleEvent
 ### Phase 1: Mobile (`mobile_mother_plant`)
 
 - Spawned at game start (unless Saboteur background) or placed by Saboteur via `PlaceMotherPlantAction`
-- Has `MotherPlantSeedComponent{TurnsLeft: 10}`
+- Has `ScriptComponent` pointing to `data/scripts/mobile_mother_plant.basic` with `turns_left: 10`
 - Uses `AdvancedAIComponent` with randomness to wander
-- After 10 turns, `MotherPlantSeedSystem` kills it and spawns `mother_plant` in its place
+- After 10 turns, the script kills it and spawns `mother_plant` in its place
 
 ### Phase 2: Rooted (`mother_plant`)
 
@@ -127,17 +145,9 @@ selfDestructArmed bool // unexported; set by HandleEvent
 - Has `massive_spread_overgrowth` and `immobile` skills
 - Death triggers the `extermination` win condition
 
-### `MotherPlantSeedSystem` (`internal/system/MotherPlantSeedSystem.go`)
+### Script (`data/scripts/mobile_mother_plant.basic`)
 
-Implements `ecs.SystemInterface`. Requires `MotherPlantSeedComponent`. `UpdateEntity` fires when the entity has `TurnTaken`, decrements `TurnsLeft`, and transforms at zero:
-
-```go
-func (s MotherPlantSeedSystem) Requires() []ecs.ComponentType {
-    return []ecs.ComponentType{component.MotherPlantSeed}
-}
-```
-
-Registered in `SimWorld.NewSimWorld()` before `LightSystem` so it runs before `CleanUpSystem` removes `TurnTaken`.
+Handled by the general `ScriptSystem`. Each turn, `on_turn_taken` decrements `turns_left`. At zero it calls `add_dead()` on the cutting and `spawn_entity("mother_plant", x, y, z)` to place the rooted form. See [Scripting](scripting.md).
 
 ### Duplicate prevention
 
@@ -148,7 +158,7 @@ Registered in `SimWorld.NewSimWorld()` before `LightSystem` so it runs before `C
 ## Life Pod Bay
 
 **Blueprint:** `life_pod_console` in `data/blueprints/environment/environment.json`  
-**Room:** `life_pod_bay` (guaranteed to spawn once on Z=0 via `ThemeEngineering.RequiredRooms`)
+**Room:** `life_pod_bay` (guaranteed to spawn once on Z=2 via `ThemeHabitation.RequiredRoomCounts`)
 
 Interaction triggers:
 1. `post_message` — flavor text
@@ -158,17 +168,14 @@ Interaction triggers:
 
 ## Guaranteed Room Placement
 
-Win-condition rooms must always be present. `FloorTheme.RequiredRooms []string` lists tags that `PlaceRooms` places first (before the weighted random pass) using the shuffled candidate list:
+Win-condition rooms must always be present. `FloorTheme.RequiredRoomCounts map[string]int` is stamped onto themes at startup by `applyStationConfig` based on `stationconfig.Config`. The layout of each floor matters: rooms are placed on floors with enough candidate positions.
 
-```go
-// internal/generation/floor_theme.go
-var ThemeEngineering = FloorTheme{
-    RequiredRooms: []string{"life_pod_bay", "self_destruct_room"},
-    ...
-}
-```
+| Room | Floor | Theme |
+|------|-------|-------|
+| `life_pod_bay` | Z=2 | Habitation (Grid layout) |
+| `self_destruct_room` | Z=5 | Operations & Command (RingSpokes layout) |
 
-`PlaceRooms` (`internal/generation/place_rooms.go`) iterates required tags first, consuming candidates until each one fits, then hands remaining candidates to the weighted random loop.
+`PlaceRooms` (`internal/generation/place_rooms.go`) processes required tags first, consuming candidates until each fits, then runs the weighted random pass for the remainder.
 
 ---
 

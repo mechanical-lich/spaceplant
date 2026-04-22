@@ -30,6 +30,9 @@ type WeaponComponent struct {
 	RangeBands []RangeBand `json:"RangeBands,omitempty"`
 	// BurstSize is rounds per burst (0/1 = single shot only).
 	BurstSize int `json:"BurstSize"`
+	// AutoRounds is the number of rounds fired per normal trigger pull (0/1 = one round).
+	// Use this for automatic weapons like machine guns where sustained fire is the default.
+	AutoRounds int `json:"AutoRounds,omitempty"`
 	// SpreadAngle fires extra diagonal lines (0=single line, 1=3-wide, 2=5-wide).
 	SpreadAngle int `json:"SpreadAngle"`
 	// Ammo tracking.

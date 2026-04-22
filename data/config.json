@@ -6,16 +6,18 @@
     "screenWidth": 1200,
     "screenHeight": 816,
     "title": "Space Plant!",
+    "fullscreen": false,
     "blueprintPath": "data/blueprints",
     "lighting": true,
     "colorShading": false,
     "los": true,
+    "pressDelay": 6,
     "showMouseCoords": false,
     "renderScale": 1,
     "renderPathfindingSteps": false,
     "profileCPU": false,
     "profileMemory": false,
     "dumpGenerationASCII": true,
-    "pressDelay": 6,
-    "npcTurnDelayTicks": 2
+    "npcTurnDelayTicks": 2,
+    "crtIntensity": 0
 }

@@ -1,12 +1,12 @@
 module github.com/mechanical-lich/spaceplant
 
-go 1.25.0
+go 1.25.5
 
 require (
 	github.com/gdamore/tcell/v2 v2.13.8
 	github.com/hajimehoshi/ebiten/v2 v2.9.9
 	github.com/mechanical-lich/ml-rogue-lib v1.9.5
-	github.com/mechanical-lich/mlge v1.5.3
+	github.com/mechanical-lich/mlge v1.6.1
 )
 
 require (
@@ -21,6 +21,7 @@ require (
 	github.com/jfreymuth/oggvorbis v1.0.5 // indirect
 	github.com/jfreymuth/vorbis v1.0.2 // indirect
 	github.com/lucasb-eyer/go-colorful v1.3.0 // indirect
+	github.com/mechanical-lich/mechanical-basic v1.0.0 // indirect
 	github.com/rivo/uniseg v0.4.7 // indirect
 	golang.org/x/image v0.31.0 // indirect
 	golang.org/x/sync v0.18.0 // indirect
@@ -29,5 +30,8 @@ require (
 	golang.org/x/text v0.31.0 // indirect
 )
 
-// replace github.com/mechanical-lich/mlge => ../mlge
+//replace github.com/mechanical-lich/mechanical-basic => ../mechanical-basic
+
+//replace github.com/mechanical-lich/mlge => ../mlge
+
 // replace github.com/mechanical-lich/ml-rogue-lib => ../ml-rogue-lib

@@ -1,0 +1,13 @@
+function on_turn_taken():
+    let turns = get_var("turns_left")
+    turns = turns - 1
+    set_var("turns_left", turns)
+    if turns <= 0 then
+        let px = get_x()
+        let py = get_y()
+        let pz = get_z()
+        add_dead()
+        spawn_entity("mother_plant", px, py, pz)
+        add_message("The cutting convulses and erupts — the mother plant has taken root!")
+    endif
+endfunction
