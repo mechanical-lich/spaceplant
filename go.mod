@@ -21,7 +21,7 @@ require (
 	github.com/jfreymuth/oggvorbis v1.0.5 // indirect
 	github.com/jfreymuth/vorbis v1.0.2 // indirect
 	github.com/lucasb-eyer/go-colorful v1.3.0 // indirect
-	github.com/mechanical-lich/mechanical-basic v0.0.0-00010101000000-000000000000 // indirect
+	github.com/mechanical-lich/mechanical-basic v1.0.0 // indirect
 	github.com/rivo/uniseg v0.4.7 // indirect
 	golang.org/x/image v0.31.0 // indirect
 	golang.org/x/sync v0.18.0 // indirect
@@ -30,7 +30,7 @@ require (
 	golang.org/x/text v0.31.0 // indirect
 )
 
-replace github.com/mechanical-lich/mechanical-basic => ../mechanical-basic
+//replace github.com/mechanical-lich/mechanical-basic => ../mechanical-basic
 
 //replace github.com/mechanical-lich/mlge => ../mlge
 
