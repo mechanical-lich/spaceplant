@@ -1,6 +1,7 @@
 package listeners
 
 import (
+	"fmt"
 	"strconv"
 
 	"github.com/mechanical-lich/ml-rogue-lib/pkg/rlcomponents"
@@ -100,7 +101,9 @@ func (l *InteractionListener) HandleEvent(data mlgeevent.EventData) error {
 	case "call_script_interact":
 		// Only fire for the player.
 		if ev.Actor != nil && ev.Actor == l.Sim.GetPlayer() {
-			system.CallScriptEvent("on_interact", ev.Target, l.Sim.GetLevel()) //nolint:errcheck
+			if err := system.CallScriptEvent("on_interact", ev.Target, l.Sim.GetLevel()); err != nil {
+				return fmt.Errorf("call interact script event: %w", err)
+			}
 		}
 	}
 

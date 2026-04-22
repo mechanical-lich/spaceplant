@@ -32,7 +32,7 @@ heal 200
 
 Searches all live and static entities on every floor for the nearest instance of the given blueprint (case-insensitive). Reports its coordinates to the message log. Useful for locating win-condition entities like `self_destruct_console` or `mother_plant` without exploring.
 
-Distance is measured as Manhattan distance in XY, with a 50× penalty per floor difference so entities on the current floor are preferred.
+Distance is measured using a squared offset metric (`dx*dx + dy*dy`) with an additional 50× penalty per floor difference, so entities on the current floor are strongly preferred.
 
 ```
 find self_destruct_console
@@ -48,7 +48,7 @@ If no match is found, the message log reports `[cheat] no "<blueprint>" found`.
 
 Searches all floor results for the nearest room whose tag matches (case-insensitive). Reports the room's origin coordinates and floor to the message log.
 
-Distance uses the same formula as `find` — Manhattan XY with a 50× floor penalty.
+Distance uses the same formula as `find` — a squared XY offset metric (`dx*dx + dy*dy`) plus a 50× floor-difference penalty.
 
 ```
 find_room self_destruct_room

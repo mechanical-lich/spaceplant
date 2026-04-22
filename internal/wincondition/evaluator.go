@@ -107,8 +107,11 @@ func matchCondition(c Condition, ctx EvalContext) bool {
 				return false
 			}
 		default:
-			v := ctx.Flags[*c.GameFlag]
-			if v == nil || v == false || v == 0.0 {
+			if ctx.Flags == nil {
+				return false
+			}
+			v, ok := ctx.Flags[*c.GameFlag]
+			if !ok || !isTruthyFlag(v) {
 				return false
 			}
 		}
@@ -145,6 +148,19 @@ func FireRule(rule Rule, detail string) {
 			Message: rule.Message,
 			Detail:  detail,
 		})
+	}
+}
+
+func isTruthyFlag(v any) bool {
+	switch t := v.(type) {
+	case bool:
+		return t
+	case float64:
+		return t != 0
+	case int:
+		return t != 0
+	default:
+		return false
 	}
 }
 

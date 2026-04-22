@@ -100,7 +100,6 @@ var ThemeHabitation = FloorTheme{
 		{"childcare", 5},
 		{"captains_quarters", 3},
 	},
-	RequiredRooms: []string{"life_pod_bay"}, // ensure escape pods are available in emergencies
 }
 
 var ThemeCommerceSocial = FloorTheme{
@@ -156,7 +155,6 @@ var ThemeCommand = FloorTheme{
 		{"courtroom", 5},
 		{"executive_suite", 12},
 	},
-	RequiredRooms: []string{"self_destruct_room"},
 }
 
 // FloorStack is the ordered list of themes from Z=0 (bottom) to top.

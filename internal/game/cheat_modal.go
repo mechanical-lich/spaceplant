@@ -176,7 +176,10 @@ func (cm *CheatModal) runCommand(raw string) {
 			return
 		}
 		target := strings.ToLower(parts[1])
+
+		cm.sim.Mu.RLock()
 		if cm.sim.Player == nil {
+			cm.sim.Mu.RUnlock()
 			return
 		}
 		pc := cm.sim.Player.GetComponent("Position").(*component.PositionComponent)
@@ -199,6 +202,8 @@ func (cm *CheatModal) runCommand(raw string) {
 				}
 			}
 		}
+		cm.sim.Mu.RUnlock()
+
 		if bestDist < 0 {
 			message.AddMessage(fmt.Sprintf("[cheat] no room %q found", target))
 		} else {

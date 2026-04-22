@@ -68,6 +68,6 @@ func (a RoundhouseKickAction) Execute(entity *ecs.Entity, level *world.Level) er
 		})
 	}
 
-rlenergy.SetActionCost(entity, energy.CostAttack)
+	rlenergy.SetActionCost(entity, energy.CostAttack)
 	return nil
 }
