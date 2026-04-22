@@ -149,13 +149,13 @@ func TestEvalPlayerDeath_HeroicDeathBeforeDefault(t *testing.T) {
 	}})
 
 	// self-destruct armed → heroic win
-	rule, ok := ev.EvalPlayerDeath(EvalContext{SelfDestructArmed: true})
+	rule, ok := ev.EvalPlayerDeath(EvalContext{Flags: map[string]any{"self_destruct_armed": 1.0}})
 	if !ok || rule.Outcome != "heroic_death" {
 		t.Errorf("expected heroic_death, got %q ok=%v", rule.Outcome, ok)
 	}
 
 	// not armed → default lose
-	rule, ok = ev.EvalPlayerDeath(EvalContext{SelfDestructArmed: false})
+	rule, ok = ev.EvalPlayerDeath(EvalContext{})
 	if !ok || rule.Outcome != "dead" {
 		t.Errorf("expected dead, got %q ok=%v", rule.Outcome, ok)
 	}
@@ -224,10 +224,10 @@ func TestCondition_PlayerClass_Mismatch(t *testing.T) {
 
 func TestCondition_GameFlag_SelfDestructArmed(t *testing.T) {
 	c := Condition{GameFlag: ptr("self_destruct_armed")}
-	if !matchCondition(c, EvalContext{SelfDestructArmed: true}) {
+	if !matchCondition(c, EvalContext{Flags: map[string]any{"self_destruct_armed": 1.0}}) {
 		t.Error("expected match when armed")
 	}
-	if matchCondition(c, EvalContext{SelfDestructArmed: false}) {
+	if matchCondition(c, EvalContext{}) {
 		t.Error("expected no match when not armed")
 	}
 }

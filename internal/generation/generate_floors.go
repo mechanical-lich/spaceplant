@@ -24,12 +24,9 @@ func applyStationConfig(themes *[]FloorTheme, cfg stationconfig.Config) {
 
 	// Engineering floor (z=0)
 	set(0, "engineering_workshop", cfg.EngineeringCapacity)
-	set(0, "life_pod_bay", cfg.LifePodBayCount)
-	if cfg.SelfDestructEnabled {
-		set(0, "self_destruct_room", 1)
-	}
 
 	// Habitation floor (z=2)
+	set(2, "life_pod_bay", cfg.LifePodBayCount)
 	set(2, "crew_quarters", cfg.CrewCapacity)
 
 	// Science floor (z=4)
@@ -37,6 +34,9 @@ func applyStationConfig(themes *[]FloorTheme, cfg stationconfig.Config) {
 	set(4, "medical_bay", cfg.MedCount)
 
 	// Command floor (z=5)
+	if cfg.SelfDestructEnabled {
+		set(5, "self_destruct_room", 1)
+	}
 	set(5, "security_office", cfg.SecurityCapacity)
 }
 

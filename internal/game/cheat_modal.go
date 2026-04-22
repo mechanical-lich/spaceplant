@@ -46,7 +46,7 @@ func (cm *CheatModal) rebuildModal() {
 	cm.modal.SetPosition(mx, my)
 	cm.modal.Closeable = false
 
-	cm.input = minui.NewTextInput("cheat_input", "teleport <x> <y> <z>  |  heal <amount>")
+	cm.input = minui.NewTextInput("cheat_input", "tp <x> <y> <z>  |  heal <n>  |  find <blueprint>  |  fr <room_tag>")
 	cm.input.SetPosition(10, 20)
 	cm.input.SetSize(cheatModalW-20, 30)
 	cm.modal.AddChild(cm.input)
@@ -91,8 +91,7 @@ func (cm *CheatModal) runCommand(raw string) {
 			return
 		}
 		cm.sim.Mu.Lock()
-		pc := cm.sim.Player.GetComponent("Position").(*component.PositionComponent)
-		pc.SetPosition(x, y, z)
+		cm.sim.Level.Level.PlaceEntity(x, y, z, cm.sim.Player)
 		cm.sim.CurrentZ = z
 		cm.sim.UpdateEntities()
 		cm.sim.Mu.Unlock()
@@ -132,6 +131,84 @@ func (cm *CheatModal) runCommand(raw string) {
 		}
 		cm.sim.Mu.Unlock()
 		message.AddMessage(fmt.Sprintf("[cheat] healed %d HP", amount))
+
+	case "find":
+		if len(parts) < 2 {
+			message.AddMessage("[cheat] usage: find <blueprint>")
+			return
+		}
+		target := strings.ToLower(parts[1])
+		if cm.sim.Player == nil {
+			return
+		}
+		pc := cm.sim.Player.GetComponent("Position").(*component.PositionComponent)
+		px, py, pz := pc.GetX(), pc.GetY(), pc.GetZ()
+
+		bestDist := -1
+		bestX, bestY, bestZ := 0, 0, 0
+		all := append(cm.sim.Level.Level.GetEntities(), cm.sim.Level.Level.GetStaticEntities()...)
+		for _, e := range all {
+			if e == nil || !strings.EqualFold(e.Blueprint, target) {
+				continue
+			}
+			if !e.HasComponent("Position") {
+				continue
+			}
+			epc := e.GetComponent("Position").(*component.PositionComponent)
+			dx := epc.GetX() - px
+			dy := epc.GetY() - py
+			dz := (epc.GetZ() - pz) * 50
+			dist := dx*dx + dy*dy + dz*dz
+			if bestDist < 0 || dist < bestDist {
+				bestDist = dist
+				bestX, bestY, bestZ = epc.GetX(), epc.GetY(), epc.GetZ()
+			}
+		}
+		if bestDist < 0 {
+			message.AddMessage(fmt.Sprintf("[cheat] no %q found", target))
+		} else {
+			message.AddMessage(fmt.Sprintf("[cheat] nearest %q at %d,%d,%d", target, bestX, bestY, bestZ))
+		}
+
+	case "find_room", "fr":
+		if len(parts) < 2 {
+			message.AddMessage("[cheat] usage: find_room <tag>")
+			return
+		}
+		target := strings.ToLower(parts[1])
+
+		cm.sim.Mu.RLock()
+		if cm.sim.Player == nil {
+			cm.sim.Mu.RUnlock()
+			return
+		}
+		pc := cm.sim.Player.GetComponent("Position").(*component.PositionComponent)
+		px, py, pz := pc.GetX(), pc.GetY(), pc.GetZ()
+
+		bestDist := -1
+		bestX, bestY, bestZ := 0, 0, 0
+		for _, fr := range cm.sim.FloorResults {
+			for _, room := range fr.Rooms {
+				if !strings.EqualFold(room.Tag, target) {
+					continue
+				}
+				dx := room.X - px
+				dy := room.Y - py
+				dz := (fr.Z - pz) * 50
+				dist := dx*dx + dy*dy + dz*dz
+				if bestDist < 0 || dist < bestDist {
+					bestDist = dist
+					bestX, bestY, bestZ = room.X, room.Y, fr.Z
+				}
+			}
+		}
+		cm.sim.Mu.RUnlock()
+
+		if bestDist < 0 {
+			message.AddMessage(fmt.Sprintf("[cheat] no room %q found", target))
+		} else {
+			message.AddMessage(fmt.Sprintf("[cheat] nearest %q at %d,%d,%d", target, bestX, bestY, bestZ))
+		}
 
 	default:
 		message.AddMessage("[cheat] unknown command: " + parts[0])

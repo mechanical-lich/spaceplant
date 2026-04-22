@@ -1,7 +1,6 @@
 package action
 
 import (
-	"fmt"
 
 	"github.com/mechanical-lich/ml-rogue-lib/pkg/rlenergy"
 	"github.com/mechanical-lich/mlge/ecs"
@@ -69,7 +68,6 @@ func (a RoundhouseKickAction) Execute(entity *ecs.Entity, level *world.Level) er
 		})
 	}
 
-	fmt.Println("Roundhouse kick executed!") // Debugging
 	rlenergy.SetActionCost(entity, energy.CostAttack)
 	return nil
 }

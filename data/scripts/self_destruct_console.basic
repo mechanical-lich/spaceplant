@@ -1,0 +1,27 @@
+function on_interact():
+    if get_var("armed") = 1 then
+        add_message("Self-destruct already armed.")
+        return
+    endif
+    set_var("armed", 1)
+    set_flag("self_destruct_armed", 1)
+    set_flag("self_destruct_turns", get_var("turns_left"))
+    add_message("Sequence armed. " + num_to_str(get_var("turns_left")) + " turns to detonation. GET OUT.")
+endfunction
+
+function on_turn_taken():
+    if get_var("armed") <> 1 then
+        return
+    endif
+    let turns = get_var("turns_left")
+    turns = turns - 1
+    set_var("turns_left", turns)
+    set_flag("self_destruct_turns", turns)
+    if turns <= 10 then
+        add_message("WARNING: Self-destruct in " + num_to_str(turns) + " turns!")
+    endif
+    if turns <= 0 then
+        add_message("BOOM. The station tears itself apart.")
+        kill_player()
+    endif
+endfunction

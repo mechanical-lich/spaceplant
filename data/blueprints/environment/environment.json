@@ -75,7 +75,7 @@
             "SpriteY": 0,
             "SpriteWidth": 32,
             "SpriteHeight": 48,
-            "Resource": "map",
+            "Resource": "walls",
             "SpriteOffsetY": -16
         },
         "AsciiAppearanceComponent": {
@@ -157,25 +157,21 @@
             "SpriteOffsetY": -16
         },
         "SolidComponent": {},
-        "InanimateComponent": {},
+        "EnergyComponent": { "Speed": 100 },
+        "NeverSleepComponent": {},
         "InteractionComponent": {
             "Prompt": "STATION SELF-DESTRUCT SYSTEM — Authorization required. Arm sequence?",
             "Repeatable": false,
             "Triggers": [
                 {
-                    "Type": "post_message",
-                    "Params": {
-                        "sender": "Self-Destruct Console",
-                        "message": "Sequence armed. 60 turns to detonation. GET OUT."
-                    }
-                },
-                {
-                    "Type": "arm_self_destruct",
-                    "Params": {
-                        "turns": "60"
-                    }
+                    "Type": "call_script_interact",
+                    "Params": {}
                 }
             ]
+        },
+        "ScriptComponent": {
+            "ScriptPath": "data/scripts/self_destruct_console.basic",
+            "Vars": { "armed": 0, "turns_left": 60 }
         }
     },
     "maintenance_door": {
@@ -191,7 +187,7 @@
             "SpriteY": 0,
             "SpriteWidth": 32,
             "SpriteHeight": 48,
-            "Resource": "map",
+            "Resource": "walls",
             "SpriteOffsetY": -16
         },
         "AsciiAppearanceComponent": {

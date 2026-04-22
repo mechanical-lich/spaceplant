@@ -1,7 +1,6 @@
 package game
 
 import (
-	"fmt"
 	"math"
 
 	"github.com/mechanical-lich/ml-rogue-lib/pkg/rlcomponents"
@@ -20,7 +19,6 @@ import (
 	"github.com/mechanical-lich/spaceplant/internal/game/listeners"
 	"github.com/mechanical-lich/spaceplant/internal/skill"
 	"github.com/mechanical-lich/spaceplant/internal/system"
-	"github.com/mechanical-lich/spaceplant/internal/wincondition"
 	"github.com/mechanical-lich/spaceplant/internal/world"
 )
 
@@ -76,7 +74,6 @@ func NewMainSimState(sim *SimWorld) *MainSimState {
 	eventsystem.EventManager.RegisterListener(s, eventsystem.Stairs)
 	eventsystem.EventManager.RegisterListener(s, eventsystem.DropItem)
 	eventsystem.EventManager.RegisterListener(s, eventsystem.LifePodEscape)
-	eventsystem.EventManager.RegisterListener(s, eventsystem.ArmSelfDestruct)
 	eventsystem.EventManager.RegisterListener(s, eventsystem.PlaceMotherPlant)
 
 	event.GetQueuedInstance().RegisterListener(
@@ -191,30 +188,6 @@ func (s *MainSimState) Tick(_ any) simulation.SimulationState {
 		s.sim.Mu.Lock()
 		s.sim.TurnCount++
 		s.sim.TickCount = 0
-
-		// Self-destruct countdown.
-		if s.sim.selfDestructArmed {
-			if s.sim.SelfDestructTurns > 0 {
-				s.sim.SelfDestructTurns--
-				if s.sim.SelfDestructTurns <= 10 {
-					message.AddMessage(fmt.Sprintf("WARNING: Self-destruct in %d turns!", s.sim.SelfDestructTurns))
-				}
-			}
-			if s.sim.SelfDestructTurns == 0 {
-				// Station explodes — kill the player.
-				message.AddMessage("BOOM. The station tears itself apart.")
-				if s.sim.Player != nil {
-					// Evaluate win conditions before clearing selfDestructArmed so
-					// heroic_death rules can match.
-					ctx := s.sim.BuildEvalContext()
-					if rule, ok := wincondition.Active().EvalPlayerDeath(ctx); ok {
-						wincondition.FireRule(rule, "killed in the explosion")
-					}
-					s.sim.Player.AddComponent(&rlcomponents.DeadComponent{})
-				}
-				s.sim.selfDestructArmed = false
-			}
-		}
 
 		playerGotTurn, _ := rlenergy.AdvanceEnergy(s.sim.Level.Entities, s.sim.Player)
 		applyPlantFoodBonus(s.sim.Level.Entities, s.sim.Level)
@@ -408,12 +381,6 @@ func (s *MainSimState) HandleEvent(data event.EventData) error {
 		dropItemEvent.Item.GetComponent("Position").(*component.PositionComponent).
 			SetPosition(dropItemEvent.X, dropItemEvent.Y, dropItemEvent.Z)
 		s.sim.Level.AddEntity(dropItemEvent.Item)
-
-	case eventsystem.ArmSelfDestruct:
-		ev := data.(eventsystem.ArmSelfDestructEventData)
-		s.sim.SelfDestructTurns = ev.Turns
-		s.sim.selfDestructArmed = true
-		message.AddMessage(fmt.Sprintf("Self-destruct armed. %d turns to detonation.", ev.Turns))
 
 	case eventsystem.PlaceMotherPlant:
 		if s.sim.MotherPlantPlaced {
