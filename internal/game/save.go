@@ -546,8 +546,6 @@ func LoadStationIntoSimWorld(sw *SimWorld, stationID, savesDir string) error {
 	sw.CurrentZ = 0
 	sw.TickCount = 0
 	sw.TurnCount = 0
-	sw.aiSystem.Watcher = nil
-	sw.advancedAISystem.Watcher = nil
 	sw.Mu.Unlock()
 
 	sw.Mu.Lock()
@@ -609,9 +607,6 @@ func LoadPlayerRunIntoSimWorld(sw *SimWorld, playerRunID, savesDir string) error
 			}
 		}
 	}
-
-	sw.aiSystem.Watcher = sw.Player
-	sw.advancedAISystem.Watcher = sw.Player
 
 	// Sync skills for the player.
 	if sw.Player != nil {
@@ -857,10 +852,7 @@ func LoadGameNew(stationID, playerRunID, savesDir string) (*SimWorld, error) {
 		},
 	})
 	sw.systemManager.AddSystem(&system.PlayerSystem{})
-	sw.aiSystem = &system.AISystem{}
-	sw.systemManager.AddSystem(sw.aiSystem)
-	sw.advancedAISystem = &system.AdvancedAISystem{}
-	sw.systemManager.AddSystem(sw.advancedAISystem)
+	sw.systemManager.AddSystem(&system.ScriptSystem{})
 	sw.systemManager.AddSystem(&system.LightSystem{})
 	sw.systemManager.AddSystem(&rlsystems.DoorSystem{AppearanceType: component.Appearance})
 

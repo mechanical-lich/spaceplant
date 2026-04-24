@@ -217,8 +217,14 @@ func (gm *GameMaster) Update(l *world.Level, z, pX, pY int, fr generation.FloorR
 
 	hostileCount := 0
 	for _, e := range l.Entities {
-		if e.HasComponent("HostileAI") {
-			hostileCount++
+		if e == nil || e.HasComponent(rlcomponents.Dead) {
+			continue
+		}
+		if e.HasComponent(rlcomponents.Description) {
+			dc := e.GetComponent(rlcomponents.Description).(*rlcomponents.DescriptionComponent)
+			if dc.Faction == "plantz" {
+				hostileCount++
+			}
 		}
 	}
 	if hostileCount >= s.HostileMax {

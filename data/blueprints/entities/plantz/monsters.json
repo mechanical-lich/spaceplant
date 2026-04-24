@@ -65,12 +65,15 @@
             }
         },
         "SolidComponent": {},
-        "AdvancedAIComponent": {
-            "Aggressiveness": 60,
-            "Fear": 20,
-            "SightRange": 12,
-            "Randomness": 15,
-            "AvoidsFriendlyFire": true
+        "ScriptComponent": {
+            "ScriptPath": "data/scripts/ai_advanced.basic",
+            "Vars": {
+                "aggressiveness": 60,
+                "fear": 20,
+                "sight_range": 12,
+                "randomness": 15,
+                "avoids_friendly_fire": 1
+            }
         },
         "EnergyComponent": {
             "Speed": 100
@@ -188,8 +191,11 @@
                 "plant_food"
             ]
         },
-        "HostileAIComponent": {
-            "SightRange": 20
+        "ScriptComponent": {
+            "ScriptPath": "data/scripts/ai_hostile.basic",
+            "Vars": {
+                "sight_range": 20
+            }
         },
         "EnergyComponent": {
             "Speed": 100
@@ -291,8 +297,11 @@
                 "plant_food"
             ]
         },
-        "HostileAIComponent": {
-            "SightRange": 10
+        "ScriptComponent": {
+            "ScriptPath": "data/scripts/ai_hostile.basic",
+            "Vars": {
+                "sight_range": 10
+            }
         },
         "EnergyComponent": {
             "Speed": 200
@@ -333,7 +342,7 @@
             "LongDescription": "A snake like creature with a vaguely humanoid head and a long scythe like tail.",
             "PassOverDescription": [
                 "You step carefully over the scythe's blades.",
-                "The dead scythe's limbs are still sharp \u2014 you step over carefully."
+                "The dead scythe's limbs are still sharp — you step over carefully."
             ],
             "DeathAnnouncements": [
                 "The scythe creature falls, its bladed limbs clattering on the floor.",
@@ -391,8 +400,11 @@
                 "plant_food"
             ]
         },
-        "HostileAIComponent": {
-            "SightRange": 10
+        "ScriptComponent": {
+            "ScriptPath": "data/scripts/ai_hostile.basic",
+            "Vars": {
+                "sight_range": 10
+            }
         },
         "EnergyComponent": {
             "Speed": 150
@@ -482,8 +494,11 @@
                 "trail_overgrowth"
             ]
         },
-        "HostileAIComponent": {
-            "SightRange": 10
+        "ScriptComponent": {
+            "ScriptPath": "data/scripts/ai_hostile.basic",
+            "Vars": {
+                "sight_range": 10
+            }
         },
         "EnergyComponent": {
             "Speed": 200
@@ -557,12 +572,15 @@
             }
         },
         "SolidComponent": {},
-        "AdvancedAIComponent": {
-            "Aggressiveness": 10,
-            "Fear": 5,
-            "SightRange": 6,
-            "Randomness": 20,
-            "AvoidsFriendlyFire": false
+        "ScriptComponent": {
+            "ScriptPath": "data/scripts/ai_advanced.basic",
+            "Vars": {
+                "aggressiveness": 10,
+                "fear": 5,
+                "sight_range": 6,
+                "randomness": 20,
+                "avoids_friendly_fire": 0
+            }
         },
         "EnergyComponent": {
             "Speed": 75
@@ -642,12 +660,15 @@
             }
         },
         "SolidComponent": {},
-        "AdvancedAIComponent": {
-            "Aggressiveness": 10,
-            "Fear": 5,
-            "SightRange": 6,
-            "Randomness": 20,
-            "AvoidsFriendlyFire": false
+        "ScriptComponent": {
+            "ScriptPath": "data/scripts/ai_advanced.basic",
+            "Vars": {
+                "aggressiveness": 10,
+                "fear": 5,
+                "sight_range": 6,
+                "randomness": 20,
+                "avoids_friendly_fire": 0
+            }
         },
         "EnergyComponent": {
             "Speed": 75
@@ -731,12 +752,15 @@
             "Width": 2,
             "Height": 2
         },
-        "AdvancedAIComponent": {
-            "Aggressiveness": 10,
-            "Fear": 5,
-            "SightRange": 6,
-            "Randomness": 20,
-            "AvoidsFriendlyFire": false
+        "ScriptComponent": {
+            "ScriptPath": "data/scripts/ai_advanced.basic",
+            "Vars": {
+                "aggressiveness": 10,
+                "fear": 5,
+                "sight_range": 6,
+                "randomness": 20,
+                "avoids_friendly_fire": 0
+            }
         },
         "EnergyComponent": {
             "Speed": 100
@@ -824,8 +848,11 @@
         },
         "SolidComponent": {},
         "DirectionComponent": {},
-        "HostileAIComponent": {
-            "SightRange": 10
+        "ScriptComponent": {
+            "ScriptPath": "data/scripts/ai_hostile.basic",
+            "Vars": {
+                "sight_range": 10
+            }
         },
         "SkillComponent": {
             "Skills": [
@@ -858,7 +885,7 @@
         "DescriptionComponent": {
             "Name": "Mother Plant",
             "Faction": "plantz",
-            "LongDescription": "A massive pulsing mass of roots and tendrils \u2014 the source of the infestation. Kill it and the hive collapses.",
+            "LongDescription": "A massive pulsing mass of roots and tendrils — the source of the infestation. Kill it and the hive collapses.",
             "PassOverDescription": [
                 "You step over the smoldering remains of the mother plant. It pulses faintly."
             ],
@@ -904,12 +931,15 @@
             }
         },
         "SolidComponent": {},
-        "AdvancedAIComponent": {
-            "Aggressiveness": 5,
-            "Fear": 0,
-            "SightRange": 0,
-            "Randomness": 0,
-            "AvoidsFriendlyFire": false
+        "ScriptComponent": {
+            "ScriptPath": "data/scripts/ai_advanced.basic",
+            "Vars": {
+                "aggressiveness": 5,
+                "fear": 0,
+                "sight_range": 0,
+                "randomness": 0,
+                "avoids_friendly_fire": 0
+            }
         },
         "EnergyComponent": {
             "Speed": 100
@@ -998,13 +1028,6 @@
             "Weights": {
                 "body": 100
             }
-        },
-        "AdvancedAIComponent": {
-            "Aggressiveness": 0,
-            "Fear": 5,
-            "SightRange": 6,
-            "Randomness": 8,
-            "AvoidsFriendlyFire": false
         },
         "ScriptComponent": {
             "ScriptPath": "data/scripts/mobile_mother_plant.basic",

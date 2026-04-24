@@ -94,35 +94,6 @@ func (l *Level) Render(aX, aY, z, width, height int, blind, centered bool) *ebit
 		screenX++
 	}
 
-	// Draw entity paths (debug overlay)
-	if cfg.RenderPathfindingSteps {
-		dotW := sw / 4
-		dotH := sh / 4
-		pathColor := color.RGBA{255, 220, 0, 200}
-		for _, entity := range l.Level.Entities {
-			if !entity.HasComponent(component.HostileAI) {
-				continue
-			}
-			pc := entity.GetComponent(component.Position).(*component.PositionComponent)
-			if pc.GetZ() != z {
-				continue
-			}
-			hc := entity.GetComponent(component.HostileAI).(*component.HostileAIComponent)
-			for _, tileIdx := range hc.Path {
-				tile := l.Level.GetTilePtrIndex(tileIdx)
-				if tile == nil {
-					continue
-				}
-				tx, ty, tz := tile.Coords()
-				if tz != z {
-					continue
-				}
-				sx := float64(tx-left)*sw + sw/2 - dotW/2
-				sy := float64(ty-up)*sh + sh/2 - dotH/2
-				ebitenutil.DrawRect(output, sx, sy, dotW, dotH, pathColor)
-			}
-		}
-	}
 
 	if l.shader == nil && l.ShaderSrc != nil {
 		if s, err := ebiten.NewShader(l.ShaderSrc); err == nil {

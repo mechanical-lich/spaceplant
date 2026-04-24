@@ -1,0 +1,24 @@
+function on_turn_taken():
+    let sight = get_var("sight_range")
+    let dist = find_nearest_enemy(sight)
+    let tx = get_target_x()
+    let ty = get_target_y()
+
+    if dist < 0 then
+        move_random()
+        return
+    endif
+
+    if use_skill("align_and_shoot") = 1 then
+        return
+    endif
+
+    if dist <= 1 then
+        if use_skill("melee_skill") = 1 then
+            return
+        endif
+        attack(tx, ty)
+    else
+        move_toward(tx, ty)
+    endif
+endfunction

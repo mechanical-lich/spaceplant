@@ -1,0 +1,3 @@
+function on_turn_taken():
+    move_random()
+endfunction

@@ -66,4 +66,4 @@ RegisterSkill("my_action", func(p ActionParams) Action {
 
 ### 4. Handle AI (optional)
 
-If the action should be used by AI, set `ai_type` on the skill and make sure the AI systems handle that type. The two existing handlers are in `internal/system/AISystem.go` and `internal/system/AdvancedAISystem.go`. Follow the pattern for `"align_and_shoot"` or `"melee_skill"` to add a new type.
+If the action should be used by AI, set `ai_type` on the skill. The template scripts (`ai_hostile.basic`, `ai_advanced.basic`) call `use_skill(ai_type)` to find and execute the matching skill automatically — no Go code changes needed. The two built-in `ai_type` values are `"align_and_shoot"` (ranged, fires when aligned with target) and `"melee_skill"` (used when adjacent). Follow the same pattern for new types and call `use_skill("your_ai_type")` from a custom script if needed.

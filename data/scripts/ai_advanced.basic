@@ -1,0 +1,182 @@
+function on_turn_taken():
+    let sight = get_var("sight_range")
+    let agg = get_var("aggressiveness")
+    let fear = get_var("fear")
+    let rnd_max = get_var("randomness")
+    let avoids_ff = get_var("avoids_friendly_fire")
+
+    let state = get_var("_state")
+    if state = "" then
+        state = "idle"
+        set_var("_state", "idle")
+    endif
+
+    let dist = find_nearest_enemy(sight)
+    let tx = get_target_x()
+    let ty = get_target_y()
+
+    # State transitions
+
+    if state = "idle" then
+        if dist >= 0 then
+            let bonus = (sight - dist) * 2
+            if bonus < 0 then
+                bonus = 0
+            endif
+            if bonus > 40 then
+                bonus = 40
+            endif
+            let eff_agg = agg + bonus
+            if eff_agg >= fear then
+                if rnd_int(100) < eff_agg then
+                    state = "hunt"
+                    set_var("_state", "hunt")
+                endif
+            else
+                if rnd_int(100) < fear then
+                    set_var("_flee_from_x", tx)
+                    set_var("_flee_from_y", ty)
+                    state = "flee"
+                    set_var("_state", "flee")
+                endif
+            endif
+        endif
+    endif
+
+    if state = "hunt" then
+        if dist < 0 then
+            state = "idle"
+            set_var("_state", "idle")
+        else
+            let bonus = (sight - dist) * 2
+            if bonus < 0 then
+                bonus = 0
+            endif
+            if bonus > 40 then
+                bonus = 40
+            endif
+            let eff_agg = agg + bonus
+            if fear > eff_agg then
+                if rnd_int(100) < fear then
+                    set_var("_flee_from_x", tx)
+                    set_var("_flee_from_y", ty)
+                    state = "flee"
+                    set_var("_state", "flee")
+                endif
+            endif
+        endif
+    endif
+
+    if state = "flee" then
+        if dist >= 0 then
+            set_var("_flee_from_x", tx)
+            set_var("_flee_from_y", ty)
+        else
+            if rnd_int(100) < 30 then
+                state = "idle"
+                set_var("_state", "idle")
+            endif
+        endif
+    endif
+
+    # Execute actions
+
+    if state = "flee" then
+        let fx = get_var("_flee_from_x")
+        let fy = get_var("_flee_from_y")
+        move_away_from(fx, fy)
+        set_var("_last_action", "flee")
+        return
+    endif
+
+    if state = "hunt" then
+        if dist < 0 then
+            move_random()
+            set_var("_last_action", "wander")
+            return
+        endif
+
+        let last = get_var("_last_action")
+
+        let wander_score = 10 + rnd_int(rnd_max)
+        if last = "wander" then
+            wander_score = wander_score - 30
+        endif
+
+        let move_score = 60 + rnd_int(rnd_max)
+        if last = "move" then
+            move_score = move_score - 30
+        endif
+
+        let melee_score = 0
+        if dist <= 1 then
+            melee_score = 80 + rnd_int(rnd_max)
+            if last = "melee" then
+                melee_score = melee_score - 30
+            endif
+        endif
+
+        let melee_skill_score = 0
+        if dist <= 1 then
+            melee_skill_score = 85 + rnd_int(rnd_max)
+            if last = "melee_skill" then
+                melee_skill_score = melee_skill_score - 30
+            endif
+        endif
+
+        let shoot_score = 0
+        if is_aligned(tx, ty) = 1 then
+            let ff_ok = 1
+            if avoids_ff = 1 then
+                if friendly_on_ray(tx, ty) = 1 then
+                    ff_ok = 0
+                endif
+            endif
+            if ff_ok = 1 then
+                shoot_score = 70 + rnd_int(rnd_max)
+                if last = "shoot" then
+                    shoot_score = shoot_score - 30
+                endif
+            endif
+        endif
+
+        if shoot_score > move_score and shoot_score > melee_score and shoot_score > melee_skill_score and shoot_score > wander_score then
+            use_skill("align_and_shoot")
+            set_var("_last_action", "shoot")
+            return
+        endif
+
+        if melee_skill_score > move_score and melee_skill_score > melee_score and melee_skill_score > wander_score then
+            use_skill("melee_skill")
+            set_var("_last_action", "melee_skill")
+            return
+        endif
+
+        if melee_score > move_score and melee_score > wander_score then
+            attack(tx, ty)
+            set_var("_last_action", "melee")
+            return
+        endif
+
+        if move_score > wander_score then
+            move_toward(tx, ty)
+            set_var("_last_action", "move")
+            return
+        endif
+
+        move_random()
+        set_var("_last_action", "wander")
+        return
+    endif
+
+    # Idle: try to spread, then wander
+    let last = get_var("_last_action")
+    if last <> "spread" then
+        if use_skill("spread_overgrowth") = 1 then
+            set_var("_last_action", "spread")
+            return
+        endif
+    endif
+    move_random()
+    set_var("_last_action", "wander")
+endfunction

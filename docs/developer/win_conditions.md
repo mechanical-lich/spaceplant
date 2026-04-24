@@ -136,7 +136,7 @@ See [Scripting](scripting.md) for how the console script works.
 
 - Spawned at game start (unless Saboteur background) or placed by Saboteur via `PlaceMotherPlantAction`
 - Has `ScriptComponent` pointing to `data/scripts/mobile_mother_plant.basic` with `turns_left: 10`
-- Uses `AdvancedAIComponent` with randomness to wander
+- Uses `ai_wander.basic` to move randomly each turn (no separate AI component needed)
 - After 10 turns, the script kills it and spawns `mother_plant` in its place
 
 ### Phase 2: Rooted (`mother_plant`)

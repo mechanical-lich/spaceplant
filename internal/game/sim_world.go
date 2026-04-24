@@ -51,10 +51,8 @@ type SimWorld struct {
 	Player           *ecs.Entity
 	CurrentZ         int
 	FloorResults     []generation.FloorResult
-	systemManager    *ecs.SystemManager
-	aiSystem         *system.AISystem
-	advancedAISystem *system.AdvancedAISystem
-	gm               gamemaster.GameMaster
+	systemManager *ecs.SystemManager
+	gm            gamemaster.GameMaster
 	// TickCount is incremented each time the simulation advances by one tick.
 	TickCount int
 	// TurnCount is incremented each time the player takes a turn (i.e. spends energy).
@@ -104,10 +102,6 @@ func NewSimWorld() (*SimWorld, error) {
 		},
 	})
 	sw.systemManager.AddSystem(&system.PlayerSystem{})
-	sw.aiSystem = &system.AISystem{}
-	sw.systemManager.AddSystem(sw.aiSystem)
-	sw.advancedAISystem = &system.AdvancedAISystem{}
-	sw.systemManager.AddSystem(sw.advancedAISystem)
 	sw.systemManager.AddSystem(&system.ScriptSystem{})
 	sw.systemManager.AddSystem(&system.LightSystem{})
 	sw.systemManager.AddSystem(&rlsystems.DoorSystem{AppearanceType: component.Appearance})
@@ -185,8 +179,6 @@ func (sw *SimWorld) RegenerateLevel() error {
 	sw.StationID = generateID()
 	sw.StationName = ""
 	sw.PlayerRunID = ""
-	sw.aiSystem.Watcher = nil
-	sw.advancedAISystem.Watcher = nil
 	sw.Mu.Unlock()
 	return nil
 }
@@ -326,8 +318,6 @@ func (sw *SimWorld) SpawnPlayer(data CharacterData) error {
 	sw.CurrentZ = pZ
 	sw.Player = player
 	sw.PlayerRunID = generateID()
-	sw.aiSystem.Watcher = player
-	sw.advancedAISystem.Watcher = player
 	sw.Level.AddEntity(player)
 
 	// Spawn scenario boss(es) unless the saboteur background handles placement manually.
@@ -414,8 +404,6 @@ func (sw *SimWorld) ConvertPlayerToCorpse() {
 	}
 	sw.Player.RemoveComponent(component.Player)
 	sw.Player = nil
-	sw.aiSystem.Watcher = nil
-	sw.advancedAISystem.Watcher = nil
 }
 
 // UpdateEntities runs one full simulation pass over all level entities.

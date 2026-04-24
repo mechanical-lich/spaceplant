@@ -102,12 +102,15 @@
         "FoodComponent": {
             "Amount": 3
         },
-        "AdvancedAIComponent": {
-            "Aggressiveness": 60,
-            "Fear": 20,
-            "SightRange": 12,
-            "Randomness": 15,
-            "AvoidsFriendlyFire": true
+        "ScriptComponent": {
+            "ScriptPath": "data/scripts/ai_advanced.basic",
+            "Vars": {
+                "aggressiveness": 60,
+                "fear": 20,
+                "sight_range": 12,
+                "randomness": 15,
+                "avoids_friendly_fire": 1
+            }
         },
         "EnergyComponent": {
             "Speed": 100
@@ -235,12 +238,15 @@
         "FoodComponent": {
             "Amount": 3
         },
-        "AdvancedAIComponent": {
-            "Aggressiveness": 60,
-            "Fear": 50,
-            "SightRange": 12,
-            "Randomness": 10,
-            "AvoidsFriendlyFire": true
+        "ScriptComponent": {
+            "ScriptPath": "data/scripts/ai_advanced.basic",
+            "Vars": {
+                "aggressiveness": 60,
+                "fear": 50,
+                "sight_range": 12,
+                "randomness": 10,
+                "avoids_friendly_fire": 1
+            }
         },
         "EnergyComponent": {
             "Speed": 100
