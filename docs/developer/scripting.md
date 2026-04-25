@@ -2,6 +2,8 @@
 
 `ScriptSystem` + `ScriptComponent` let any entity run a [mechanical-basic](https://github.com/mechanical-lich/mechanical-basic) script for custom per-turn and per-interaction behaviour. This replaces bespoke Go systems for entity-specific logic.
 
+> For scripted **status conditions** (on_applied / on_turn / on_death / on_removed), see [Scriptable Conditions](scriptable_conditions.md).
+
 ---
 
 ## Architecture

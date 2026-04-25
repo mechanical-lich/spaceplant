@@ -69,7 +69,7 @@
             "ScriptPath": "data/scripts/ai_advanced.basic",
             "Vars": {
                 "aggressiveness": 60,
-                "fear": 20,
+                "fear": 5,
                 "sight_range": 12,
                 "randomness": 15,
                 "avoids_friendly_fire": 1
@@ -99,7 +99,8 @@
         "SkillComponent": {
             "Skills": [
                 "poisonous_bite",
-                "plant_food"
+                "plant_food",
+                "rooting_strike"
             ]
         },
         "DropsComponent": {
@@ -188,7 +189,8 @@
         "SolidComponent": {},
         "SkillComponent": {
             "Skills": [
-                "plant_food"
+                "plant_food",
+                "rooting_strike"
             ]
         },
         "ScriptComponent": {
@@ -294,7 +296,8 @@
         "SolidComponent": {},
         "SkillComponent": {
             "Skills": [
-                "plant_food"
+                "plant_food",
+                "rooting_strike"
             ]
         },
         "ScriptComponent": {
@@ -342,7 +345,7 @@
             "LongDescription": "A snake like creature with a vaguely humanoid head and a long scythe like tail.",
             "PassOverDescription": [
                 "You step carefully over the scythe's blades.",
-                "The dead scythe's limbs are still sharp — you step over carefully."
+                "The dead scythe's limbs are still sharp \u2014 you step over carefully."
             ],
             "DeathAnnouncements": [
                 "The scythe creature falls, its bladed limbs clattering on the floor.",
@@ -397,7 +400,8 @@
         "SolidComponent": {},
         "SkillComponent": {
             "Skills": [
-                "plant_food"
+                "plant_food",
+                "rooting_strike"
             ]
         },
         "ScriptComponent": {
@@ -491,7 +495,8 @@
         "SkillComponent": {
             "Skills": [
                 "plant_food",
-                "trail_overgrowth"
+                "trail_overgrowth",
+                "rooting_strike"
             ]
         },
         "ScriptComponent": {
@@ -604,7 +609,8 @@
         "SkillComponent": {
             "Skills": [
                 "spread_overgrowth",
-                "heavy_footed"
+                "heavy_footed",
+                "rooting_strike"
             ]
         }
     },
@@ -692,7 +698,8 @@
         "SkillComponent": {
             "Skills": [
                 "massive_spread_overgrowth",
-                "immobile"
+                "immobile",
+                "rooting_strike"
             ]
         }
     },
@@ -784,7 +791,8 @@
         "SkillComponent": {
             "Skills": [
                 "massive_spread_overgrowth",
-                "immobile"
+                "immobile",
+                "rooting_strike"
             ]
         }
     },
@@ -857,7 +865,8 @@
         "SkillComponent": {
             "Skills": [
                 "acid_spray",
-                "plant_food"
+                "plant_food",
+                "rooting_strike"
             ]
         },
         "EnergyComponent": {
@@ -885,7 +894,7 @@
         "DescriptionComponent": {
             "Name": "Mother Plant",
             "Faction": "plantz",
-            "LongDescription": "A massive pulsing mass of roots and tendrils — the source of the infestation. Kill it and the hive collapses.",
+            "LongDescription": "A massive pulsing mass of roots and tendrils \u2014 the source of the infestation. Kill it and the hive collapses.",
             "PassOverDescription": [
                 "You step over the smoldering remains of the mother plant. It pulses faintly."
             ],
@@ -900,7 +909,7 @@
             "G": 50,
             "B": 200
         },
-         "AppearanceComponent": {
+        "AppearanceComponent": {
             "SpriteX": 64,
             "SpriteY": 0,
             "SpriteWidth": 64,
@@ -963,7 +972,8 @@
         "SkillComponent": {
             "Skills": [
                 "massive_spread_overgrowth",
-                "immobile"
+                "immobile",
+                "rooting_strike"
             ]
         },
         "SizeComponent": {
@@ -1031,11 +1041,14 @@
         },
         "ScriptComponent": {
             "ScriptPath": "data/scripts/mobile_mother_plant.basic",
-            "Vars": { "turns_left": 10 }
+            "Vars": {
+                "turns_left": 10
+            }
         },
         "SkillComponent": {
             "Skills": [
-                "small"
+                "small",
+                "rooting_strike"
             ]
         }
     }

@@ -85,6 +85,7 @@ func (a MeleeSpecialAction) Execute(entity *ecs.Entity, level *world.Level) erro
 					target.AddComponent(&rlcomponents.HasteComponent{Duration: statusDuration})
 				}
 			}
+			applyScriptableCondition(target, a.Params, statusDuration)
 		}
 
 		attackerName := ""

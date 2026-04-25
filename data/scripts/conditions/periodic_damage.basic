@@ -1,0 +1,13 @@
+func on_applied()
+    add_message("A harmful effect takes hold.")
+endfunc
+
+func on_turn()
+    amt = get_var("damage_amount")
+    if amt == 0 then amt = 1
+    deal_damage(amt, "")
+endfunc
+
+func on_removed()
+    add_message("The effect fades.")
+endfunc
