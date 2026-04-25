@@ -116,6 +116,13 @@ func (a ConeOfAction) Execute(entity *ecs.Entity, level *world.Level) error {
 				}
 			}
 			epc := e.GetComponent(rlcomponents.Position).(*rlcomponents.PositionComponent)
+			if !passed {
+				statusDur := a.Params.StatusConditionDuration
+				if statusDur <= 0 {
+					statusDur = 5
+				}
+				applyScriptableCondition(e, a.Params, statusDur)
+			}
 			mlgeevent.GetQueuedInstance().QueueEvent(spcombat.CombatEvent{
 				X: epc.GetX(), Y: epc.GetY(), Z: epc.GetZ(),
 				Attacker:   entity,

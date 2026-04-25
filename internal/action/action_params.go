@@ -41,6 +41,12 @@ type ActionParams struct {
 	// SpreadChance is the percentage chance (0-100) that overgrowth spreads to
 	// each eligible neighbor tile when SpreadOvergrowthAction fires.
 	SpreadChance int `json:"spread_chance,omitempty"`
+	// StatusConditionScript is a path to a .basic script applied as a scriptable
+	// condition on the target when ResistDC > 0 and the target fails its save.
+	StatusConditionScript string `json:"status_condition_script,omitempty"`
+	// StatusConditionScriptInterval is how often (in turns) on_turn fires.
+	// Defaults to 1 (every turn) when unset.
+	StatusConditionScriptInterval int `json:"status_condition_script_interval,omitempty"`
 }
 
 // Cost returns ActionCost if set, otherwise the provided default.

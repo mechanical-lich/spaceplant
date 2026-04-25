@@ -25,11 +25,17 @@ func (s CleanUpSystem) Update(level *world.Level) {
 		rlenergy.ResolveTurn(entity)
 
 		if entity.HasComponent(rlcomponents.Dead) {
-			if entity.HasComponent(rlcomponents.Solid) && s.CtxProvider != nil {
-				// Solid still present = first cleanup frame; evaluate kill rules once.
-				ctx := s.CtxProvider()
-				if rule, ok := wincondition.Active().EvalKill(entity.Blueprint, ctx); ok {
-					wincondition.FireRule(rule, "")
+			if entity.HasComponent(rlcomponents.Solid) {
+				// Solid still present = first cleanup frame.
+				if entity.HasComponent(rlcomponents.ActiveConditions) {
+					acc := entity.GetComponent(rlcomponents.ActiveConditions).(*rlcomponents.ActiveConditionsComponent)
+					acc.FireDeath(entity, level)
+				}
+				if s.CtxProvider != nil {
+					ctx := s.CtxProvider()
+					if rule, ok := wincondition.Active().EvalKill(entity.Blueprint, ctx); ok {
+						wincondition.FireRule(rule, "")
+					}
 				}
 			}
 			if entity.Blueprint == "mobile_mother_plant" && entity.HasComponent(rlcomponents.Solid) {

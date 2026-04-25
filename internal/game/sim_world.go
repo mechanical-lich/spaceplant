@@ -72,6 +72,22 @@ type SimWorld struct {
 
 // NewSimWorld constructs and populates the game world: level generation and systems.
 // The player is NOT created here; call SpawnPlayer after character creation.
+func init() {
+	component.SpawnEntityFunc = func(blueprint string, x, y, z int, levelData any) error {
+		l, ok := levelData.(*world.Level)
+		if !ok {
+			return nil
+		}
+		e, err := factory.Create(blueprint, x, y)
+		if err != nil {
+			return err
+		}
+		e.GetComponent(rlcomponents.Position).(*rlcomponents.PositionComponent).SetPosition(x, y, z)
+		l.AddEntity(e)
+		return nil
+	}
+}
+
 func NewSimWorld() (*SimWorld, error) {
 	sw := &SimWorld{
 		systemManager: &ecs.SystemManager{},

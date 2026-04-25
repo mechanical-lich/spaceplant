@@ -1,5 +1,24 @@
 [
   {
+    "id": "rooting_strike",
+    "name": "Rooting Strike",
+    "description": "Strike the enemy directly in front of you. On a hit, they must pass a Physical Check (DC 12) or become rooted — if they die while rooted, they reanimate as a scrambler.",
+    "ai_type": "melee_skill",
+    "action_bindings": {
+      "b": "melee_special"
+    },
+    "action_params": {
+      "damage_dice": "1d6",
+      "damage_type": "physical",
+      "verb": "strike",
+      "resist_dc": 12,
+      "check_stat": "ph",
+      "status_condition_on_fail_save": "rooted",
+      "status_condition_duration": 8,
+      "status_condition_script": "data/scripts/conditions/rooted.basic"
+    }
+  },
+  {
     "id": "sprinter",
     "name": "Sprinter",
     "description": "Move faster than normal by acting more frequently.",

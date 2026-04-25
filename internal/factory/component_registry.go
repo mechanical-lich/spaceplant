@@ -55,4 +55,5 @@ jsonFactory.RegisterComponent("LayeredAppearanceComponent", func() ecs.Component
 	jsonFactory.RegisterComponent("HitLocationComponent", func() ecs.Component { return &component.HitLocationComponent{} })
 	jsonFactory.RegisterComponent("AmmoComponent", func() ecs.Component { return &component.AmmoComponent{} })
 	jsonFactory.RegisterComponent("ScriptComponent", func() ecs.Component { return &component.ScriptComponent{} })
+	jsonFactory.RegisterComponent("ScriptableConditionComponent", func() ecs.Component { return &component.ScriptableConditionComponent{} })
 }
