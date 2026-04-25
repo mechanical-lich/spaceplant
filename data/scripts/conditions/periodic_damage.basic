@@ -1,15 +1,15 @@
-func on_applied()
+function on_applied():
     add_message("A harmful effect takes hold.")
-endfunc
+endfunction
 
-func on_turn()
-    amt = get_var("damage_amount")
+function on_turn():
+    let amt = get_var("damage_amount")
     if amt == 0 then amt = 1
-    dtype = get_var("damage_type")
+    let dtype = get_var("damage_type")
     if dtype == "" then dtype = "physical"
     deal_damage(amt, dtype)
-endfunc
+endfunction
 
-func on_removed()
+function on_removed():
     add_message("The effect fades.")
-endfunc
+endfunction

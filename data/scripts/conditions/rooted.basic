@@ -1,12 +1,12 @@
-func on_applied()
+function on_applied():
     add_message("Roots take hold...")
-endfunc
+endfunction
 
-func on_death()
+function on_death():
     spawn_entity("scrambler", get_x(), get_y(), get_z())
     add_message("The roots convulse — something emerges!")
-endfunc
+endfunction
 
-func on_removed()
+function on_removed():
     add_message("The roots wither away.")
-endfunc
+endfunction

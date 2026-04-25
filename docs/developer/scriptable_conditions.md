@@ -28,22 +28,22 @@ A condition script is a `.basic` file that may define any of these functions. Al
 | `on_removed()` | When the condition expires naturally (duration reaches 0) |
 
 ```basic
-func on_applied()
+function on_applied():
     add_message("Roots take hold...")
-endfunc
+endfunction
 
-func on_turn()
+function on_turn():
     deal_damage(1, "poison")
-endfunc
+endfunction
 
-func on_death()
+function on_death():
     spawn_entity("scrambler", get_x(), get_y(), get_z())
     add_message("The roots convulse — something emerges!")
-endfunc
+endfunction
 
-func on_removed()
+function on_removed():
     add_message("The roots wither away.")
-endfunc
+endfunction
 ```
 
 ---
@@ -155,11 +155,13 @@ Use `Vars` to make a script reusable across different conditions without duplica
 `periodic_damage.basic` reads `damage_amount` from `Vars` and defaults to 1 if not set:
 
 ```basic
-func on_turn()
-    amt = get_var("damage_amount")
+function on_turn():
+    let amt = get_var("damage_amount")
     if amt == 0 then amt = 1
-    deal_damage(amt, "")
-endfunc
+    let dtype = get_var("damage_type")
+    if dtype == "" then dtype = "physical"
+    deal_damage(amt, dtype)
+endfunction
 ```
 
 ---
