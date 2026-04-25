@@ -3,10 +3,12 @@ package component
 import (
 	"fmt"
 	"log"
+	"math/rand"
 	"os"
 
 	"github.com/mechanical-lich/mechanical-basic/pkg/basic"
 	"github.com/mechanical-lich/ml-rogue-lib/pkg/rlcomponents"
+	"github.com/mechanical-lich/ml-rogue-lib/pkg/rlentity"
 	"github.com/mechanical-lich/mlge/ecs"
 	"github.com/mechanical-lich/mlge/message"
 )
@@ -18,12 +20,21 @@ const ScriptableCondition ecs.ComponentType = "ScriptableConditionComponent"
 // Signature: (blueprint string, x, y, z int, levelData any) error
 var SpawnEntityFunc func(blueprint string, x, y, z int, levelData any) error
 
+// conditionContext holds mutable state shared between the component and the
+// closures registered on the interpreter. Level must be updated before each
+// event call so that spawn_entity and similar functions always see the current
+// level, even though the interpreter is only initialised once.
+type conditionContext struct {
+	Level any
+}
+
 // ScriptableConditionComponent is a decaying status condition driven by a
-// MechBasic script. The script may define three event functions:
+// MechBasic script. The script may define four event functions:
 //
 //	on_applied()  — called once when the condition is first attached
 //	on_turn()     — called each turn (or every Interval turns if set)
-//	on_removed()  — called when the condition expires or is removed
+//	on_death()    — called when the host entity dies while the condition is active
+//	on_removed()  — called when the condition expires naturally
 //
 // Script functions available inside condition scripts:
 //
@@ -43,6 +54,7 @@ type ScriptableConditionComponent struct {
 
 	// runtime state — not serialized
 	Interpreter *basic.MechBasic `json:"-"`
+	ctx         *conditionContext
 	turnCount   int
 	applied     bool
 }
@@ -59,12 +71,13 @@ func (c *ScriptableConditionComponent) Decay() bool {
 
 // ApplyOnce satisfies ConditionModifier. Called by ActiveConditionsComponent.Tick
 // before damage/turn logic. Initializes the interpreter and fires on_applied once.
+// Level is not available at this call site; spawn_entity will not work in on_applied.
 func (c *ScriptableConditionComponent) ApplyOnce(entity *ecs.Entity) {
 	if c.applied {
 		return
 	}
 	c.applied = true
-	if err := c.ensureInit(entity, nil); err != nil {
+	if err := c.ensureInit(entity); err != nil {
 		log.Printf("[ScriptableCondition] init failed for %q: %v", c.ScriptPath, err)
 		return
 	}
@@ -80,20 +93,22 @@ func (c *ScriptableConditionComponent) Revert(_ *ecs.Entity) {
 // OnDeath satisfies rlcomponents.DeathHandler. Called by FireDeath when the
 // host entity dies. Fires the on_death script function if defined.
 func (c *ScriptableConditionComponent) OnDeath(entity *ecs.Entity, levelData any) {
-	if err := c.ensureInit(entity, levelData); err != nil {
+	if err := c.ensureInit(entity); err != nil {
 		log.Printf("[ScriptableCondition] init failed for %q: %v", c.ScriptPath, err)
 		return
 	}
+	c.ctx.Level = levelData
 	c.callIfExists("on_death")
 }
 
 // HandleTurn satisfies rlcomponents.TurnHandler. Called by
 // ActiveConditionsComponent.Tick each turn. Fires on_turn respecting Interval.
 func (c *ScriptableConditionComponent) HandleTurn(entity *ecs.Entity, levelData any) {
-	if err := c.ensureInit(entity, levelData); err != nil {
+	if err := c.ensureInit(entity); err != nil {
 		log.Printf("[ScriptableCondition] init failed for %q: %v", c.ScriptPath, err)
 		return
 	}
+	c.ctx.Level = levelData
 	c.turnCount++
 	interval := c.Interval
 	if interval <= 0 {
@@ -113,7 +128,7 @@ func (c *ScriptableConditionComponent) callIfExists(fn string) {
 	}
 }
 
-func (c *ScriptableConditionComponent) ensureInit(entity *ecs.Entity, levelData any) error {
+func (c *ScriptableConditionComponent) ensureInit(entity *ecs.Entity) error {
 	if c.Interpreter != nil {
 		return nil
 	}
@@ -122,8 +137,9 @@ func (c *ScriptableConditionComponent) ensureInit(entity *ecs.Entity, levelData 
 		return fmt.Errorf("read script %q: %w", c.ScriptPath, err)
 	}
 
+	c.ctx = &conditionContext{}
 	interp := basic.NewMechanicalBasic()
-	c.registerFuncs(interp, entity, levelData)
+	c.registerFuncs(interp, entity)
 
 	if err := interp.Load(string(code)); err != nil {
 		return fmt.Errorf("load script %q: %w", c.ScriptPath, err)
@@ -132,7 +148,7 @@ func (c *ScriptableConditionComponent) ensureInit(entity *ecs.Entity, levelData 
 	return nil
 }
 
-func (c *ScriptableConditionComponent) registerFuncs(interp *basic.MechBasic, entity *ecs.Entity, levelData any) {
+func (c *ScriptableConditionComponent) registerFuncs(interp *basic.MechBasic, entity *ecs.Entity) {
 	interp.RegisterFunc("get_x", func(...any) (any, error) {
 		pc := entity.GetComponent(Position).(*PositionComponent)
 		return float64(pc.GetX()), nil
@@ -191,11 +207,15 @@ func (c *ScriptableConditionComponent) registerFuncs(interp *basic.MechBasic, en
 	})
 
 	interp.RegisterFunc("deal_damage", func(args ...any) (any, error) {
-		if len(args) < 1 {
-			return nil, fmt.Errorf("deal_damage: expected amount argument")
+		if len(args) != 2 {
+			return nil, fmt.Errorf("deal_damage: expected (amount, type)")
 		}
 		amt := condToInt(args[0])
-		applyScriptConditionDamage(entity, amt)
+		dtype, ok := args[1].(string)
+		if !ok {
+			return nil, fmt.Errorf("deal_damage: type argument must be a string")
+		}
+		applyScriptConditionDamage(entity, amt, dtype)
 		return nil, nil
 	})
 
@@ -203,10 +223,13 @@ func (c *ScriptableConditionComponent) registerFuncs(interp *basic.MechBasic, en
 		if len(args) != 4 {
 			return nil, fmt.Errorf("apply_damage_condition: expected (name, duration, dice, type)")
 		}
-		name, _ := args[0].(string)
+		name, ok1 := args[0].(string)
 		dur := condToInt(args[1])
-		dice, _ := args[2].(string)
-		dtype, _ := args[3].(string)
+		dice, ok2 := args[2].(string)
+		dtype, ok3 := args[3].(string)
+		if !ok1 || !ok2 || !ok3 {
+			return nil, fmt.Errorf("apply_damage_condition: name, dice, and type must be strings")
+		}
 		acc := rlcomponents.GetOrCreateActiveConditions(entity)
 		acc.Add(&rlcomponents.DamageConditionComponent{
 			Name: name, Duration: dur, DamageDice: dice, DamageType: dtype,
@@ -214,7 +237,7 @@ func (c *ScriptableConditionComponent) registerFuncs(interp *basic.MechBasic, en
 		return nil, nil
 	})
 
-		interp.RegisterFunc("spawn_entity", func(args ...any) (any, error) {
+	interp.RegisterFunc("spawn_entity", func(args ...any) (any, error) {
 		if len(args) != 4 {
 			return nil, fmt.Errorf("spawn_entity: expected (blueprint, x, y, z)")
 		}
@@ -222,13 +245,13 @@ func (c *ScriptableConditionComponent) registerFuncs(interp *basic.MechBasic, en
 			log.Printf("[ScriptableCondition] spawn_entity: no spawn function registered")
 			return nil, nil
 		}
-		if levelData == nil {
+		if c.ctx.Level == nil {
 			log.Printf("[ScriptableCondition] spawn_entity: no level available")
 			return nil, nil
 		}
 		blueprint, _ := args[0].(string)
 		x, y, z := condToInt(args[1]), condToInt(args[2]), condToInt(args[3])
-		return nil, SpawnEntityFunc(blueprint, x, y, z, levelData)
+		return nil, SpawnEntityFunc(blueprint, x, y, z, c.ctx.Level)
 	})
 }
 
@@ -242,9 +265,12 @@ func condToInt(v any) int {
 	return 0
 }
 
-// applyScriptConditionDamage deals damage to the entity, mirroring the logic
-// in rlsystems.applyStatusDamage (body part or health).
-func applyScriptConditionDamage(entity *ecs.Entity, dmg int) {
+// applyScriptConditionDamage deals dmg to a random non-amputated body part,
+// then calls rlentity.HandleDeath to apply DeadComponent if the damage is
+// lethal (KillsWhenBroken, KillsWhenAmputated, or Health <= 0).
+// Falls back to HealthComponent when no BodyComponent is present.
+// damageType is accepted for future use (resistance checks, etc.) but not yet applied.
+func applyScriptConditionDamage(entity *ecs.Entity, dmg int, _ string) {
 	if dmg <= 0 {
 		return
 	}
@@ -260,8 +286,7 @@ func applyScriptConditionDamage(entity *ecs.Entity, dmg int) {
 			entity.AddComponent(&rlcomponents.DeadComponent{})
 			return
 		}
-		// Use first available part deterministically for now.
-		name := available[0]
+		name := available[rand.Intn(len(available))]
 		part := bc.Parts[name]
 		part.HP -= dmg
 		if part.HP <= 0 && !part.Broken {
@@ -271,5 +296,9 @@ func applyScriptConditionDamage(entity *ecs.Entity, dmg int) {
 	} else if entity.HasComponent(rlcomponents.Health) {
 		hc := entity.GetComponent(rlcomponents.Health).(*rlcomponents.HealthComponent)
 		hc.Health -= dmg
+		if hc.Health < 0 {
+			hc.Health = 0
+		}
 	}
+	rlentity.HandleDeath(entity)
 }

@@ -5,7 +5,9 @@ endfunc
 func on_turn()
     amt = get_var("damage_amount")
     if amt == 0 then amt = 1
-    deal_damage(amt, "")
+    dtype = get_var("damage_type")
+    if dtype == "" then dtype = "physical"
+    deal_damage(amt, dtype)
 endfunc
 
 func on_removed()
