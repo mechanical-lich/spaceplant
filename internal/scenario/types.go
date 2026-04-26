@@ -24,7 +24,8 @@ type Scenario struct {
 	SpawnChance      float64              `json:"spawn_chance"` // 0.0–1.0
 	ExtraSkills      []string             `json:"extra_skills"`
 	ExtraBackgrounds []string             `json:"extra_backgrounds"`
-	BossSpawns       []string             `json:"boss_spawns"`  // blueprint IDs spawned once at station creation
-	SpawnRules       map[string]SpawnRule `json:"spawn_rules"`  // per-blueprint placement rules
+	BossSpawns       []string             `json:"boss_spawns"`    // blueprint IDs spawned once at station creation
+	SpawnRules       map[string]SpawnRule `json:"spawn_rules"`    // per-blueprint placement rules
+	SetupScripts     []string             `json:"setup_scripts"`  // script paths run once after generation, in order
 	WinConditions    wincondition.RuleSet `json:"win_conditions"`
 }

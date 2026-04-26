@@ -3,10 +3,15 @@ function on_interact():
         add_message("Self-destruct already armed.")
         return
     endif
+    if has_item("self_destruct_key") = 0 then
+        add_message("ACCESS DENIED — Authorization key required to arm self-destruct.")
+        return
+    endif
+    consume_item("self_destruct_key")
     set_var("armed", 1)
     set_flag("self_destruct_armed", 1)
     set_flag("self_destruct_turns", get_var("turns_left"))
-    add_message("Sequence armed. " + num_to_str(get_var("turns_left")) + " turns to detonation. GET OUT.")
+    add_message("Key accepted. Sequence armed. " + num_to_str(get_var("turns_left")) + " turns to detonation. GET OUT.")
 endfunction
 
 function on_turn_taken():

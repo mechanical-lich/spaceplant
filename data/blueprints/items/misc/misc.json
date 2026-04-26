@@ -85,5 +85,86 @@
             "Name": "Med Kit",
             "Description": "A standard issue med kit. Restores 10 HP when used."
         }
+    },
+    "self_destruct_key": {
+        "DescriptionComponent": {
+            "Name": "Self-Destruct Authorization Key",
+            "Faction": "item",
+            "LongDescription": "A red physical key required to arm the station's self-destruct console. Handle with extreme care.",
+            "PassOverDescription": [
+                "A red authorization key is here.",
+                "You spot a red key on the floor.",
+                "A self-destruct key sits here — better grab it."
+            ]
+        },
+        "AsciiAppearanceComponent": {
+            "Character": "K",
+            "R": 255,
+            "G": 30,
+            "B": 30
+        },
+        "AppearanceComponent": {
+            "Resource": "keys",
+            "SpriteX": 0,
+            "SpriteY": 0,
+            "R": 255,
+            "G": 60,
+            "B": 60,
+            "Frames": 1,
+            "SpriteWidth": 32,
+            "SpriteHeight": 48,
+            "SpriteOffsetY": -16
+        },
+        "LightComponent": {
+            "Radius": 8,
+            "Brightness": 12,
+            "R": 200,
+            "G": 20,
+            "B": 20
+        },
+        "ItemComponent": {
+            "Effect": "key",
+            "Value": 50,
+            "Slot": "bag",
+            "Name": "Self-Destruct Authorization Key",
+            "Description": "Required to arm the self-destruct system."
+        }
+    },
+    "datapad": {
+        "DescriptionComponent": {
+            "Name": "Datapad",
+            "Faction": "item",
+            "LongDescription": "A station datapad. The screen is locked.",
+            "PassOverDescription": [
+                "A datapad is here.",
+                "You notice a datapad on the floor.",
+                "A datapad sits here."
+            ]
+        },
+        "AsciiAppearanceComponent": {
+            "Character": "?",
+            "R": 100,
+            "G": 200,
+            "B": 255
+        },
+        "AppearanceComponent": {
+            "Resource": "items",
+            "SpriteX": 0,
+            "SpriteY": 0,
+            "R": 100,
+            "G": 200,
+            "B": 255,
+            "Frames": 1,
+            "SpriteWidth": 32,
+            "SpriteHeight": 48,
+            "SpriteOffsetY": -16
+        },
+        "ItemComponent": {
+            "Effect": "none",
+            "Value": 5,
+            "Slot": "bag",
+            "Name": "Datapad",
+            "Description": "A station datapad. Examine it to read its contents."
+        }
     }
 }

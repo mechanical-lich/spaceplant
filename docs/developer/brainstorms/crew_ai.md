@@ -8,3 +8,4 @@ It would be cool if:
     - Seeing a loved one die may make them rush into danger or go insane
 - Personality stats that determine how likely they'll help, fight, run, go insane
 - Jobs determine starting outfits and locations
+- And "Give Orders" feature would be cool.  Using the player's leadership stat it may be possible to order crew members around.  

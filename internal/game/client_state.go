@@ -41,6 +41,8 @@ type SPClientState struct {
 	winModal         *WinModal
 	pauseMenu        *PauseMenu
 	cheatModal       *CheatModal
+	stationMapModal  *StationMapModal
+	waypoint         Waypoint
 	CameraX          int
 	CameraY          int
 	pressDelay       int
@@ -146,6 +148,7 @@ func (s *SPClientState) initGameViews() {
 	)
 
 	s.cheatModal = newCheatModal(s.sim)
+	s.stationMapModal = newStationMapModal(s.sim, &s.waypoint)
 	s.pauseMenu = newPauseMenu()
 	s.pauseMenu.OnSave = func() {
 		if err := SaveAll(s.sim, "saves"); err != nil {
@@ -240,6 +243,10 @@ func (s *SPClientState) Update(_ *transport.Snapshot) client.ClientState {
 
 	// ESC: close innermost open modal, or open the pause menu.
 	if inpututil.IsKeyJustPressed(ebiten.KeyEscape) {
+		if s.stationMapModal.Visible {
+			s.stationMapModal.Visible = false
+			return nil
+		}
 		if s.nearbyLootView.Visible {
 			s.nearbyLootView.Visible = false
 			return nil
@@ -272,6 +279,12 @@ func (s *SPClientState) Update(_ *transport.Snapshot) client.ClientState {
 	// Inventory actions (work outside hasTurn).
 	kb := keybindings.Global()
 	if !s.cheatModal.Visible {
+		if kb.IsJustPressed("station_map") {
+			if !s.stationMapModal.Visible {
+				s.stationMapModal.Open()
+				return nil
+			}
+		}
 		if kb.IsJustPressed("inventory") {
 			if !s.classView.Visible && !s.statsView.Visible {
 				s.statsView.SetNearbyEntity(s.nearbyInventoryEntity())
@@ -315,12 +328,13 @@ func (s *SPClientState) Update(_ *transport.Snapshot) client.ClientState {
 	s.winModal.Update()
 	s.pauseMenu.Update()
 	s.cheatModal.Update()
+	s.stationMapModal.Update()
 	if s.returnToTitle {
 		return NewTitleScreenState(s.sim, s.simState, s.transport)
 	}
 
 	// Block game input while any modal is open.
-	if s.classView.Visible || s.statsView.Visible || s.reloadView.Visible || s.aimedShotView.Visible || s.nearbyLootView.Visible || s.deathModal.Visible || s.winModal.Visible || s.pauseMenu.Visible || s.cheatModal.Visible {
+	if s.classView.Visible || s.statsView.Visible || s.reloadView.Visible || s.aimedShotView.Visible || s.nearbyLootView.Visible || s.deathModal.Visible || s.winModal.Visible || s.pauseMenu.Visible || s.cheatModal.Visible || s.stationMapModal.Visible {
 		return nil
 	}
 
@@ -563,4 +577,5 @@ func (s *SPClientState) Draw(screen *ebiten.Image) {
 	s.winModal.Draw(screen)
 	s.pauseMenu.Draw(screen)
 	s.cheatModal.Draw(screen)
+	s.stationMapModal.Draw(screen)
 }
