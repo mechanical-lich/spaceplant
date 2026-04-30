@@ -12,6 +12,7 @@ import (
 	"github.com/mechanical-lich/spaceplant/internal/component"
 	"github.com/mechanical-lich/spaceplant/internal/factory"
 	"github.com/mechanical-lich/spaceplant/internal/generation"
+	"github.com/mechanical-lich/spaceplant/internal/skill"
 	"github.com/mechanical-lich/spaceplant/internal/world"
 )
 
@@ -224,6 +225,63 @@ func registerSetupFuncs(interp *basic.MechBasic, ctx *setupContext) {
 			return nil, nil
 		}
 		return nil, fmt.Errorf("spawn_in_room: could not find empty tile in room %d on floor %d", idx, z)
+	})
+
+	// spawn_skill_chip(skill_id, z, room_index) → creates a skill chip for the given skill and places it in the room
+	interp.RegisterFunc("spawn_skill_chip", func(args ...any) (any, error) {
+		if len(args) != 3 {
+			return nil, errors.New("spawn_skill_chip: expected 3 arguments (skill_id, z, room_index)")
+		}
+		skillID, ok := args[0].(string)
+		if !ok {
+			return nil, errors.New("spawn_skill_chip: skill_id must be a string")
+		}
+		z, idx := toInt(args[1]), toInt(args[2])
+		if z < 0 || z >= len(ctx.FloorResults) {
+			return nil, fmt.Errorf("spawn_skill_chip: floor %d out of range", z)
+		}
+		rooms := ctx.FloorResults[z].Rooms
+		if idx < 0 || idx >= len(rooms) {
+			return nil, fmt.Errorf("spawn_skill_chip: room index %d out of range", idx)
+		}
+		room := rooms[idx]
+		for tries := 0; tries < 80; tries++ {
+			w := max(1, room.Width-2)
+			h := max(1, room.Height-2)
+			x := room.X + 1 + rand.Intn(w)
+			y := room.Y + 1 + rand.Intn(h)
+			if ctx.Level.GetTileType(x, y, z) != world.TypeFloor {
+				continue
+			}
+			if ctx.Level.Level.GetEntityAt(x, y, z) != nil {
+				continue
+			}
+			e, err := factory.Create("skill_chip", x, y)
+			if err != nil {
+				return nil, fmt.Errorf("spawn_skill_chip: %w", err)
+			}
+			e.GetComponent(component.Position).(*component.PositionComponent).SetPosition(x, y, z)
+			if e.HasComponent(component.SkillChip) {
+				e.GetComponent(component.SkillChip).(*component.SkillChipComponent).SkillId = skillID
+			}
+			// Patch display name so the player sees the actual skill name on the item.
+			displayName := "Skill Chip: " + skillID
+			if sd := skill.Get(skillID); sd != nil {
+				displayName = "Skill Chip: " + sd.Name
+			}
+			if e.HasComponent(component.Description) {
+				dc := e.GetComponent(component.Description).(*component.DescriptionComponent)
+				dc.Name = displayName
+			}
+			if e.HasComponent(component.Item) {
+				ic := e.GetComponent(component.Item).(*component.ItemComponent)
+				ic.Name = displayName
+				ic.Description = "A neural skill chip. Consume it to learn " + displayName[len("Skill Chip: "):] + "."
+			}
+			ctx.Level.AddEntity(e)
+			return nil, nil
+		}
+		return nil, fmt.Errorf("spawn_skill_chip: could not find empty tile in room %d on floor %d", idx, z)
 	})
 
 	// --- Last-spawned description override ---

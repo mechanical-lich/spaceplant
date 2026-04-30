@@ -6,6 +6,7 @@ A collection of docs, guides, and architecture notes.
 
 - [Adding Actions](adding_actions.md)
 - [Adding Skills](adding_skills.md)
+- [Skill Chips](skill_chips.md)
 - [Combat Guide](combat.md)
 - [Developer Console](developer_console.md)
 - [Floor Generators](floor_generators.md)

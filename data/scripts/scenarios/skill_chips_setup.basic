@@ -1,0 +1,37 @@
+function on_setup():
+    let f = random_floor_excluding(-1)
+    spawn_skill_chip("brawler", f, random_room(f))
+
+    let f = random_floor_excluding(-1)
+    spawn_skill_chip("nimble", f, random_room(f))
+
+    let f = random_floor_excluding(-1)
+    spawn_skill_chip("sharpshooter", f, random_room(f))
+
+    let f = random_floor_excluding(-1)
+    spawn_skill_chip("thick_skin", f, random_room(f))
+
+    let f = random_floor_excluding(-1)
+    spawn_skill_chip("roundhouse_kick", f, random_room(f))
+
+    let f = random_floor_excluding(-1)
+    spawn_skill_chip("sprinter", f, random_room(f))
+
+    let f = random_floor_excluding(-1)
+    spawn_skill_chip("shove", f, random_room(f))
+
+    let f = random_floor_excluding(-1)
+    spawn_skill_chip("deadshot", f, random_room(f))
+
+    let f = random_floor_excluding(-1)
+    spawn_skill_chip("noncombustible", f, random_room(f))
+
+    let f = random_floor_excluding(-1)
+    spawn_skill_chip("acid_proof", f, random_room(f))
+
+    let f = random_floor_excluding(-1)
+    spawn_skill_chip("brainy", f, random_room(f))
+
+    let f = random_floor_excluding(-1)
+    spawn_skill_chip("combat_specialist", f, random_room(f))
+endfunction

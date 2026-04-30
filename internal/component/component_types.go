@@ -52,6 +52,7 @@ const (
 	WearableAppearance ecs.ComponentType = "WearableAppearanceComponent"
 	HitLocation        ecs.ComponentType = "HitLocationComponent"
 	Ammo               ecs.ComponentType = "AmmoComponent"
+	SkillChip          ecs.ComponentType = "SkillChipComponent"
 	Interaction                          = rlcomponents.Interaction
 	Door                                 = rlcomponents.Door
 )

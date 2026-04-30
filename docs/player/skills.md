@@ -1,12 +1,23 @@
 # Skills
 
-Skills are special abilities and passive bonuses your character can have. They come from three sources:
+Skills are special abilities and passive bonuses your character can have. They come from four sources:
 
 - **Class** — your starting class grants one skill immediately and unlocks more to purchase.
 - **Background** — your chosen background grants one starting skill.
 - **Items** — some weapons grant a skill while equipped (e.g. the Flamethrower).
+- **Skill Chips** — neural implant chips found scattered around the station. Consuming one permanently teaches you that skill.
 
 You can spend class points to buy additional skills from your class's skill list. Open the upgrade screen with **Shift+C**.
+
+---
+
+## Skill Chips
+
+Skill chips are small neural implants found lying around the station or tucked in storage. Each chip is labelled with the skill it contains.
+
+To use a chip: pick it up, open your inventory (**I**), select the chip, and press **Equip/Use**. The skill is permanently learned and the chip is consumed. If you already know the skill, nothing happens.
+
+Chips can teach any player-learnable skill, including passive stat bonuses, active key-bound abilities, and resistances. They glow faintly so keep an eye out.
 
 ---
 

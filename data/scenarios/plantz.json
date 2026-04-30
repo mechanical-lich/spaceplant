@@ -11,7 +11,7 @@
   "extra_skills": [],
   "extra_backgrounds": ["saboteur"],
   "boss_spawns": ["mobile_mother_plant"],
-  "setup_scripts": ["data/scripts/scenarios/self_destruct_setup.basic"],
+  "setup_scripts": ["data/scripts/scenarios/self_destruct_setup.basic", "data/scripts/scenarios/skill_chips_setup.basic"],
   "spawn_rules": {
     "mobile_mother_plant": { "floors": ["Engineering & Systems"] },
     "creeper":  {},
