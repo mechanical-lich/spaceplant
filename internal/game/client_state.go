@@ -53,7 +53,7 @@ type SPClientState struct {
 	aimLineTiles      [][2]int // world-space tiles along the current mouse aim line
 	pendingPath       [][2]int // queued walk path from right-click; stepped one tile per turn
 	pathfinder        *path.AStar
-	lastPathStepTurn  int // TurnCount when the last path step was sent
+	lastPathStepPos [2]int // player tile position when the last path step was dispatched
 	savedNpcTurnDelay int // NpcTurnDelayTicks saved while path-following at full speed
 }
 
@@ -65,7 +65,8 @@ func NewSPClientState(sim *SimWorld, simState *MainSimState, t transport.ClientT
 		simState:   simState,
 		transport:  t,
 		mainView:   &GUIViewMain{},
-		pathfinder: path.NewAStar(1024),
+		pathfinder:      path.NewAStar(1024),
+		lastPathStepPos: [2]int{-1, -1},
 	}
 
 	if sim.Player == nil {
@@ -502,27 +503,26 @@ func (s *SPClientState) Update(_ *transport.Snapshot) client.ClientState {
 				}
 			}
 
-			// Step along the pending path — one step per sim turn (TurnCount gate).
-			if len(s.pendingPath) > 0 && turnCount > s.lastPathStepTurn {
+			// Step along the pending path — one step per player position change.
+			if len(s.pendingPath) > 0 {
 				s.sim.Mu.RLock()
+				pc := s.sim.Player.GetComponent(component.Position).(*component.PositionComponent)
+				curPos := [2]int{pc.GetX(), pc.GetY()}
 				next := s.pendingPath[0]
 				blocked := s.isTileBlocked(next[0], next[1])
 				s.sim.Mu.RUnlock()
 				if blocked {
 					s.pendingPath = s.pendingPath[:0]
-				} else {
+				} else if curPos != s.lastPathStepPos {
 					s.pendingPath = s.pendingPath[1:]
-					s.sim.Mu.RLock()
-					pc := s.sim.Player.GetComponent(component.Position).(*component.PositionComponent)
-					dx := next[0] - pc.GetX()
-					dy := next[1] - pc.GetY()
-					s.sim.Mu.RUnlock()
+					dx := next[0] - curPos[0]
+					dy := next[1] - curPos[1]
 					if cmd := deltaMoveCommand(dx, dy); cmd != "" {
 						s.transport.SendCommand(&transport.Command{
 							Type:    CmdAction,
 							Payload: ActionPayload{Key: cmd},
 						})
-						s.lastPathStepTurn = turnCount
+						s.lastPathStepPos = curPos
 					}
 				}
 			}

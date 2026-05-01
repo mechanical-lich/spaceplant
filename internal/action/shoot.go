@@ -2,6 +2,7 @@ package action
 
 import (
 	"github.com/mechanical-lich/ml-rogue-lib/pkg/rlenergy"
+	"github.com/mechanical-lich/ml-rogue-lib/pkg/rlcomponents"
 	"github.com/mechanical-lich/mlge/ecs"
 	"github.com/mechanical-lich/mlge/message"
 	"github.com/mechanical-lich/spaceplant/internal/component"
@@ -71,7 +72,7 @@ func (a ShootAction) Execute(entity *ecs.Entity, level *world.Level) error {
 	wc := equippedRangedWeapon(entity)
 	if wc == nil {
 		message.AddMessage("You don't have a ranged weapon equipped.")
-		rlenergy.SetActionCost(entity, energy.CostQuick)
+		entity.RemoveComponent(rlcomponents.TurnTaken)
 		return nil
 	}
 
