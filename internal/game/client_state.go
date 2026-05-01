@@ -5,10 +5,7 @@ import (
 	"math"
 	"strings"
 
-	"image/color"
-
 	"github.com/hajimehoshi/ebiten/v2"
-	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
 	"github.com/hajimehoshi/ebiten/v2/inpututil"
 	"github.com/mechanical-lich/ml-rogue-lib/pkg/path"
 	"github.com/mechanical-lich/ml-rogue-lib/pkg/rlcomponents"
@@ -601,9 +598,14 @@ func (s *SPClientState) updateAimLine() {
 	}
 }
 
-// drawAimLine draws the aim trail and a reticle on the final (impact) tile.
-func (s *SPClientState) drawAimLine(screen *ebiten.Image) {
-	if len(s.aimLineTiles) == 0 {
+// drawReticleTiles draws the reticle sprite on each tile, scaling its alpha by alphaMult.
+// The last tile uses fullR/G/B/A and earlier tiles use dimR/G/B/A.
+func (s *SPClientState) drawReticleTiles(screen *ebiten.Image, tiles [][2]int, dimR, dimG, dimB, dimA, fullR, fullG, fullB, fullA float32) {
+	if len(tiles) == 0 {
+		return
+	}
+	tex, ok := resource.Textures["reticle"]
+	if !ok {
 		return
 	}
 	cfg := config.Global()
@@ -618,27 +620,25 @@ func (s *SPClientState) drawAimLine(screen *ebiten.Image) {
 	sw := float64(cfg.TileSizeW) * scale
 	sh := float64(cfg.TileSizeH) * scale
 
-	// Draw semi-transparent trail on all tiles except the last.
-	trail := color.RGBA{220, 60, 60, 60}
-	for _, t := range s.aimLineTiles[:len(s.aimLineTiles)-1] {
+	for i, t := range tiles {
 		screenX := float64(t[0]-left) * sw
 		screenY := float64(t[1]-up) * sh
-		ebitenutil.DrawRect(screen, screenX, screenY, sw, sh, trail)
-	}
-
-	// Draw the reticle sprite on the impact tile.
-	last := s.aimLineTiles[len(s.aimLineTiles)-1]
-	screenX := float64(last[0]-left) * sw
-	screenY := float64(last[1]-up) * sh
-	if tex, ok := resource.Textures["reticle"]; ok {
 		op := &ebiten.DrawImageOptions{}
 		op.GeoM.Scale(scale, scale)
 		op.GeoM.Translate(screenX, screenY)
+		if i == len(tiles)-1 {
+			op.ColorScale.Scale(fullR, fullG, fullB, fullA)
+		} else {
+			op.ColorScale.Scale(dimR, dimG, dimB, dimA)
+		}
 		screen.DrawImage(tex, op)
-	} else {
-		// Fallback if texture not yet loaded.
-		ebitenutil.DrawRect(screen, screenX, screenY, sw, sh, color.RGBA{255, 80, 80, 160})
 	}
+}
+
+// drawAimLine draws the aim trail and impact reticle along the current mouse direction.
+func (s *SPClientState) drawAimLine(screen *ebiten.Image) {
+	// Trail tiles: dim red; impact tile: bright red at full opacity.
+	s.drawReticleTiles(screen, s.aimLineTiles, 1, 0.2, 0.2, 0.25, 1, 0.3, 0.3, 1)
 }
 
 // computePath runs A* from the player's current tile to (tx, ty) on the current
@@ -709,31 +709,10 @@ func deltaMoveCommand(dx, dy int) string {
 	return ""
 }
 
-// drawPendingPath draws a semi-transparent blue-green overlay on each tile in pendingPath.
+// drawPendingPath draws the path-follow reticle overlay on each pending tile.
 func (s *SPClientState) drawPendingPath(screen *ebiten.Image) {
-	if len(s.pendingPath) == 0 {
-		return
-	}
-	cfg := config.Global()
-	scale := math.Round(cfg.RenderScale)
-	if scale < 1 {
-		scale = 1
-	}
-	tilesW := int(math.Ceil(float64(cfg.WorldWidth) / (float64(cfg.TileSizeW) * scale)))
-	tilesH := int(math.Ceil(float64(cfg.WorldHeight) / (float64(cfg.TileSizeH) * scale)))
-	left := s.CameraX - tilesW/2
-	up := s.CameraY - tilesH/2
-	sw := float64(cfg.TileSizeW) * scale
-	sh := float64(cfg.TileSizeH) * scale
-	for i, t := range s.pendingPath {
-		screenX := float64(t[0]-left) * sw
-		screenY := float64(t[1]-up) * sh
-		c := color.RGBA{60, 180, 220, 60}
-		if i == len(s.pendingPath)-1 {
-			c = color.RGBA{80, 220, 255, 110}
-		}
-		ebitenutil.DrawRect(screen, screenX, screenY, sw, sh, c)
-	}
+	// Path tiles: dim cyan; destination tile: bright cyan at full opacity.
+	s.drawReticleTiles(screen, s.pendingPath, 0.2, 0.7, 1, 0.25, 0.3, 1, 1, 1)
 }
 
 // setPathSpeed zeros NpcTurnDelayTicks while the player is auto-walking a path,
