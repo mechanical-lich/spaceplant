@@ -91,6 +91,14 @@ func (s *PlayerSystem) UpdateEntity(levelInterface any, entity *ecs.Entity) erro
 		act = action.MoveAction{DeltaX: -1, DeltaY: 0}
 	case "move_east":
 		act = action.MoveAction{DeltaX: 1, DeltaY: 0}
+	case "move_northwest":
+		act = action.MoveAction{DeltaX: -1, DeltaY: -1}
+	case "move_northeast":
+		act = action.MoveAction{DeltaX: 1, DeltaY: -1}
+	case "move_southwest":
+		act = action.MoveAction{DeltaX: -1, DeltaY: 1}
+	case "move_southeast":
+		act = action.MoveAction{DeltaX: 1, DeltaY: 1}
 	case "fire":
 		act = action.ShootAction{Aimed: false}
 	case "aimed_shot":
@@ -100,6 +108,28 @@ func (s *PlayerSystem) UpdateEntity(levelInterface any, entity *ecs.Entity) erro
 		act = action.ShootAction{Aimed: true, AimedBodyPart: bodyPart}
 	case "burst_fire":
 		act = action.ShootAction{Burst: true}
+	case "mouse_shoot":
+		pc := entity.GetComponent("PlayerComponent").(*component.PlayerComponent)
+		d := pc.PendingMouseShoot
+		pc.PendingMouseShoot = nil
+		if d != nil {
+			if entity.HasComponent(component.Direction) {
+				dc := entity.GetComponent(component.Direction).(*component.DirectionComponent)
+				// Map dx/dy back to direction value: 0=right,1=down,2=up,3=left
+				// For diagonals, prefer the dominant axis — or just set based on sign.
+				switch {
+				case d.DX == 1 && d.DY == 0:
+					dc.Direction = 0
+				case d.DX == -1 && d.DY == 0:
+					dc.Direction = 3
+				case d.DY == 1:
+					dc.Direction = 1
+				default:
+					dc.Direction = 2
+				}
+			}
+			act = action.ShootAction{Aimed: false, DX: d.DX, DY: d.DY}
+		}
 	case "heal":
 		act = action.HealAction{}
 	case "stairs":

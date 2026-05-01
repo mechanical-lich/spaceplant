@@ -21,6 +21,7 @@ type ShootAction struct {
 	Aimed         bool
 	Burst         bool
 	AimedBodyPart string // non-empty: targeted aimed shot at a specific body part
+	DX, DY        int    // non-zero: override facing direction (used by mouse-click shoot)
 }
 
 // Range-band CS modifiers.
@@ -75,6 +76,9 @@ func (a ShootAction) Execute(entity *ecs.Entity, level *world.Level) error {
 	}
 
 	dx, dy := facingDeltas(entity)
+	if a.DX != 0 || a.DY != 0 {
+		dx, dy = a.DX, a.DY
+	}
 	if dx == 0 && dy == 0 {
 		message.AddMessage("No direction to fire.")
 		rlenergy.SetActionCost(entity, energy.CostQuick)

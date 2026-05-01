@@ -166,5 +166,9 @@ var keyMap = map[string]ebiten.Key{
 	"q": ebiten.KeyQ, "r": ebiten.KeyR, "s": ebiten.KeyS, "t": ebiten.KeyT,
 	"u": ebiten.KeyU, "v": ebiten.KeyV, "w": ebiten.KeyW, "x": ebiten.KeyX,
 	"y": ebiten.KeyY, "z": ebiten.KeyZ,
-	".": ebiten.KeyPeriod,
+	".":        ebiten.KeyPeriod,
+	"arrowup":    ebiten.KeyArrowUp,
+	"arrowdown":  ebiten.KeyArrowDown,
+	"arrowleft":  ebiten.KeyArrowLeft,
+	"arrowright": ebiten.KeyArrowRight,
 }

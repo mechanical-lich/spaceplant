@@ -5,11 +5,16 @@ import (
 	"math"
 	"strings"
 
+	"image/color"
+
 	"github.com/hajimehoshi/ebiten/v2"
+	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
 	"github.com/hajimehoshi/ebiten/v2/inpututil"
+	"github.com/mechanical-lich/ml-rogue-lib/pkg/path"
 	"github.com/mechanical-lich/ml-rogue-lib/pkg/rlcomponents"
 	"github.com/mechanical-lich/mlge/client"
 	"github.com/mechanical-lich/mlge/ecs"
+	"github.com/mechanical-lich/mlge/resource"
 	mlgeevent "github.com/mechanical-lich/mlge/event"
 	"github.com/mechanical-lich/mlge/message"
 	"github.com/mechanical-lich/mlge/transport"
@@ -48,16 +53,22 @@ type SPClientState struct {
 	pressDelay       int
 	returnToTitle    bool
 	lastSavedTurn    int
+	aimLineTiles      [][2]int // world-space tiles along the current mouse aim line
+	pendingPath       [][2]int // queued walk path from right-click; stepped one tile per turn
+	pathfinder        *path.AStar
+	lastPathStepTurn  int // TurnCount when the last path step was sent
+	savedNpcTurnDelay int // NpcTurnDelayTicks saved while path-following at full speed
 }
 
 // NewSPClientState creates a ready-to-use graphical client state.
 // If the player hasn't been spawned yet, the character creator is shown first.
 func NewSPClientState(sim *SimWorld, simState *MainSimState, t transport.ClientTransport) *SPClientState {
 	cs := &SPClientState{
-		sim:       sim,
-		simState:  simState,
-		transport: t,
-		mainView:  &GUIViewMain{},
+		sim:        sim,
+		simState:   simState,
+		transport:  t,
+		mainView:   &GUIViewMain{},
+		pathfinder: path.NewAStar(1024),
 	}
 
 	if sim.Player == nil {
@@ -353,6 +364,42 @@ func (s *SPClientState) Update(_ *transport.Snapshot) client.ClientState {
 			return nil
 		}
 
+		// Arrow key movement (cardinal and diagonal via simultaneous keys).
+		// These are special-cased because the keybinding system only handles single keys.
+		up := ebiten.IsKeyPressed(ebiten.KeyArrowUp)
+		down := ebiten.IsKeyPressed(ebiten.KeyArrowDown)
+		left := ebiten.IsKeyPressed(ebiten.KeyArrowLeft)
+		right := ebiten.IsKeyPressed(ebiten.KeyArrowRight)
+		if (up || down || left || right) && s.pressDelay == 0 {
+			arrowCmd := ""
+			switch {
+			case up && left:
+				arrowCmd = "move_northwest"
+			case up && right:
+				arrowCmd = "move_northeast"
+			case down && left:
+				arrowCmd = "move_southwest"
+			case down && right:
+				arrowCmd = "move_southeast"
+			case up:
+				arrowCmd = "move_north"
+			case down:
+				arrowCmd = "move_south"
+			case left:
+				arrowCmd = "move_west"
+			case right:
+				arrowCmd = "move_east"
+			}
+			if arrowCmd != "" {
+				s.pendingPath = s.pendingPath[:0]
+				s.transport.SendCommand(&transport.Command{
+					Type:    CmdAction,
+					Payload: ActionPayload{Key: arrowCmd},
+				})
+				s.pressDelay = config.Global().PressDelay
+			}
+		}
+
 		if s.pressDelay > 0 {
 			s.pressDelay--
 		}
@@ -416,7 +463,317 @@ func (s *SPClientState) Update(_ *transport.Snapshot) client.ClientState {
 		}
 	}
 
+	// Update aim line, path overlay, and handle mouse input.
+	// Aim line and path preview stay visible even when it's not the player's turn.
+	anyModalOpen := s.classView.Visible || s.statsView.Visible || s.reloadView.Visible ||
+		s.aimedShotView.Visible || s.nearbyLootView.Visible || s.deathModal.Visible ||
+		s.winModal.Visible || s.pauseMenu.Visible || s.cheatModal.Visible || s.stationMapModal.Visible
+	if !anyModalOpen && s.sim.Player != nil {
+		s.sim.Mu.RLock()
+		s.updateAimLine()
+		s.sim.Mu.RUnlock()
+
+		// Any key press cancels the walk path immediately, even mid-turn.
+		if len(s.pendingPath) > 0 && len(inpututil.AppendJustPressedKeys(nil)) > 0 {
+			s.pendingPath = s.pendingPath[:0]
+		}
+
+		// Speed up the sim while path-following; restore when done.
+		s.setPathSpeed(len(s.pendingPath) > 0)
+
+		if hasTurn {
+			// Left click: shoot toward clicked tile.
+			if inpututil.IsMouseButtonJustPressed(ebiten.MouseButtonLeft) {
+				tx, ty, onWorld := s.mouseWorldTile()
+				if onWorld {
+					s.pendingPath = s.pendingPath[:0] // cancel any walk
+					s.transport.SendCommand(&transport.Command{
+						Type:    CmdMouseShoot,
+						Payload: MouseShootPayload{TargetX: tx, TargetY: ty},
+					})
+					s.pressDelay = config.Global().PressDelay
+				}
+			}
+
+			// Right click: pathfind to clicked tile.
+			if inpututil.IsMouseButtonJustPressed(ebiten.MouseButtonRight) {
+				tx, ty, onWorld := s.mouseWorldTile()
+				if onWorld {
+					s.sim.Mu.RLock()
+					s.computePath(tx, ty)
+					s.sim.Mu.RUnlock()
+				}
+			}
+
+			// Step along the pending path — one step per sim turn (TurnCount gate).
+			if len(s.pendingPath) > 0 && turnCount > s.lastPathStepTurn {
+				s.sim.Mu.RLock()
+				next := s.pendingPath[0]
+				blocked := s.isTileBlocked(next[0], next[1])
+				s.sim.Mu.RUnlock()
+				if blocked {
+					s.pendingPath = s.pendingPath[:0]
+				} else {
+					s.pendingPath = s.pendingPath[1:]
+					s.sim.Mu.RLock()
+					pc := s.sim.Player.GetComponent(component.Position).(*component.PositionComponent)
+					dx := next[0] - pc.GetX()
+					dy := next[1] - pc.GetY()
+					s.sim.Mu.RUnlock()
+					if cmd := deltaMoveCommand(dx, dy); cmd != "" {
+						s.transport.SendCommand(&transport.Command{
+							Type:    CmdAction,
+							Payload: ActionPayload{Key: cmd},
+						})
+						s.lastPathStepTurn = turnCount
+					}
+				}
+			}
+		}
+	} else {
+		s.aimLineTiles = s.aimLineTiles[:0]
+		s.pendingPath = s.pendingPath[:0]
+	}
+
 	return nil
+}
+
+// mouseWorldTile converts the current cursor position to a world tile coordinate.
+// Returns (tileX, tileY, true) if the cursor is over the world viewport, or (0,0,false) otherwise.
+// Must NOT be called under the sim lock.
+func (s *SPClientState) mouseWorldTile() (int, int, bool) {
+	cfg := config.Global()
+	mx, my := ebiten.CursorPosition()
+	if mx < 0 || mx >= cfg.WorldWidth || my < 0 || my >= cfg.WorldHeight {
+		return 0, 0, false
+	}
+	scale := math.Round(cfg.RenderScale)
+	if scale < 1 {
+		scale = 1
+	}
+	tilesW := int(math.Ceil(float64(cfg.WorldWidth) / (float64(cfg.TileSizeW) * scale)))
+	tilesH := int(math.Ceil(float64(cfg.WorldHeight) / (float64(cfg.TileSizeH) * scale)))
+	left := s.CameraX - tilesW/2
+	up := s.CameraY - tilesH/2
+	tx := left + int(float64(mx)/scale)/cfg.TileSizeW
+	ty := up + int(float64(my)/scale)/cfg.TileSizeH
+	return tx, ty, true
+}
+
+// updateAimLine recomputes aimLineTiles from the current mouse position.
+// Must be called with at least s.sim.Mu.RLock held.
+func (s *SPClientState) updateAimLine() {
+	s.aimLineTiles = s.aimLineTiles[:0]
+	if s.sim.Player == nil {
+		return
+	}
+	tx, ty, onWorld := s.mouseWorldTile()
+	if !onWorld {
+		return
+	}
+	// Only show aim line when player has a ranged weapon equipped.
+	if !playerHasRangedWeapon(s.sim.Player) {
+		return
+	}
+	pc := s.sim.Player.GetComponent(component.Position).(*component.PositionComponent)
+	px, py, pz := pc.GetX(), pc.GetY(), pc.GetZ()
+	dx := signInt(tx - px)
+	dy := signInt(ty - py)
+	if dx == 0 && dy == 0 {
+		return
+	}
+	const maxRange = 16
+	for i := 1; i <= maxRange; i++ {
+		wx, wy := px+dx*i, py+dy*i
+		s.aimLineTiles = append(s.aimLineTiles, [2]int{wx, wy})
+		if s.sim.Level.IsTileSolid(wx, wy, pz) {
+			break
+		}
+		if e := s.sim.Level.Level.GetSolidEntityAt(wx, wy, pz); e != nil && e != s.sim.Player {
+			if e.HasComponent(component.Door) {
+				dc := e.GetComponent(component.Door).(*component.DoorComponent)
+				if dc.Open {
+					continue
+				}
+			}
+			break
+		}
+	}
+}
+
+// drawAimLine draws the aim trail and a reticle on the final (impact) tile.
+func (s *SPClientState) drawAimLine(screen *ebiten.Image) {
+	if len(s.aimLineTiles) == 0 {
+		return
+	}
+	cfg := config.Global()
+	scale := math.Round(cfg.RenderScale)
+	if scale < 1 {
+		scale = 1
+	}
+	tilesW := int(math.Ceil(float64(cfg.WorldWidth) / (float64(cfg.TileSizeW) * scale)))
+	tilesH := int(math.Ceil(float64(cfg.WorldHeight) / (float64(cfg.TileSizeH) * scale)))
+	left := s.CameraX - tilesW/2
+	up := s.CameraY - tilesH/2
+	sw := float64(cfg.TileSizeW) * scale
+	sh := float64(cfg.TileSizeH) * scale
+
+	// Draw semi-transparent trail on all tiles except the last.
+	trail := color.RGBA{220, 60, 60, 60}
+	for _, t := range s.aimLineTiles[:len(s.aimLineTiles)-1] {
+		screenX := float64(t[0]-left) * sw
+		screenY := float64(t[1]-up) * sh
+		ebitenutil.DrawRect(screen, screenX, screenY, sw, sh, trail)
+	}
+
+	// Draw the reticle sprite on the impact tile.
+	last := s.aimLineTiles[len(s.aimLineTiles)-1]
+	screenX := float64(last[0]-left) * sw
+	screenY := float64(last[1]-up) * sh
+	if tex, ok := resource.Textures["reticle"]; ok {
+		op := &ebiten.DrawImageOptions{}
+		op.GeoM.Scale(scale, scale)
+		op.GeoM.Translate(screenX, screenY)
+		screen.DrawImage(tex, op)
+	} else {
+		// Fallback if texture not yet loaded.
+		ebitenutil.DrawRect(screen, screenX, screenY, sw, sh, color.RGBA{255, 80, 80, 160})
+	}
+}
+
+// computePath runs A* from the player's current tile to (tx, ty) on the current
+// floor and stores the result in pendingPath. Must be called with sim.Mu.RLock held.
+func (s *SPClientState) computePath(tx, ty int) {
+	s.pendingPath = s.pendingPath[:0]
+	if s.sim.Player == nil {
+		return
+	}
+	pc := s.sim.Player.GetComponent(component.Position).(*component.PositionComponent)
+	px, py, pz := pc.GetX(), pc.GetY(), pc.GetZ()
+	if px == tx && py == ty {
+		return
+	}
+	level := s.sim.Level.Level
+	w := level.GetWidth()
+	h := level.GetHeight()
+	fromID := px + py*w + pz*w*h
+	toID := tx + ty*w + pz*w*h
+	nodeIDs, _, found := s.pathfinder.Path(level, fromID, toID)
+	if !found || len(nodeIDs) < 2 {
+		return
+	}
+	// nodeIDs[0] is the start tile — skip it, we only need the steps ahead.
+	for _, id := range nodeIDs[1:] {
+		x := id % w
+		y := (id / w) % h
+		s.pendingPath = append(s.pendingPath, [2]int{x, y})
+	}
+}
+
+// isTileBlocked returns true if (tx, ty) on the current floor is solid or
+// occupied by a non-player solid entity. Must be called with sim.Mu.RLock held.
+func (s *SPClientState) isTileBlocked(tx, ty int) bool {
+	if s.sim.Player == nil {
+		return true
+	}
+	pc := s.sim.Player.GetComponent(component.Position).(*component.PositionComponent)
+	z := pc.GetZ()
+	if s.sim.Level.IsTileSolid(tx, ty, z) {
+		return true
+	}
+	e := s.sim.Level.Level.GetSolidEntityAt(tx, ty, z)
+	return e != nil && e != s.sim.Player
+}
+
+// deltaMoveCommand converts a (dx, dy) step into a move command string.
+// Only cardinal and diagonal steps are supported; returns "" for anything else.
+func deltaMoveCommand(dx, dy int) string {
+	switch {
+	case dx == 0 && dy == -1:
+		return "move_north"
+	case dx == 0 && dy == 1:
+		return "move_south"
+	case dx == -1 && dy == 0:
+		return "move_west"
+	case dx == 1 && dy == 0:
+		return "move_east"
+	case dx == -1 && dy == -1:
+		return "move_northwest"
+	case dx == 1 && dy == -1:
+		return "move_northeast"
+	case dx == -1 && dy == 1:
+		return "move_southwest"
+	case dx == 1 && dy == 1:
+		return "move_southeast"
+	}
+	return ""
+}
+
+// drawPendingPath draws a semi-transparent blue-green overlay on each tile in pendingPath.
+func (s *SPClientState) drawPendingPath(screen *ebiten.Image) {
+	if len(s.pendingPath) == 0 {
+		return
+	}
+	cfg := config.Global()
+	scale := math.Round(cfg.RenderScale)
+	if scale < 1 {
+		scale = 1
+	}
+	tilesW := int(math.Ceil(float64(cfg.WorldWidth) / (float64(cfg.TileSizeW) * scale)))
+	tilesH := int(math.Ceil(float64(cfg.WorldHeight) / (float64(cfg.TileSizeH) * scale)))
+	left := s.CameraX - tilesW/2
+	up := s.CameraY - tilesH/2
+	sw := float64(cfg.TileSizeW) * scale
+	sh := float64(cfg.TileSizeH) * scale
+	for i, t := range s.pendingPath {
+		screenX := float64(t[0]-left) * sw
+		screenY := float64(t[1]-up) * sh
+		c := color.RGBA{60, 180, 220, 60}
+		if i == len(s.pendingPath)-1 {
+			c = color.RGBA{80, 220, 255, 110}
+		}
+		ebitenutil.DrawRect(screen, screenX, screenY, sw, sh, c)
+	}
+}
+
+// setPathSpeed zeros NpcTurnDelayTicks while the player is auto-walking a path,
+// restoring the saved value as soon as the path is cleared.
+func (s *SPClientState) setPathSpeed(pathActive bool) {
+	cfg := config.Global()
+	if pathActive {
+		if s.savedNpcTurnDelay == 0 && cfg.NpcTurnDelayTicks > 0 {
+			s.savedNpcTurnDelay = cfg.NpcTurnDelayTicks
+		}
+		cfg.NpcTurnDelayTicks = 0
+	} else {
+		if s.savedNpcTurnDelay > 0 {
+			cfg.NpcTurnDelayTicks = s.savedNpcTurnDelay
+			s.savedNpcTurnDelay = 0
+		}
+	}
+}
+
+func signInt(n int) int {
+	if n > 0 {
+		return 1
+	}
+	if n < 0 {
+		return -1
+	}
+	return 0
+}
+
+func playerHasRangedWeapon(player *ecs.Entity) bool {
+	equipped := playerEquipped(player)
+	for _, item := range equipped {
+		if item != nil && item.HasComponent(component.Weapon) {
+			wc := item.GetComponent(component.Weapon).(*component.WeaponComponent)
+			if wc.Ranged {
+				return true
+			}
+		}
+	}
+	return false
 }
 
 // nearbyInventoryEntity returns the best inventory-bearing entity to show in
@@ -566,6 +923,9 @@ func (s *SPClientState) Draw(screen *ebiten.Image) {
 	op := &ebiten.DrawImageOptions{}
 	op.GeoM.Scale(scale, scale)
 	screen.DrawImage(levelImage, op)
+
+	s.drawPendingPath(screen)
+	s.drawAimLine(screen)
 
 	s.mainView.Draw(screen, s)
 	s.classView.Draw(screen)

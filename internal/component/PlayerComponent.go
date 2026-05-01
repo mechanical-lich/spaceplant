@@ -15,6 +15,11 @@ type PendingItemActionData struct {
 	TileX, TileY, TileZ int
 }
 
+// PendingMouseShootData holds the 8-direction delta for a mouse-click shoot command.
+type PendingMouseShootData struct {
+	DX, DY int
+}
+
 // PlayerComponent - Handles websocket communications
 type PlayerComponent struct {
 	Commands             []string
@@ -23,6 +28,7 @@ type PlayerComponent struct {
 	PendingAimedBodyPart string // body part chosen in the targeted aimed shot modal
 	PendingPickup        *PendingItemActionData
 	PendingEquip         *PendingItemActionData
+	PendingMouseShoot    *PendingMouseShootData
 }
 
 // GetType get the type

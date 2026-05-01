@@ -172,6 +172,22 @@ func (s *MainSimState) ProcessCommand(cmd *transport.Command) {
 			Item: payload.Item, TileX: payload.TileX, TileY: payload.TileY, TileZ: payload.TileZ,
 		}
 		playerC.PushCommand("equip_item")
+	case CmdMouseShoot:
+		payload, ok := cmd.Payload.(MouseShootPayload)
+		if !ok {
+			return
+		}
+		if s.sim.Player == nil {
+			return
+		}
+		pc := s.sim.Player.GetComponent(component.Position).(*component.PositionComponent)
+		dx := sign(payload.TargetX - pc.GetX())
+		dy := sign(payload.TargetY - pc.GetY())
+		if dx == 0 && dy == 0 {
+			return
+		}
+		playerC.PendingMouseShoot = &component.PendingMouseShootData{DX: dx, DY: dy}
+		playerC.PushCommand("mouse_shoot")
 	}
 }
 
@@ -345,6 +361,16 @@ func applyPlantFoodBonus(entities []*ecs.Entity, level *world.Level) {
 		ec := entity.GetComponent(rlcomponents.Energy).(*rlcomponents.EnergyComponent)
 		ec.Energy += ec.Speed / 4
 	}
+}
+
+func sign(n int) int {
+	if n > 0 {
+		return 1
+	}
+	if n < 0 {
+		return -1
+	}
+	return 0
 }
 
 // advanceAnimations steps every entity's sprite animation cycle.

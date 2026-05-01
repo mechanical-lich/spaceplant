@@ -48,3 +48,12 @@ type EquipItemPayload struct {
 	Item *ecs.Entity
 	TileX, TileY, TileZ int
 }
+
+// CmdMouseShoot is sent when the player left-clicks a world tile while holding a ranged weapon.
+// The direction is snapped to 8 compass directions before dispatch.
+const CmdMouseShoot transport.CommandType = "sp.mouse_shoot"
+
+// MouseShootPayload carries the world tile the player clicked.
+type MouseShootPayload struct {
+	TargetX, TargetY int
+}
