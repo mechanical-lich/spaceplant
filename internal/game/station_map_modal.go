@@ -155,7 +155,7 @@ func (m *StationMapModal) Draw(screen *ebiten.Image) {
 		floorName = results[m.viewedZ].Theme.Name
 	}
 	ebitenutil.DebugPrintAt(screen,
-		fmt.Sprintf("STATION MAP  Left and Right Arrows to browse floors   right-click to clear waypoint   click map to place waypoint   ESC to close"),
+		"STATION MAP  Left and Right Arrows to browse floors   right-click to clear waypoint   click map to place waypoint   ESC to close",
 		int(overlayX)+8, int(overlayY)+6)
 	ebitenutil.DebugPrintAt(screen,
 		fmt.Sprintf("Floor %d/%d — %s", m.viewedZ+1, len(results), floorName),
