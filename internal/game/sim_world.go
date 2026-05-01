@@ -134,6 +134,10 @@ func NewSimWorld() (*SimWorld, error) {
 		sw.Level.AddEntity(crate)
 	}
 
+	if s := scenario.Active(); s != nil && len(s.SetupScripts) > 0 {
+		system.RunSetupScripts(s.SetupScripts, sw.Level, sw.FloorResults)
+	}
+
 	return sw, nil
 }
 
@@ -184,6 +188,10 @@ func (sw *SimWorld) RegenerateLevel() error {
 	}
 
 	newLevel.ShaderSrc = sw.Level.ShaderSrc
+
+	if s := scenario.Active(); s != nil && len(s.SetupScripts) > 0 {
+		system.RunSetupScripts(s.SetupScripts, newLevel, floorResults)
+	}
 
 	sw.Mu.Lock()
 	sw.Level = newLevel
@@ -410,6 +418,7 @@ func (sw *SimWorld) spawnBossFromCandidates(blueprint string, z int, candidates 
 		return
 	}
 }
+
 
 // ConvertPlayerToCorpse strips the PlayerComponent from the player entity so it
 // becomes a regular (dead) entity that persists on the station. The player run

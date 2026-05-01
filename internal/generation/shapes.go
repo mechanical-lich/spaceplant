@@ -7,9 +7,16 @@ import (
 
 type Room struct {
 	X, Y, Width, Height int
+	Number              int    // assigned after generation; unique per floor, 1-based
 	Tag                 string // semantic label assigned by the floor theme, e.g. "crew_quarters"
 	DoorDir             [2]int // direction from hallway into room (dx,dy from bud candidate); zero = no bud door
 }
+
+// CenterX returns the approximate tile-center X of the room.
+func (r Room) CenterX() int { return r.X + r.Width/2 }
+
+// CenterY returns the approximate tile-center Y of the room.
+func (r Room) CenterY() int { return r.Y + r.Height/2 }
 
 func CarveRoom(m *world.Level, x, y, z, width, height, wallType, floorType int, noOverwrite bool, noBudding bool) {
 	if x+width > m.Width || y+height > m.Height {

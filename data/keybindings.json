@@ -19,5 +19,6 @@
     "class_upgrade":      "shift+c",
     "inventory":          "i",
     "character_overview": "shift+i",
-    "place_mother_plant": "x"
+    "place_mother_plant": "x",
+    "station_map":        "m"
 }

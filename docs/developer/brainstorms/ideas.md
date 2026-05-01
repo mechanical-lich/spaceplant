@@ -17,3 +17,5 @@ Ideas to grab from if I get bored:
 - Burning tiles, exploding barrels, fuel spills, etc.
 - Environmental dangers like broken panels/walls that may shock you.
 - Security system gone haywire that mistakes you for an intruder.  (Can be fixed/shut down)
+- Food and hunger plus general survival.   Crew do this too to some extent.   Food should spawn in lockers, mess halls, or be craftable using replicators.    Maybe monsters are harvestable as well.   
+- Exhaustion simulation?  Should we require sleep?  Have a way to barricade doors or setup alarms to be woken up in the event of an attack. etc. 

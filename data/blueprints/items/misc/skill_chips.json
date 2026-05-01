@@ -1,0 +1,48 @@
+{
+    "skill_chip": {
+        "DescriptionComponent": {
+            "Name": "Skill Chip",
+            "Faction": "item",
+            "PassOverDescription": [
+                "A neural skill chip lies here.",
+                "You spot a skill chip on the floor.",
+                "A skill chip sits here."
+            ]
+        },
+        "AsciiAppearanceComponent": {
+            "Character": "*",
+            "R": 180,
+            "G": 120,
+            "B": 255
+        },
+        "AppearanceComponent": {
+            "Resource": "items",
+            "SpriteX": 1,
+            "SpriteY": 0,
+            "R": 180,
+            "G": 120,
+            "B": 255,
+            "Frames": 1,
+            "SpriteWidth": 32,
+            "SpriteHeight": 48,
+            "SpriteOffsetY": -16
+        },
+        "LightComponent": {
+            "Radius": 6,
+            "Brightness": 8,
+            "R": 120,
+            "G": 60,
+            "B": 200
+        },
+        "ItemComponent": {
+            "Effect": "skill_chip",
+            "Value": 0,
+            "Slot": "bag",
+            "Name": "Skill Chip",
+            "Description": "A neural skill chip."
+        },
+        "SkillChipComponent": {
+            "SkillId": ""
+        }
+    }
+}

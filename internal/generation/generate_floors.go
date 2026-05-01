@@ -70,6 +70,10 @@ func GenerateFloors(l *world.Level) []FloorResult {
 		rooms := generateFloor(l, z, theme)
 		l.Polish(z)
 
+		for i := range rooms {
+			rooms[i].Number = i + 1
+		}
+
 		hints := ApplyRoomGenerators(l, z, rooms)
 		l.Polish(z)
 

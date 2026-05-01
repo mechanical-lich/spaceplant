@@ -1,0 +1,23 @@
+function on_setup():
+    let command_floor = get_floor_count() - 1
+
+    let key_floor = random_floor_excluding(command_floor)
+    let key_room = random_room(key_floor)
+
+    spawn_in_room("self_destruct_key", key_floor, key_room)
+
+    let room_num = get_room_number(key_floor, key_room)
+    let floor_name = get_floor_name(key_floor)
+    let floor_num = key_floor + 1
+
+    let hint = "CLASSIFIED — Self-Destruct Authorization Log" + chr(10) + chr(10) + "The authorization key for the self-destruct system has been secured in Room " + num_to_str(room_num) + " on floor " + num_to_str(floor_num) + " (" + floor_name + ") per emergency protocol 7.  Do not leave this datapad near the console." + chr(10) + chr(10) + "Station security, out."
+
+    let sd_room = find_room_by_tag("self_destruct_room", command_floor)
+    if sd_room >= 0 then
+        spawn_in_room("datapad", command_floor, sd_room)
+    else
+        let fallback_room = random_room(command_floor)
+        spawn_in_room("datapad", command_floor, fallback_room)
+    endif
+    set_description(hint)
+endfunction

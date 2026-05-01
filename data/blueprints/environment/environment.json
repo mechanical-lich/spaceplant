@@ -161,7 +161,7 @@
         "NeverSleepComponent": {},
         "InteractionComponent": {
             "Prompt": "STATION SELF-DESTRUCT SYSTEM — Authorization required. Arm sequence?",
-            "Repeatable": false,
+            "Repeatable": true,
             "Triggers": [
                 {
                     "Type": "call_script_interact",

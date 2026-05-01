@@ -52,6 +52,16 @@ Make sure you have the right ammo type:
 
 ---
 
+## Skill Chips
+
+Skill chips are neural implants found randomly around the station. Each chip is labelled with the skill it contains and glows faintly.
+
+To use one: pick it up, open your inventory (**I**), select the chip, and press **Equip/Use**. The skill is permanently added to your character and the chip is consumed. If you already know the skill the chip is wasted, so check the inventory description first — it shows what the chip teaches and whether you already have it.
+
+See [Skills](skills.md) for a full list of learnable skills.
+
+---
+
 ## Armor
 
 Armor reduces incoming damage via **Stopping Power (SP)**. The higher the SP, the more damage is absorbed before it reaches your body part's HP.

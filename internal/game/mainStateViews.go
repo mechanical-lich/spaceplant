@@ -84,7 +84,7 @@ func (g *GUIViewMain) Update(s any) {
 	g.initWidgets()
 	cs, ok := s.(*SPClientState)
 	if ok {
-		g.minimapWidget.Image = cs.GetMinimap(0, 0, 100, 100, 150, 150)
+		g.minimapWidget.Image = cs.GetMinimap(0, 0, 100, 100, 150, 150, &cs.waypoint)
 		g.updateHover(cs)
 	}
 
@@ -408,7 +408,7 @@ func bodyPartStyle(p bodyPartHoverInfo) (color.RGBA, bool) {
 }
 
 // GetMinimap generates a minimap image of specified size.
-func (cs *SPClientState) GetMinimap(sX, sY, width, height, imageWidth, imageHeight int) *ebiten.Image {
+func (cs *SPClientState) GetMinimap(sX, sY, width, height, imageWidth, imageHeight int, wp *Waypoint) *ebiten.Image {
 	worldImage := ebiten.NewImage(imageWidth, imageHeight)
 	pc := cs.sim.Player.GetComponent("Position").(*component.PositionComponent)
 
@@ -439,6 +439,12 @@ func (cs *SPClientState) GetMinimap(sX, sY, width, height, imageWidth, imageHeig
 	}
 
 	ebitenutil.DrawRect(worldImage, float64(pc.GetX()*imageWidth/width), float64(pc.GetY()*imageHeight/height), 5, 5, color.RGBA{0, 0, 255, 255})
+
+	if wp != nil && wp.Active && wp.Z == cs.sim.CurrentZ {
+		ebitenutil.DrawRect(worldImage,
+			float64(wp.X*imageWidth/width), float64(wp.Y*imageHeight/height),
+			4, 4, color.RGBA{255, 200, 0, 255})
+	}
 
 	return worldImage
 }

@@ -196,6 +196,66 @@ func registerScriptFuncs(interp *basic.MechBasic, sc *component.ScriptComponent,
 		ctx.Entity.AddComponent(&rlcomponents.DeadComponent{})
 		return nil, nil
 	})
+	// playerHasBlueprintInBag checks both inventory types by blueprint ID.
+	playerHasBlueprintInBag := func(blueprint string) bool {
+		for _, e := range ctx.Level.Entities {
+			if e == nil || !e.HasComponent(component.Player) {
+				continue
+			}
+			if e.HasComponent(component.BodyInventory) {
+				bic := e.GetComponent(component.BodyInventory).(*component.BodyInventoryComponent)
+				for _, item := range bic.Bag {
+					if item != nil && item.Blueprint == blueprint {
+						return true
+					}
+				}
+			}
+			if e.HasComponent(component.Inventory) {
+				ic := e.GetComponent(component.Inventory).(*component.InventoryComponent)
+				for _, item := range ic.Bag {
+					if item != nil && item.Blueprint == blueprint {
+						return true
+					}
+				}
+			}
+		}
+		return false
+	}
+	interp.RegisterFunc("has_item", func(args ...any) (any, error) {
+		if len(args) != 1 {
+			return nil, errors.New("has_item: expected 1 argument (blueprint)")
+		}
+		blueprint, ok := args[0].(string)
+		if !ok {
+			return nil, errors.New("has_item: argument must be a string")
+		}
+		if playerHasBlueprintInBag(blueprint) {
+			return 1, nil
+		}
+		return 0, nil
+	})
+	interp.RegisterFunc("consume_item", func(args ...any) (any, error) {
+		if len(args) != 1 {
+			return nil, errors.New("consume_item: expected 1 argument (blueprint)")
+		}
+		blueprint, ok := args[0].(string)
+		if !ok {
+			return nil, errors.New("consume_item: argument must be a string")
+		}
+		for _, e := range ctx.Level.Entities {
+			if e == nil || !e.HasComponent(component.Player) {
+				continue
+			}
+			if e.HasComponent(component.BodyInventory) {
+				e.GetComponent(component.BodyInventory).(*component.BodyInventoryComponent).RemoveItemByName(blueprint)
+			}
+			if e.HasComponent(component.Inventory) {
+				e.GetComponent(component.Inventory).(*component.InventoryComponent).RemoveItemByName(blueprint)
+			}
+			break
+		}
+		return nil, nil
+	})
 	interp.RegisterFunc("kill_player", func(args ...any) (any, error) {
 		for _, e := range ctx.Level.Entities {
 			if e != nil && e.HasComponent(component.Player) {

@@ -6,6 +6,7 @@ import (
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/mechanical-lich/mlge/ecs"
+	"github.com/mechanical-lich/mlge/message"
 	"github.com/mechanical-lich/mlge/resource"
 	mlge_text "github.com/mechanical-lich/mlge/text"
 	"github.com/mechanical-lich/mlge/ui/minui"
@@ -308,6 +309,23 @@ func (v *CharacterStatsView) refreshInvDesc(idx int) {
 		if ic.Effect == "heal" {
 			v.invDesc.AddText("")
 			v.invDesc.AddText(fmt.Sprintf("Use to heal %d HP", ic.Value))
+		} else if ic.Effect == "skill_chip" && item.HasComponent(component.SkillChip) {
+			scc := item.GetComponent(component.SkillChip).(*component.SkillChipComponent)
+			sd := skill.Get(scc.SkillId)
+			v.invDesc.AddText("")
+			if sd != nil {
+				v.invDesc.AddText(fmt.Sprintf("Teaches: %s", sd.Name))
+				if sd.Description != "" {
+					v.invDesc.AddText("")
+					for _, line := range mlge_text.Wrap(sd.Description, 38, 0) {
+						v.invDesc.AddText(line)
+					}
+				}
+				if skill.HasSkill(v.player, scc.SkillId) {
+					v.invDesc.AddText("")
+					v.invDesc.AddText("(already learned)")
+				}
+			}
 		} else if ic.Slot != component.BagSlot {
 			v.invDesc.AddText("")
 			v.invDesc.AddText(fmt.Sprintf("Slot: %s", ic.Slot))
@@ -326,6 +344,25 @@ func (v *CharacterStatsView) onInvEquip() {
 		if ic.Effect == "heal" {
 			entityhelpers.HealBodyParts(v.player, ic.Value)
 			playerRemoveItem(v.player, item)
+		} else if ic.Effect == "skill_chip" && item.HasComponent(component.SkillChip) {
+			scc := item.GetComponent(component.SkillChip).(*component.SkillChipComponent)
+			if skill.HasSkill(v.player, scc.SkillId) {
+				sd := skill.Get(scc.SkillId)
+				name := scc.SkillId
+				if sd != nil {
+					name = sd.Name
+				}
+				message.AddMessage("You already know " + name + ".")
+			} else {
+				skill.Apply(v.player, scc.SkillId)
+				playerRemoveItem(v.player, item)
+				sd := skill.Get(scc.SkillId)
+				name := scc.SkillId
+				if sd != nil {
+					name = sd.Name
+				}
+				message.AddMessage("You slot the chip. You have learned " + name + "!")
+			}
 		} else if ic.Slot != component.BagSlot {
 			playerEquipItem(v.player, item)
 			skill.SyncEquippedSkills(v.player)
