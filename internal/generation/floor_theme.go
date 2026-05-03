@@ -1,6 +1,6 @@
 package generation
 
-import "github.com/mechanical-lich/spaceplant/internal/utility"
+import "github.com/mechanical-lich/ml-rogue-lib/pkg/rlmath"
 
 // Layout constants define the macro shape of a floor.
 const (
@@ -40,7 +40,7 @@ func (t *FloorTheme) pickRoomTag() string {
 	for _, rw := range t.RoomWeights {
 		total += rw.Weight
 	}
-	n := utility.GetRandom(0, total)
+	n := rlmath.GetRandom(0, total)
 	for _, rw := range t.RoomWeights {
 		n -= rw.Weight
 		if n <= 0 {

@@ -7,7 +7,7 @@ import (
 	"github.com/mechanical-lich/mlge/dice"
 	"github.com/mechanical-lich/mlge/ecs"
 	mlgeevent "github.com/mechanical-lich/mlge/event"
-	"github.com/mechanical-lich/spaceplant/internal/aoe"
+	"github.com/mechanical-lich/ml-rogue-lib/pkg/rlaoe"
 	"github.com/mechanical-lich/spaceplant/internal/component"
 	"github.com/mechanical-lich/spaceplant/internal/energy"
 	"github.com/mechanical-lich/spaceplant/internal/world"
@@ -57,8 +57,8 @@ func (a ConeOfAction) Execute(entity *ecs.Entity, level *world.Level) error {
 
 	spread := a.Params.Spread
 
-	fdx, fdy := aoe.DirToVec(dc.Direction)
-	offsets := aoe.Cone(fdx, fdy, depth, spread)
+	fdx, fdy := rlaoe.DirToVec(dc.Direction)
+	offsets := rlaoe.Cone(fdx, fdy, depth, spread)
 
 	var hitBuf []*ecs.Entity
 	for _, off := range offsets {

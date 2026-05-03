@@ -2,7 +2,7 @@ package generation
 
 import (
 	"github.com/mechanical-lich/ml-rogue-lib/pkg/path"
-	"github.com/mechanical-lich/spaceplant/internal/utility"
+	"github.com/mechanical-lich/ml-rogue-lib/pkg/rlmath"
 	"github.com/mechanical-lich/spaceplant/internal/world"
 )
 
@@ -25,23 +25,23 @@ func GenerateRoundStation(l *world.Level, z int) {
 	//Right
 	maxHallWidth := l.Width/2 - r
 	hWidth := maxHallWidth
-	hHeight := utility.GetRandom(5, 10)
+	hHeight := rlmath.GetRandom(5, 10)
 	CarveRoom(l, x+r-1, y-hHeight/2, z, hWidth, hHeight, world.TypeWall, world.TypeFloor, true, false)
 
 	//Left
 	hWidth = maxHallWidth
-	hHeight = utility.GetRandom(5, 10)
+	hHeight = rlmath.GetRandom(5, 10)
 	CarveRoom(l, x-r+2-hWidth, y-hHeight/2, z, hWidth, hHeight, world.TypeWall, world.TypeFloor, true, false)
 
 	//Up
 	maxHallHeight := l.Height/2 - r
 	hHeight = maxHallHeight
-	hWidth = utility.GetRandom(5, 10)
+	hWidth = rlmath.GetRandom(5, 10)
 	CarveRoom(l, x-hWidth/2, y-r+2-hHeight, z, hWidth, hHeight, world.TypeWall, world.TypeFloor, true, false)
 
 	//Down
 	hHeight = maxHallHeight
-	hWidth = utility.GetRandom(5, 10)
+	hWidth = rlmath.GetRandom(5, 10)
 	CarveRoom(l, x-hWidth/2, y+r-1, z, hWidth, hHeight, world.TypeWall, world.TypeFloor, true, false)
 
 	// Rooms and tunnels
@@ -127,13 +127,13 @@ func GenerateStation(l *world.Level, z, width, height int) {
 	y := height / 2
 
 	// Generate the central hallway
-	wide := utility.GetRandom(0, 2) == 1
-	tWidth := utility.GetRandom(5, 10)
-	tHeight := utility.GetRandom(5, 10)
+	wide := rlmath.GetRandom(0, 2) == 1
+	tWidth := rlmath.GetRandom(5, 10)
+	tHeight := rlmath.GetRandom(5, 10)
 	if wide {
-		tWidth = utility.GetRandom(width/2, width-width/4)
+		tWidth = rlmath.GetRandom(width/2, width-width/4)
 	} else {
-		tHeight = utility.GetRandom(height/2, height-height/4)
+		tHeight = rlmath.GetRandom(height/2, height-height/4)
 	}
 
 	x -= tWidth / 2
@@ -141,16 +141,16 @@ func GenerateStation(l *world.Level, z, width, height int) {
 	CarveRoom(l, x, y, z, tWidth, tHeight, world.TypeWall, world.TypeFloor, false, false)
 
 	// Optional second hallway
-	if utility.GetRandom(0, 10) > 5 {
+	if rlmath.GetRandom(0, 10) > 5 {
 		x2 := width / 2
 		y2 := height / 2
-		tWidth2 := utility.GetRandom(5, 10)
-		tHeight2 := utility.GetRandom(5, 10)
+		tWidth2 := rlmath.GetRandom(5, 10)
+		tHeight2 := rlmath.GetRandom(5, 10)
 		// Makes a +
 		if !wide {
-			tWidth2 = utility.GetRandom(width/2, width-width/4)
+			tWidth2 = rlmath.GetRandom(width/2, width-width/4)
 		} else {
-			tHeight2 = utility.GetRandom(height/2, height-height/4)
+			tHeight2 = rlmath.GetRandom(height/2, height-height/4)
 		}
 
 		x2 -= tWidth2 / 2
@@ -177,8 +177,8 @@ func CarveMaintenanceTunnels(l *world.Level, z, width, height, numTunnels int) {
 		tries := 0
 		for tries < 99999 && !done {
 			tries++
-			tX1 := utility.GetRandom(0, width)
-			tY1 := utility.GetRandom(0, height)
+			tX1 := rlmath.GetRandom(0, width)
+			tY1 := rlmath.GetRandom(0, height)
 
 			if l.GetTileType(tX1, tY1, z) == world.TypeWall {
 				if !l.TileNeighbors(tX1, tY1, z, world.TypeOpen) || !l.TileNeighbors(tX1, tY1, z, world.TypeFloor) {
@@ -188,8 +188,8 @@ func CarveMaintenanceTunnels(l *world.Level, z, width, height, numTunnels int) {
 				continue
 			}
 
-			tX2 := utility.GetRandom(0, width)
-			tY2 := utility.GetRandom(0, height)
+			tX2 := rlmath.GetRandom(0, width)
+			tY2 := rlmath.GetRandom(0, height)
 
 			if tX2 == tX1 && tY2 == tY1 {
 				continue

@@ -6,7 +6,7 @@ import (
 	"github.com/mechanical-lich/ml-rogue-lib/pkg/rlfov"
 	"github.com/mechanical-lich/mlge/ecs"
 	"github.com/mechanical-lich/spaceplant/internal/component"
-	"github.com/mechanical-lich/spaceplant/internal/utility"
+	"github.com/mechanical-lich/ml-rogue-lib/pkg/rlmath"
 	"github.com/mechanical-lich/spaceplant/internal/world"
 )
 
@@ -47,7 +47,7 @@ func (s LightSystem) UpdateEntity(levelInterface any, entity *ecs.Entity) error 
 		for x := pc.GetX() - lc.Radius; x < pc.GetX()+lc.Radius; x++ {
 			for y := pc.GetY() - lc.Radius; y < pc.GetY()+lc.Radius; y++ {
 				if rlfov.Los(l.Level, x, y, pc.GetX(), pc.GetY(), z) {
-					dist := utility.Distance(x, y, pc.GetX(), pc.GetY())
+					dist := rlmath.Distance(x, y, pc.GetX(), pc.GetY())
 					if dist == 0 {
 						dist = 1
 					}

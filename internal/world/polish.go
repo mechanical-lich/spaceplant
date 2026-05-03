@@ -2,7 +2,7 @@ package world
 
 import (
 	"github.com/mechanical-lich/ml-rogue-lib/pkg/rlworld"
-	"github.com/mechanical-lich/spaceplant/internal/utility"
+	"github.com/mechanical-lich/ml-rogue-lib/pkg/rlmath"
 )
 
 // Polish performs post-generation tile variant selection for a single Z-layer.
@@ -31,7 +31,7 @@ func (l *Level) Polish(z int) {
 			switch t.Type {
 			case TypeWall:
 				// Pick random wall variant (indices 0-9 are normal walls)
-				t.Variant = utility.GetRandom(0, 10)
+				t.Variant = rlmath.GetRandom(0, 10)
 				belowTile := l.Level.GetTilePtr(x, y+1, z)
 				if belowTile != nil {
 					bt := belowTile.Type
@@ -47,14 +47,14 @@ func (l *Level) Polish(z int) {
 
 			case TypeFloor:
 				// Heavily weighted toward variant 0 (spriteX 15)
-				if utility.GetRandom(0, 33) < 30 {
+				if rlmath.GetRandom(0, 33) < 30 {
 					t.Variant = 0
 				} else {
 					t.Variant = 1
 				}
 
 			case TypeDoor:
-				t.Variant = utility.GetRandom(0, len(def.Variants))
+				t.Variant = rlmath.GetRandom(0, len(def.Variants))
 
 			case TypeMaintenanceTunnelWall:
 				t.Variant = 0
@@ -83,7 +83,7 @@ func (l *Level) Polish(z int) {
 
 			default:
 				if len(def.Variants) > 0 {
-					t.Variant = utility.GetRandom(0, len(def.Variants))
+					t.Variant = rlmath.GetRandom(0, len(def.Variants))
 				}
 			}
 		}

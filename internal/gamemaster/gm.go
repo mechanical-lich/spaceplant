@@ -11,7 +11,7 @@ import (
 	"github.com/mechanical-lich/spaceplant/internal/generation"
 	"github.com/mechanical-lich/spaceplant/internal/scenario"
 	"github.com/mechanical-lich/spaceplant/internal/stationconfig"
-	"github.com/mechanical-lich/spaceplant/internal/utility"
+	"github.com/mechanical-lich/ml-rogue-lib/pkg/rlmath"
 	"github.com/mechanical-lich/spaceplant/internal/world"
 )
 
@@ -65,7 +65,7 @@ func (gm *GameMaster) Init(l *world.Level, z int, fr generation.FloorResult) {
 		if !ok {
 			continue
 		}
-		blueprint := crew[utility.GetRandom(0, len(crew))]
+		blueprint := crew[rlmath.GetRandom(0, len(crew))]
 		entity, err := factory.Create(blueprint, x, y)
 		if err == nil {
 			entity.GetComponent("Position").(*component.PositionComponent).SetPosition(x, y, z)
@@ -91,9 +91,9 @@ func (gm *GameMaster) Init(l *world.Level, z int, fr generation.FloorResult) {
 	}
 
 	for i := 0; i < s.HostileInitial; i++ {
-		blueprint := validHostiles[utility.GetRandom(0, len(validHostiles))]
-		if utility.GetRandom(0, 30) == 0 {
-			blueprint = validRare[utility.GetRandom(0, len(validRare))]
+		blueprint := validHostiles[rlmath.GetRandom(0, len(validHostiles))]
+		if rlmath.GetRandom(0, 30) == 0 {
+			blueprint = validRare[rlmath.GetRandom(0, len(validRare))]
 		}
 		rule := s.SpawnRules[blueprint]
 		candidates := scenario.SpawnTiles(l, z, fr, rule)
@@ -210,7 +210,7 @@ func createKeyEntity(l *world.Level, x, y, z int, keyID string) {
 func (gm *GameMaster) Update(l *world.Level, z, pX, pY int, fr generation.FloorResult) {
 	s := scenario.Active()
 
-	spawnRoll := float64(utility.GetRandom(0, 100)) / 100.0
+	spawnRoll := float64(rlmath.GetRandom(0, 100)) / 100.0
 	if spawnRoll >= s.SpawnChance {
 		return
 	}
@@ -247,9 +247,9 @@ func (gm *GameMaster) Update(l *world.Level, z, pX, pY int, fr generation.FloorR
 		validRare = validHostiles
 	}
 
-	blueprint := validHostiles[utility.GetRandom(0, len(validHostiles))]
-	if utility.GetRandom(0, 20) == 0 {
-		blueprint = validRare[utility.GetRandom(0, len(validRare))]
+	blueprint := validHostiles[rlmath.GetRandom(0, len(validHostiles))]
+	if rlmath.GetRandom(0, 20) == 0 {
+		blueprint = validRare[rlmath.GetRandom(0, len(validRare))]
 	}
 
 	// Restrict to tiles at a sane distance from the player.
@@ -258,7 +258,7 @@ func (gm *GameMaster) Update(l *world.Level, z, pX, pY int, fr generation.FloorR
 	// Filter by player distance.
 	filtered := candidates[:0]
 	for _, c := range candidates {
-		d := utility.Distance(pX, pY, c[0], c[1])
+		d := rlmath.Distance(pX, pY, c[0], c[1])
 		if d >= 20 && d <= 50 {
 			filtered = append(filtered, c)
 		}

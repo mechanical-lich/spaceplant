@@ -4,7 +4,7 @@ import (
 	"github.com/mechanical-lich/mlge/ecs"
 	"github.com/mechanical-lich/spaceplant/internal/component"
 	"github.com/mechanical-lich/spaceplant/internal/factory"
-	"github.com/mechanical-lich/spaceplant/internal/utility"
+	"github.com/mechanical-lich/ml-rogue-lib/pkg/rlmath"
 	"github.com/mechanical-lich/spaceplant/internal/world"
 )
 
@@ -120,7 +120,7 @@ func populateRoom(l *world.Level, z int, room Room, hints []PlacementHint) {
 	if maxItems == 0 {
 		maxItems = 1
 	}
-	numItems := utility.GetRandom(1, maxItems+1)
+	numItems := rlmath.GetRandom(1, maxItems+1)
 
 	// Build a blueprint→region lookup from hints.
 	// Hinted blueprints are placed first (guaranteed); remaining slots filled randomly.
@@ -140,7 +140,7 @@ func populateRoom(l *world.Level, z int, room Room, hints []PlacementHint) {
 			rest = append(rest, bp)
 		}
 	}
-	utility.Shuffle(rest)
+	rlmath.Shuffle(rest)
 
 	ordered := append(hintOrder, rest...)
 
@@ -157,8 +157,8 @@ func populateRoom(l *world.Level, z int, room Room, hints []PlacementHint) {
 
 		tx, ty := pickPositionInRegion(x1, y1, x2, y2, region)
 		if tx < 0 {
-			tx = utility.GetRandom(x1, x2+1)
-			ty = utility.GetRandom(y1, y2+1)
+			tx = rlmath.GetRandom(x1, x2+1)
+			ty = rlmath.GetRandom(y1, y2+1)
 		}
 
 		tile := l.Level.GetTilePtr(tx, ty, z)
@@ -215,7 +215,7 @@ func pickPositionInRegion(x1, y1, x2, y2 int, region PlacementRegion) (int, int)
 	if rx2 < rx1 || ry2 < ry1 {
 		return -1, -1
 	}
-	return utility.GetRandom(rx1, rx2+1), utility.GetRandom(ry1, ry2+1)
+	return rlmath.GetRandom(rx1, rx2+1), rlmath.GetRandom(ry1, ry2+1)
 }
 
 // adjacentToDoor returns true if any of the four cardinal neighbors of (tx,ty,z)

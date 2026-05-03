@@ -3,7 +3,7 @@ package generation
 import (
 	"math/rand"
 
-	"github.com/mechanical-lich/spaceplant/internal/utility"
+	"github.com/mechanical-lich/ml-rogue-lib/pkg/rlmath"
 	"github.com/mechanical-lich/spaceplant/internal/world"
 )
 
@@ -112,8 +112,8 @@ func PlaceRooms(l *world.Level, z, maxRooms int, theme *FloorTheme) []Room {
 				c := candidates[ci]
 				ci++
 				sz := RoomSizeFor(tag)
-				rW := utility.GetRandom(sz.MinW, sz.MaxW+1)
-				rH := utility.GetRandom(sz.MinH, sz.MaxH+1)
+				rW := rlmath.GetRandom(sz.MinW, sz.MaxW+1)
+				rH := rlmath.GetRandom(sz.MinH, sz.MaxH+1)
 				var rx, ry int
 				switch {
 				case c.dx == 0 && c.dy == -1:
@@ -167,8 +167,8 @@ func PlaceRooms(l *world.Level, z, maxRooms int, theme *FloorTheme) []Room {
 			tag = theme.pickRoomTag()
 		}
 		sz := RoomSizeFor(tag)
-		rW := utility.GetRandom(sz.MinW, sz.MaxW+1)
-		rH := utility.GetRandom(sz.MinH, sz.MaxH+1)
+		rW := rlmath.GetRandom(sz.MinW, sz.MaxW+1)
+		rH := rlmath.GetRandom(sz.MinH, sz.MaxH+1)
 
 		// Compute room origin so the door tile (c.wx, c.wy) sits on the room border.
 		var rx, ry int

@@ -1,7 +1,6 @@
 package entityhelpers
 
 import (
-	"github.com/mechanical-lich/ml-rogue-lib/pkg/rlcomponents"
 	"github.com/mechanical-lich/ml-rogue-lib/pkg/rlentity"
 	"github.com/mechanical-lich/mlge/ecs"
 	spcombat "github.com/mechanical-lich/spaceplant/internal/combat"
@@ -108,61 +107,19 @@ func ResistCheck(l *world.Level, entity *ecs.Entity, entityHit *ecs.Entity, dc i
 
 // HitTile returns the world tile on the target's footprint closest to the attacker.
 func HitTile(attacker, target *ecs.Entity) (int, int) {
-	apc := attacker.GetComponent(rlcomponents.Position).(*rlcomponents.PositionComponent)
-	tpc := target.GetComponent(rlcomponents.Position).(*rlcomponents.PositionComponent)
-	tw, th := 1, 1
-	if target.HasComponent(rlcomponents.Size) {
-		sc := target.GetComponent(rlcomponents.Size).(*rlcomponents.SizeComponent)
-		if sc.Width > 0 {
-			tw = sc.Width
-		}
-		if sc.Height > 0 {
-			th = sc.Height
-		}
-	}
-	startX := tpc.GetX() - tw/2
-	startY := tpc.GetY() - th/2
-	return max(startX, min(apc.GetX(), startX+tw-1)),
-		max(startY, min(apc.GetY(), startY+th-1))
+	return rlentity.HitTile(attacker, target)
 }
 
 // LegWounded returns true if the entity has any leg-role body part below 50% HP.
 // Used to double movement action cost.
 func LegWounded(entity *ecs.Entity) bool {
-	if !entity.HasComponent(rlcomponents.Body) {
-		return false
-	}
-	bc := entity.GetComponent(rlcomponents.Body).(*rlcomponents.BodyComponent)
-	for _, part := range bc.Parts {
-		if part.Amputated || part.Broken || part.MaxHP <= 0 {
-			continue
-		}
-		if part.WoundRole == "leg" && part.HP*100/part.MaxHP < 50 {
-			return true
-		}
-	}
-	return false
+	return rlentity.LegWounded(entity)
 }
 
 // LegPenaltyCost returns the extra action cost to add due to broken or amputated leg parts.
 // Each broken leg adds half the base move cost; each amputated leg adds the full base move cost.
 func LegPenaltyCost(entity *ecs.Entity, baseCost int) int {
-	if !entity.HasComponent(rlcomponents.Body) {
-		return 0
-	}
-	bc := entity.GetComponent(rlcomponents.Body).(*rlcomponents.BodyComponent)
-	extra := 0
-	for _, part := range bc.Parts {
-		if part.WoundRole != "leg" {
-			continue
-		}
-		if part.Amputated {
-			extra += baseCost
-		} else if part.Broken {
-			extra += baseCost / 2
-		}
-	}
-	return extra
+	return rlentity.LegPenaltyCost(entity, baseCost)
 }
 
 // Move attempts to move an entity using rlentity.Move, with MassiveComponent handling.

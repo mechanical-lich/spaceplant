@@ -1,7 +1,7 @@
 package generation
 
 import (
-	"github.com/mechanical-lich/spaceplant/internal/utility"
+	"github.com/mechanical-lich/ml-rogue-lib/pkg/rlmath"
 	"github.com/mechanical-lich/spaceplant/internal/world"
 )
 
@@ -81,7 +81,7 @@ func CarveCircle(m *world.Level, startX, startY, z, r, wallType, floorType int, 
 				}
 				m.SetNoBudding(x1, y1, z, noBudding)
 				m.SetTileTypeAt(x1, y1, z, floorType)
-				if utility.Distance(x1, y1, startX, startY) >= r-1 {
+				if rlmath.Distance(x1, y1, startX, startY) >= r-1 {
 					m.SetTileTypeAt(x1, y1, z, wallType)
 				}
 			}

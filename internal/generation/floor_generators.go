@@ -1,7 +1,7 @@
 package generation
 
 import (
-	"github.com/mechanical-lich/spaceplant/internal/utility"
+	"github.com/mechanical-lich/ml-rogue-lib/pkg/rlmath"
 	"github.com/mechanical-lich/spaceplant/internal/world"
 )
 
@@ -92,13 +92,13 @@ func generateRingSpokes(l *world.Level, z int, theme *FloorTheme) []Room {
 
 	// Arms — noOverwrite=false so the arm punches through the circle's wall tile.
 	// spawnDoor then converts that shared boundary tile into a passable door.
-	hH := utility.GetRandom(5, 10)
+	hH := rlmath.GetRandom(5, 10)
 	CarveRoom(l, cx+r-1, cy-hH/2, z, maxHallW, hH, world.TypeWall, world.TypeFloor, false, false) // right
-	hH = utility.GetRandom(5, 10)
+	hH = rlmath.GetRandom(5, 10)
 	CarveRoom(l, cx-r+2-maxHallW, cy-hH/2, z, maxHallW, hH, world.TypeWall, world.TypeFloor, false, false) // left
-	hW := utility.GetRandom(5, 10)
+	hW := rlmath.GetRandom(5, 10)
 	CarveRoom(l, cx-hW/2, cy-r+2-maxHallH, z, hW, maxHallH, world.TypeWall, world.TypeFloor, false, false) // up
-	hW = utility.GetRandom(5, 10)
+	hW = rlmath.GetRandom(5, 10)
 	CarveRoom(l, cx-hW/2, cy+r-1, z, hW, maxHallH, world.TypeWall, world.TypeFloor, false, false) // down
 
 	// Doors at the circle boundary — where each arm's first wall tile was carved.
@@ -123,25 +123,25 @@ func generateGrid(l *world.Level, z int, theme *FloorTheme) []Room {
 	cy := l.Height / 2
 
 	// Main hall — randomly wide or tall
-	wide := utility.GetRandom(0, 2) == 1
-	hW := utility.GetRandom(5, 10)
-	hH := utility.GetRandom(5, 10)
+	wide := rlmath.GetRandom(0, 2) == 1
+	hW := rlmath.GetRandom(5, 10)
+	hH := rlmath.GetRandom(5, 10)
 	if wide {
-		hW = utility.GetRandom(l.Width/2, l.Width-l.Width/4)
+		hW = rlmath.GetRandom(l.Width/2, l.Width-l.Width/4)
 	} else {
-		hH = utility.GetRandom(l.Height/2, l.Height-l.Height/4)
+		hH = rlmath.GetRandom(l.Height/2, l.Height-l.Height/4)
 	}
 	x1 := cx - hW/2
 	y1 := cy - hH/2
 	CarveRoom(l, x1, y1, z, hW, hH, world.TypeWall, world.TypeFloor, false, false)
 
 	// Second cross hall (makes a + shape)
-	hW2 := utility.GetRandom(5, 10)
-	hH2 := utility.GetRandom(5, 10)
+	hW2 := rlmath.GetRandom(5, 10)
+	hH2 := rlmath.GetRandom(5, 10)
 	if !wide {
-		hW2 = utility.GetRandom(l.Width/2, l.Width-l.Width/4)
+		hW2 = rlmath.GetRandom(l.Width/2, l.Width-l.Width/4)
 	} else {
-		hH2 = utility.GetRandom(l.Height/2, l.Height-l.Height/4)
+		hH2 = rlmath.GetRandom(l.Height/2, l.Height-l.Height/4)
 	}
 	x2 := cx - hW2/2
 	y2 := cy - hH2/2
@@ -180,7 +180,7 @@ func generateIndustrialRing(l *world.Level, z int, theme *FloorTheme) []Room {
 	// Spoke corridors connecting inner ring wall to outer ring wall.
 	// The circle's wall is at distance r-1 from center, so the inner ring wall
 	// is at cy+innerR-1 (not cy+innerR). Spokes must start there to overlap it.
-	spokeW := utility.GetRandom(3, 5)
+	spokeW := rlmath.GetRandom(3, 5)
 	CarveRoom(l, cx-spokeW/2, cy-outerR+1, z, spokeW, outerR-innerR+1, world.TypeWall, world.TypeFloor, false, false) // north spoke
 	CarveRoom(l, cx-spokeW/2, cy+innerR-1, z, spokeW, outerR-innerR+1, world.TypeWall, world.TypeFloor, false, false) // south spoke
 	CarveRoom(l, cx-outerR+1, cy-spokeW/2, z, outerR-innerR+1, spokeW, world.TypeWall, world.TypeFloor, false, false) // west spoke
@@ -208,7 +208,7 @@ func generateOpenBays(l *world.Level, z int, theme *FloorTheme) []Room {
 	var explicitRooms []Room
 
 	// 2–4 corner/edge bays + always a center bay (guarantees floor at 50,50).
-	numCornerBays := utility.GetRandom(2, 5)
+	numCornerBays := rlmath.GetRandom(2, 5)
 	bayW := l.Width / 4
 	bayH := l.Height / 4
 
@@ -220,15 +220,15 @@ func generateOpenBays(l *world.Level, z int, theme *FloorTheme) []Room {
 	}
 
 	// Center bay always placed first so (Width/2, Height/2) is always floor.
-	cw := utility.GetRandom(bayW-4, bayW+4)
-	ch := utility.GetRandom(bayH-4, bayH+4)
+	cw := rlmath.GetRandom(bayW-4, bayW+4)
+	ch := rlmath.GetRandom(bayH-4, bayH+4)
 	cx, cy := l.Width/2-cw/2, l.Height/2-ch/2
 	CarveRoom(l, cx, cy, z, cw, ch, world.TypeWall, world.TypeFloor, false, false)
 	explicitRooms = append(explicitRooms, Room{X: cx, Y: cy, Width: cw, Height: ch})
 
 	for i := 0; i < numCornerBays && i < len(cornerPositions); i++ {
-		w := utility.GetRandom(bayW-4, bayW+4)
-		h := utility.GetRandom(bayH-4, bayH+4)
+		w := rlmath.GetRandom(bayW-4, bayW+4)
+		h := rlmath.GetRandom(bayH-4, bayH+4)
 		x, y := cornerPositions[i][0], cornerPositions[i][1]
 		CarveRoom(l, x, y, z, w, h, world.TypeWall, world.TypeFloor, false, false)
 		explicitRooms = append(explicitRooms, Room{X: x, Y: y, Width: w, Height: h})
