@@ -918,6 +918,7 @@ func (s *SPClientState) Draw(screen *ebiten.Image) {
 	screen.DrawImage(levelImage, op)
 
 	s.drawPendingPath(screen)
+	s.drawRangeRing(screen)
 	s.drawAimLine(screen)
 	s.drawTargetCursor(screen)
 

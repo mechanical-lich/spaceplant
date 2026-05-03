@@ -328,6 +328,29 @@ func (s *SPClientState) updateAimLineToTarget() {
 	}
 }
 
+// drawRangeRing draws a dim cyan border at exactly the weapon's Chebyshev range.
+func (s *SPClientState) drawRangeRing(screen *ebiten.Image) {
+	if !s.targeting.Active || s.sim.Player == nil {
+		return
+	}
+	s.sim.Mu.RLock()
+	pc := s.sim.Player.GetComponent(component.Position).(*component.PositionComponent)
+	px, py := pc.GetX(), pc.GetY()
+	maxRange := playerWeaponRange(s.sim.Player)
+	s.sim.Mu.RUnlock()
+
+	var tiles [][2]int
+	r := maxRange
+	for dx := -r; dx <= r; dx++ {
+		for dy := -r; dy <= r; dy++ {
+			if absInt(dx) == r || absInt(dy) == r {
+				tiles = append(tiles, [2]int{px + dx, py + dy})
+			}
+		}
+	}
+	s.drawReticleTiles(screen, tiles, 0.2, 0.8, 0.8, 0.15, 0.2, 0.8, 0.8, 0.15)
+}
+
 // drawTargetCursor draws a yellow reticle on the current target's tile.
 func (s *SPClientState) drawTargetCursor(screen *ebiten.Image) {
 	t := s.targeting.target()
