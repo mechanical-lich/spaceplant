@@ -181,12 +181,13 @@ func (s *MainSimState) ProcessCommand(cmd *transport.Command) {
 			return
 		}
 		pc := s.sim.Player.GetComponent(component.Position).(*component.PositionComponent)
-		dx := sign(payload.TargetX - pc.GetX())
-		dy := sign(payload.TargetY - pc.GetY())
-		if dx == 0 && dy == 0 {
+		if payload.TargetX == pc.GetX() && payload.TargetY == pc.GetY() {
 			return
 		}
-		playerC.PendingMouseShoot = &component.PendingMouseShootData{DX: dx, DY: dy}
+		playerC.PendingMouseShoot = &component.PendingMouseShootData{
+			TargetX: payload.TargetX, TargetY: payload.TargetY,
+			Burst: payload.Burst, Aimed: payload.Aimed, AimedBodyPart: payload.AimedBodyPart,
+		}
 		playerC.PushCommand("mouse_shoot")
 	}
 }

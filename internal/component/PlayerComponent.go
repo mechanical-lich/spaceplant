@@ -15,9 +15,12 @@ type PendingItemActionData struct {
 	TileX, TileY, TileZ int
 }
 
-// PendingMouseShootData holds the 8-direction delta for a mouse-click shoot command.
+// PendingMouseShootData holds the target tile and shot mode for a targeting-cursor shoot command.
 type PendingMouseShootData struct {
-	DX, DY int
+	TargetX, TargetY int
+	Burst            bool
+	Aimed            bool
+	AimedBodyPart    string
 }
 
 // PlayerComponent - Handles websocket communications

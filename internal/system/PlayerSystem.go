@@ -7,6 +7,7 @@ import (
 	"github.com/mechanical-lich/mlge/message"
 	"github.com/mechanical-lich/spaceplant/internal/action"
 	"github.com/mechanical-lich/spaceplant/internal/component"
+	"github.com/mechanical-lich/ml-rogue-lib/pkg/rlmath"
 	"github.com/mechanical-lich/spaceplant/internal/skill"
 	"github.com/mechanical-lich/spaceplant/internal/world"
 )
@@ -113,22 +114,15 @@ func (s *PlayerSystem) UpdateEntity(levelInterface any, entity *ecs.Entity) erro
 		d := pc.PendingMouseShoot
 		pc.PendingMouseShoot = nil
 		if d != nil {
+			epc := entity.GetComponent(component.Position).(*component.PositionComponent)
 			if entity.HasComponent(component.Direction) {
 				dc := entity.GetComponent(component.Direction).(*component.DirectionComponent)
-				// Map dx/dy back to direction value: 0=right,1=down,2=up,3=left
-				// For diagonals, prefer the dominant axis — or just set based on sign.
-				switch {
-				case d.DX == 1 && d.DY == 0:
-					dc.Direction = 0
-				case d.DX == -1 && d.DY == 0:
-					dc.Direction = 3
-				case d.DY == 1:
-					dc.Direction = 1
-				default:
-					dc.Direction = 2
-				}
+				dc.Direction = rlmath.BestFacingDirection(epc.GetX(), epc.GetY(), d.TargetX, d.TargetY)
 			}
-			act = action.ShootAction{Aimed: false, DX: d.DX, DY: d.DY}
+			act = action.ShootAction{
+				Aimed: d.Aimed, Burst: d.Burst, AimedBodyPart: d.AimedBodyPart,
+				TargetX: d.TargetX, TargetY: d.TargetY, HasTarget: true,
+			}
 		}
 	case "heal":
 		act = action.HealAction{}

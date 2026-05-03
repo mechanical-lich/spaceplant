@@ -8,6 +8,7 @@ import (
 	"github.com/mechanical-lich/spaceplant/internal/component"
 	"github.com/mechanical-lich/spaceplant/internal/energy"
 	"github.com/mechanical-lich/spaceplant/internal/entityhelpers"
+	"github.com/mechanical-lich/ml-rogue-lib/pkg/rlmath"
 	"github.com/mechanical-lich/spaceplant/internal/world"
 )
 
@@ -22,7 +23,9 @@ type ShootAction struct {
 	Aimed         bool
 	Burst         bool
 	AimedBodyPart string // non-empty: targeted aimed shot at a specific body part
-	DX, DY        int    // non-zero: override facing direction (used by mouse-click shoot)
+	DX, DY        int    // non-zero: override facing direction (legacy keyboard fire)
+	TargetX, TargetY int // world tile of locked target; when set, Bresenham line is used
+	HasTarget     bool   // true when TargetX/TargetY are valid
 }
 
 // Range-band CS modifiers.
@@ -80,7 +83,19 @@ func (a ShootAction) Execute(entity *ecs.Entity, level *world.Level) error {
 	if a.DX != 0 || a.DY != 0 {
 		dx, dy = a.DX, a.DY
 	}
-	if dx == 0 && dy == 0 {
+
+	// Bresenham line overrides direction-based walk when a target tile is locked.
+	var line [][2]int
+	if a.HasTarget {
+		pc := entity.GetComponent(component.Position).(*component.PositionComponent)
+		line = rlmath.BresenhamLine(pc.GetX(), pc.GetY(), a.TargetX, a.TargetY)
+		// Derive dx/dy from the target vector for spread calculations.
+		vx := a.TargetX - pc.GetX()
+		vy := a.TargetY - pc.GetY()
+		dx, dy = signInt(vx), signInt(vy)
+	}
+
+	if !a.HasTarget && dx == 0 && dy == 0 {
 		message.AddMessage("No direction to fire.")
 		rlenergy.SetActionCost(entity, energy.CostQuick)
 		return nil
@@ -98,7 +113,7 @@ func (a ShootAction) Execute(entity *ecs.Entity, level *world.Level) error {
 			rlenergy.SetActionCost(entity, energy.CostQuick)
 			return nil
 		}
-		execBurst(entity, level, wc, dx, dy, maxRange)
+		execBurst(entity, level, wc, dx, dy, maxRange, line)
 	default:
 		// Single shot (snap or aimed).
 		if wc.MaxMagazine > 0 && wc.Magazine <= 0 {
@@ -116,7 +131,7 @@ func (a ShootAction) Execute(entity *ecs.Entity, level *world.Level) error {
 				}
 			}
 		}
-		execAuto(entity, level, wc, dx, dy, maxRange, csBonus, a.AimedBodyPart)
+		execAuto(entity, level, wc, dx, dy, maxRange, csBonus, a.AimedBodyPart, line)
 	}
 
 	rlenergy.SetActionCost(entity, cost)
@@ -125,10 +140,11 @@ func (a ShootAction) Execute(entity *ecs.Entity, level *world.Level) error {
 
 // execAuto fires wc.AutoRounds rounds per trigger pull (defaults to 1).
 // Unlike burst, auto fire is the normal shot — no recoil stacking, no player choice.
-func execAuto(entity *ecs.Entity, level *world.Level, wc *component.WeaponComponent, dx, dy, maxRange, csBonus int, aimedBodyPart string) {
+// line is the Bresenham tile path when targeting mode was used; nil falls back to direction.
+func execAuto(entity *ecs.Entity, level *world.Level, wc *component.WeaponComponent, dx, dy, maxRange, csBonus int, aimedBodyPart string, line [][2]int) {
 	rounds := wc.AutoRounds
 	if rounds < 2 {
-		execSpread(entity, level, wc, dx, dy, maxRange, csBonus, 1.0, aimedBodyPart)
+		execSpread(entity, level, wc, dx, dy, maxRange, csBonus, 1.0, aimedBodyPart, line)
 		if wc.MaxMagazine > 0 {
 			wc.Magazine--
 		}
@@ -139,7 +155,7 @@ func execAuto(entity *ecs.Entity, level *world.Level, wc *component.WeaponCompon
 			message.AddMessage("Weapon empty.")
 			return
 		}
-		execSpread(entity, level, wc, dx, dy, maxRange, csBonus, 1.0, aimedBodyPart)
+		execSpread(entity, level, wc, dx, dy, maxRange, csBonus, 1.0, aimedBodyPart, line)
 		if wc.MaxMagazine > 0 {
 			wc.Magazine--
 		}
@@ -149,7 +165,7 @@ func execAuto(entity *ecs.Entity, level *world.Level, wc *component.WeaponCompon
 // execBurst fires wc.BurstSize rounds along the facing line.
 // Each round gets the burst CS bonus minus accumulated recoil.
 // Rounds after the first may walk to the next target if the primary is dead.
-func execBurst(entity *ecs.Entity, level *world.Level, wc *component.WeaponComponent, dx, dy, maxRange int) {
+func execBurst(entity *ecs.Entity, level *world.Level, wc *component.WeaponComponent, dx, dy, maxRange int, line [][2]int) {
 	if wc.BurstSize < 2 {
 		message.AddMessage("Weapon does not support burst fire.")
 		return
@@ -162,7 +178,7 @@ func execBurst(entity *ecs.Entity, level *world.Level, wc *component.WeaponCompo
 			return
 		}
 		csBonus := csBurstBonus + csBurstRecoil*i
-		hit := fireLineAt(entity, level, wc, dx, dy, maxRange, csBonus, 1.0, "")
+		hit := fireLineAt(entity, level, wc, dx, dy, maxRange, csBonus, 1.0, "", line)
 		if wc.MaxMagazine > 0 {
 			wc.Magazine--
 		}
@@ -175,9 +191,10 @@ func execBurst(entity *ecs.Entity, level *world.Level, wc *component.WeaponCompo
 
 // execSpread fires the primary line and, if wc.SpreadAngle > 0, additional
 // diagonal spread lines. Spread lines deal reduced Pen.
-func execSpread(entity *ecs.Entity, level *world.Level, wc *component.WeaponComponent, dx, dy, maxRange, csBonus int, penMult float64, aimedBodyPart string) {
-	// Only the primary line carries the aimed body part; spread pellets are random.
-	fireLineAt(entity, level, wc, dx, dy, maxRange, csBonus, penMult, aimedBodyPart)
+// The Bresenham line (if any) applies only to the primary; spread lines always use direction.
+func execSpread(entity *ecs.Entity, level *world.Level, wc *component.WeaponComponent, dx, dy, maxRange, csBonus int, penMult float64, aimedBodyPart string, line [][2]int) {
+	// Only the primary line carries the aimed body part and Bresenham path.
+	fireLineAt(entity, level, wc, dx, dy, maxRange, csBonus, penMult, aimedBodyPart, line)
 
 	if wc.SpreadAngle <= 0 {
 		return
@@ -190,25 +207,43 @@ func execSpread(entity *ecs.Entity, level *world.Level, wc *component.WeaponComp
 		// Diagonal directions formed by combining facing + perpendicular offset.
 		ldx := dx + px*offset
 		ldy := dy + py*offset
-		fireLineAt(entity, level, wc, ldx, ldy, maxRange, csBonus, spreadPenMult, "")
+		fireLineAt(entity, level, wc, ldx, ldy, maxRange, csBonus, spreadPenMult, "", nil)
 
 		rdx := dx - px*offset
 		rdy := dy - py*offset
-		fireLineAt(entity, level, wc, rdx, rdy, maxRange, csBonus, spreadPenMult, "")
+		fireLineAt(entity, level, wc, rdx, rdy, maxRange, csBonus, spreadPenMult, "", nil)
 	}
 }
 
-// fireLineAt walks tiles in direction (dx, dy) up to maxRange and fires at the
-// first hittable entity. penMult scales Pen (use 1.0 for normal, <1.0 for spread).
+// fireLineAt walks the shot path and fires at the first hittable entity.
+// When line is non-nil it walks that Bresenham tile sequence; otherwise it steps
+// in direction (dx, dy) up to maxRange tiles.
+// penMult scales Pen (1.0 for normal, <1.0 for spread pellets).
 // Returns true if a target was found (whether or not the attack landed).
-func fireLineAt(entity *ecs.Entity, level *world.Level, wc *component.WeaponComponent, dx, dy, maxRange, csBonus int, penMult float64, aimedBodyPart string) bool {
+func fireLineAt(entity *ecs.Entity, level *world.Level, wc *component.WeaponComponent, dx, dy, maxRange, csBonus int, penMult float64, aimedBodyPart string, line [][2]int) bool {
 	pc := entity.GetComponent(component.Position).(*component.PositionComponent)
 	z := pc.GetZ()
 
+	// Build the tile sequence to walk.
+	type step struct{ x, y, dist int }
+	var steps []step
+	if len(line) > 0 {
+		for i, t := range line {
+			if i >= maxRange {
+				break
+			}
+			steps = append(steps, step{t[0], t[1], i + 1})
+		}
+	} else {
+		for i := 1; i <= maxRange; i++ {
+			steps = append(steps, step{pc.GetX() + dx*i, pc.GetY() + dy*i, i})
+		}
+	}
+
 	var target *ecs.Entity
 	var targetDist int
-	for i := 1; i <= maxRange; i++ {
-		tx, ty := pc.GetX()+dx*i, pc.GetY()+dy*i
+	for _, s := range steps {
+		tx, ty := s.x, s.y
 		if level.IsTileSolid(tx, ty, z) {
 			// Still flash the blocking tile so the tracer visibly hits it.
 			addShotTrail(level, tx, ty, z)
@@ -225,7 +260,7 @@ func fireLineAt(entity *ecs.Entity, level *world.Level, wc *component.WeaponComp
 				}
 			}
 			target = candidate
-			targetDist = i
+			targetDist = s.dist
 			break
 		}
 	}
@@ -303,6 +338,16 @@ func facingDeltas(entity *ecs.Entity) (int, int) {
 	default:
 		return 0, -1
 	}
+}
+
+func signInt(x int) int {
+	if x > 0 {
+		return 1
+	}
+	if x < 0 {
+		return -1
+	}
+	return 0
 }
 
 // equippedMeleeWeapon returns the first equipped weapon with Ranged=false, or nil.

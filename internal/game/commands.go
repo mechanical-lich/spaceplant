@@ -53,7 +53,10 @@ type EquipItemPayload struct {
 // The direction is snapped to 8 compass directions before dispatch.
 const CmdMouseShoot transport.CommandType = "sp.mouse_shoot"
 
-// MouseShootPayload carries the world tile the player clicked.
+// MouseShootPayload carries the world tile and shot mode for a targeting-cursor shot.
 type MouseShootPayload struct {
 	TargetX, TargetY int
+	Burst            bool
+	Aimed            bool
+	AimedBodyPart    string
 }

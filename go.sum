@@ -33,8 +33,8 @@ github.com/lucasb-eyer/go-colorful v1.3.0 h1:2/yBRLdWBZKrf7gB40FoiKfAWYQ0lqNcbuQ
 github.com/lucasb-eyer/go-colorful v1.3.0/go.mod h1:R4dSotOR9KMtayYi1e77YzuveK+i7ruzyGqttikkLy0=
 github.com/mechanical-lich/mechanical-basic v1.0.0 h1:AKFd6WdpqwJw5hN8oVBuJZanzXjvES3ST+pMHPwoxVw=
 github.com/mechanical-lich/mechanical-basic v1.0.0/go.mod h1:W6AUQYju/VDAtDtYs5vU3SJI9GIO9swi1BeB/qZp5Z8=
-github.com/mechanical-lich/ml-rogue-lib v1.11.0 h1:shaYRS63TBUFwl6W6U/7wMwSEn0ga72duzc0mKMfVzE=
-github.com/mechanical-lich/ml-rogue-lib v1.11.0/go.mod h1:UPOB+FMPGH4tSCrCBdMtjhsdKxfDa9NNcgIEeq28jdQ=
+github.com/mechanical-lich/ml-rogue-lib v1.11.1 h1:RjUTB4aS4doRMaL5XUaLRTK5bU0SQ+/pVgAvA9iLlwI=
+github.com/mechanical-lich/ml-rogue-lib v1.11.1/go.mod h1:UPOB+FMPGH4tSCrCBdMtjhsdKxfDa9NNcgIEeq28jdQ=
 github.com/mechanical-lich/mlge v1.6.1 h1:scLNLCQBZfA0pdT2CmRY+BTHt6p2bS4QprsOgwxvpMk=
 github.com/mechanical-lich/mlge v1.6.1/go.mod h1:01gKi6utmjTe+yuQia0LV7CNu/cLAuQS+19Ee2rze4g=
 github.com/pierrec/lz4/v4 v4.1.22 h1:cKFw6uJDK+/gfw5BcDL0JL5aBsAFdsIT18eRtLj7VIU=
