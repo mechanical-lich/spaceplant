@@ -52,9 +52,12 @@ const (
 	WearableAppearance ecs.ComponentType = "WearableAppearanceComponent"
 	HitLocation        ecs.ComponentType = "HitLocationComponent"
 	Ammo               ecs.ComponentType = "AmmoComponent"
-	SkillChip          ecs.ComponentType = "SkillChipComponent"
-	Interaction                          = rlcomponents.Interaction
-	Door                                 = rlcomponents.Door
+	SkillChip    ecs.ComponentType = "SkillChipComponent"
+	CrewJob      ecs.ComponentType = "CrewComponent"
+	Personality  ecs.ComponentType = "PersonalityComponent"
+	Relationship ecs.ComponentType = "RelationshipComponent"
+	Interaction                    = rlcomponents.Interaction
+	Door                           = rlcomponents.Door
 )
 
 // Type aliases for rlcomponents - these replace spaceplant's duplicate component structs.

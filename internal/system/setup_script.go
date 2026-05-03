@@ -8,11 +8,13 @@ import (
 	"os"
 
 	"github.com/mechanical-lich/mechanical-basic/pkg/basic"
+	"github.com/mechanical-lich/mlge/ecs"
 	"github.com/mechanical-lich/mlge/message"
 	"github.com/mechanical-lich/spaceplant/internal/component"
 	"github.com/mechanical-lich/spaceplant/internal/factory"
 	"github.com/mechanical-lich/spaceplant/internal/generation"
 	"github.com/mechanical-lich/spaceplant/internal/skill"
+	"github.com/mechanical-lich/spaceplant/internal/stationconfig"
 	"github.com/mechanical-lich/spaceplant/internal/world"
 )
 
@@ -341,6 +343,221 @@ func registerSetupFuncs(interp *basic.MechBasic, ctx *setupContext) {
 			return nil, errors.New("set_flag: first argument must be a string")
 		}
 		ctx.Level.Flags[key] = args[1]
+		return nil, nil
+	})
+
+	// spawn_crew(blueprint, home_z, home_room_idx, work_z, work_room_idx)
+	// Places a crew entity in the home room and wires home/work coordinates into its ScriptComponent vars.
+	interp.RegisterFunc("spawn_crew", func(args ...any) (any, error) {
+		if len(args) != 5 {
+			return nil, errors.New("spawn_crew: expected 5 arguments (blueprint, home_z, home_room_idx, work_z, work_room_idx)")
+		}
+		blueprint, ok := args[0].(string)
+		if !ok {
+			return nil, errors.New("spawn_crew: blueprint must be a string")
+		}
+		homeZ, homeIdx := toInt(args[1]), toInt(args[2])
+		workZ, workIdx := toInt(args[3]), toInt(args[4])
+
+		if homeZ < 0 || homeZ >= len(ctx.FloorResults) {
+			return nil, fmt.Errorf("spawn_crew: home_z %d out of range", homeZ)
+		}
+		homeRooms := ctx.FloorResults[homeZ].Rooms
+		if homeIdx < 0 || homeIdx >= len(homeRooms) {
+			return nil, fmt.Errorf("spawn_crew: home_room_idx %d out of range", homeIdx)
+		}
+		homeRoom := homeRooms[homeIdx]
+
+		var workX, workY int
+		if workZ >= 0 && workZ < len(ctx.FloorResults) {
+			workRooms := ctx.FloorResults[workZ].Rooms
+			if workIdx >= 0 && workIdx < len(workRooms) {
+				workX = workRooms[workIdx].CenterX()
+				workY = workRooms[workIdx].CenterY()
+			}
+		}
+
+		ctx.LastSpawned = nil
+		ctx.LastItem = nil
+		for tries := 0; tries < 80; tries++ {
+			w := max(1, homeRoom.Width-2)
+			h := max(1, homeRoom.Height-2)
+			x := homeRoom.X + 1 + rand.Intn(w)
+			y := homeRoom.Y + 1 + rand.Intn(h)
+			if ctx.Level.GetTileType(x, y, homeZ) != world.TypeFloor {
+				continue
+			}
+			if ctx.Level.Level.GetEntityAt(x, y, homeZ) != nil {
+				continue
+			}
+			e, err := factory.Create(blueprint, x, y)
+			if err != nil {
+				return nil, fmt.Errorf("spawn_crew: %w", err)
+			}
+			e.GetComponent(component.Position).(*component.PositionComponent).SetPosition(x, y, homeZ)
+			// Wire home/work coords into script vars.
+			if e.HasComponent(component.Script) {
+				sc := e.GetComponent(component.Script).(*component.ScriptComponent)
+				if sc.Vars == nil {
+					sc.Vars = make(map[string]any)
+				}
+				sc.Vars["home_x"] = float64(homeRoom.CenterX())
+				sc.Vars["home_y"] = float64(homeRoom.CenterY())
+				sc.Vars["home_z"] = float64(homeZ)
+				sc.Vars["work_x"] = float64(workX)
+				sc.Vars["work_y"] = float64(workY)
+				sc.Vars["work_z"] = float64(workZ)
+			}
+			ctx.Level.AddEntity(e)
+			if e.HasComponent(component.Description) {
+				ctx.LastSpawned = e.GetComponent(component.Description).(*component.DescriptionComponent)
+			}
+			return nil, nil
+		}
+		return nil, fmt.Errorf("spawn_crew: could not find empty tile in home room %d on floor %d", homeIdx, homeZ)
+	})
+
+	// get_crew_capacity() → the CrewCapacity setting chosen on the title screen.
+	interp.RegisterFunc("get_crew_capacity", func(args ...any) (any, error) {
+		return float64(stationconfig.Get().CrewCapacity), nil
+	})
+
+	// spawn_crew_n(blueprint, count, home_z, home_room_tag, work_z, work_room_tag)
+	// Spawns up to `count` crew of the given blueprint. Home and work positions are
+	// chosen randomly from rooms matching the given tags on the specified floors.
+	// Silently skips if a tag produces no matching room.
+	interp.RegisterFunc("spawn_crew_n", func(args ...any) (any, error) {
+		if len(args) != 6 {
+			return nil, errors.New("spawn_crew_n: expected 6 arguments (blueprint, count, home_z, home_room_tag, work_z, work_room_tag)")
+		}
+		blueprint, ok1 := args[0].(string)
+		count := toInt(args[1])
+		homeZ := toInt(args[2])
+		homeTag, ok3 := args[3].(string)
+		workZ := toInt(args[4])
+		workTag, ok5 := args[5].(string)
+		if !ok1 || !ok3 || !ok5 {
+			return nil, errors.New("spawn_crew_n: blueprint, home_room_tag, work_room_tag must be strings")
+		}
+		if count <= 0 {
+			return nil, nil
+		}
+
+		// Collect all rooms matching home tag on homeZ.
+		var homeRooms []generation.Room
+		if homeZ >= 0 && homeZ < len(ctx.FloorResults) {
+			for _, r := range ctx.FloorResults[homeZ].Rooms {
+				if r.Tag == homeTag {
+					homeRooms = append(homeRooms, r)
+				}
+			}
+		}
+		if len(homeRooms) == 0 {
+			return nil, nil
+		}
+
+		// Find a work room matching work tag on workZ (use first match).
+		workX, workY := 0, 0
+		if workZ >= 0 && workZ < len(ctx.FloorResults) {
+			for _, r := range ctx.FloorResults[workZ].Rooms {
+				if r.Tag == workTag {
+					workX = r.CenterX()
+					workY = r.CenterY()
+					break
+				}
+			}
+		}
+
+		spawned := 0
+		for spawned < count {
+			homeRoom := homeRooms[rand.Intn(len(homeRooms))]
+			placed := false
+			for tries := 0; tries < 80; tries++ {
+				w := max(1, homeRoom.Width-2)
+				h := max(1, homeRoom.Height-2)
+				x := homeRoom.X + 1 + rand.Intn(w)
+				y := homeRoom.Y + 1 + rand.Intn(h)
+				if ctx.Level.GetTileType(x, y, homeZ) != world.TypeFloor {
+					continue
+				}
+				if ctx.Level.Level.GetEntityAt(x, y, homeZ) != nil {
+					continue
+				}
+				e, err := factory.Create(blueprint, x, y)
+				if err != nil {
+					return nil, fmt.Errorf("spawn_crew_n: %w", err)
+				}
+				e.GetComponent(component.Position).(*component.PositionComponent).SetPosition(x, y, homeZ)
+				if e.HasComponent(component.Script) {
+					sc := e.GetComponent(component.Script).(*component.ScriptComponent)
+					if sc.Vars == nil {
+						sc.Vars = make(map[string]any)
+					}
+					sc.Vars["home_x"] = float64(homeRoom.CenterX())
+					sc.Vars["home_y"] = float64(homeRoom.CenterY())
+					sc.Vars["home_z"] = float64(homeZ)
+					sc.Vars["work_x"] = float64(workX)
+					sc.Vars["work_y"] = float64(workY)
+					sc.Vars["work_z"] = float64(workZ)
+				}
+				ctx.Level.AddEntity(e)
+				if e.HasComponent(component.Description) {
+					ctx.LastSpawned = e.GetComponent(component.Description).(*component.DescriptionComponent)
+				}
+				placed = true
+				break
+			}
+			if !placed {
+				break // no space left in home rooms
+			}
+			spawned++
+		}
+		return nil, nil
+	})
+
+	// set_relationship(name_a, name_b, bond_type) — links two named crew entities bidirectionally.
+	interp.RegisterFunc("set_relationship", func(args ...any) (any, error) {
+		if len(args) != 3 {
+			return nil, errors.New("set_relationship: expected 3 arguments (name_a, name_b, bond_type)")
+		}
+		nameA, ok1 := args[0].(string)
+		nameB, ok2 := args[1].(string)
+		bondType, ok3 := args[2].(string)
+		if !ok1 || !ok2 || !ok3 {
+			return nil, errors.New("set_relationship: all arguments must be strings")
+		}
+
+		findByName := func(name string) *ecs.Entity {
+			for _, e := range ctx.Level.Entities {
+				if e == nil || !e.HasComponent(component.Description) {
+					continue
+				}
+				dc := e.GetComponent(component.Description).(*component.DescriptionComponent)
+				if dc.Name == name {
+					return e
+				}
+			}
+			return nil
+		}
+
+		addBond := func(e *ecs.Entity, partnerName, bType string) {
+			if !e.HasComponent(component.Relationship) {
+				e.AddComponent(&component.RelationshipComponent{})
+			}
+			rc := e.GetComponent(component.Relationship).(*component.RelationshipComponent)
+			rc.Bonds = append(rc.Bonds, component.Bond{PartnerName: partnerName, Type: bType})
+		}
+
+		ea := findByName(nameA)
+		eb := findByName(nameB)
+		if ea == nil {
+			return nil, fmt.Errorf("set_relationship: entity %q not found", nameA)
+		}
+		if eb == nil {
+			return nil, fmt.Errorf("set_relationship: entity %q not found", nameB)
+		}
+		addBond(ea, nameB, bondType)
+		addBond(eb, nameA, bondType)
 		return nil, nil
 	})
 }

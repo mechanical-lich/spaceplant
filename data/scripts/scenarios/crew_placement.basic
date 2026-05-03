@@ -1,0 +1,107 @@
+function on_setup():
+    # Distribute crew across the station proportional to CrewCapacity.
+    # The budget is split into fixed roles first, then generic crew fill the rest.
+    #
+    # Floor layout (Z index):
+    #   0 = Engineering & Systems
+    #   1 = Logistics & Industry
+    #   2 = Habitation  (all crew sleep here)
+    #   3 = Commerce & Social
+    #   4 = Science & Research
+    #   5 = Operations & Command
+
+    let cap = get_crew_capacity()
+    let hab = 2
+
+    # --- Fixed specialist roles (always spawned if rooms exist) ---
+    # These are named/unique crew that anchor the story.
+
+    let eng_work = find_room_by_tag("engineering_workshop", 0)
+    if eng_work >= 0 then
+        let eng_home = find_room_by_tag("crew_quarters", hab)
+        if eng_home >= 0 then
+            spawn_crew("crew_engineer", hab, eng_home, 0, eng_work)
+            set_description("Chief Engineer. Responsible for reactor integrity.")
+        endif
+    endif
+
+    let sec_work = find_room_by_tag("security_office", 5)
+    if sec_work >= 0 then
+        let sec_home = find_room_by_tag("crew_quarters", hab)
+        if sec_home >= 0 then
+            spawn_crew("crew_security", hab, sec_home, 5, sec_work)
+            set_description("Security Chief.")
+        endif
+    endif
+
+    let med_work = find_room_by_tag("medical_bay", 4)
+    if med_work < 0 then
+        med_work = find_room_by_tag("medical_bay", 5)
+    endif
+    if med_work >= 0 then
+        let med_home = find_room_by_tag("officers_suite", hab)
+        if med_home < 0 then
+            med_home = find_room_by_tag("crew_quarters", hab)
+        endif
+        if med_home >= 0 then
+            spawn_crew("crew_medic", hab, med_home, 4, med_work)
+            set_description("Ship's Doctor.")
+        endif
+    endif
+
+    let sci_work = find_room_by_tag("general_lab", 4)
+    if sci_work >= 0 then
+        let sci_home = find_room_by_tag("officers_suite", hab)
+        if sci_home < 0 then
+            sci_home = find_room_by_tag("crew_quarters", hab)
+        endif
+        if sci_home >= 0 then
+            spawn_crew("crew_scientist", hab, sci_home, 4, sci_work)
+            set_description("Lead Researcher.")
+        endif
+    endif
+
+    let bridge = find_room_by_tag("bridge", 5)
+    if bridge >= 0 then
+        let off_home = find_room_by_tag("officers_suite", hab)
+        if off_home < 0 then
+            off_home = find_room_by_tag("crew_quarters", hab)
+        endif
+        if off_home >= 0 then
+            spawn_crew("crew_officer", hab, off_home, 5, bridge)
+            set_description("Executive Officer. In command while the captain is... unaccounted for.")
+        endif
+    endif
+
+    let mess = find_room_by_tag("mess_hall", 3)
+    if mess >= 0 then
+        let cook_home = find_room_by_tag("crew_quarters", hab)
+        if cook_home >= 0 then
+            spawn_crew("crew_cook", hab, cook_home, 3, mess)
+            set_description("Station Cook.")
+        endif
+    endif
+
+    # --- Scaled crew (budget fills remaining capacity) ---
+    # 6 fixed above; scale additional crew with remaining budget.
+
+    let remaining = cap - 6
+    if remaining < 0 then
+        remaining = 0
+    endif
+
+    # Allocate remaining budget: ~35% engineers, ~20% security,
+    # ~20% scientists, ~15% medics, ~10% generic crew.
+
+    let n_eng  = remaining * 35 / 100
+    let n_sec  = remaining * 20 / 100
+    let n_sci  = remaining * 20 / 100
+    let n_med  = remaining * 15 / 100
+    let n_gen  = remaining - n_eng - n_sec - n_sci - n_med
+
+    spawn_crew_n("crew_engineer",  n_eng, hab, "crew_quarters", 0, "engineering_workshop")
+    spawn_crew_n("crew_security",  n_sec, hab, "crew_quarters", 5, "security_office")
+    spawn_crew_n("crew_scientist", n_sci, hab, "officers_suite", 4, "general_lab")
+    spawn_crew_n("crew_medic",     n_med, hab, "crew_quarters",  4, "medical_bay")
+    spawn_crew_n("crewmember",     n_gen, hab, "crew_quarters",  3, "mess_hall")
+endfunction

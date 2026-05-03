@@ -1,0 +1,163 @@
+function on_turn_taken():
+    let sight = 8
+
+    # Read personality
+    let bravery = get_var("bravery")
+    let sanity  = get_var("sanity")
+
+    # Check for bond-death flag set by BondDeathListener
+    let bond_broken = get_var("_bond_broken")
+    if bond_broken <> "" then
+        set_var("_bond_broken", "")
+        if bond_broken = "spouse" then
+            sanity = sanity - 30
+        else
+            sanity = sanity - 10
+        endif
+        if sanity < 0 then
+            sanity = 0
+        endif
+        set_var("sanity", sanity)
+        if sanity <= 0 then
+            set_var("_state", "berserk")
+        endif
+    endif
+
+    let state = get_var("_state")
+    if state = "" then
+        state = "routine"
+        set_var("_state", "routine")
+    endif
+
+    # Berserk overrides everything
+    if sanity <= 0 then
+        state = "berserk"
+        set_var("_state", "berserk")
+    endif
+
+    if state = "berserk" then
+        let dist = find_nearest_enemy(sight + 4)
+        if dist >= 0 then
+            let tx = get_target_x()
+            let ty = get_target_y()
+            if dist <= 1 then
+                attack(tx, ty)
+            else
+                move_toward(tx, ty)
+            endif
+        else
+            move_random()
+        endif
+        return
+    endif
+
+    # Ordered states (Phase 4 hooks)
+    if state = "stay" then
+        return
+    endif
+
+    if state = "follow" then
+        let px = get_var("_order_target_x")
+        let py = get_var("_order_target_y")
+        if px <> "" then
+            let dist = distance_to(px, py)
+            if dist > 1 then
+                move_toward(px, py)
+            endif
+        endif
+        return
+    endif
+
+    if state = "ordered_attack" then
+        let dist = find_nearest_enemy(sight)
+        if dist >= 0 then
+            let tx = get_target_x()
+            let ty = get_target_y()
+            if dist <= 1 then
+                attack(tx, ty)
+            else
+                move_toward(tx, ty)
+            endif
+        else
+            state = "routine"
+            set_var("_state", "routine")
+        endif
+        return
+    endif
+
+    # Combat check
+    let dist = find_nearest_enemy(sight)
+    if dist >= 0 then
+        let tx = get_target_x()
+        let ty = get_target_y()
+        let flee_threshold = 100 - bravery
+        if dist <= 3 then
+            if rnd_int(100) < flee_threshold then
+                set_var("_flee_from_x", tx)
+                set_var("_flee_from_y", ty)
+                state = "flee"
+                set_var("_state", "flee")
+            else
+                state = "hunt"
+                set_var("_state", "hunt")
+            endif
+        else
+            state = "hunt"
+            set_var("_state", "hunt")
+        endif
+    else
+        if state = "hunt" or state = "flee" then
+            state = "routine"
+            set_var("_state", "routine")
+        endif
+    endif
+
+    if state = "flee" then
+        let fx = get_var("_flee_from_x")
+        let fy = get_var("_flee_from_y")
+        move_away_from(fx, fy)
+        return
+    endif
+
+    if state = "hunt" then
+        let tx = get_target_x()
+        let ty = get_target_y()
+        if dist <= 1 then
+            attack(tx, ty)
+        else
+            move_toward(tx, ty)
+        endif
+        return
+    endif
+
+    # Routine: move toward work (day) or home (night)
+    let tod = get_flag("time_of_day")
+    let dest_x = 0
+    let dest_y = 0
+    let dest_z = 0
+
+    if tod = "day" then
+        dest_x = get_var("work_x")
+        dest_y = get_var("work_y")
+        dest_z = get_var("work_z")
+    else
+        dest_x = get_var("home_x")
+        dest_y = get_var("home_y")
+        dest_z = get_var("home_z")
+    endif
+
+    if dest_x <> "" then
+        let cx = get_x()
+        let cy = get_y()
+        let cz = get_z()
+        if cx = dest_x and cy = dest_y then
+            if rnd_int(100) < 30 then
+                move_random()
+            endif
+        else
+            move_toward(dest_x, dest_y)
+        endif
+    else
+        move_random()
+    endif
+endfunction

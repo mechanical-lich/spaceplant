@@ -270,5 +270,185 @@
         "HitLocationComponent": {
             "Weights": { "head": 10, "torso": 40, "right_arm": 15, "left_arm": 15, "legs": 15, "feet": 5 }
         }
+    },
+
+    "crew_engineer": {
+        "DescriptionComponent": {
+            "Name": "<CrewName> (Engineer)",
+            "Faction": "crew",
+            "LongDescription": "A ship engineer. Keeps the systems running.",
+            "PassOverDescription": ["You step over the engineer's body.", "The fallen engineer lies here."],
+            "DeathAnnouncements": ["The engineer is down!", "We lost an engineer.", "The engineer didn't make it."],
+            "ExcuseMeAnnouncements": ["Excuse me!", "Coming through!", "Watch it!"]
+        },
+        "LayeredAppearanceComponent": { "Randomize": true },
+        "AsciiAppearanceComponent": { "Character": "E", "R": 200, "G": 140, "B": 50 },
+        "BodyComponent": { "Parts": {
+            "head":      { "Name": "head",      "HP": 3, "MaxHP": 3, "KillsWhenBroken": true, "WoundRole": "head",  "CompatibleItemSlots": ["head"] },
+            "torso":     { "Name": "torso",     "HP": 5, "MaxHP": 5, "KillsWhenBroken": true, "WoundRole": "torso", "CompatibleItemSlots": ["torso"] },
+            "right_arm": { "Name": "right_arm", "HP": 3, "MaxHP": 3, "WoundRole": "arm", "CompatibleItemSlots": ["hand"] },
+            "left_arm":  { "Name": "left_arm",  "HP": 3, "MaxHP": 3, "WoundRole": "arm", "CompatibleItemSlots": ["hand"] },
+            "legs":      { "Name": "legs",      "HP": 3, "MaxHP": 3, "WoundRole": "leg", "CompatibleItemSlots": ["legs"] },
+            "feet":      { "Name": "feet",      "HP": 2, "MaxHP": 2, "WoundRole": "leg", "CompatibleItemSlots": ["feet"] }
+        }},
+        "BodyInventoryComponent": { "StartingInventory": ["laser_cutter", "engineer_shirt", "work_trousers", "workboots", "hardhat"] },
+        "SolidComponent": {},
+        "FoodComponent": { "Amount": 3 },
+        "ScriptComponent": { "ScriptPath": "data/scripts/crew_ai.basic", "Vars": { "sight_range": 10, "bravery": 50, "empathy": 60, "loyalty": 70, "sanity": 100 } },
+        "EnergyComponent": { "Speed": 100 },
+        "LightComponent": { "Radius": 8, "Brightness": 8, "R": 50, "G": 50, "B": 100 },
+        "StatsComponent": { "PH": 10, "AG": 12, "MA": 14, "CL": 10, "LD": 8, "CS": 15, "HTCS": 10 },
+        "HitLocationComponent": { "Weights": { "head": 10, "torso": 40, "right_arm": 15, "left_arm": 15, "legs": 15, "feet": 5 } },
+        "CrewComponent": { "Job": "engineer" }
+    },
+
+    "crew_medic": {
+        "DescriptionComponent": {
+            "Name": "<CrewName> (Medic)",
+            "Faction": "crew",
+            "LongDescription": "A ship medic. Patches up the crew and keeps them alive.",
+            "PassOverDescription": ["You step over the medic's body.", "The fallen medic lies here."],
+            "DeathAnnouncements": ["The medic is down!", "We lost our medic!", "The medic has fallen."],
+            "ExcuseMeAnnouncements": ["Excuse me!", "Move aside!", "Make way!"]
+        },
+        "LayeredAppearanceComponent": { "Randomize": true },
+        "AsciiAppearanceComponent": { "Character": "M", "R": 50, "G": 200, "B": 100 },
+        "BodyComponent": { "Parts": {
+            "head":      { "Name": "head",      "HP": 3, "MaxHP": 3, "KillsWhenBroken": true, "WoundRole": "head",  "CompatibleItemSlots": ["head"] },
+            "torso":     { "Name": "torso",     "HP": 5, "MaxHP": 5, "KillsWhenBroken": true, "WoundRole": "torso", "CompatibleItemSlots": ["torso"] },
+            "right_arm": { "Name": "right_arm", "HP": 3, "MaxHP": 3, "WoundRole": "arm", "CompatibleItemSlots": ["hand"] },
+            "left_arm":  { "Name": "left_arm",  "HP": 3, "MaxHP": 3, "WoundRole": "arm", "CompatibleItemSlots": ["hand"] },
+            "legs":      { "Name": "legs",      "HP": 3, "MaxHP": 3, "WoundRole": "leg", "CompatibleItemSlots": ["legs"] },
+            "feet":      { "Name": "feet",      "HP": 2, "MaxHP": 2, "WoundRole": "leg", "CompatibleItemSlots": ["feet"] }
+        }},
+        "BodyInventoryComponent": { "StartingInventory": ["scrubs", "scrub_shoes", "scrub_cap"] },
+        "SolidComponent": {},
+        "FoodComponent": { "Amount": 3 },
+        "ScriptComponent": { "ScriptPath": "data/scripts/crew_ai.basic", "Vars": { "sight_range": 10, "bravery": 35, "empathy": 90, "loyalty": 70, "sanity": 100 } },
+        "EnergyComponent": { "Speed": 100 },
+        "LightComponent": { "Radius": 8, "Brightness": 8, "R": 50, "G": 50, "B": 100 },
+        "StatsComponent": { "PH": 8, "AG": 12, "MA": 16, "CL": 10, "LD": 8, "CS": 10, "HTCS": 8 },
+        "HitLocationComponent": { "Weights": { "head": 10, "torso": 40, "right_arm": 15, "left_arm": 15, "legs": 15, "feet": 5 } },
+        "CrewComponent": { "Job": "medic" }
+    },
+
+    "crew_security": {
+        "DescriptionComponent": {
+            "Name": "<CrewName> (Security)",
+            "Faction": "crew",
+            "LongDescription": "Ship security. Trained to handle threats.",
+            "PassOverDescription": ["You step over the security officer's body.", "A fallen security officer lies here."],
+            "DeathAnnouncements": ["Security is down!", "We lost a guard!", "The security officer has fallen."],
+            "ExcuseMeAnnouncements": ["Move along!", "Out of the way!", "Clear the corridor!"]
+        },
+        "LayeredAppearanceComponent": { "Randomize": true },
+        "AsciiAppearanceComponent": { "Character": "S", "R": 180, "G": 80, "B": 80 },
+        "BodyComponent": { "Parts": {
+            "head":      { "Name": "head",      "HP": 4, "MaxHP": 4, "KillsWhenBroken": true, "WoundRole": "head",  "CompatibleItemSlots": ["head"] },
+            "torso":     { "Name": "torso",     "HP": 6, "MaxHP": 6, "KillsWhenBroken": true, "WoundRole": "torso", "CompatibleItemSlots": ["torso"] },
+            "right_arm": { "Name": "right_arm", "HP": 3, "MaxHP": 3, "WoundRole": "arm", "CompatibleItemSlots": ["hand"] },
+            "left_arm":  { "Name": "left_arm",  "HP": 3, "MaxHP": 3, "WoundRole": "arm", "CompatibleItemSlots": ["hand"] },
+            "legs":      { "Name": "legs",      "HP": 3, "MaxHP": 3, "WoundRole": "leg", "CompatibleItemSlots": ["legs"] },
+            "feet":      { "Name": "feet",      "HP": 2, "MaxHP": 2, "WoundRole": "leg", "CompatibleItemSlots": ["feet"] }
+        }},
+        "BodyInventoryComponent": { "StartingInventory": ["security_pistol", "combat_knife", "security_shirt", "security_trousers", "security_boots", "security_hat"] },
+        "SolidComponent": {},
+        "FoodComponent": { "Amount": 3 },
+        "ScriptComponent": { "ScriptPath": "data/scripts/crew_ai.basic", "Vars": { "sight_range": 12, "bravery": 80, "empathy": 40, "loyalty": 80, "sanity": 100 } },
+        "EnergyComponent": { "Speed": 100 },
+        "LightComponent": { "Radius": 8, "Brightness": 8, "R": 50, "G": 50, "B": 100 },
+        "StatsComponent": { "PH": 14, "AG": 12, "MA": 8, "CL": 10, "LD": 10, "CS": 35, "HTCS": 20 },
+        "HitLocationComponent": { "Weights": { "head": 10, "torso": 40, "right_arm": 15, "left_arm": 15, "legs": 15, "feet": 5 } },
+        "CrewComponent": { "Job": "security" }
+    },
+
+    "crew_scientist": {
+        "DescriptionComponent": {
+            "Name": "<CrewName> (Scientist)",
+            "Faction": "crew",
+            "LongDescription": "A ship scientist. Studies, analyses, and occasionally panics.",
+            "PassOverDescription": ["You step over the scientist's body.", "A fallen scientist lies here."],
+            "DeathAnnouncements": ["The scientist is down!", "We lost a researcher.", "The scientist has fallen."],
+            "ExcuseMeAnnouncements": ["Excuse me!", "Pardon me!", "Coming through!"]
+        },
+        "LayeredAppearanceComponent": { "Randomize": true },
+        "AsciiAppearanceComponent": { "Character": "R", "R": 150, "G": 100, "B": 220 },
+        "BodyComponent": { "Parts": {
+            "head":      { "Name": "head",      "HP": 3, "MaxHP": 3, "KillsWhenBroken": true, "WoundRole": "head",  "CompatibleItemSlots": ["head"] },
+            "torso":     { "Name": "torso",     "HP": 5, "MaxHP": 5, "KillsWhenBroken": true, "WoundRole": "torso", "CompatibleItemSlots": ["torso"] },
+            "right_arm": { "Name": "right_arm", "HP": 3, "MaxHP": 3, "WoundRole": "arm", "CompatibleItemSlots": ["hand"] },
+            "left_arm":  { "Name": "left_arm",  "HP": 3, "MaxHP": 3, "WoundRole": "arm", "CompatibleItemSlots": ["hand"] },
+            "legs":      { "Name": "legs",      "HP": 3, "MaxHP": 3, "WoundRole": "leg", "CompatibleItemSlots": ["legs"] },
+            "feet":      { "Name": "feet",      "HP": 2, "MaxHP": 2, "WoundRole": "leg", "CompatibleItemSlots": ["feet"] }
+        }},
+        "BodyInventoryComponent": { "StartingInventory": ["lab_coat", "scrubs", "scrub_shoes", "scrub_cap"] },
+        "SolidComponent": {},
+        "FoodComponent": { "Amount": 3 },
+        "ScriptComponent": { "ScriptPath": "data/scripts/crew_ai.basic", "Vars": { "sight_range": 10, "bravery": 25, "empathy": 65, "loyalty": 60, "sanity": 100 } },
+        "EnergyComponent": { "Speed": 100 },
+        "LightComponent": { "Radius": 8, "Brightness": 8, "R": 50, "G": 50, "B": 100 },
+        "StatsComponent": { "PH": 8, "AG": 10, "MA": 18, "CL": 12, "LD": 8, "CS": 10, "HTCS": 8 },
+        "HitLocationComponent": { "Weights": { "head": 10, "torso": 40, "right_arm": 15, "left_arm": 15, "legs": 15, "feet": 5 } },
+        "CrewComponent": { "Job": "scientist" }
+    },
+
+    "crew_cook": {
+        "DescriptionComponent": {
+            "Name": "<CrewName> (Cook)",
+            "Faction": "crew",
+            "LongDescription": "The ship's cook. Keeps morale up with a hot meal.",
+            "PassOverDescription": ["You step over the cook's body.", "The fallen cook lies here."],
+            "DeathAnnouncements": ["The cook is down!", "We lost the cook!", "The cook has fallen."],
+            "ExcuseMeAnnouncements": ["Hot stuff, coming through!", "Excuse me!", "Move aside, please!"]
+        },
+        "LayeredAppearanceComponent": { "Randomize": true },
+        "AsciiAppearanceComponent": { "Character": "K", "R": 220, "G": 200, "B": 80 },
+        "BodyComponent": { "Parts": {
+            "head":      { "Name": "head",      "HP": 3, "MaxHP": 3, "KillsWhenBroken": true, "WoundRole": "head",  "CompatibleItemSlots": ["head"] },
+            "torso":     { "Name": "torso",     "HP": 5, "MaxHP": 5, "KillsWhenBroken": true, "WoundRole": "torso", "CompatibleItemSlots": ["torso"] },
+            "right_arm": { "Name": "right_arm", "HP": 3, "MaxHP": 3, "WoundRole": "arm", "CompatibleItemSlots": ["hand"] },
+            "left_arm":  { "Name": "left_arm",  "HP": 3, "MaxHP": 3, "WoundRole": "arm", "CompatibleItemSlots": ["hand"] },
+            "legs":      { "Name": "legs",      "HP": 3, "MaxHP": 3, "WoundRole": "leg", "CompatibleItemSlots": ["legs"] },
+            "feet":      { "Name": "feet",      "HP": 2, "MaxHP": 2, "WoundRole": "leg", "CompatibleItemSlots": ["feet"] }
+        }},
+        "BodyInventoryComponent": { "StartingInventory": ["crew_shirt", "uniform_trousers", "crew_shoes", "crew_hat"] },
+        "SolidComponent": {},
+        "FoodComponent": { "Amount": 3 },
+        "ScriptComponent": { "ScriptPath": "data/scripts/crew_ai.basic", "Vars": { "sight_range": 8, "bravery": 30, "empathy": 70, "loyalty": 65, "sanity": 100 } },
+        "EnergyComponent": { "Speed": 100 },
+        "LightComponent": { "Radius": 8, "Brightness": 8, "R": 50, "G": 50, "B": 100 },
+        "StatsComponent": { "PH": 10, "AG": 10, "MA": 10, "CL": 14, "LD": 8, "CS": 12, "HTCS": 8 },
+        "HitLocationComponent": { "Weights": { "head": 10, "torso": 40, "right_arm": 15, "left_arm": 15, "legs": 15, "feet": 5 } },
+        "CrewComponent": { "Job": "cook" }
+    },
+
+    "crew_officer": {
+        "DescriptionComponent": {
+            "Name": "<CrewName> (Officer)",
+            "Faction": "crew",
+            "LongDescription": "A ranking officer of the ship.",
+            "PassOverDescription": ["You step over the officer's body.", "The fallen officer lies here."],
+            "DeathAnnouncements": ["An officer is down!", "The officer has been killed.", "Officer down!"],
+            "ExcuseMeAnnouncements": ["Out of the way!", "Make a hole!", "Excuse me, coming through.", "Mind yourself!"]
+        },
+        "LayeredAppearanceComponent": { "Randomize": true },
+        "AsciiAppearanceComponent": { "Character": "O", "R": 200, "G": 200, "B": 100 },
+        "BodyComponent": { "Parts": {
+            "head":      { "Name": "head",      "HP": 4, "MaxHP": 4, "KillsWhenBroken": true, "WoundRole": "head",  "CompatibleItemSlots": ["head"] },
+            "torso":     { "Name": "torso",     "HP": 6, "MaxHP": 6, "KillsWhenBroken": true, "WoundRole": "torso", "CompatibleItemSlots": ["torso"] },
+            "right_arm": { "Name": "right_arm", "HP": 3, "MaxHP": 3, "WoundRole": "arm", "CompatibleItemSlots": ["hand"] },
+            "left_arm":  { "Name": "left_arm",  "HP": 3, "MaxHP": 3, "WoundRole": "arm", "CompatibleItemSlots": ["hand"] },
+            "legs":      { "Name": "legs",      "HP": 3, "MaxHP": 3, "WoundRole": "leg", "CompatibleItemSlots": ["legs"] },
+            "feet":      { "Name": "feet",      "HP": 2, "MaxHP": 2, "WoundRole": "leg", "CompatibleItemSlots": ["feet"] }
+        }},
+        "BodyInventoryComponent": { "StartingInventory": ["officer_shirt", "uniform_trousers", "officer_shoes", "security_pistol"] },
+        "SolidComponent": {},
+        "FoodComponent": { "Amount": 3 },
+        "ScriptComponent": { "ScriptPath": "data/scripts/crew_ai.basic", "Vars": { "sight_range": 12, "bravery": 70, "empathy": 55, "loyalty": 80, "sanity": 100 } },
+        "EnergyComponent": { "Speed": 100 },
+        "LightComponent": { "Radius": 8, "Brightness": 8, "R": 50, "G": 50, "B": 100 },
+        "StatsComponent": { "PH": 12, "AG": 12, "MA": 12, "CL": 14, "LD": 18, "CS": 16, "HTCS": 14 },
+        "HitLocationComponent": { "Weights": { "head": 10, "torso": 40, "right_arm": 15, "left_arm": 15, "legs": 15, "feet": 5 } },
+        "CrewComponent": { "Job": "officer" }
     }
 }

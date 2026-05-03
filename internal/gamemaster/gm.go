@@ -10,7 +10,6 @@ import (
 	"github.com/mechanical-lich/spaceplant/internal/factory"
 	"github.com/mechanical-lich/spaceplant/internal/generation"
 	"github.com/mechanical-lich/spaceplant/internal/scenario"
-	"github.com/mechanical-lich/spaceplant/internal/stationconfig"
 	"github.com/mechanical-lich/spaceplant/internal/utility"
 	"github.com/mechanical-lich/spaceplant/internal/world"
 )
@@ -45,32 +44,15 @@ func pickTile(l *world.Level, z int, candidates [][2]int) (x, y int, ok bool) {
 	return 0, 0, false
 }
 
-// crewInitial is now read from stationconfig at runtime.
-
-var crew = []string{"crewmember", "officer"}
-
 type GameMaster struct {
 }
 
-// Init initialises the game master for floor z, spawning crew and scenario hostiles.
+// Init initialises the game master for floor z, spawning scenario hostiles.
+// Crew are placed by the scenario setup scripts (crew_placement.basic), not here.
 func (gm *GameMaster) Init(l *world.Level, z int, fr generation.FloorResult) {
 	themeName := ""
 	if fr.Theme != nil {
 		themeName = fr.Theme.Name
-	}
-
-	// Crew — random tile anywhere on the floor.
-	for i := 0; i < stationconfig.Get().CrewCapacity; i++ {
-		x, y, ok := pickTile(l, z, nil)
-		if !ok {
-			continue
-		}
-		blueprint := crew[utility.GetRandom(0, len(crew))]
-		entity, err := factory.Create(blueprint, x, y)
-		if err == nil {
-			entity.GetComponent("Position").(*component.PositionComponent).SetPosition(x, y, z)
-			l.AddEntity(entity)
-		}
 	}
 
 	s := scenario.Active()

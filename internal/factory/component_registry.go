@@ -57,4 +57,7 @@ jsonFactory.RegisterComponent("LayeredAppearanceComponent", func() ecs.Component
 	jsonFactory.RegisterComponent("SkillChipComponent", func() ecs.Component { return &component.SkillChipComponent{} })
 	jsonFactory.RegisterComponent("ScriptComponent", func() ecs.Component { return &component.ScriptComponent{} })
 	jsonFactory.RegisterComponent("ScriptableConditionComponent", func() ecs.Component { return &component.ScriptableConditionComponent{} })
+	jsonFactory.RegisterComponent("CrewComponent", func() ecs.Component { return &component.CrewComponent{} })
+	jsonFactory.RegisterComponent("PersonalityComponent", func() ecs.Component { return &component.PersonalityComponent{} })
+	jsonFactory.RegisterComponent("RelationshipComponent", func() ecs.Component { return &component.RelationshipComponent{} })
 }

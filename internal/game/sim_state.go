@@ -106,6 +106,11 @@ func NewMainSimState(sim *SimWorld) *MainSimState {
 		rlcomponents.DeathEventType,
 	)
 
+	event.GetQueuedInstance().RegisterListener(
+		&listeners.BondDeathListener{Sim: sim},
+		rlcomponents.DeathEventType,
+	)
+
 	wcl := &listeners.WinConditionListener{Sim: sim}
 	eventsystem.EventManager.RegisterListener(wcl, eventsystem.LifePodEscape)
 	event.GetQueuedInstance().RegisterListener(wcl, rlcomponents.DeathEventType)
@@ -204,6 +209,14 @@ func (s *MainSimState) Tick(_ any) simulation.SimulationState {
 		s.sim.Mu.Lock()
 		s.sim.TurnCount++
 		s.sim.TickCount = 0
+
+		// Update time-of-day flag (100-turn day, 100-turn night cycle).
+		const halfDay = 100
+		if (s.sim.TurnCount/halfDay)%2 == 0 {
+			s.sim.Level.Flags["time_of_day"] = "day"
+		} else {
+			s.sim.Level.Flags["time_of_day"] = "night"
+		}
 
 		playerGotTurn, _ := rlenergy.AdvanceEnergy(s.sim.Level.Entities, s.sim.Player)
 		applyPlantFoodBonus(s.sim.Level.Entities, s.sim.Level)
