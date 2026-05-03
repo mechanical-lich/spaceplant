@@ -35,6 +35,14 @@ func (l *Level) Render(aX, aY, z, width, height int, blind, centered bool) *ebit
 		down = aY + height
 	}
 
+	type deferredDoor struct {
+		entity     *ecs.Entity
+		tX, tY     float64
+		worldX, worldY int
+		lightLevel int
+	}
+	var deferred []deferredDoor
+
 	screenX := 0
 	screenY := 0
 	var entBuf []*ecs.Entity
@@ -58,12 +66,17 @@ func (l *Level) Render(aX, aY, z, width, height int, blind, centered bool) *ebit
 				l.DrawTile(output, tile, screenX, screenY, seen, z, cfg.TileSizeW, cfg.TileSizeH, cfg.ColorShading)
 
 				if seen {
-					// Draw entities on this tile
+					// Draw entities on this tile; defer door entities to a second pass
+					// so wall tiles below cannot overwrite their 48-px sprites.
 					entBuf = entBuf[:0]
 					l.Level.GetEntitiesAt(x, y, z, &entBuf)
 					tX := float64(screenX) * sw
 					tY := float64(screenY) * sh
 					for _, entity := range entBuf {
+						if entity.HasComponent(rlcomponents.Door) {
+							deferred = append(deferred, deferredDoor{entity, tX, tY, x, y, tile.LightLevel})
+							continue
+						}
 						DrawEntity(output, entity, tX, tY, x, y, cfg.TileSizeW, cfg.TileSizeH, cfg.ColorShading)
 					}
 
@@ -92,6 +105,15 @@ func (l *Level) Render(aX, aY, z, width, height int, blind, centered bool) *ebit
 			screenY++
 		}
 		screenX++
+	}
+
+	// Second pass: draw door entities on top of all tiles and reapply fog.
+	for _, d := range deferred {
+		DrawEntity(output, d.entity, d.tX, d.tY, d.worldX, d.worldY, cfg.TileSizeW, cfg.TileSizeH, cfg.ColorShading)
+		if cfg.Lighting {
+			fogColor := color.RGBA{0, 0, 0, uint8(d.lightLevel)}
+			ebitenutil.DrawRect(output, d.tX, d.tY+float64(-16), sw, float64(48), fogColor)
+		}
 	}
 
 
