@@ -468,11 +468,6 @@ func (s *SPClientState) Update(_ *transport.Snapshot) client.ClientState {
 		s.aimedShotView.Visible || s.nearbyLootView.Visible || s.deathModal.Visible ||
 		s.winModal.Visible || s.pauseMenu.Visible || s.cheatModal.Visible || s.stationMapModal.Visible
 	if !anyModalOpen && s.sim.Player != nil {
-		if s.targeting.Active {
-			s.sim.Mu.RLock()
-			s.updateAimLineToTarget()
-			s.sim.Mu.RUnlock()
-		}
 
 		// Any key press cancels the walk path immediately, even mid-turn.
 		if len(s.pendingPath) > 0 && len(inpututil.AppendJustPressedKeys(nil)) > 0 {
@@ -754,6 +749,24 @@ func playerHasRangedWeapon(player *ecs.Entity) bool {
 		}
 	}
 	return false
+}
+
+// playerWeaponRange returns the equipped ranged weapon's range, or 8 if none/unset.
+// Must be called with sim.Mu.RLock held.
+func playerWeaponRange(player *ecs.Entity) int {
+	equipped := playerEquipped(player)
+	for _, item := range equipped {
+		if item != nil && item.HasComponent(component.Weapon) {
+			wc := item.GetComponent(component.Weapon).(*component.WeaponComponent)
+			if wc.Ranged {
+				if wc.Range > 0 {
+					return wc.Range
+				}
+				return 8
+			}
+		}
+	}
+	return 8
 }
 
 // nearbyInventoryEntity returns the best inventory-bearing entity to show in

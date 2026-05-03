@@ -6,12 +6,12 @@ import (
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/inpututil"
 	"github.com/mechanical-lich/ml-rogue-lib/pkg/rlfov"
+	"github.com/mechanical-lich/ml-rogue-lib/pkg/rlmath"
 	"github.com/mechanical-lich/mlge/ecs"
 	"github.com/mechanical-lich/mlge/message"
 	"github.com/mechanical-lich/mlge/transport"
 	"github.com/mechanical-lich/spaceplant/internal/component"
 	"github.com/mechanical-lich/spaceplant/internal/config"
-	"github.com/mechanical-lich/ml-rogue-lib/pkg/rlmath"
 	"github.com/mechanical-lich/spaceplant/internal/keybindings"
 )
 
@@ -56,7 +56,7 @@ func (s *SPClientState) enterTargetingMode(burst bool) {
 	}
 	enemies := s.visibleEnemies()
 	if len(enemies) == 0 {
-		message.AddMessage("No targets in sight.")
+		message.AddMessage("No targets in range.")
 		return
 	}
 	s.targeting.Active = true
@@ -133,7 +133,7 @@ func (s *SPClientState) updateTargeting() bool {
 		s.targeting.cycleNext()
 		return true
 	}
-if inpututil.IsKeyJustPressed(ebiten.KeyEnter) || kb.IsJustPressed("fire") || kb.IsJustPressed("burst_fire") {
+	if inpututil.IsKeyJustPressed(ebiten.KeyEnter) || kb.IsJustPressed("fire") || kb.IsJustPressed("burst_fire") {
 		s.confirmTargeting()
 		return true
 	}
@@ -149,6 +149,10 @@ if inpututil.IsKeyJustPressed(ebiten.KeyEnter) || kb.IsJustPressed("fire") || kb
 			s.sim.Mu.RUnlock()
 		}
 	}
+
+	s.sim.Mu.RLock()
+	s.updateAimLineToTarget()
+	s.sim.Mu.RUnlock()
 	return true
 }
 
@@ -217,6 +221,7 @@ func (s *SPClientState) visibleEnemies() []*ecs.Entity {
 	}
 	pc := s.sim.Player.GetComponent(component.Position).(*component.PositionComponent)
 	px, py, pz := pc.GetX(), pc.GetY(), pc.GetZ()
+	maxRange := playerWeaponRange(s.sim.Player)
 	var result []*ecs.Entity
 	for _, e := range s.sim.Level.Level.GetEntities() {
 		if e == nil || e == s.sim.Player {
@@ -236,6 +241,10 @@ func (s *SPClientState) visibleEnemies() []*ecs.Entity {
 			continue
 		}
 		ex, ey := epc.GetX(), epc.GetY()
+		// Only include enemies within weapon range (Chebyshev distance).
+		if absInt(ex-px) > maxRange || absInt(ey-py) > maxRange {
+			continue
+		}
 		if !rlfov.Los(s.sim.Level.Level, px, py, ex, ey, pz) {
 			continue
 		}
@@ -297,7 +306,7 @@ func (s *SPClientState) updateAimLineToTarget() {
 	epc := t.GetComponent(component.Position).(*component.PositionComponent)
 	tx, ty := epc.GetX(), epc.GetY()
 
-	const maxRange = 16
+	maxRange := playerWeaponRange(s.sim.Player)
 	for _, tile := range rlmath.BresenhamLine(px, py, tx, ty) {
 		wx, wy := tile[0], tile[1]
 		s.aimLineTiles = append(s.aimLineTiles, [2]int{wx, wy})

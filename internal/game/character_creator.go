@@ -436,6 +436,15 @@ func (cc *CharacterCreator) refreshClassList() {
 		names[i] = d.Name
 	}
 	cc.classList.SetItems(names)
+
+	// Default to marine class.
+	for i, id := range cc.classIDs {
+		if id == "marine" {
+			cc.selectedClass = i
+			break
+		}
+	}
+
 	cc.refreshClassDesc()
 }
 
