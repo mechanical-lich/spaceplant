@@ -8,16 +8,17 @@ Weapons have their own accuracy modifiers, and distance affects ranged shots.
 
 ## Ranged Combat
 
-Fire in the direction you are facing. You must have a compatible weapon equipped and, if it uses a magazine, ammo loaded.
+Press **F** or **G** to enter targeting mode. The nearest visible enemy in your facing direction is selected and a line traces the exact shot path. Use **Tab** to cycle targets, then confirm with **Enter** or **F**. Press **Escape** to cancel.
 
-| Mode | Key | Energy | Accuracy | Notes |
+Shots travel along a true line to the target — not snapped to compass directions. Your character's facing updates automatically to reflect where you fired.
+
+| Mode | How to fire | Energy | Accuracy | Notes |
 |---|---|---|---|---|
-| Snap shot | F | Low | Standard | Quick shot. Spread weapons fire a wide pattern. |
-| Aimed shot | Shift+F | Medium | +10 CS | More accurate. Costs more energy. |
-| Targeted aimed shot | Shift+F | High | +10 CS | Opens a menu to choose which body part to aim for. |
-| Burst fire | G | Medium | +15 CS (first round) | Fires multiple rounds rapidly. Accuracy drops after the first shot. |
+| Aimed shot | F → Enter/F | Medium | +10 CS | Standard targeting mode shot. |
+| Targeted aimed shot | F → Shift+F → pick part | High | +10 CS | Choose a specific body part. High chance of hitting it. |
+| Burst fire | G → Enter/F | Medium | +15 CS (first round) | Fires multiple rounds. Accuracy drops after the first shot. |
 
-> **Targeted aimed shot:** When you press Shift+F and there is an enemy in your line of fire, a menu appears listing available body parts. Select one by clicking or pressing the number key shown (1–9). Your shot has a high chance of hitting the chosen part — modified by your CS score. If nothing is in front of you, a message is logged instead.
+> **Targeted aimed shot:** In targeting mode press **Shift+F** to open the body part picker for the current target. Select a part by clicking or pressing the number key shown (1–9). Your shot has a high chance of hitting the chosen part, modified by your CS score.
 
 ### Distance Modifiers
 

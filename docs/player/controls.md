@@ -24,10 +24,21 @@ Holding **Shift** while pressing a movement key rotates you to face that directi
 
 | Key | Action |
 |---|---|
-| F | Snap shot — fire in the direction you are facing |
-| Shift+F | Aimed shot — opens a body part targeting modal if a target is in your line of fire |
-| G | Burst fire — fire a rapid burst of rounds |
+| F | Enter targeting mode |
+| G | Enter targeting mode (burst fire) |
 | H | Heal |
+
+### Targeting Mode
+
+Pressing **F** or **G** opens targeting mode. The nearest visible enemy in your facing direction is selected automatically and a line traces the shot path.
+
+| Key | Action |
+|---|---|
+| Tab | Cycle to the next visible target |
+| Enter or F | Confirm and fire |
+| Shift+F | Open body part picker for the current target, then fire |
+| Left click | Select the enemy at the clicked tile |
+| Escape | Cancel and exit targeting mode |
 
 ## Inventory & Equipment
 
@@ -46,7 +57,7 @@ Holding **Shift** while pressing a movement key rotates you to face that directi
 | R | Toggle rush mode (faster movement, more energy) |
 | . (Period) | Use stairs |
 | Shift+C | Open class upgrade screen |
-| Escape | Close the current modal, or open the pause menu |
+| Escape | Cancel targeting mode, close the current modal, or open the pause menu |
 
 ## Pause Menu
 

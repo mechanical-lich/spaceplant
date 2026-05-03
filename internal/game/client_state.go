@@ -50,6 +50,7 @@ type SPClientState struct {
 	pressDelay       int
 	returnToTitle    bool
 	lastSavedTurn    int
+	targeting         *TargetingCursor
 	aimLineTiles      [][2]int // world-space tiles along the current mouse aim line
 	pendingPath       [][2]int // queued walk path from right-click; stepped one tile per turn
 	pathfinder        *path.AStar
@@ -67,6 +68,7 @@ func NewSPClientState(sim *SimWorld, simState *MainSimState, t transport.ClientT
 		mainView:   &GUIViewMain{},
 		pathfinder:      path.NewAStar(1024),
 		lastPathStepPos: [2]int{-1, -1},
+		targeting:       newTargetingCursor(),
 	}
 
 	if sim.Player == nil {
@@ -97,12 +99,6 @@ func (s *SPClientState) initGameViews() {
 		})
 	}
 	s.aimedShotView = NewAimedShotView()
-	s.aimedShotView.OnSelect = func(bodyPart string) {
-		s.transport.SendCommand(&transport.Command{
-			Type:    CmdAimedShot,
-			Payload: AimedShotPayload{BodyPart: bodyPart},
-		})
-	}
 	s.nearbyLootView = NewNearbyLootView()
 	s.nearbyLootView.OnPickup = func(item *ecs.Entity, tx, ty, tz int) {
 		s.transport.SendCommand(&transport.Command{
@@ -276,6 +272,11 @@ func (s *SPClientState) Update(_ *transport.Snapshot) client.ClientState {
 			s.classView.Visible = false
 			return nil
 		}
+		if s.targeting.Active {
+			s.targeting.exit()
+			s.aimLineTiles = s.aimLineTiles[:0]
+			return nil
+		}
 		if s.pauseMenu.Visible {
 			s.pauseMenu.Visible = false
 			return nil
@@ -344,6 +345,11 @@ func (s *SPClientState) Update(_ *transport.Snapshot) client.ClientState {
 
 	// Block game input while any modal is open.
 	if s.classView.Visible || s.statsView.Visible || s.reloadView.Visible || s.aimedShotView.Visible || s.nearbyLootView.Visible || s.deathModal.Visible || s.winModal.Visible || s.pauseMenu.Visible || s.cheatModal.Visible || s.stationMapModal.Visible {
+		return nil
+	}
+
+	// Targeting cursor mode intercepts all game input when active.
+	if hasTurn && s.updateTargeting() {
 		return nil
 	}
 
@@ -429,15 +435,10 @@ func (s *SPClientState) Update(_ *transport.Snapshot) client.ClientState {
 						})
 					}
 					s.pressDelay = config.Global().PressDelay
-				case "aimed_shot":
+				case "fire", "burst_fire", "aimed_shot":
 					s.sim.Mu.RLock()
-					target := s.rayTarget()
+					s.enterTargetingMode(action == "burst_fire")
 					s.sim.Mu.RUnlock()
-					if target == nil {
-						message.AddMessage("Nothing to aim at.")
-					} else {
-						s.aimedShotView.Open(target)
-					}
 					s.pressDelay = config.Global().PressDelay
 				case "":
 					// No binding — pass raw key string through for skill hotkeys.
@@ -467,9 +468,11 @@ func (s *SPClientState) Update(_ *transport.Snapshot) client.ClientState {
 		s.aimedShotView.Visible || s.nearbyLootView.Visible || s.deathModal.Visible ||
 		s.winModal.Visible || s.pauseMenu.Visible || s.cheatModal.Visible || s.stationMapModal.Visible
 	if !anyModalOpen && s.sim.Player != nil {
-		s.sim.Mu.RLock()
-		s.updateAimLine()
-		s.sim.Mu.RUnlock()
+		if s.targeting.Active {
+			s.sim.Mu.RLock()
+			s.updateAimLineToTarget()
+			s.sim.Mu.RUnlock()
+		}
 
 		// Any key press cancels the walk path immediately, even mid-turn.
 		if len(s.pendingPath) > 0 && len(inpututil.AppendJustPressedKeys(nil)) > 0 {
@@ -480,16 +483,14 @@ func (s *SPClientState) Update(_ *transport.Snapshot) client.ClientState {
 		s.setPathSpeed(len(s.pendingPath) > 0)
 
 		if hasTurn {
-			// Left click: shoot toward clicked tile.
+			// Left click: enter targeting mode aimed at clicked tile.
 			if inpututil.IsMouseButtonJustPressed(ebiten.MouseButtonLeft) {
 				tx, ty, onWorld := s.mouseWorldTile()
 				if onWorld {
-					s.pendingPath = s.pendingPath[:0] // cancel any walk
-					s.transport.SendCommand(&transport.Command{
-						Type:    CmdMouseShoot,
-						Payload: MouseShootPayload{TargetX: tx, TargetY: ty},
-					})
-					s.pressDelay = config.Global().PressDelay
+					s.pendingPath = s.pendingPath[:0]
+					s.sim.Mu.RLock()
+					s.enterTargetingModeAtTile(tx, ty)
+					s.sim.Mu.RUnlock()
 				}
 			}
 
@@ -905,6 +906,7 @@ func (s *SPClientState) Draw(screen *ebiten.Image) {
 
 	s.drawPendingPath(screen)
 	s.drawAimLine(screen)
+	s.drawTargetCursor(screen)
 
 	s.mainView.Draw(screen, s)
 	s.classView.Draw(screen)
